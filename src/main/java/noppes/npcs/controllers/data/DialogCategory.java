@@ -13,12 +13,6 @@ public class DialogCategory implements IDialogCategory {
 	public int id = -1;
 	public String title = "";
 
-	public DialogCategory copy() {
-		DialogCategory newCat = new DialogCategory();
-		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
-		return null;
-	}
-
 	@Override
 	public IDialog create() {
 		return new Dialog(this);
@@ -26,35 +20,41 @@ public class DialogCategory implements IDialogCategory {
 
 	@Override
 	public IDialog[] dialogs() {
-		return this.dialogs.values().toArray(new IDialog[0]);
+		return dialogs.values().toArray(new IDialog[0]);
 	}
 
 	@Override
 	public String getName() {
-		return this.title;
+		return title;
 	}
 
-	public void readNBT(NBTTagCompound compound) {
-		this.id = compound.getInteger("Slot");
-		this.title = compound.getString("Title");
+	public void load(NBTTagCompound compound) {
+		id = compound.getInteger("Slot");
+		title = compound.getString("Title");
 		NBTTagList dialogsList = compound.getTagList("Dialogs", 10);
-        for (int ii = 0; ii < dialogsList.tagCount(); ++ii) {
+        for (int i = 0; i < dialogsList.tagCount(); ++i) {
             Dialog dialog = new Dialog(this);
-            NBTTagCompound comp = dialogsList.getCompoundTagAt(ii);
-            dialog.readNBT(comp);
+            NBTTagCompound comp = dialogsList.getCompoundTagAt(i);
+            dialog.load(comp);
             dialog.id = comp.getInteger("DialogId");
-            this.dialogs.put(dialog.id, dialog);
+            dialogs.put(dialog.id, dialog);
         }
     }
 
-	public NBTTagCompound writeNBT(NBTTagCompound compound) {
-		compound.setInteger("Slot", this.id);
-		compound.setString("Title", this.title);
-		NBTTagList dialogs = new NBTTagList();
-		for (Dialog dialog : this.dialogs.values()) {
-			dialogs.appendTag(dialog.writeToNBT(new NBTTagCompound()));
-		}
-		compound.setTag("Dialogs", dialogs);
+	public NBTTagCompound save(NBTTagCompound compound) {
+		compound.setInteger("Slot", id);
+		compound.setString("Title", title);
+		NBTTagList list = new NBTTagList();
+		for (Dialog dialog : dialogs.values()) { list.appendTag(dialog.save(new NBTTagCompound())); }
+		compound.setTag("Dialogs", list);
 		return compound;
 	}
+
+	// New from Unofficial (BetaZavr)
+	public DialogCategory copy() {
+		DialogCategory newCat = new DialogCategory();
+		newCat.load(save(new NBTTagCompound()));
+		return newCat;
+	}
+
 }

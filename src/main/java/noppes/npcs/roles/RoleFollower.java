@@ -293,8 +293,9 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.FOLLOWER;
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
+		type = RoleType.FOLLOWER;
 		this.ownerUUID = compound.getString("MercenaryOwner");
 		this.daysHired = compound.getInteger("MercenaryDaysHired");
 		this.hiredTime = compound.getLong("MercenaryHiredTime");
@@ -355,8 +356,8 @@ public class RoleFollower extends RoleInterface implements IRoleFollower {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", RoleType.FOLLOWER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("MercenaryDaysHired", this.daysHired);
 		compound.setLong("MercenaryHiredTime", this.hiredTime);
 		compound.setString("MercenaryDialogHired", this.dialogHire);

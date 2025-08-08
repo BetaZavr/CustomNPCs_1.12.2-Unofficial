@@ -36,7 +36,8 @@ public class JobGuard extends JobInterface implements IJobGuard {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		type = JobType.GUARD;
 		targets.clear();
 		targets.addAll(NBTTags.getStringList(compound.getTagList("GuardTargets", 10)));
@@ -70,8 +71,8 @@ public class JobGuard extends JobInterface implements IJobGuard {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.GUARD.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.load(compound);
 		compound.setTag("GuardTargets", NBTTags.nbtStringList(targets));
 		return compound;
 	}

@@ -251,9 +251,7 @@ public class NoppesUtilPlayer {
 
 	public static void dialogSelected(int diaId, int optionId, EntityPlayerMP player, EntityNPCInterface npc) {
 		PlayerData data = PlayerData.get(player);
-		if (data.dialogId != diaId) {
-			return;
-		}
+		if (data.dialogId != diaId) { return; }
 		if (data.dialogId < 0 && npc.advanced.roleInterface instanceof RoleDialog) {
 			String text = ((RoleDialog) npc.advanced.roleInterface).optionsTexts.get(optionId);
 			if (text != null && !text.isEmpty()) {

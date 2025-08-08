@@ -72,7 +72,7 @@ implements ISubGuiListener {
 			}
 		}
 		role.options = map;
-		Client.sendData(EnumPacketServer.RoleSave, role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.RoleSave, role.save(new NBTTagCompound()));
 	}
 
 	@Override

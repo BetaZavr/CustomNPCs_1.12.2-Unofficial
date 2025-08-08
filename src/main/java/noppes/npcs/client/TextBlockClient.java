@@ -1,5 +1,6 @@
 package noppes.npcs.client;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,37 +23,37 @@ public class TextBlockClient extends TextBlock {
 	public Entity entity;
 	public String text;
 
-	public TextBlockClient(ICommandSender sender, String text, int lineWidth, int color, Entity entity, Object... obs) {
+	public TextBlockClient(ICommandSender senderIn, String text, int lineWidth, int colorIn, Entity entity, Object... obs) {
 		this(text, lineWidth, false, entity, obs);
-		this.color = color;
-		this.sender = sender;
+		color = colorIn;
+		sender = senderIn;
 	}
 
-	public TextBlockClient(String totalText, int lineWidth, boolean mcFont, Entity entity, Object... obs) {
-		this.color = 0xE0E0E0;
-		this.style = new Style();
-		this.entity = entity;
-		this.text = NoppesStringUtils.formatText(totalText, obs);
-		this.text = this.text.replace("\n", " \n ");
-		this.text = this.text.replace("\r", " \r ");
-		this.resetWidth(lineWidth, mcFont);
+	public TextBlockClient(String totalText, int lineWidth, boolean mcFont, Entity entityIn, Object... obs) {
+		color = new Color(0xE0E0E0).getRGB();
+		style = new Style();
+		entity = entityIn;
+		text = NoppesStringUtils.formatText(totalText, obs);
+		text = text.replace("\n", " \n ");
+		text = text.replace("\r", " \r ");
+		resetWidth(lineWidth, mcFont);
 	}
 
-	public TextBlockClient(String name, String text, int lineWidth, int color, Entity entity, Object... obs) {
+	public TextBlockClient(String nameIn, String text, int lineWidth, int colorIn, Entity entity, Object... obs) {
 		this(text, lineWidth, false, entity, obs);
-		this.color = color;
-		this.name = name;
+		color = colorIn;
+		name = nameIn;
 	}
 
 	private void addLine(String text) { // Change
 		TextComponentString line = new TextComponentString(text);
-		line.setStyle(this.style);
-		this.lines.add(line);
+		line.setStyle(style);
+		lines.add(line);
 	}
 
 	public String getName() {
-		if (this.sender != null) { return this.sender.getName(); }
-		return this.name;
+		if (sender != null) { return sender.getName(); }
+		return name;
 	}
 
 	public void resetWidth(int lineWidth, boolean mcFont) {
@@ -66,7 +67,7 @@ public class TextBlockClient extends TextBlock {
 			if (word.length() == 1) {
 				char c = word.charAt(0);
 				if (c == '\r' || c == '\n') {
-					this.addLine(color + line);
+					addLine(color + line);
 					color = Util.instance.getLastColor(color, line);
 					line = "";
 					continue;
@@ -75,19 +76,19 @@ public class TextBlockClient extends TextBlock {
 			String newLine = line + word;
 			int widthLine = (mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine));
 			if (widthLine > lineWidth && !line.isEmpty()) {
-				this.addLine(color + line);
+				addLine(color + line);
 				color = Util.instance.getLastColor(color, line);
 				line = word;
 			}
 			else { line = newLine; }
 		}
 		if (!line.isEmpty()) {
-			this.addLine(color + line);
+			addLine(color + line);
 		}
 	}
 
 	private List<String> getStrings() {
-		String tempText = this.text;
+		String tempText = text;
 		List<String> tempList = new ArrayList<>();
 		int fm;
 		while (true) {

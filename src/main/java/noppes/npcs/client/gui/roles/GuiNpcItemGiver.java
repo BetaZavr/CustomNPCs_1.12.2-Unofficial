@@ -96,6 +96,6 @@ extends GuiContainerNPCInterface2 {
 			cc = getTextField(0).getInteger();
 		}
 		role.cooldown = cc;
-		Client.sendData(EnumPacketServer.JobSave, role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, role.save(new NBTTagCompound()));
 	}
 }

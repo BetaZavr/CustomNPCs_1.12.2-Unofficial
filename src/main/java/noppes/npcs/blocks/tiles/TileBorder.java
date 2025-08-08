@@ -91,7 +91,7 @@ implements Predicate, ITickable {
 	}
 
 	public void readExtraNBT(NBTTagCompound compound) {
-		availability.readFromNBT(compound.getCompoundTag("BorderAvailability"));
+		availability.load(compound.getCompoundTag("BorderAvailability"));
 		rotation = compound.getInteger("BorderRotation");
 		height = compound.getInteger("BorderHeight");
 		message = compound.getString("BorderMessage");
@@ -129,7 +129,7 @@ implements Predicate, ITickable {
 	}
 
 	public void writeExtraNBT(NBTTagCompound compound) {
-		compound.setTag("BorderAvailability", availability.writeToNBT(new NBTTagCompound()));
+		compound.setTag("BorderAvailability", availability.save(new NBTTagCompound()));
 		compound.setInteger("BorderRotation", rotation);
 		compound.setInteger("BorderHeight", height);
 		compound.setString("BorderMessage", message);

@@ -183,10 +183,11 @@ public class JobConversation extends JobInterface implements IJobConversation {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = JobType.CONVERSATION;
 		this.names.clear();
-		this.availability.readFromNBT(compound.getCompoundTag("ConversationAvailability"));
+		this.availability.load(compound.getCompoundTag("ConversationAvailability"));
 		this.quest = compound.getInteger("ConversationQuest");
 		this.generalDelay = compound.getInteger("ConversationDelay");
 		this.questTitle = compound.getString("ConversationQuestTitle");
@@ -264,9 +265,9 @@ public class JobConversation extends JobInterface implements IJobConversation {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.CONVERSATION.get());
-		compound.setTag("ConversationAvailability", this.availability.writeToNBT(new NBTTagCompound()));
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
+		compound.setTag("ConversationAvailability", this.availability.save(new NBTTagCompound()));
 		compound.setInteger("ConversationQuest", this.quest);
 		compound.setInteger("ConversationDelay", this.generalDelay);
 		compound.setInteger("ConversationRange", this.range);

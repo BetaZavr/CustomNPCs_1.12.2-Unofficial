@@ -81,7 +81,7 @@ public class JobInterface implements INPCJob {
 	public void killed() {
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		this.type = JobType.get(compound.getInteger("Type"));
 	}
 
@@ -112,7 +112,7 @@ public class JobInterface implements INPCJob {
 		return new ItemStack(item, 1, damage);
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound save(NBTTagCompound compound) {
 		compound.setInteger("Type", this.type.get());
 		return compound;
 	}

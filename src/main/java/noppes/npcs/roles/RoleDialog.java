@@ -79,7 +79,8 @@ public class RoleDialog extends RoleInterface implements IRoleDialog {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = RoleType.DIALOG;
 		this.questId = compound.getInteger("RoleQuestId");
 		this.dialog = compound.getString("RoleDialog");
@@ -109,8 +110,8 @@ public class RoleDialog extends RoleInterface implements IRoleDialog {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", RoleType.DIALOG.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("RoleQuestId", this.questId);
 		compound.setString("RoleDialog", this.dialog);
 		compound.setTag("RoleOptions", NBTTags.nbtIntegerStringMap(this.options));

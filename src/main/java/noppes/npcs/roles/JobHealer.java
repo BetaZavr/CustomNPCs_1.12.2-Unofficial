@@ -1,6 +1,7 @@
 package noppes.npcs.roles;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -11,8 +12,10 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobHealer;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -21,6 +24,7 @@ import noppes.npcs.util.ValueUtil;
 
 public class JobHealer extends JobInterface implements IJobHealer {
 
+	// New from Unofficial (BetaZavr)
 	private final Map<Integer, List<EntityLivingBase>> affected = new HashMap<>();
 	private final Random rnd = new Random();
 	public Map<Integer, HealerSettings> effects = new HashMap<>(); // [ID, settings]
@@ -36,9 +40,7 @@ public class JobHealer extends JobInterface implements IJobHealer {
 	}
 
 	@Override
-	public boolean aiContinueExecute() {
-		return false;
-	}
+	public boolean aiContinueExecute() { return false; }
 
 	@Override
 	public boolean aiShouldExecute() {
@@ -67,54 +69,35 @@ public class JobHealer extends JobInterface implements IJobHealer {
 		boolean activated = false;
 		for (Integer id : affected.keySet()) {
 			Potion potion = Potion.getPotionById(id);
-			if (potion == null) {
-				continue;
-			}
+			if (potion == null) { continue; }
 			HealerSettings hs = effects.get(id);
 			if (!hs.isMassive) {
-				if (affected.get(id).isEmpty()) {
-					continue;
-				}
+				if (affected.get(id).isEmpty()) { continue; }
 				EntityLivingBase entity = null;
 				try {
-					entity = affected.get(id).get(rnd.nextInt(affected.get(id).size()));
+					List<EntityLivingBase> filteredEntities = affected.get(id).stream()
+							.filter(e -> e.getActivePotionEffects().stream().noneMatch(effect -> effect.getPotion() == potion))
+							.collect(Collectors.toList());
+					if (!filteredEntities.isEmpty()) { entity = filteredEntities.get(rnd.nextInt(filteredEntities.size())); }
 				} catch (Exception e) { LogWriter.error(e); }
 				if (entity != null) {
 					boolean isEnemy = isEnemy(entity);
-					boolean canAdd = true;
-					switch (hs.type) {
-					case (byte) 0:
-						canAdd = !isEnemy;
-						break;
-					case (byte) 1:
-						canAdd = isEnemy;
-						break;
-					}
-					if (canAdd) {
+					if (hs.type == 2 || (hs.type == 0 && !isEnemy) || (hs.type == 1 && isEnemy)) {
 						entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
 						activated = true;
+						if (entity != npc && (!CustomNpcs.ShowCustomAnimation || !npc.animation.isAnimated(AnimationKind.ATTACKING, AnimationKind.INIT, AnimationKind.INTERACT, AnimationKind.DIES))) {
+							npc.getLookHelper().setLookPositionWithEntity(entity, 10.0f, npc.getVerticalFaceSpeed());
+						}
 					}
 				}
 			} else {
 				for (EntityLivingBase entity : affected.get(id)) {
-					if ((entity instanceof EntityMob || entity instanceof EntityAnimal) && !hs.possibleOnMobs) {
-						continue;
-					}
+					if ((entity instanceof EntityMob || entity instanceof EntityAnimal) && !hs.possibleOnMobs) { continue; }
 					boolean isEnemy = isEnemy(entity);
-					boolean next = false;
-					switch (hs.type) {
-					case (byte) 0:
-						next = isEnemy;
-						break;
-					case (byte) 1:
-						next = !isEnemy;
-						break;
+					if (hs.type == 2 || (hs.type == 0 && !isEnemy) || (hs.type == 1 && isEnemy)) {
+						entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
+						activated = true;
 					}
-					if (next) {
-						continue;
-					}
-					entity.addPotionEffect(new PotionEffect(potion, hs.time, hs.amplifier));
-					activated = true;
 				}
 			}
 		}
@@ -128,17 +111,9 @@ public class JobHealer extends JobInterface implements IJobHealer {
 		}
 	}
 
-	private boolean isEnemy(EntityLivingBase entity) {
-		if (entity instanceof EntityPlayer) {
-			return npc.faction.isAggressiveToPlayer((EntityPlayer) entity);
-		} else if (entity instanceof EntityNPCInterface) {
-			return npc.faction.isAggressiveToNpc((EntityNPCInterface) entity);
-		}
-		return (entity instanceof EntityMob);
-	}
-
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		type = JobType.HEALER;
 		effects.clear();
 		if (compound.hasKey("HealerData", 9)) {
@@ -159,14 +134,19 @@ public class JobHealer extends JobInterface implements IJobHealer {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.HEALER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		NBTTagList list = new NBTTagList();
-		for (HealerSettings hs : effects.values()) {
-			list.appendTag(hs.writeNBT());
-		}
+		for (HealerSettings hs : effects.values()) { list.appendTag(hs.writeNBT()); }
 		compound.setTag("HealerData", list);
-
 		return compound;
 	}
+
+	// New from Unofficial (BetaZavr)
+	private boolean isEnemy(EntityLivingBase entity) {
+		if (entity instanceof EntityPlayer) { return npc.faction.isAggressiveToPlayer((EntityPlayer) entity); }
+		else if (entity instanceof EntityNPCInterface) { return npc.faction.isAggressiveToNpc((EntityNPCInterface) entity); }
+		return (entity instanceof EntityMob);
+	}
+
 }

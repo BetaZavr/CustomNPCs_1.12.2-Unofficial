@@ -129,7 +129,7 @@ implements ITextfieldListener, ISliderListener {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.RoleSave, role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.RoleSave, role.save(new NBTTagCompound()));
 	}
 
 	@Override

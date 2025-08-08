@@ -83,12 +83,12 @@ implements IGuiData, ISubGuiListener {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.save(new NBTTagCompound()));
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.npc.advanced.readToNBT(compound);
+		this.npc.advanced.load(compound);
 		this.initGui();
 	}
 

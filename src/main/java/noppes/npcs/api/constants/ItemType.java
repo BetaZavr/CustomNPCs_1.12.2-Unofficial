@@ -2,7 +2,13 @@ package noppes.npcs.api.constants;
 
 public enum ItemType {
 
-	ARMOR(3), BLOCK(2), BOOK(1), NORMAL(0), SCRIPTED(6), SEEDS(5), SWORD(4);
+	NORMAL(0),
+	BOOK(1),
+	BLOCK(2),
+	ARMOR(3),
+	SWORD(4),
+	SEEDS(5),
+	SCRIPTED(6);
 
 	final int type;
 

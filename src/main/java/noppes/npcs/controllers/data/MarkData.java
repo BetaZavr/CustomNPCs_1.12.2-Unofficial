@@ -149,7 +149,7 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 			NBTTagCompound c = new NBTTagCompound();
 			c.setInteger("type", m.type);
 			c.setInteger("color", m.color);
-			c.setTag("availability", m.availability.writeToNBT(new NBTTagCompound()));
+			c.setTag("availability", m.availability.save(new NBTTagCompound()));
 			c.setBoolean("rotate", m.rotate);
 			c.setBoolean("is3d", m.is3d);
 			list.appendTag(c);
@@ -179,7 +179,7 @@ public class MarkData implements IMarkDataHandler, ICapabilityProvider {
 			Mark m = new Mark();
 			m.type = c.getInteger("type");
 			m.color = c.getInteger("color");
-			m.availability.readFromNBT(c.getCompoundTag("availability"));
+			m.availability.load(c.getCompoundTag("availability"));
 			m.rotate = c.getBoolean("rotate");
 			m.is3d = c.getBoolean("is3d");
 			marks.add(m);

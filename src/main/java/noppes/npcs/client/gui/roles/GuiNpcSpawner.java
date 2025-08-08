@@ -434,7 +434,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 
 	@Override
 	public void save() {
-		NBTTagCompound compound = job.writeToNBT(new NBTTagCompound());
+		NBTTagCompound compound = job.save(new NBTTagCompound());
 		job.removeCompound(compound);
 		Client.sendData(EnumPacketServer.JobSave, compound);
 	}
@@ -462,7 +462,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 		}
 		// Setts
 		char chr = ((char) 167);
-		job.readFromNBT(compound);
+		job.load(compound);
 		for (int j = 0; j < 2; j++) {
 			boolean type = j == 0;
 			List<String> list = new ArrayList<>();

@@ -277,7 +277,8 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		type = JobType.FARMER;
 		chestMode = compound.getInteger("JobChestMode");
 		holding = new ItemStack(compound.getCompoundTag("JobHolding"));
@@ -298,8 +299,8 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.FARMER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("JobChestMode", chestMode);
 		if (!holding.isEmpty()) {
 			compound.setTag("JobHolding", holding.writeToNBT(new NBTTagCompound()));

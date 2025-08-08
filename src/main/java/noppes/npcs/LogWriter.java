@@ -2,6 +2,7 @@ package noppes.npcs;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LogWriter {
 
@@ -14,11 +15,9 @@ public class LogWriter {
 				methodName = methodName.substring(0, methodName.indexOf("$"));
 			}
 		}
-		if (caller.getClassName().equals("noppes.npcs.util.DataDebug")) {
-			LogManager.getLogger(caller.getClassName()).log(level, "{}", msg);
-		} else {
-			LogManager.getLogger(caller.getClassName()).log(level, "{}(Line#{}): {}", methodName, caller.getLineNumber(), msg);
-		}
+		Logger logger = LogManager.getLogger(caller.getClassName());
+		if (caller.getClassName().equals("noppes.npcs.util.DataDebug")) { logger.log(level, "{}", msg); }
+		else { logger.log(level, "[Line #{}] {} \"{}\"", caller.getLineNumber(), methodName, msg); }
 	}
 
 	public static void debug(String msg) {

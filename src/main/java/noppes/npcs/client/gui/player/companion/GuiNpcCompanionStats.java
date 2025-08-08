@@ -182,6 +182,6 @@ implements IGuiData {
 
     @Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.role.readFromNBT(compound);
+		role.load(compound);
 	}
 }

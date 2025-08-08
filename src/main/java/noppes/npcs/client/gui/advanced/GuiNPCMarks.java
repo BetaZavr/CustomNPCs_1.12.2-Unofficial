@@ -24,23 +24,25 @@ import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiNPCMarks
 extends GuiNPCInterface2
-implements ISubGuiListener, ICustomScrollListener {
+implements ICustomScrollListener {
 
-	private static final String[] marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
+	protected static final String[] marks = new String[] { "gui.none", "mark.question", "mark.exclamation", "mark.pointer", "mark.skull", "mark.cross", "mark.star" };
+	protected final MarkData data;
+	protected MarkData.Mark selectedMark;
 
-	private final MarkData data;
-	private final MarkData dataDisplay;
-	private final EntityNPCInterface npcDisplay;
-	private GuiCustomScroll scroll;
-	private MarkData.Mark selectedMark;
-	private String selMark = "";
+	// New from Unofficial Betazavr
+	protected final MarkData dataDisplay;
+	protected final EntityNPCInterface npcDisplay;
+	protected GuiCustomScroll scroll;
+	protected String selMark = "";
 	public final GuiScreen parent;
 
 	public GuiNPCMarks(EntityNPCInterface npc, GuiScreen gui) {
 		super(npc);
-		parent = gui;
 		data = MarkData.get(npc);
-		npcDisplay = new EntityCustomNpc(npc.world);
+
+		parent = gui;
+		npcDisplay = new EntityCustomNpc(mc.world);
 		NBTTagCompound nbtData = new NBTTagCompound();
 		npc.writeEntityToNBT(nbtData);
 		npcDisplay.readEntityFromNBT(nbtData);
@@ -60,7 +62,20 @@ implements ISubGuiListener, ICustomScrollListener {
 				break;
 			}
 			case 1: {
-				setSubGui(new SubGuiColorSelector(selectedMark.color));
+				setSubGui(new SubGuiColorSelector(selectedMark.color, new SubGuiColorSelector.ColorCallback() {
+					@Override
+					public void color(int colorIn) {
+						if (selectedMark == null) { return; }
+						selectedMark.color = ((SubGuiColorSelector) subgui).color;
+						initGui();
+					}
+					@Override
+					public void preColor(int colorIn) {
+						if (selectedMark == null) { return; }
+						selectedMark.color = ((SubGuiColorSelector) subgui).color;
+						initGui();
+					}
+				}));
 				break;
 			}
 			case 2: {
@@ -71,7 +86,7 @@ implements ISubGuiListener, ICustomScrollListener {
 				Mark newark = (Mark) data.addMark(selectedMark.type);
 				newark.color = selectedMark.color;
 				newark.rotate = selectedMark.rotate;
-				newark.availability.readFromNBT(selectedMark.availability.writeToNBT(new NBTTagCompound()));
+				newark.availability.load(selectedMark.availability.save(new NBTTagCompound()));
 				selectedMark = newark;
 				initGui();
 				break;
@@ -216,15 +231,6 @@ implements ISubGuiListener, ICustomScrollListener {
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-	}
-
-	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiColorSelector) {
-			if (selectedMark == null) { return; }
-			selectedMark.color = ((SubGuiColorSelector) subgui).color;
-			initGui();
-		}
 	}
 
 }

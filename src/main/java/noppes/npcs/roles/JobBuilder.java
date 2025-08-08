@@ -139,7 +139,8 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = JobType.BUILDER;
 		if (compound.hasKey("BuildX")) {
 			this.possibleBuildPos = new BlockPos(compound.getInteger("BuildX"), compound.getInteger("BuildY"),
@@ -171,8 +172,8 @@ public class JobBuilder extends JobInterface implements IJobBuilder {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.BUILDER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		if (this.build != null) {
 			compound.setInteger("BuildX", this.build.getPos().getX());
 			compound.setInteger("BuildY", this.build.getPos().getY());

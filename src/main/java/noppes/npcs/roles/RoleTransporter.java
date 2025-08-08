@@ -101,14 +101,13 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.TRANSPORTER;
-		this.transportId = compound.getInteger("TransporterId");
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
+		type = RoleType.TRANSPORTER;
+		transportId = compound.getInteger("TransporterId");
 		TransportLocation loc = this.getLocation();
-		this.name = "";
-		if (loc != null) {
-			this.name = loc.name;
-		}
+		name = "";
+		if (loc != null) { name = loc.name; }
 	}
 
 	public void setTransport(TransportLocation location) {
@@ -192,8 +191,8 @@ public class RoleTransporter extends RoleInterface implements IRoleTransporter {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", RoleType.TRANSPORTER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("TransporterId", this.transportId);
 		return compound;
 	}

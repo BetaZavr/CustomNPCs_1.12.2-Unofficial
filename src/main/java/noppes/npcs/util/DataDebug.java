@@ -46,10 +46,7 @@ public class DataDebug {
 		public void start(String eventName, String eventTarget) {
 			if (eventName == null || eventTarget == null) { return; }
 			String key = Thread.currentThread().getId() + ":" + eventName + ":" + eventTarget;
-			if (starters.containsKey(key)) {
-				if (eventName.startsWith("World")) { end(eventName, eventTarget); }
-				else { LogWriter.debug("Double starting debug \"" + key + "\""); }
-			}
+			if (starters.containsKey(key)) { LogWriter.debug("Double starting debug \"" + key + "\""); }
 			starters.put(key, System.currentTimeMillis());
 		}
 	}
@@ -68,64 +65,44 @@ public class DataDebug {
 		return target.getClass().getSimpleName();
 	}
 
-	public void end(Object target) {
-		if (!CustomNpcs.VerboseDebug) { return; }
-		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
-		String obj = caller.getClassName();
-		String methodName = getMethodName(caller.getMethodName(), "");
-		int dotPos = obj.lastIndexOf(".") + 1;
-		if (dotPos > 0) { obj = obj.substring(dotPos); }
-		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
-				Side.SERVER :
-				Util.instance.getSide();
-		String trg = getKey(target);
-		if (!trg.isEmpty()) { trg = "_" + trg; }
-		data.get(side).end(getKey(obj), methodName + trg);
-	}
+	public void end(Object target) { end(target, ""); }
 
 	public void end(Object target, String addedToMethodName) {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.DebugMonitoring) { return; }
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 		String obj = caller.getClassName();
-		String methodName = getMethodName(caller.getMethodName(), addedToMethodName);
-		int dotPos = obj.lastIndexOf(".") + 1;
-		if (dotPos > 0) { obj = obj.substring(dotPos); }
 		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
 				Side.SERVER :
 				Util.instance.getSide();
 		String trg = getKey(target);
-		if (!trg.isEmpty()) { trg = "_" + trg; }
-		data.get(side).end(getKey(obj), methodName + trg);
+		int dotPos = obj.lastIndexOf(".") + 1;
+		if (dotPos > 0) { obj = obj.substring(dotPos); }
+		if (trg.equals("Packets")) { data.get(side).start(trg, getKey(obj)); }
+		else {
+			if (!trg.isEmpty()) { trg = "_" + trg; }
+			String methodName = getMethodName(caller.getMethodName(), addedToMethodName);
+			data.get(side).end(getKey(obj), methodName + trg);
+		}
 	}
 
-	public void start(Object target) {
-		if (!CustomNpcs.VerboseDebug) { return; }
-		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
-		String obj = caller.getClassName();
-		String methodName = getMethodName(caller.getMethodName(), "");
-		int dotPos = obj.lastIndexOf(".") + 1;
-		if (dotPos > 0) { obj = obj.substring(dotPos); }
-		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
-				Side.SERVER :
-				Util.instance.getSide();
-		String trg = getKey(target);
-		if (!trg.isEmpty()) { trg = "_" + trg; }
-		data.get(side).start(getKey(obj), methodName + trg);
-	}
+	public void start(Object target) { start(target, ""); }
 
 	public void start(Object target, String addedToMethodName) {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.DebugMonitoring) { return; }
 		StackTraceElement caller = Thread.currentThread().getStackTrace()[2];
 		String obj = caller.getClassName();
-		String methodName = getMethodName(caller.getMethodName(), addedToMethodName);
-		int dotPos = obj.lastIndexOf(".") + 1;
-		if (dotPos > 0) { obj = obj.substring(dotPos); }
 		Side side = caller.getMethodName().equals("findChunksForSpawning") || caller.getMethodName().equals("performWorldGenSpawning") ?
 				Side.SERVER :
 				Util.instance.getSide();
 		String trg = getKey(target);
-		if (!trg.isEmpty()) { trg = "_" + trg; }
-		data.get(side).start(getKey(obj), methodName + trg);
+		int dotPos = obj.lastIndexOf(".") + 1;
+		if (dotPos > 0) { obj = obj.substring(dotPos); }
+		if (trg.equals("Packets")) { data.get(side).start(trg, getKey(obj)); }
+		else {
+			if (!trg.isEmpty()) { trg = "_" + trg; }
+			String methodName = getMethodName(caller.getMethodName(), addedToMethodName);
+			data.get(side).start(getKey(obj), methodName + trg);
+		}
 	}
 
 	private String getMethodName(String method, String added) {
@@ -144,7 +121,7 @@ public class DataDebug {
 	public DataDebug() { clear(); }
 
 	public void stop() {
-		if (!CustomNpcs.VerboseDebug) { return; }
+		if (!CustomNpcs.DebugMonitoring) { return; }
 		for (Side side : data.keySet()) {
 			for (String k : data.get(side).starters.keySet()) {
 				data.get(side).end(k.substring(0, k.indexOf(':')), k.substring(k.indexOf(':') + 1));

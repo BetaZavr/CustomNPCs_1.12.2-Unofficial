@@ -52,7 +52,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				}
 				Faction faction = new Faction(-1, name, 65280, 1000);
 				NBTTagCompound compound = new NBTTagCompound();
-				faction.writeNBT(compound);
+				faction.save(compound);
 				Client.sendData(EnumPacketServer.FactionSave, compound);
 				break;
 			}
@@ -307,7 +307,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			return;
 		}
 		NBTTagCompound compound = new NBTTagCompound();
-		faction.writeNBT(compound);
+		faction.save(compound);
 		Client.sendData(EnumPacketServer.FactionSave, compound);
 	}
 
@@ -368,12 +368,12 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				Client.sendData(EnumPacketServer.FactionRemove, faction.id);
 				faction.id = compound.getInteger("MinimumID");
 				compound = new NBTTagCompound();
-				faction.writeNBT(compound);
+				faction.save(compound);
 				Client.sendData(EnumPacketServer.FactionSave, compound);
 				initGui();
 			}
 		} else {
-			(faction = new Faction()).readNBT(compound);
+			(faction = new Faction()).load(compound);
 			setSelected("ID:" + faction.id + " " + faction.name);
 			initGui();
 		}

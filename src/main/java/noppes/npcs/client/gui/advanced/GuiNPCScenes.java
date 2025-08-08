@@ -103,6 +103,6 @@ implements ISubGuiListener {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.save(new NBTTagCompound()));
 	}
 }

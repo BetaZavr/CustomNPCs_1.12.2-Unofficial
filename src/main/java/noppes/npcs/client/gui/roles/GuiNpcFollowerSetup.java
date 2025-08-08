@@ -149,7 +149,7 @@ extends GuiContainerNPCInterface2 {
 		role.dialogFired = getTextField(5).getFullText();
 		int size = role.disableGui ? 0 : getTextField(8).getInteger();
 		if (role.inventory.getSizeInventory() != size) { role.inventory = new NpcMiscInventory(size); }
-		Client.sendData(EnumPacketServer.RoleSave, role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.RoleSave, role.save(new NBTTagCompound()));
 	}
 
 }

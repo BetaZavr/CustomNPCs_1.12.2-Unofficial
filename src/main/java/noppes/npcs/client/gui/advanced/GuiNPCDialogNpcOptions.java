@@ -35,46 +35,39 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
-			case 1: { // add
+			case 1: {
 				selectedSlot = -1;
 				setSubGui(new GuiDialogSelection(-1, 0));
 				break;
-			}
-			case 2: { // del
+			} // add
+			case 2: {
 				data.clear();
 				Client.sendData(EnumPacketServer.DialogNpcRemove, selectedSlot);
 				selectedSlot = -1;
 				initGui();
 				break;
-			}
-			case 3: { // change
+			} // del
+			case 3: {
 				if (!data.containsKey(selectedSlot)) {
 					return;
 				}
 				setSubGui(new GuiDialogSelection(data.get(selectedSlot).getInteger("Id"), 0));
 				break;
-			}
-			case 4: { // up
-				if (selectedSlot < 1) {
-					return;
-				}
+			} // change
+			case 4: {
+				if (selectedSlot < 1) { return; }
 				Client.sendData(EnumPacketServer.DialogNpcMove, selectedSlot, true);
 				selectedSlot--;
 				initGui();
 				break;
-			}
-			case 5: { // down
-				if (selectedSlot >= data.size()) {
-					return;
-				}
+			} // up
+			case 5: {
+				if (selectedSlot >= data.size()) { return; }
 				Client.sendData(EnumPacketServer.DialogNpcMove, selectedSlot, false);
 				selectedSlot++;
 				initGui();
 				break;
-			}
-			default: {
-
-			}
+			} // down
 		}
 	}
 
@@ -153,6 +146,10 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
+	public void save() { }
+
+	// New from Unofficial BetaZavr
+	@Override
 	public void keyTyped(char c, int i) {
 		if (i == 1 && subgui == null) {
 			save();
@@ -162,9 +159,6 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void save() { }
-
-	@Override
 	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
 		selectedSlot = scroll.getSelect();
 		initGui();
@@ -172,7 +166,6 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		// change
 		if (!data.containsKey(selectedSlot)) {
 			return;
 		}
@@ -201,9 +194,8 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		if (!compound.getKeySet().isEmpty()) {
-			int pos = compound.getInteger("Slot");
-			data.put(pos, compound);
+		if (compound.hasKey("Slot", 3)) {
+			data.put(compound.getInteger("Slot"), compound);
 		}
 		initGui();
 	}

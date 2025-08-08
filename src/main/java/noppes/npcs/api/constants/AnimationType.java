@@ -20,12 +20,15 @@ public enum AnimationType {
 
 	final int type;
 
-	AnimationType(int t) {
-		this.type = t;
-	}
+	AnimationType(int t) { type = t; }
 
-	public int get() {
-		return this.type;
+	public int get() { return type; }
+
+	public static int get(String name) {
+		for (AnimationType atEnum : AnimationType.values()) {
+			if (atEnum.name().equalsIgnoreCase(name)) { return atEnum.get(); }
+		}
+		return NORMAL.get();
 	}
 
 }

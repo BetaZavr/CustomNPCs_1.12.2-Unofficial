@@ -48,6 +48,14 @@ public class GuiDialogInteract
 extends GuiNPCInterface
 implements IGuiClose {
 
+	protected Dialog dialog;
+	protected int selected = 0;
+	protected final List<TextBlockClient> lines = new ArrayList<>();
+	protected int dialogHeight = 180;
+	protected final ResourceLocation wheel = new ResourceLocation(CustomNpcs.MODID, "textures/gui/wheel.png");
+	protected boolean isGrabbed = false;
+
+	// New from Unofficial (BetaZavr)
 	public static class DialogTexture {
 
 		public ResourceLocation res;
@@ -64,9 +72,7 @@ implements IGuiClose {
 		}
 
 	}
-
 	public static Map<Integer, ResourceLocation> icons;
-
 	static {
 		icons = new LinkedHashMap<>();
 		icons.put(1, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/important.png"));
@@ -78,10 +84,6 @@ implements IGuiClose {
 		icons.put(7, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/hexagon.png"));
 		icons.put(8, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/dice.png"));
 	}
-	public Dialog dialog; // current dialog
-
-	protected boolean isGrabbed = false; // used for answer wheel
-	protected final ResourceLocation wheel = new ResourceLocation(CustomNpcs.MODID, "textures/gui/wheel.png");
 	protected final ResourceLocation npcSkin;
 	protected final ResourceLocation playerSkin;
 	protected final Map<Integer, List<String>> options = new TreeMap<>(); // [slotID, text]
@@ -91,7 +93,6 @@ implements IGuiClose {
 	protected int lineVisibleSize;
 	protected int[] scrollD = null;
 	// option place
-	protected int selected = 0;
 	protected int selectedStart = 0;
 	protected int selectedSize = 0;
 	protected int selectedVisibleSize;
@@ -106,10 +107,8 @@ implements IGuiClose {
 	protected long waitToAnswer;
 	protected final Map<Integer, DialogTexture> textures = new HashMap<>();
 	// Display
-	protected final List<TextBlockClient> lines = new ArrayList<>(); // Dialog Logs
 	protected final EntityNPCInterface dialogNpc;
 	protected int fontHeight;
-	protected int dialogHeight;
 	protected int startLine;
 	protected long startTime;
 	protected final float corr;
@@ -245,9 +244,7 @@ implements IGuiClose {
 		int selSize = 0, pos = 1;
 		for (int i = selectedTotal.size() - 1; i > 0; i--) {
 			selSize += selectedTotal.get(i);
-			if (selSize >= selectedVisibleSize) {
-				break;
-			}
+			if (selSize >= selectedVisibleSize) { break; }
 			pos++;
 		}
 		if (selectedStart <= 0) {
@@ -287,10 +284,19 @@ implements IGuiClose {
 	}
 
 	protected void drawLinedOptions() {
-		int i = 0, optPos = 0, endW = guiSettings.guiRight - 1;
+		int i = 0;
+		int optPos = 0;
+		int endW = guiSettings.guiRight - 1;
 		int left = guiLeft + 24;
+		int addX = 0;
+		// scroll bar
 		if (selectedSize > selectedVisibleSize && !dialog.showWheel) { left += 13; }
-		if (selectedSize > selectedVisibleSize) { endW -= 13; }
+		if (selectedSize > selectedVisibleSize) {
+			endW -= 13;
+			if (!dialog.showWheel) { left += 13; }
+			if (guiSettings.getType() == 2) { addX = 13; }
+			else { left -= 12; }
+		}
 		for (int id : options.keySet()) {
 			if (optPos < selectedStart) {
 				optPos++;
@@ -301,17 +307,17 @@ implements IGuiClose {
 			int j = 0;
 			for (String sct : lines) {
 				if (j == 0) {
-					drawString(fontRenderer, optPos == selected ? "->" : " *", guiLeft + 1 + (icons.containsKey(option.iconId) ? 0 : 10), dialogHeight + i * fontHeight, guiSettings.pointerColor);
+					drawString(fontRenderer, optPos == selected ? "->" : " *", guiLeft + 1 + (icons.containsKey(option.iconId) ? 0 : 10) + addX, dialogHeight + i * fontHeight, guiSettings.pointerColor);
 					if (i != 0 && optPos - 1 != selected) {
-						drawHorizontalLine(guiLeft + 2, endW, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
+						drawHorizontalLine(guiLeft + 2 + addX, endW + addX, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
 					}
 					if (selected == optPos) {
-						drawHorizontalLine(left, endW, dialogHeight + i * fontHeight, guiSettings.hoverLineColor);
+						drawHorizontalLine(left, endW + addX, dialogHeight + i * fontHeight, guiSettings.hoverLineColor);
 					}
 					if (icons.containsKey(option.iconId)) {
 						mc.getTextureManager().bindTexture(icons.get(option.iconId));
 						GlStateManager.pushMatrix();
-						GlStateManager.translate(guiLeft + 11.5f, dialogHeight + i * fontHeight + 1.0f, 0.0f);
+						GlStateManager.translate(guiLeft + 11.5f + addX, dialogHeight + i * fontHeight + 1.0f, 0.0f);
 						GlStateManager.color((float) (option.optionColor >> 16 & 255) / 255.0F, (float) (option.optionColor >> 8 & 255) / 255.0F, (float) (option.optionColor & 255) / 255.0F, 1.0F);
 						float s = 12.0f / 256.0f;
 						GlStateManager.scale(s, s, s);
@@ -321,15 +327,15 @@ implements IGuiClose {
 				}
 				// select
 				if (selected == optPos) {
-					fill(left, dialogHeight + i * fontHeight + (j == 0 ? 1 : 0), endW, dialogHeight + (i + 1) * fontHeight, zLevel, guiSettings.selectOptionLeftColor, guiSettings.selectOptionRightColor);
+					fill(left, dialogHeight + i * fontHeight + (j == 0 ? 1 : 0), endW + addX, dialogHeight + (i + 1) * fontHeight, zLevel, guiSettings.selectOptionLeftColor, guiSettings.selectOptionRightColor);
 				}
 				// option
 				drawString(fontRenderer, sct, left, dialogHeight + i * fontHeight, option.optionColor);
 				i++;
 				j++;
 				if (j == lines.size()) {
-					drawHorizontalLine(guiLeft + 2, endW, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
-					if (selected == optPos) { drawHorizontalLine(left, endW, dialogHeight + i * fontHeight, guiSettings.hoverLineColor); }
+					drawHorizontalLine(guiLeft + 2 + addX, endW + addX, dialogHeight + i * fontHeight, guiSettings.scrollLineColor);
+					if (selected == optPos) { drawHorizontalLine(left, endW + addX, dialogHeight + i * fontHeight, guiSettings.hoverLineColor); }
 				}
 			}
 			optPos++;
@@ -339,10 +345,25 @@ implements IGuiClose {
 	@SuppressWarnings("unused")
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		// Back
+		// background
 		int vType = guiSettings.getShowVerticalLines();
 		int hType = guiSettings.getShowVerticalLines();
 		int blurringLine = (int) (guiSettings.dialogWidth * guiSettings.getBlurringLine());
+		if (guiSettings.backTexture != null) {
+			mc.getTextureManager().bindTexture(guiSettings.backTexture);
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(width / 256.0f, height / 256.0f, 1.0f);
+			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.popMatrix();
+		}
+		if (guiSettings.windowTexture != null) {
+			mc.getTextureManager().bindTexture(guiSettings.windowTexture);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(guiSettings.guiLeft, 0.0f, 0.0f);
+			GlStateManager.scale((float) guiSettings.dialogWidth / 256.0f, height / 256.0f, 1.0f);
+			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.popMatrix();
+		}
 		switch (guiSettings.getType()) {
 			case 0: {
 				// dialogs
@@ -457,6 +478,21 @@ implements IGuiClose {
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (guiSettings.backTexture != null) {
+			mc.getTextureManager().bindTexture(guiSettings.backTexture);
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(1.66796875f, 0.9375f, 1.0f);
+			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.popMatrix();
+		}
+		if (guiSettings.windowTexture != null) {
+			mc.getTextureManager().bindTexture(guiSettings.windowTexture);
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(guiSettings.guiLeft, 0.0f, 0.0f);
+			GlStateManager.scale(guiSettings.dialogWidth / 427.0f * 1.66796875f, 0.9375f, 1.0f);
+			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+			GlStateManager.popMatrix();
+		}
 		// Dialog text lines
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
@@ -895,7 +931,8 @@ implements IGuiClose {
         int optionHeight = dialog.showWheel ? 60 : guiSettings.optionHeight;
 		dialogHeight = height - optionHeight;
 		if (!lines.isEmpty()) {
-			int max = guiSettings.dialogWidth - (int) (35 + fontRenderer.getStringWidth((dialogNpc != null ? dialogNpc.getName() : npc.getName()) + ": ") / corr);
+			int max = guiSettings.dialogWidth - (int) (2.0f + fontRenderer.getStringWidth((dialogNpc != null ? dialogNpc.getName() : npc.getName()) + ": ") / corr);
+			if (lineTotal > lineVisibleSize) { max -= (int) (18.0f / corr); }
 			for (TextBlockClient textBlock : lines) {
 				textBlock.lines.clear();
 				textBlock.resetWidth(max, false);
@@ -1032,17 +1069,17 @@ implements IGuiClose {
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		LogWriter.debug("TEST: ");
 		if (scrollD != null && scrollD[7] > -1) {
 			int offsetLine = (int) (((float) scrollD[7] - (float) mouseY) / (float) scrollD[6]);
-			if (offsetLine == 0) {
-				return;
-			}
+			if (offsetLine == 0) { return; }
 			lineStart = scrollD[8] - offsetLine;
 			if (lineStart < 0) {
 				lineStart = 0;
 				scrollD[8] = lineStart;
 				scrollD[7] = mouseY;
-			} else if (lineStart > lineTotal - lineVisibleSize) {
+			}
+			else if (lineStart > lineTotal - lineVisibleSize) {
 				lineStart = lineTotal - lineVisibleSize;
 				scrollD[8] = lineStart;
 				scrollD[7] = mouseY;
@@ -1050,19 +1087,15 @@ implements IGuiClose {
 		}
 		if (scrollO != null && scrollO[7] > -1) {
 			int offsetLine = (int) (((float) scrollO[7] - (float) mouseY) / (float) scrollO[6]);
-			if (offsetLine == 0) {
-				return;
-			}
-			if (offsetLine == 0.0) {
-				return;
-			}
+			if (offsetLine == 0) { return; }
 			selectedStart = scrollO[8] - offsetLine;
 			checkSelected();
 		}
 	}
 
 	protected void resetOptions() {
-		int max = guiSettings.dialogWidth - (int) (43.0f * corr);
+		int max = guiSettings.dialogWidth - (int) (46.0f / corr);
+		if (selectedSize > selectedVisibleSize) { max -= (int) (18.0f / corr); }
 		options.clear();
 		for (int slot : dialog.options.keySet()) {
 			DialogOption option = dialog.options.get(slot);
@@ -1096,7 +1129,7 @@ implements IGuiClose {
 	}
 
     @Override
-	public void setClose(int id, NBTTagCompound nbt) { grabMouse(false); }
+	public void setClose(NBTTagCompound nbt) { grabMouse(false); }
 
 	@SuppressWarnings("unused")
 	protected void setStartLine() {

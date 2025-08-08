@@ -535,7 +535,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = RoleType.COMPANION;
 		this.inventory.load(compound.getCompoundTag("CompanionInventory"));
 		this.uuid = compound.getString("CompanionOwner");
@@ -620,8 +621,8 @@ public class RoleCompanion extends RoleInterface implements IRoleCompanion {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", RoleType.COMPANION.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setTag("CompanionInventory", this.inventory.save());
 		compound.setString("CompanionOwner", this.uuid);
 		compound.setString("CompanionOwnerName", this.ownerName);

@@ -323,7 +323,8 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = JobType.SPAWNER;
 		this.id = compound.getString("SpawnerId");
 		this.dataEntitys = new SpawnNPCData[2][];
@@ -640,8 +641,8 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.SPAWNER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.load(compound);
 		compound.setString("SpawnerId", this.id);
 		compound.setInteger("SpawnerWhenAlive", this.spawnType[0]);
 		compound.setInteger("SpawnerWhenDead", this.spawnType[1]);

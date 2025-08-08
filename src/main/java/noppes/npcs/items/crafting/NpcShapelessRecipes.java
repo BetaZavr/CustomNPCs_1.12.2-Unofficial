@@ -86,7 +86,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 				NBTTags.getIngredientList(compound.getTagList("Materials", 10)),
 				new ItemStack(compound.getCompoundTag("Item")));
 		recipe.id = compound.getInteger("ID");
-		recipe.availability.readFromNBT(compound.getCompoundTag("Availability"));
+		recipe.availability.load(compound.getCompoundTag("Availability"));
 		recipe.ignoreDamage = compound.getBoolean("IgnoreDamage");
 		recipe.ignoreNBT = compound.getBoolean("IgnoreNBT");
 		recipe.known = compound.getBoolean("IsKnown");
@@ -276,7 +276,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 			compound.setTag("Item", this.recipeOutput.writeToNBT(new NBTTagCompound()));
 		}
 		compound.setTag("Materials", NBTTags.nbtIngredientList(this.recipeItems));
-		compound.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
+		compound.setTag("Availability", this.availability.save(new NBTTagCompound()));
 		compound.setString("Name", this.name);
 		compound.setBoolean("Global", this.global);
 		compound.setBoolean("IgnoreDamage", this.ignoreDamage);
@@ -390,7 +390,7 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 		wrapper.domen = CustomNpcs.MODID;
 		wrapper.name = (main ? ((char)167) + "b" : "") + name;
 		wrapper.product = recipeOutput.copy();
-		wrapper.availability.readFromNBT(availability.writeToNBT(new NBTTagCompound()));
+		wrapper.availability.load(availability.save(new NBTTagCompound()));
 		wrapper.main = main;
 
 		wrapper.recipeItems.clear();

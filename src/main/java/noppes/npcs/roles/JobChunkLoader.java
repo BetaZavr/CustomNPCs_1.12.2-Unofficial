@@ -82,7 +82,8 @@ public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
 	}
 
     @Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		type = JobType.CHUNK_LOADER;
 		playerLastSeen = compound.getLong("ChunkPlayerLastSeen");
 	}
@@ -95,8 +96,8 @@ public class JobChunkLoader extends JobInterface implements IJobChunkLoader {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.CHUNK_LOADER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setLong("ChunkPlayerLastSeen", this.playerLastSeen);
 		return compound;
 	}

@@ -80,7 +80,7 @@ public class WrapperRecipe {
         }
 
         compound.setTag("Materials", nbttaglist);
-        compound.setTag("Availability", availability.writeToNBT(new NBTTagCompound()));
+        compound.setTag("Availability", availability.save(new NBTTagCompound()));
         compound.setString("Name", name);
         compound.setString("Domen", domen);
         compound.setBoolean("Global", global);
@@ -123,7 +123,7 @@ public class WrapperRecipe {
         recipeItems.clear();
         recipeItems.putAll(wrapper.recipeItems);
         product = wrapper.product;
-        availability.readFromNBT(wrapper.availability.writeToNBT(new NBTTagCompound()));
+        availability.load(wrapper.availability.save(new NBTTagCompound()));
         parent = wrapper.parent;
     }
 

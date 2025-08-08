@@ -2,17 +2,24 @@ package noppes.npcs.api.constants;
 
 public enum EntityType {
 
-	ANIMAL(4), ANY(-1), ARROW(10), ITEM(6), LIVING(5), MONSTER(3), NPC(2), PIXELMON(8), PLAYER(1), PROJECTILE(
-			7), THROWABLE(11), UNKNOWN(0), VILLAGER(9);
+	ANY(-1),
+	UNKNOWN(0),
+	PLAYER(1),
+	NPC(2),
+	MONSTER(3),
+	ANIMAL(4),
+	LIVING(5),
+	ITEM(6),
+	PROJECTILE(7),
+	PIXELMON(8),
+	VILLAGER(9),
+	ARROW(10),
+	THROWABLE(11);
 
 	final int type;
 
-	EntityType(int t) {
-		this.type = t;
-	}
+	EntityType(int t) { type = t; }
 
-	public int get() {
-		return this.type;
-	}
+	public int get() { return type; }
 
 }

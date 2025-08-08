@@ -1,6 +1,7 @@
 package noppes.npcs.controllers.data;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
 import noppes.npcs.constants.EnumPacketClient;
@@ -17,7 +18,7 @@ public class DialogGuiSettings {
     private int showHorizontalLines = 2; // 0:none, 1:one, 2:two
     private double width = 0.85d;
     private double optionH = 1.0d / 3.0d;
-    private final float[] npcPos = new float[] { 0.5f, 0.05f };
+    private final float[] npcPos = new float[] { 0.0f, 0.05f };
     private float npcScale = 2.0f;
     private float blurringLine = 0.05f;
     public int backBorderColor = 0x80000000;
@@ -38,6 +39,9 @@ public class DialogGuiSettings {
     public int optionHeight;
     public int npcPosX;
     public int npcPosY;
+
+    public ResourceLocation backTexture;
+    public ResourceLocation windowTexture;
 
     public void load(NBTTagCompound compound) {
         showNPC = compound.getBoolean("ShowNPC");
@@ -62,6 +66,11 @@ public class DialogGuiSettings {
 
         setWidth(compound.getDouble("WindowWidth"));
         setOptionHeight(compound.getDouble("OptionHeight"));
+
+        backTexture = null;
+        windowTexture = null;
+        if (compound.hasKey("BackTexture", 8)) { backTexture = new ResourceLocation(compound.getString("BackTexture")); }
+        if (compound.hasKey("WindowTexture", 8)) { windowTexture = new ResourceLocation(compound.getString("WindowTexture")); }
     }
 
     public NBTTagCompound save() {
@@ -90,6 +99,9 @@ public class DialogGuiSettings {
         compound.setDouble("WindowWidth", width);
         compound.setDouble("OptionHeight", optionH);
 
+        if (backTexture != null) { compound.setString("BackTexture", backTexture.toString()); }
+        if (windowTexture != null) { compound.setString("WindowTexture", windowTexture.toString()); }
+
         return compound;
     }
 
@@ -101,19 +113,19 @@ public class DialogGuiSettings {
         switch (type) {
             case 0: {
                 guiLeft = npcWidth;
-                npcPosX = (int) ((float) npcWidth * npcPos[0] - (float) npcWidth);
+                npcPosX = (int) ((float) npcWidth * npcPos[0]) - npcWidth / 2;
                 break;
             }
             case 1: {
                 npcWidth /= 2;
                 guiLeft = npcWidth;
-                if (npcInLeft) { npcPosX = (int) ((float) npcWidth * npcPos[0] - (float) npcWidth); }
-                else { npcPosX = dialogWidth + (int) ((float) -npcWidth * npcPos[0] + (float) npcWidth); }
+                if (npcInLeft) { npcPosX = (int) ((float) npcWidth * npcPos[0]) - npcWidth / 2; }
+                else { npcPosX = dialogWidth + npcWidth / 2 + (int) ((float) npcWidth * npcPos[0]); }
                 break;
             }
             case 2: {
                 guiLeft = 0;
-                npcPosX = dialogWidth + (int) ((float) -npcWidth * npcPos[0] + (float) npcWidth);
+                npcPosX = dialogWidth + npcWidth / 2 + (int) ((float) npcWidth * npcPos[0]);
                 break;
             }
         }
@@ -151,7 +163,7 @@ public class DialogGuiSettings {
     public float getNpcScale() { return npcScale; }
 
     public void setNpcScale(float scale) {
-        npcScale = ValueUtil.correctFloat(scale, 0.0f, 5.0f);
+        npcScale = ValueUtil.correctFloat(scale, 0.15f, 5.0f);
     }
 
     public int getShowHorizontalLines() { return showHorizontalLines; }
@@ -177,5 +189,9 @@ public class DialogGuiSettings {
     public void update() {
         if (CustomNpcs.Server != null) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, save()); }
     }
+
+    public ResourceLocation getBackgroundTexture() { return backTexture; }
+
+    public ResourceLocation getWindowTexture() { return windowTexture; }
 
 }

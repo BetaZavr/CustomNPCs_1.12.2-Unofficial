@@ -1,4 +1,4 @@
-package noppes.npcs.client.gui;
+package noppes.npcs.client.gui.roles;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -67,7 +67,10 @@ implements ITextfieldListener {
 		addLabel(new GuiNpcLabel(3, "beacon.amplifier", guiLeft + 10, guiTop + y + 5));
 		textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 123, guiTop + y, 45, 20, (hs.amplifier + 1) + "");
 		textField.setMinMaxDefault(1, 4, 1);
-		textField.setHoverText("beacon.hover.power", new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText());
+		String lv = "enchantment.level." + hs.amplifier;
+		if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
+		else { lv = "" + (hs.amplifier + 1); }
+		textField.setHoverText("beacon.hover.power", lv);
 		addTextField(textField);
 		y += 24;
 		addLabel(new GuiNpcLabel(4, "gui.time", guiLeft + 10, guiTop + y + 5));
@@ -119,7 +122,10 @@ implements ITextfieldListener {
 			}
 			case 3: {
 				hs.amplifier = textField.getInteger() - 1;
-				textField.setHoverText("beacon.hover.power", new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText());
+				String lv = "enchantment.level." + hs.amplifier;
+				if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
+				else { lv = "" + (hs.amplifier + 1); }
+				textField.setHoverText("beacon.hover.power", lv);
 				break;
 			}
 			case 4: {

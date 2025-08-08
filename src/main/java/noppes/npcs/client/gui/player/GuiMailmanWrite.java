@@ -1611,9 +1611,8 @@ implements ITextfieldListener, ITextChangeListener, IGuiError, IGuiClose, GuiYes
 	}
 
     @Override
-	public void setClose(int i, NBTTagCompound data) {
-		this.player.sendMessage(
-				new TextComponentTranslation("mailbox.success", data.getString("username")));
+	public void setClose(NBTTagCompound data) {
+		this.player.sendMessage(new TextComponentTranslation("mailbox.success", data.getString("username")));
 		aType = 1;
 		this.animClose();
 	}

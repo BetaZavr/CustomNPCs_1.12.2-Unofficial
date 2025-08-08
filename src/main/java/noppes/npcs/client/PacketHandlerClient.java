@@ -313,7 +313,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			npc.display.setName(Server.readString(buffer));
 			EntityUtil.Copy(player, npc);
 			Dialog dialog = new Dialog(null);
-			dialog.readNBT(Server.readNBT(buffer));
+			dialog.load(Server.readNBT(buffer));
 			NoppesUtil.openDialog(dialog, npc, player);
 		} else if (type == EnumPacketClient.QUEST_COMPLETION) {
 			int id = buffer.readInt();
@@ -366,7 +366,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Type"));
-			((EntityNPCInterface) entity).advanced.roleInterface.readFromNBT(compound);
+			((EntityNPCInterface) entity).advanced.roleInterface.load(compound);
 			NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 		}
 		else if (type == EnumPacketClient.GUI) {
@@ -454,9 +454,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				return;
 			}
 			if (gui instanceof IGuiClose) {
-				int i = buffer.readInt();
-				NBTTagCompound compound = Server.readNBT(buffer);
-				((IGuiClose) gui).setClose(i, compound);
+				buffer.readInt();
+				((IGuiClose) gui).setClose(Server.readNBT(buffer));
 				if (gui instanceof GuiMailmanWrite) {
 					return;
 				}

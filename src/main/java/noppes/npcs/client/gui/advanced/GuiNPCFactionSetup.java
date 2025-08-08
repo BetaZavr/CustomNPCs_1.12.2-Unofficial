@@ -139,7 +139,7 @@ implements IScrollData, ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.save(new NBTTagCompound()));
 	}
 
 	@Override

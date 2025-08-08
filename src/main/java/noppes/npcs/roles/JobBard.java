@@ -143,7 +143,8 @@ public class JobBard extends JobInterface implements IJobBard {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		type = JobType.BARD;
 		song = compound.getString("BardSong");
 		isStreamer = compound.getBoolean("BardStreamer");
@@ -181,8 +182,8 @@ public class JobBard extends JobInterface implements IJobBard {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.BARD.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setString("BardSong", song);
 		compound.setBoolean("BardStreamer", isStreamer);
 		compound.setBoolean("BardHasOff", hasOffRange);

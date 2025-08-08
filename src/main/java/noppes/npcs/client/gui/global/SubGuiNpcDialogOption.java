@@ -43,205 +43,173 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	@Override
 	public void buttonEvent(IGuiNpcButton button) {
 		switch (button.getID()) {
-			case 1: { // type
-				this.option.optionType = OptionType.get(button.getValue());
-				this.initGui();
+			case 1: {
+				option.optionType = OptionType.get(button.getValue());
+				initGui();
 				break;
-			}
-			case 2: { // color
-				this.setSubGui(new SubGuiColorSelector(this.option.optionColor));
+			} // type
+			case 2: {
+				setSubGui(new SubGuiColorSelector(option.optionColor));
 				break;
-			}
-			case 3: { // add dialog
-				if (this.option.optionType != OptionType.DIALOG_OPTION) {
-					return;
-				}
-				this.setSubGui(new GuiDialogSelection(-1, 0));
+			} // color
+			case 3: {
+				if (option.optionType != OptionType.DIALOG_OPTION) { return; }
+				setSubGui(new GuiDialogSelection(-1, 0));
 				break;
-			}
-			case 4: { // del dialog
-				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty()
-						|| !this.data.containsKey(this.select)) {
-					return;
-				}
-				this.option.dialogs.remove(this.data.get(this.select));
-				this.initGui();
+			} // add dialog
+			case 4: {
+				if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty() || !data.containsKey(select)) { return; }
+				option.dialogs.remove(data.get(select));
+				initGui();
 				break;
-			}
-			case 5: { // edit dialog
-				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty()
-						|| !this.data.containsKey(this.select)) {
-					return;
-				}
-				this.setSubGui(new GuiDialogSelection(this.data.get(this.select).dialogId, 1));
+			} // del dialog
+			case 5: {
+				if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty() || !data.containsKey(select)) { return; }
+				setSubGui(new GuiDialogSelection(data.get(select).dialogId, 1));
 				break;
-			}
-			case 6: { // up dialog
-				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty()
-						|| !this.data.containsKey(this.select)) {
-					return;
-				}
-				this.option.upPos(this.data.get(this.select).dialogId);
-				this.initGui();
+			} // edit dialog
+			case 6: {
+				if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty() || !data.containsKey(select)) { return; }
+				option.upPos(data.get(select).dialogId);
+				initGui();
 				break;
-			}
-			case 7: { // down dialog
-				if (this.option.optionType != OptionType.DIALOG_OPTION || this.select.isEmpty()
-						|| !this.data.containsKey(this.select)) {
-					return;
-				}
-				this.option.downPos(this.data.get(this.select).dialogId);
-				this.initGui();
+			} // up dialog
+			case 7: {
+				if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty() || !data.containsKey(select)) { return; }
+				option.downPos(data.get(select).dialogId);
+				initGui();
 				break;
-			}
-			case 8: { // availability
-				if (this.select.isEmpty() || !this.data.containsKey(this.select)) {
-					return;
-				}
-				this.setSubGui(new SubGuiNpcAvailability(data.get(select).availability, parent));
+			} // down dialog
+			case 8: {
+				if (select.isEmpty() || !data.containsKey(select)) { return; }
+				setSubGui(new SubGuiNpcAvailability(data.get(select).availability, parent));
 				break;
-			}
-			case 9: { // icons
-				if (this.option == null) {
-					return;
-				}
-				this.option.iconId = button.getValue();
-				button.setTexture(GuiDialogInteract.icons.get(this.option.iconId));
+			} // availability
+			case 9: {
+				if (option == null) { return; }
+				option.iconId = button.getValue();
+				button.setTexture(GuiDialogInteract.icons.get(option.iconId));
 				break;
-			}
-			case 66: { // exit
-				this.close();
+			} // icons
+			case 66: {
+				close();
 				break;
-			}
+			} // exit
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(66, "dialog.editoption", this.guiLeft, this.guiTop + 4));
-		this.getLabel(66).setCenter(this.xSize);
-		this.addLabel(new GuiNpcLabel(0, "gui.title", this.guiLeft + 4, this.guiTop + 20));
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 40, this.guiTop + 15, 196, 20, this.option.title);
+		addLabel(new GuiNpcLabel(66, "dialog.editoption", guiLeft, guiTop + 4));
+		getLabel(66).setCenter(xSize);
+		addLabel(new GuiNpcLabel(0, "gui.title", guiLeft + 4, guiTop + 20));
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, guiLeft + 40, guiTop + 15, 196, 20, option.title);
 		textField.setHoverText("dialog.option.hover.name");
 		addTextField(textField);
-		StringBuilder color = new StringBuilder(Integer.toHexString(this.option.optionColor));
+		StringBuilder color = new StringBuilder(Integer.toHexString(option.optionColor));
 		while (color.length() < 6) { color.insert(0, 0); }
 
-		this.addLabel(new GuiNpcLabel(2, "gui.color", this.guiLeft + 4, this.guiTop + 45));
-		GuiNpcButton button = new GuiNpcButton(2, this.guiLeft + 62, this.guiTop + 40, 92, 20, color.toString());
-		button.setTextColor(this.option.optionColor);
+		addLabel(new GuiNpcLabel(2, "gui.color", guiLeft + 4, guiTop + 45));
+		GuiNpcButton button = new GuiNpcButton(2, guiLeft + 62, guiTop + 40, 92, 20, color.toString());
+		button.setTextColor(option.optionColor);
 		button.setHoverText("color.hover");
 		addButton(button);
 
 		List<String> list = new ArrayList<>();
 		list.add("");
 		for (ResourceLocation res : GuiDialogInteract.icons.values()) {
-			list.add(res.getResourcePath().substring(res.getResourcePath().lastIndexOf("/"), res.getResourcePath().lastIndexOf(".")));
+			list.add(res.getResourcePath().substring(res.getResourcePath().lastIndexOf("/") + 1, res.getResourcePath().lastIndexOf(".")));
 		}
-		this.addLabel(new GuiNpcLabel(9, "dialog.icon", this.guiLeft + 159, this.guiTop + 61));
-		button = new GuiNpcButton(9, this.guiLeft + 210, this.guiTop + 45, 32, 32, list.toArray(new String[0]), this.option.iconId);
+		addLabel(new GuiNpcLabel(9, "dialog.icon", guiLeft + 159, guiTop + 61));
+		button = new GuiNpcButton(9, guiLeft + 210, guiTop + 45, 32, 32, list.toArray(new String[0]), option.iconId);
 		button.hasDefBack = true;
-		button.texture = GuiDialogInteract.icons.get(this.option.iconId);
+		button.texture = GuiDialogInteract.icons.get(option.iconId);
 		button.txrW = 256;
 		button.txrH = 256;
 		button.setHoverText("dialog.option.hover.name");
 		addButton(button);
 
-		this.addLabel(new GuiNpcLabel(1, "dialog.optiontype", this.guiLeft + 4, this.guiTop + 67));
-		button = new GuiNpcButton(1, this.guiLeft + 62, this.guiTop + 62, 92, 20, options, this.option.optionType.get());
-		button.setHoverText("dialog.option.hover.type." + option.optionType);
+		addLabel(new GuiNpcLabel(1, "dialog.optiontype", guiLeft + 4, guiTop + 67));
+		button = new GuiNpcButton(1, guiLeft + 62, guiTop + 62, 92, 20, options, option.optionType.get());
+		button.setHoverText("dialog.option.hover.type." + option.optionType.get());
 		addButton(button);
 
-		if (this.option.optionType == OptionType.DIALOG_OPTION) { // next dialog
-			this.data.clear();
+		if (option.optionType == OptionType.DIALOG_OPTION) { // next dialog
+			data.clear();
 			char c = ((char) 167);
 			DialogController dData = DialogController.instance;
 			List<String> keys = new ArrayList<>();
 			int pos = -1, i = 0;
 			OptionDialogID del = null;
-			for (OptionDialogID od : this.option.dialogs) {
+			for (OptionDialogID od : option.dialogs) {
 				if (od.dialogId <= 0) {
 					del = od;
 				}
 				String key;
-				Dialog d = (Dialog) dData.get(od.dialogId);
+				Dialog d = dData.get(od.dialogId);
 				if (d == null) {
 					key = c + "7ID: " + od.dialogId + c + "c Dialog Not Found!";
 				} else {
 					key = d.getKey();
 				}
-				this.data.put(key, od);
+				data.put(key, od);
 				keys.add(key);
-				if (key.equals(this.select)) {
+				if (key.equals(select)) {
 					pos = i;
 				}
 				i++;
 			}
-			if (del != null) { this.option.dialogs.remove(del); }
-			if (!this.data.containsKey(this.select)) { this.select = ""; }
-			this.addLabel(new GuiNpcLabel(4, "gui.options", this.guiLeft + 4, this.guiTop + 84));
-			if (this.scroll == null) { (this.scroll = new GuiCustomScroll(this, 0)).setSize(141, 116); }
-			this.scroll.setList(new ArrayList<>());
-			this.scroll.setListNotSorted(keys);
-			this.scroll.guiLeft = this.guiLeft + 4;
-			this.scroll.guiTop = this.guiTop + 96;
-			if (!this.select.isEmpty()) { this.scroll.setSelected(this.select); }
-			this.addScroll(this.scroll);
-			button = new GuiNpcButton(3, this.guiLeft + 149, this.guiTop + 96, 50, 20, "gui.add");
+			if (del != null) { option.dialogs.remove(del); }
+			if (!data.containsKey(select)) { select = ""; }
+			addLabel(new GuiNpcLabel(4, "gui.options", guiLeft + 4, guiTop + 84));
+			if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(141, 116); }
+			scroll.setList(new ArrayList<>());
+			scroll.setListNotSorted(keys);
+			scroll.guiLeft = guiLeft + 4;
+			scroll.guiTop = guiTop + 96;
+			if (!select.isEmpty()) { scroll.setSelected(select); }
+			addScroll(scroll);
+			button = new GuiNpcButton(3, guiLeft + 149, guiTop + 96, 50, 20, "gui.add");
 			button.setHoverText("dialog.option.hover.add");
 			addButton(button);
-			button = new GuiNpcButton(4, this.guiLeft + 201, this.guiTop + 96, 50, 20, "gui.remove", !this.select.isEmpty());
+			button = new GuiNpcButton(4, guiLeft + 201, guiTop + 96, 50, 20, "gui.remove", !select.isEmpty());
 			button.setHoverText("dialog.option.hover.del");
 			addButton(button);
-			button = new GuiNpcButton(5, this.guiLeft + 149, this.guiTop + 118, 80, 20, "gui.edit");
+			button = new GuiNpcButton(5, guiLeft + 149, guiTop + 118, 80, 20, "gui.edit");
 			button.setHoverText("dialog.option.hover.edit");
 			addButton(button);
-			button = new GuiNpcButton(6, this.guiLeft + 149, this.guiTop + 140, 50, 20, "type.up", !this.select.isEmpty() && pos != 0);
+			button = new GuiNpcButton(6, guiLeft + 149, guiTop + 140, 50, 20, "type.up", !select.isEmpty() && pos != 0);
 			button.setHoverText("dialog.option.hover.up");
 			addButton(button);
-			button = new GuiNpcButton(7, this.guiLeft + 201, this.guiTop + 140, 50, 20, "type.down", !this.select.isEmpty() && pos > -1 && pos < this.data.size() - 1);
+			button = new GuiNpcButton(7, guiLeft + 201, guiTop + 140, 50, 20, "type.down", !select.isEmpty() && pos > -1 && pos < data.size() - 1);
 			button.setHoverText("dialog.option.hover.down");
 			addButton(button);
-			button = new GuiNpcButton(8, this.guiLeft + 149, this.guiTop + 162, 80, 20, "availability.available");
+			button = new GuiNpcButton(8, guiLeft + 149, guiTop + 162, 80, 20, "availability.available");
         } else {
-			button = new GuiNpcButton(8, this.guiLeft + 64, this.guiTop + 192, 80, 20, "availability.available");
+			button = new GuiNpcButton(8, guiLeft + 64, guiTop + 192, 80, 20, "availability.available");
         }
         button.setHoverText("dialog.option.hover.availability", select);
         addButton(button);
-        if (this.option.optionType == OptionType.COMMAND_BLOCK) { // command
-			textField = new GuiNpcTextField(4, this, this.fontRenderer, this.guiLeft + 4, this.guiTop + 84, 248, 20, this.option.command);
+        if (option.optionType == OptionType.COMMAND_BLOCK) { // command
+			textField = new GuiNpcTextField(4, this, fontRenderer, guiLeft + 4, guiTop + 84, 248, 20, option.command);
 			textField.setMaxStringLength(Short.MAX_VALUE);
 			textField.setHoverText("dialog.option.hover.command");
 			addTextField(textField);
-			this.addLabel(new GuiNpcLabel(4, "advMode.command", this.guiLeft + 4, this.guiTop + 110));
-			this.addLabel(new GuiNpcLabel(5, "advMode.nearestPlayer", this.guiLeft + 4, this.guiTop + 125));
-			this.addLabel(new GuiNpcLabel(6, "advMode.randomPlayer", this.guiLeft + 4, this.guiTop + 140));
-			this.addLabel(new GuiNpcLabel(7, "advMode.allPlayers", this.guiLeft + 4, this.guiTop + 155));
-			this.addLabel(new GuiNpcLabel(8, "dialog.commandoptionplayer", this.guiLeft + 4, this.guiTop + 170));
+			addLabel(new GuiNpcLabel(4, "advMode.command", guiLeft + 4, guiTop + 110));
+			addLabel(new GuiNpcLabel(5, "advMode.nearestPlayer", guiLeft + 4, guiTop + 125));
+			addLabel(new GuiNpcLabel(6, "advMode.randomPlayer", guiLeft + 4, guiTop + 140));
+			addLabel(new GuiNpcLabel(7, "advMode.allPlayers", guiLeft + 4, guiTop + 155));
+			addLabel(new GuiNpcLabel(8, "dialog.commandoptionplayer", guiLeft + 4, guiTop + 170));
 		}
-		button = new GuiNpcButton(66, this.guiLeft + 149, this.guiTop + 192, 80, 20, "gui.done");
+		button = new GuiNpcButton(66, guiLeft + 149, guiTop + 192, 80, 20, "gui.done");
 		button.setHoverText("hover.back");
 		addButton(button);
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int ticks, IGuiCustomScroll scroll) {
-		if (this.option.optionType != OptionType.DIALOG_OPTION || scroll.getSelected() == null) { return; }
-		select = scroll.getSelected();
-		initGui();
-	}
-
-	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty()  || !data.containsKey(this.select)) { return; }
-		setSubGui(new GuiDialogSelection(data.get(select).dialogId, 1));
-	}
-
-	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
-			DialogOption option = this.option;
 			int color = ((SubGuiColorSelector) subgui).color;
 			option.optionColor = color;
 			SubGuiNpcDialogOption.LastColor = color;
@@ -252,30 +220,42 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				return;
 			}
 			if (((GuiDialogSelection) subgui).id == 0) {
-				this.option.addDialog(dialog.id);
-				this.select = dialog.getKey();
-			} else if (((GuiDialogSelection) subgui).id == 1 && !this.select.isEmpty()
-					&& this.data.containsKey(this.select)) {
-				this.option.replaceDialogIDs(this.data.get(this.select).dialogId, dialog.id); // edit
+				option.addDialog(dialog.id);
+				select = dialog.getKey();
+			} else if (((GuiDialogSelection) subgui).id == 1 && !select.isEmpty()
+					&& data.containsKey(select)) {
+				option.replaceDialogIDs(data.get(select).dialogId, dialog.id); // edit
 			}
-			this.initGui();
 		}
-		this.initGui();
+		initGui();
 	}
 
 	@Override
 	public void unFocused(IGuiNpcTextField textfield) {
 		if (textfield.getID() == 0) {
 			if (textfield.isEmpty()) {
-				this.option.title = "Talk";
-				textfield.setFullText(this.option.title);
+				option.title = "Talk";
+				textfield.setFullText(option.title);
 			} else {
-				this.option.title = textfield.getFullText();
+				option.title = textfield.getFullText();
 			}
 		}
 		else if (textfield.getID() == 4) {
-			this.option.command = textfield.getFullText();
+			option.command = textfield.getFullText();
 		}
 	}
 
+	// New from Unofficial (BetaZavr)
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int ticks, IGuiCustomScroll scroll) {
+		if (option.optionType != OptionType.DIALOG_OPTION || scroll.getSelected() == null) { return; }
+		select = scroll.getSelected();
+		initGui();
+	}
+
+	@Override
+	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+		if (option.optionType != OptionType.DIALOG_OPTION || select.isEmpty()  || !data.containsKey(select)) { return; }
+		setSubGui(new GuiDialogSelection(data.get(select).dialogId, 1));
+	}
 }

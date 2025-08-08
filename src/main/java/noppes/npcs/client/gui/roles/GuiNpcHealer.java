@@ -9,7 +9,6 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.SubGuiNpcJobHealerSettings;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -98,8 +97,7 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void elementClicked() {
-	}
+	public void elementClicked() { }
 
 	@Override
 	public void initGui() {
@@ -119,8 +117,8 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		addLabel(new GuiNpcLabel(12, "beacon.currentEffects", guiLeft + 235, y - 10));
 		displays_0.clear();
 		displays_1.clear();
-		List<String> h_0 = new ArrayList<>();
-		List<String> h_1 = new ArrayList<>();
+		LinkedHashMap<Integer, List<String>> htsO = new LinkedHashMap<>();
+		LinkedHashMap<Integer, List<String>> htsC = new LinkedHashMap<>();
 		ITextComponent r = new TextComponentTranslation("gui.range");
 		ITextComponent s = new TextComponentTranslation("gui.repeatable");
 		ITextComponent b = new TextComponentTranslation("gui.blocks");
@@ -147,46 +145,38 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 					+ new TextComponentTranslation(pointName).getFormattedText();
 			if (!job.effects.containsKey(id)) { // has potion ID
 				displays_0.put(name, pointName);
-				h_0.add("ID: " + ((char) 167) + "6" + id);
+				htsO.put(htsO.size(), Collections.singletonList("ID: " + ((char) 167) + "6" + id));
 			} else { // to setts
 				HealerSettings hs = job.effects.get(id);
-				displays_1.put(
-						name + " "
-								+ new TextComponentTranslation("enchantment.level." + hs.amplifier).getFormattedText(),
-						pointName);
-				ITextComponent f = new TextComponentTranslation(hs.type == (byte) 0 ? "faction.friendly"
-						: hs.type == (byte) 1 ? "faction.unfriendly" : "spawner.all");
-				f.getStyle().setColor(hs.type == (byte) 0 ? TextFormatting.GREEN
-						: TextFormatting.DARK_AQUA);
+				String lv = "enchantment.level." + hs.amplifier;
+				if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
+				else { lv = "" + (hs.amplifier + 1); }
+				displays_1.put(name + " " + lv, pointName);
+				ITextComponent f = new TextComponentTranslation(hs.type == (byte) 0 ? "faction.friendly" : hs.type == (byte) 1 ? "faction.unfriendly" : "spawner.all");
+				f.getStyle().setColor(hs.type == (byte) 0 ? TextFormatting.GREEN : TextFormatting.DARK_AQUA);
 				ITextComponent h = new TextComponentTranslation(hs.isMassive ? "beacon.massive" : "beacon.not.massive");
 				h.getStyle().setColor(hs.isMassive ? TextFormatting.DARK_PURPLE : TextFormatting.YELLOW);
-				h_1.add("ID: " + ((char) 167) + "6" + id + "<br>" + r.getFormattedText() + ((char) 167) + "7: "
-						+ ((char) 167) + "e" + hs.range + " " + b.getFormattedText() + "<br>" + s.getFormattedText()
+				List<String> hovers = new ArrayList<>();
+				hovers.add("ID: " + ((char) 167) + "6" + id);
+				hovers.add(r.getFormattedText() + ((char) 167) + "7: "
+						+ ((char) 167) + "e" + hs.range + " " + b.getFormattedText());
+				hovers.add(s.getFormattedText()
 						+ ((char) 167) + "7: " + ((char) 167) + "b" + (Math.round((double) hs.speed / 2.0d) / 10.0d)
-						+ " " + c.getFormattedText() + "<br>" + t.getFormattedText() + ((char) 167) + "7: "
+						+ " " + c.getFormattedText());
+				hovers.add(t.getFormattedText() + ((char) 167) + "7: "
 						+ ((char) 167) + "a" + (Math.round((double) hs.time / 2.0d) / 10.0d) + " "
-						+ c.getFormattedText() + "<br>" + p.getFormattedText() + ((char) 167) + "7: " + ((char) 167)
-						+ "c" + (hs.amplifier + 1) + " " + l.getFormattedText() + "<br>" + j.getFormattedText()
-						+ ((char) 167) + "7: " + ((char) 167) + "c" + f.getFormattedText() + "<br>"
-						+ u.getFormattedText() + ((char) 167) + "7: " + ((char) 167) + "c" + h.getFormattedText());
+						+ c.getFormattedText());
+				hovers.add(p.getFormattedText() + ((char) 167) + "7: " + ((char) 167)
+						+ "c" + (hs.amplifier + 1) + " " + l.getFormattedText());
+				hovers.add(j.getFormattedText() + ((char) 167) + "7: " + f.getFormattedText());
+				hovers.add(u.getFormattedText() + ((char) 167) + "7: " + h.getFormattedText());
+				htsC.put(htsC.size(), hovers);
 			}
 		}
 		options.setListNotSorted(new ArrayList<>(displays_0.keySet()));
-		LinkedHashMap<Integer, List<String>> htsO = new LinkedHashMap<>();
-		int i = 0;
-		for (String str : h_0) {
-			htsO.put(i, Arrays.asList(str.split("<br>")));
-			i++;
-		}
 		options.setHoverTexts(htsO);
 
 		configured.setListNotSorted(new ArrayList<>(displays_1.keySet()));
-		LinkedHashMap<Integer, List<String>> htsC = new LinkedHashMap<>();
-		i = 0;
-		for (String str : h_1) {
-			htsC.put(i, Arrays.asList(str.split("<br>")));
-			i++;
-		}
 		configured.setHoverTexts(htsC);
 
 		ITextComponent toall = new TextComponentTranslation("beacon.hover.toall");
@@ -212,17 +202,20 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		addLabel(new GuiNpcLabel(4, "beacon.amplifier", guiLeft + 140, y + 5));
 		textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 220, y, 40, 20, (amplifier + 1) + "");
 		textField.setMinMaxDefault(1, 4, 1);
-		textField.setHoverText(new TextComponentTranslation("beacon.hover.power", new TextComponentTranslation("enchantment.level." + amplifier).getFormattedText()).appendSibling(toall).getFormattedText());
+		String lv = "enchantment.level." + amplifier;
+		if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
+		else { lv = "" + (amplifier + 1); }
+		textField.setHoverText(new TextComponentTranslation("beacon.hover.power", lv).appendSibling(toall).getFormattedText());
 		addTextField(textField);
 
 		y -= 198;
 		button = new GuiNpcButton(11, guiLeft + 177, (y += 33), 61, 20, ">");
-		button.setEnabled(options.getSelect() != -1);
+		button.setEnabled(options.hasSelected());
 		button.setHoverText("beacon.hover.add");
 		addButton(button);
 
 		button = new GuiNpcButton(12, guiLeft + 177, (y += 22), 61, 20, "<");
-		button.setEnabled(configured.getSelect() != -1);
+		button.setEnabled(configured.hasSelected());
 		button.setHoverText("beacon.hover.del");
 		addButton(button);
 
@@ -237,11 +230,15 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 		addButton(button);
 
 		button = new GuiNpcButton(0, guiLeft + 177, y + 33, 61, 20, "gui.edit");
-		button.setEnabled(configured.getSelect() != -1);
+		button.setEnabled(configured.hasSelected());
 		button.setHoverText("beacon.hover.edit");
 		addButton(button);
 	}
 
+	@Override
+	public void save() { Client.sendData(EnumPacketServer.JobSave, job.save(new NBTTagCompound())); }
+
+	// New from Unofficial (BetaZavr)
 	@Override
 	public void keyTyped(char c, int i) {
 		if (i == 1 && subgui == null) {
@@ -253,14 +250,17 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
+	public void subGuiClosed(SubGuiInterface subgui) {
+		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !configured.hasSelected()) {
+			return;
+		}
+		int id = potions.get(displays_1.get(configured.getSelected()));
+		job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).hs);
+		initGui();
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		initGui();
-	}
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) { initGui(); }
 
 	@Override
 	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
@@ -282,30 +282,11 @@ implements ISubGuiListener, ITextfieldListener, ICustomScrollListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !configured.hasSelected()) {
-			return;
-		}
-		int id = potions.get(displays_1.get(configured.getSelected()));
-		job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).hs);
-		initGui();
-	}
-
-	@Override
 	public void unFocused(IGuiNpcTextField textField) {
 		switch (textField.getID()) {
-			case 1: {
-				range = textField.getInteger();
-				break;
-			}
-			case 2: {
-				speed = textField.getInteger();
-				break;
-			}
-			case 3: {
-				amplifier = textField.getInteger() - 1;
-				break;
-			}
+			case 1: range = textField.getInteger(); break;
+			case 2: speed = textField.getInteger(); break;
+			case 3: amplifier = textField.getInteger() - 1; break;
 		}
 	}
 

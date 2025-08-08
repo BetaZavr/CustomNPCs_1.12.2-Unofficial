@@ -888,7 +888,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			if (dialog != null) {
 				continue;
 			}
-			Dialog d = (Dialog) DialogController.instance.get(dialogId);
+			Dialog d = DialogController.instance.get(dialogId);
 			if (d.availability.isAvailable(player)) {
 				dialog = d;
 			}
@@ -1697,7 +1697,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.ais.readToNBT(compound);
 		this.script.readFromNBT(compound);
 		this.timers.readFromNBT(compound);
-		this.advanced.readToNBT(compound);
+		this.advanced.load(compound);
 		this.animation.load(compound);
 		this.inventory.readEntityFromNBT(compound);
 		this.transform.load(compound);
@@ -1749,16 +1749,16 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.inventory.weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
 		if (this.advanced.jobInterface instanceof JobBard) {
 			NBTTagCompound bard = compound.getCompoundTag("Bard");
-			this.advanced.jobInterface.readFromNBT(bard);
+			this.advanced.jobInterface.load(bard);
 		}
 		if (this.advanced.jobInterface instanceof JobFollower) {
 			NBTTagCompound follower = compound.getCompoundTag("Companion");
-			this.advanced.jobInterface.readFromNBT(follower);
+			this.advanced.jobInterface.load(follower);
 		}
 		if (this instanceof EntityCustomNpc) {
 			((EntityCustomNpc) this).modelData.load(compound.getCompoundTag("ModelData"));
 		}
-		this.advanced.readToNBT(compound);
+		this.advanced.load(compound);
 		this.dataManager.set(EntityNPCInterface.IsDead, compound.getBoolean("IsDead"));
 		this.deathTime = compound.getInteger("DeathTime");
 
@@ -2332,7 +2332,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		this.ais.writeToNBT(compound);
 		this.script.writeToNBT(compound);
 		this.timers.writeToNBT(compound);
-		this.advanced.writeToNBT(compound);
+		this.advanced.save(compound);
 		this.inventory.writeEntityToNBT(compound);
 		this.transform.save(compound);
 		this.animation.save(compound);
@@ -2346,7 +2346,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public NBTTagCompound writeSpawnData() {
 		NBTTagCompound compound = new NBTTagCompound();
 		display.writeToNBT(compound);
-		advanced.writeToNBT(compound);
+		advanced.save(compound);
 		animation.save(compound);
 		compound.setInteger("NPCLevel", this.stats.getLevel());
 		compound.setInteger("NPCRarity", this.stats.getRarity());
@@ -2366,12 +2366,12 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		compound.setFloat("PositionZOffset", this.ais.bodyOffsetZ);
 		if (this.advanced.jobInterface instanceof JobBard) {
 			NBTTagCompound bard = compound.getCompoundTag("Bard");
-			this.advanced.jobInterface.writeToNBT(bard);
+			this.advanced.jobInterface.save(bard);
 			compound.setTag("Bard", bard);
 		}
 		if (this.advanced.jobInterface instanceof JobFollower) {
 			NBTTagCompound follower = compound.getCompoundTag("Companion");
-			this.advanced.jobInterface.writeToNBT(follower);
+			this.advanced.jobInterface.save(follower);
 			compound.setTag("Companion", follower);
 		}
 		if (this instanceof EntityCustomNpc) {

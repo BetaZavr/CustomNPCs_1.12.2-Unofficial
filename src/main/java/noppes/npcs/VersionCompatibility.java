@@ -20,7 +20,7 @@ public class VersionCompatibility {
 		if (compatibility.getVersion() == VersionCompatibility.ModRev) {
 			return;
 		}
-		CompatabilityFix(compound, compatibility.writeToNBT(new NBTTagCompound()));
+		CompatabilityFix(compound, compatibility.save(new NBTTagCompound()));
 		compatibility.setVersion(VersionCompatibility.ModRev);
 	}
 
@@ -29,7 +29,7 @@ public class VersionCompatibility {
 			return;
 		}
 		if (npc.npcVersion < 12) {
-			CompatabilityFix(compound, npc.advanced.writeToNBT(new NBTTagCompound()));
+			CompatabilityFix(compound, npc.advanced.save(new NBTTagCompound()));
 			CompatabilityFix(compound, npc.ais.writeToNBT(new NBTTagCompound()));
 			CompatabilityFix(compound, npc.stats.writeToNBT(new NBTTagCompound()));
 			CompatabilityFix(compound, npc.display.writeToNBT(new NBTTagCompound()));

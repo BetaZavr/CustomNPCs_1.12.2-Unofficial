@@ -222,7 +222,7 @@ public class PacketHandlerPlayer {
 			}
 			NoppesUtilPlayer.extendFollower(player, npc, buffer.readInt());
 			Server.sendData(player, EnumPacketClient.GUI_DATA,
-					npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
+					npc.advanced.roleInterface.save(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.FollowerState) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || npc.advanced.roleInterface.getEnumType() != RoleType.FOLLOWER) { return; }
@@ -230,7 +230,7 @@ public class PacketHandlerPlayer {
 			if (t == 0) {
 				NoppesUtilPlayer.changeFollowerState(player, npc);
 				Server.sendData(player, EnumPacketClient.GUI_DATA,
-						npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
+						npc.advanced.roleInterface.save(new NBTTagCompound()));
 			} else if (t == 1) {
 				RoleFollower role = (RoleFollower) npc.advanced.roleInterface;
 				RoleEvent.FollowerFinishedEvent event = new RoleEvent.FollowerFinishedEvent(role.owner, npc.wrappedNPC);
@@ -250,7 +250,7 @@ public class PacketHandlerPlayer {
 				return;
 			}
 			Server.sendData(player, EnumPacketClient.GUI_DATA,
-					npc.advanced.roleInterface.writeToNBT(new NBTTagCompound()));
+					npc.advanced.roleInterface.save(new NBTTagCompound()));
 		} else if (type == EnumPlayerPacket.Transport) {
 			EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 			if (npc == null || !(npc.advanced.roleInterface instanceof RoleTransporter)) {
@@ -359,10 +359,7 @@ public class PacketHandlerPlayer {
 			int dialogId = buffer.readInt();
 			int optionId = buffer.readInt();
 			data.dialogData.option(dialogId, optionId);
-			LogWriter.debug("Dialog npc: " + npc);
-			if (npc == null) {
-				return;
-			}
+			if (npc == null) { return; }
 			NoppesUtilPlayer.dialogSelected(dialogId, optionId, player, npc);
 		} else if (type == EnumPlayerPacket.CheckQuestCompletion) {
 			int id = buffer.readInt();

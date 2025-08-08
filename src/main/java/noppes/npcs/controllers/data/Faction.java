@@ -151,7 +151,7 @@ public class Faction implements IFaction {
 		return 0;
 	}
 
-	public void readNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		name = compound.getString("Name");
 		if (compound.hasKey("Flag", 8)) {
 			setFlag(compound.getString("Flag"));
@@ -168,7 +168,7 @@ public class Faction implements IFaction {
 		getsAttacked = compound.getBoolean("GetsAttacked");
 		attackFactions = NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10));
 		frendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
-		factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
+		factions.load(compound.getCompoundTag("FactionPoints"));
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class Faction implements IFaction {
 		hideFaction = bo;
 	}
 
-	public NBTTagCompound writeNBT(NBTTagCompound compound) {
+	public NBTTagCompound save(NBTTagCompound compound) {
 		compound.setInteger("Slot", id);
 		compound.setString("Name", name);
 		compound.setString("Flag", flag != null ? flag.toString() : "");
@@ -224,7 +224,7 @@ public class Faction implements IFaction {
 		compound.setBoolean("GetsAttacked", getsAttacked);
 		compound.setTag("AttackFactions", NBTTags.nbtIntegerCollection(attackFactions));
 		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(frendFactions));
-		compound.setTag("FactionPoints", factions.writeToNBT(new NBTTagCompound()));
+		compound.setTag("FactionPoints", factions.save(new NBTTagCompound()));
 		return compound;
 	}
 

@@ -251,7 +251,8 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = JobType.ITEM_GIVER;
 		this.itemGiverId = compound.getInteger("ItemGiverId");
 		this.cooldownType = compound.getInteger("igCooldownType");
@@ -262,19 +263,19 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		if (this.itemGiverId == 0 && GlobalDataController.instance != null) {
 			this.itemGiverId = GlobalDataController.instance.incrementItemGiverId();
 		}
-		this.availability.readFromNBT(compound.getCompoundTag("igAvailability"));
+		this.availability.load(compound.getCompoundTag("igAvailability"));
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.ITEM_GIVER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("igCooldownType", this.cooldownType);
 		compound.setInteger("igGivingMethod", this.givingMethod);
 		compound.setInteger("igCooldown", this.cooldown);
 		compound.setInteger("ItemGiverId", this.itemGiverId);
 		compound.setTag("igLines", NBTTags.nbtStringList(this.lines));
 		compound.setTag("igJobInventory", this.inventory.save());
-		compound.setTag("igAvailability", this.availability.writeToNBT(new NBTTagCompound()));
+		compound.setTag("igAvailability", this.availability.save(new NBTTagCompound()));
 		return compound;
 	}
 }

@@ -17,11 +17,14 @@ import noppes.npcs.roles.RoleTransporter;
 
 public enum RoleType {
 
-	DEFAULT(RoleInterface.class, "none", 0, false), TRADER(RoleTrader.class, "trader", 1, true), FOLLOWER(
-			RoleFollower.class, "mercenary", 2,
-			true), BANK(RoleBank.class, "bank", 3, true), TRANSPORTER(RoleTransporter.class, "transporter", 4,
-					true), POSTMAN(RolePostman.class, "mailman", 5, false), COMPANION(RoleCompanion.class, "companion",
-							6, true), DIALOG(RoleDialog.class, "dialog", 7, true);
+	DEFAULT(RoleInterface.class, "none", 0, false),
+	TRADER(RoleTrader.class, "trader", 1, true),
+	FOLLOWER(RoleFollower.class, "mercenary", 2, true),
+	BANK(RoleBank.class, "bank", 3, true),
+	TRANSPORTER(RoleTransporter.class, "transporter", 4, true),
+	POSTMAN(RolePostman.class, "mailman", 5, false),
+	COMPANION(RoleCompanion.class, "companion", 6, true),
+	DIALOG(RoleDialog.class, "dialog", 7, true);
 
 	public static RoleType get(int id) {
 		for (RoleType er : RoleType.values()) {
@@ -31,6 +34,7 @@ public enum RoleType {
 		}
 		return RoleType.DEFAULT;
 	}
+
 	public static String[] getNames() {
 		List<String> list = new ArrayList<>();
 		for (RoleType er : RoleType.values()) {
@@ -42,6 +46,7 @@ public enum RoleType {
 		}
 		return list.toArray(new String[0]);
 	}
+
 	private final int type;
 	public final String name;
 	public final boolean hasSettings;

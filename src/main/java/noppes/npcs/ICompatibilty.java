@@ -8,6 +8,6 @@ public interface ICompatibilty {
 
 	void setVersion(int version);
 
-	NBTTagCompound writeToNBT(NBTTagCompound nbt);
+	NBTTagCompound save(NBTTagCompound nbt);
 
 }

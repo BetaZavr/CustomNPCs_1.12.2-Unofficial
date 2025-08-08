@@ -1,8 +1,6 @@
 package noppes.npcs.api.wrapper;
 
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 
 import net.minecraft.entity.EntityLivingBase;
@@ -193,29 +191,29 @@ public class NPCWrapper<T extends EntityNPCInterface> extends EntityLivingWrappe
 
 	@Override
 	public void setDialog(int slot, IDialog dialog) {
-		if (slot < 0) {
-			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1));
-		}
-		if (dialog == null && slot >= this.entity.dialogs.length) {
-			throw new CustomNPCsException("Slot needs to be between 0 and " + (this.entity.dialogs.length - 1));
-		}
-		int s = 0;
-		Set<Integer> newIds = new HashSet<>();
-		for (int id : this.entity.dialogs) {
-			if (s == slot) {
-				if (dialog != null) {
-					newIds.add(dialog.getId());
+		if (slot >= 0 && slot <= entity.dialogs.length) {
+			if (dialog == null && slot < entity.dialogs.length) {
+				int[] newIDs = new int[entity.dialogs.length - 1];
+				for (int i = 0, j = 0; i < entity.dialogs.length; i++) {
+					if (i == slot) {
+						continue;
+					}
+					newIDs[j] = entity.dialogs[i];
+					j++;
 				}
-				continue;
+				entity.dialogs = newIDs;
 			}
-			newIds.add(id);
-			s++;
+			else if (dialog != null) {
+				if (slot == entity.dialogs.length) {
+					int[] newIDs = new int[entity.dialogs.length + 1];
+                    System.arraycopy(entity.dialogs, 0, newIDs, 0, entity.dialogs.length);
+					entity.dialogs = newIDs;
+				}
+				entity.dialogs[slot] = dialog.getId();
+			}
 		}
-		this.entity.dialogs = new int[newIds.size()];
-		s = 0;
-		for (int id : newIds) {
-			this.entity.dialogs[s] = id;
-			s++;
+		else {
+			throw new CustomNPCsException("Slot needs to be between 0 and " + entity.dialogs.length);
 		}
 	}
 

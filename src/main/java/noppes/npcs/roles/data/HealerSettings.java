@@ -14,37 +14,37 @@ public class HealerSettings {
 	public int amplifier;
 	public byte type; // 0-friendly, 1-unfriendly, 2-all
 
-	public HealerSettings(int id, int range, int speed, int amplifier, byte type) {
-		this.id = id;
-		this.range = range;
-		this.type = type;
-		this.speed = speed;
-		this.amplifier = amplifier;
+	public HealerSettings(int idIn, int rangeIn, int speedIn, int amplifierIn, byte typeIn) {
+		id = idIn;
+		range = rangeIn;
+		type = typeIn;
+		speed = speedIn;
+		amplifier = amplifierIn;
 	}
 
 	public HealerSettings(NBTTagCompound nbtSet) {
-		this.onHimself = nbtSet.getBoolean("OnHimself");
-		this.possibleOnMobs = nbtSet.getBoolean("PossibleOnMobs");
-		this.isMassive = nbtSet.getBoolean("IsMassive");
-		this.type = nbtSet.getByte("Type");
-		this.id = nbtSet.getInteger("PotionID");
-		this.range = nbtSet.getInteger("Distance");
-		this.speed = nbtSet.getInteger("Speed");
-		this.time = nbtSet.getInteger("Time");
-		this.amplifier = nbtSet.getInteger("Amplifier");
+		onHimself = nbtSet.getBoolean("OnHimself");
+		possibleOnMobs = nbtSet.getBoolean("PossibleOnMobs");
+		isMassive = nbtSet.getBoolean("IsMassive");
+		type = nbtSet.getByte("Type");
+		id = nbtSet.getInteger("PotionID");
+		range = nbtSet.getInteger("Distance");
+		speed = nbtSet.getInteger("Speed");
+		time = nbtSet.getInteger("Time");
+		amplifier = nbtSet.getInteger("Amplifier");
 	}
 
 	public NBTTagCompound writeNBT() {
 		NBTTagCompound nbtSet = new NBTTagCompound();
-		nbtSet.setBoolean("OnHimself", this.onHimself);
-		nbtSet.setBoolean("PossibleOnMobs", this.possibleOnMobs);
-		nbtSet.setBoolean("IsMassive", this.isMassive);
-		nbtSet.setByte("Type", this.type);
-		nbtSet.setInteger("PotionID", this.id);
-		nbtSet.setInteger("Distance", this.range);
-		nbtSet.setInteger("Speed", this.speed);
-		nbtSet.setInteger("Time", this.time);
-		nbtSet.setInteger("Amplifier", this.amplifier);
+		nbtSet.setBoolean("OnHimself", onHimself);
+		nbtSet.setBoolean("PossibleOnMobs", possibleOnMobs);
+		nbtSet.setBoolean("IsMassive", isMassive);
+		nbtSet.setByte("Type", type);
+		nbtSet.setInteger("PotionID", id);
+		nbtSet.setInteger("Distance", range);
+		nbtSet.setInteger("Speed", speed);
+		nbtSet.setInteger("Time", time);
+		nbtSet.setInteger("Amplifier", amplifier);
 		return nbtSet;
 	}
 

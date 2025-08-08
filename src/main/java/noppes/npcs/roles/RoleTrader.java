@@ -48,14 +48,11 @@ public class RoleTrader extends RoleInterface implements IRoleTrader {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		this.type = RoleType.TRADER;
-		if (!compound.hasKey("MarketID", 3)) {
-			this.marcetID = MarcetController.getInstance().loadOld(compound);
-		}
-		else {
-			this.marcetID = compound.getInteger("MarketID");
-		}
+		if (!compound.hasKey("MarketID", 3)) { this.marcetID = MarcetController.getInstance().loadOld(compound); }
+		else { this.marcetID = compound.getInteger("MarketID"); }
 	}
 
 	@Override
@@ -77,8 +74,8 @@ public class RoleTrader extends RoleInterface implements IRoleTrader {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", RoleType.TRADER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("MarketID", this.marcetID);
 		return compound;
 	}

@@ -87,7 +87,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				}
 				quest.setName(t.toString());
 				selectedQuest = getKey(quest);
-				Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.save(new NBTTagCompound()));
 				initGui();
 				break;
 			} // paste
@@ -372,7 +372,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				}
 				category.title = t.toString();
 				selectedCategory = category.title;
-				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestCategorySave, category.save(new NBTTagCompound()));
 				initGui();
 			}
 			if (subgui.getId() == 3) { // rename category
@@ -394,7 +394,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				}
 				category.title = t.toString();
 				selectedCategory = category.title;
-				Client.sendData(EnumPacketServer.QuestCategorySave, category.writeNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestCategorySave, category.save(new NBTTagCompound()));
 				initGui();
 			}
 			if (subgui.getId() == 11) { // create quest
@@ -418,7 +418,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				quest.setName(t.toString());
 
 				selectedQuest = getKey(quest);
-				Client.sendData(EnumPacketServer.QuestSave, categoryData.get(selectedCategory).id, quest.writeToNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestSave, categoryData.get(selectedCategory).id, quest.save(new NBTTagCompound()));
 				initGui();
 			}
 		}

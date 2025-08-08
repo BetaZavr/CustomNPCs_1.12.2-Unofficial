@@ -229,7 +229,7 @@ public class NoppesUtilServer {
 			} else {
 				newIDs[s] = npc.dialogs[s];
 			}
-			Dialog d = (Dialog) DialogController.instance.get(newIDs[s]);
+			Dialog d = DialogController.instance.get(newIDs[s]);
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setInteger("Id", newIDs[s]);
 			compound.setInteger("Slot", s);
@@ -251,7 +251,7 @@ public class NoppesUtilServer {
 		}
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setBoolean("JobData", true);
-		npc.advanced.jobInterface.writeToNBT(compound);
+		npc.advanced.jobInterface.save(compound);
 		job.cleanCompound(compound);
 		Server.sendData(player, EnumPacketClient.GUI_DATA, compound);
 	}
@@ -311,8 +311,7 @@ public class NoppesUtilServer {
 		playerdata.dialogId = dialog.id;
 		if (npc instanceof EntityDialogNpc || dia.id < 0) {
 			dialog.hideNPC = true;
-			Server.sendDataDelayed((EntityPlayerMP) player, EnumPacketClient.DIALOG_DUMMY, 100, npc.getName(),
-					dialog.writeToNBT(new NBTTagCompound()));
+			Server.sendDataDelayed((EntityPlayerMP) player, EnumPacketClient.DIALOG_DUMMY, 100, npc.getName(), dialog.save(new NBTTagCompound()));
 		} else {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.DIALOG, npc.getEntityId(), dialog.id);
 		}
@@ -546,7 +545,7 @@ public class NoppesUtilServer {
 			if (!DialogController.instance.hasDialog(dialogId)) {
 				continue;
 			}
-			Dialog d = (Dialog) DialogController.instance.get(dialogId);
+			Dialog d = DialogController.instance.get(dialogId);
 			NBTTagCompound compound = new NBTTagCompound();
 			compound.setInteger("Id", d.id);
 			compound.setInteger("Slot", slot);
@@ -654,7 +653,7 @@ public class NoppesUtilServer {
 			return;
 		}
 		NBTTagCompound comp = new NBTTagCompound();
-		npc.advanced.roleInterface.writeToNBT(comp);
+		npc.advanced.roleInterface.save(comp);
 		comp.setInteger("EntityId", npc.getEntityId());
 		Server.sendData((EntityPlayerMP) player, EnumPacketClient.ROLE, comp);
 	}
@@ -709,7 +708,7 @@ public class NoppesUtilServer {
 	public static NBTTagCompound setNpcDialog(int slot, int dialogId, EntityPlayer player) {
 		EntityNPCInterface npc = getEditingNpc(player);
 		if (npc == null || !DialogController.instance.hasDialog(dialogId)) {
-			return null;
+			return new NBTTagCompound();
 		}
 		if (slot >= 0 && slot < npc.dialogs.length) {
 			npc.dialogs[slot] = dialogId;
@@ -721,7 +720,7 @@ public class NoppesUtilServer {
 			newIDs[slot] = dialogId;
 			npc.dialogs = newIDs;
 		}
-		Dialog d = (Dialog) DialogController.instance.get(dialogId);
+		Dialog d = DialogController.instance.get(dialogId);
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("Id", d.id);
 		compound.setInteger("Slot", slot);

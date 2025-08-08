@@ -18,54 +18,166 @@ public class DialogOption implements IDialogOption {
 		public Availability availability;
 
 		public OptionDialogID(int id) {
-			this.dialogId = id;
-			this.availability = new Availability();
+			dialogId = id;
+			availability = new Availability();
 		}
 
 		public OptionDialogID(NBTTagCompound compound) {
-			this.dialogId = compound.getInteger("DialogId");
-			this.availability = new Availability();
-			this.availability.readFromNBT(compound);
+			dialogId = compound.getInteger("DialogId");
+			availability = new Availability();
+			availability.load(compound);
 		}
 
 		public NBTTagCompound getNBT() {
 			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("DialogId", this.dialogId);
-			this.availability.writeToNBT(compound);
+			compound.setInteger("DialogId", dialogId);
+			availability.save(compound);
 			return compound;
 		}
 
 		public String toString() {
-			return "OptionDialogID: " + this.dialogId + "; " + this.availability.toString();
+			return "OptionDialogID: " + dialogId + "; " + availability.toString();
 		}
 
 	}
 
-	public String command;
-	public int optionColor, slot, iconId;
-	public OptionType optionType;
-	public String title;
-	public final List<OptionDialogID> dialogs;
+	public String command = "";
+	public int optionColor = 0xE0E0E0;
+	public int slot = -1;
+	public int iconId = 0;
+	public OptionType optionType = OptionType.DIALOG_OPTION;
+	public String title = "Talk";
+	public final List<OptionDialogID> dialogs = new ArrayList<>();
 
-	public DialogOption() {
-		this.title = "Talk";
-		this.optionType = OptionType.DIALOG_OPTION;
-		this.optionColor = 14737632;
-		this.command = "";
-		this.slot = -1;
-		this.iconId = 0;
-		this.dialogs = new ArrayList<>();
+	public Dialog getDialog(EntityPlayer player) {
+		if (!hasDialogs() || player == null) {
+			return null;
+		}
+		DialogController dData = DialogController.instance;
+		for (OptionDialogID od : dialogs) {
+			if (!dData.hasDialog(od.dialogId)) {
+				continue;
+			}
+			if (od.availability.isAvailable(player)) {
+				return dData.get(od.dialogId);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public String getName() {
+		return title;
+	}
+
+	@Override
+	public int getSlot() {
+		return slot;
+	}
+
+	@Override
+	public int getType() {
+		return optionType.get();
+	}
+
+	public boolean hasDialogs() {
+        return !dialogs.isEmpty() && optionType == OptionType.DIALOG_OPTION;
+    }
+
+	public boolean isAvailable(EntityPlayer player) {
+		if (optionType == OptionType.DISABLED) {
+			return false;
+		}
+		if (optionType != OptionType.DIALOG_OPTION) {
+			return true;
+		}
+		Dialog dialog = getDialog(player);
+		return dialog != null && dialog.availability.isAvailable(player);
+	}
+
+	public void load(NBTTagCompound compound) {
+		if (compound != null) {
+			title = compound.getString("Title");
+			optionColor = compound.getInteger("DialogColor");
+			iconId = compound.getInteger("IconId");
+			optionType = OptionType.get(compound.getInteger("OptionType"));
+			command = compound.getString("DialogCommand");
+			if (optionColor == 0) {
+				optionColor = 14737632;
+			}
+			dialogs.clear();
+			if (compound.hasKey("Dialog", 3)) { // OLD
+				dialogs.add(new OptionDialogID(compound.getInteger("Dialog")));
+			} else if (compound.hasKey("Dialogs", 9)) {
+				for (int i = 0; i < compound.getTagList("Dialogs", 10).tagCount(); i++) {
+					dialogs.add(new OptionDialogID(compound.getTagList("Dialogs", 10).getCompoundTagAt(i)));
+				}
+			}
+		}
+	}
+
+	public NBTTagCompound save() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setString("Title", title);
+		compound.setInteger("OptionType", optionType.get());
+		compound.setInteger("DialogColor", optionColor);
+		compound.setInteger("IconId", iconId);
+		compound.setString("DialogCommand", command);
+
+		NBTTagList list = new NBTTagList();
+		for (OptionDialogID od : dialogs) {
+			list.appendTag(od.getNBT());
+		}
+		compound.setTag("Dialogs", list);
+		return compound;
+	}
+
+	// New from BetaZavr
+	public void replaceDialogIDs(int oldId, int newId) {
+		List<OptionDialogID> newDialogs = new ArrayList<>();
+		boolean added = false;
+		for (OptionDialogID od : dialogs) {
+			if (od.dialogId == oldId) {
+				od.dialogId = newId;
+				added = true;
+			}
+			newDialogs.add(od);
+		}
+		if (added) {
+			dialogs.clear();
+			dialogs.addAll(newDialogs);
+		}
+	}
+
+	public void upPos(int dialogId) {
+		List<OptionDialogID> newDialogs = new ArrayList<>();
+		boolean added = false;
+		OptionDialogID old = null;
+		for (OptionDialogID od : dialogs) {
+			if (od.dialogId == dialogId && old != null) {
+				newDialogs.remove(old);
+				newDialogs.add(od);
+				newDialogs.add(old);
+				added = true;
+				continue;
+			}
+			old = od;
+			newDialogs.add(od);
+		}
+		if (added) {
+			dialogs.clear();
+			dialogs.addAll(newDialogs);
+		}
 	}
 
 	public void addDialog(int dialogId) {
 		OptionDialogID od = new OptionDialogID(dialogId);
-		this.dialogs.add(od);
+		dialogs.add(od);
 	}
 
 	public DialogOption copy() {
 		DialogOption newDO = new DialogOption();
-		NBTTagCompound compound = this.writeNBT();
-		newDO.readNBT(compound);
+		newDO.load(save());
 		return newDO;
 	}
 
@@ -73,7 +185,7 @@ public class DialogOption implements IDialogOption {
 		List<OptionDialogID> newDialogs = new ArrayList<>();
 		boolean added = false;
 		OptionDialogID found = null;
-		for (OptionDialogID od : this.dialogs) {
+		for (OptionDialogID od : dialogs) {
 			if (od.dialogId == dialogId && found == null) {
 				found = od;
 				continue;
@@ -89,129 +201,9 @@ public class DialogOption implements IDialogOption {
 			added = true;
 		}
 		if (added) {
-			this.dialogs.clear();
-			this.dialogs.addAll(newDialogs);
+			dialogs.clear();
+			dialogs.addAll(newDialogs);
 		}
-	}
-
-	public Dialog getDialog(EntityPlayer player) {
-		if (!this.hasDialogs() || player == null) {
-			return null;
-		}
-		DialogController dData = DialogController.instance;
-		for (OptionDialogID od : this.dialogs) {
-			if (!dData.hasDialog(od.dialogId)) {
-				continue;
-			}
-			if (od.availability.isAvailable(player)) {
-				return (Dialog) dData.get(od.dialogId);
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public String getName() {
-		return this.title;
-	}
-
-	@Override
-	public int getSlot() {
-		return this.slot;
-	}
-
-	@Override
-	public int getType() {
-		return this.optionType.get();
-	}
-
-	public boolean hasDialogs() {
-        return !this.dialogs.isEmpty() && this.optionType == OptionType.DIALOG_OPTION;
-    }
-
-	public boolean isAvailable(EntityPlayer player) {
-		if (this.optionType == OptionType.DISABLED) {
-			return false;
-		}
-		if (this.optionType != OptionType.DIALOG_OPTION) {
-			return true;
-		}
-		Dialog dialog = this.getDialog(player);
-		return dialog != null && dialog.availability.isAvailable(player);
-	}
-
-	public void readNBT(NBTTagCompound compound) {
-		if (compound == null) {
-			return;
-		}
-		this.title = compound.getString("Title");
-		this.optionColor = compound.getInteger("DialogColor");
-		this.iconId = compound.getInteger("IconId");
-		this.optionType = OptionType.get(compound.getInteger("OptionType"));
-		this.command = compound.getString("DialogCommand");
-		if (this.optionColor == 0) {
-			this.optionColor = 14737632;
-		}
-		this.dialogs.clear();
-		if (compound.hasKey("Dialog", 3)) { // OLD
-			this.dialogs.add(new OptionDialogID(compound.getInteger("Dialog")));
-		} else if (compound.hasKey("Dialogs", 9)) {
-			for (int i = 0; i < compound.getTagList("Dialogs", 10).tagCount(); i++) {
-				this.dialogs.add(new OptionDialogID(compound.getTagList("Dialogs", 10).getCompoundTagAt(i)));
-			}
-		}
-	}
-
-	public void replaceDialogIDs(int oldId, int newId) {
-		List<OptionDialogID> newDialogs = new ArrayList<>();
-		boolean added = false;
-		for (OptionDialogID od : this.dialogs) {
-			if (od.dialogId == oldId) {
-				od.dialogId = newId;
-				added = true;
-			}
-			newDialogs.add(od);
-		}
-		if (added) {
-			this.dialogs.clear();
-			this.dialogs.addAll(newDialogs);
-		}
-	}
-
-	public void upPos(int dialogId) {
-		List<OptionDialogID> newDialogs = new ArrayList<>();
-		boolean added = false;
-		OptionDialogID old = null;
-		for (OptionDialogID od : this.dialogs) {
-			if (od.dialogId == dialogId && old != null) {
-				newDialogs.remove(old);
-				newDialogs.add(od);
-				newDialogs.add(old);
-				added = true;
-				continue;
-			}
-			old = od;
-			newDialogs.add(od);
-		}
-		if (added) {
-			this.dialogs.clear();
-			this.dialogs.addAll(newDialogs);
-		}
-	}
-
-	public NBTTagCompound writeNBT() {
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setString("Title", this.title);
-		compound.setInteger("OptionType", this.optionType.get());
-		compound.setInteger("DialogColor", this.optionColor);
-		compound.setInteger("IconId", this.iconId);
-		compound.setString("DialogCommand", this.command);
-		NBTTagList list = new NBTTagList();
-		for (OptionDialogID od : this.dialogs) {
-			list.appendTag(od.getNBT());
-		}
-		compound.setTag("Dialogs", list);
-		return compound;
 	}
 
 }

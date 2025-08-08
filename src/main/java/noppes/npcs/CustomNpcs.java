@@ -282,13 +282,14 @@ public class CustomNpcs {
 	public static CommandNoppes NoppesCommand = new CommandNoppes();
 	public static MarkovGenerator[] MARKOV_GENERATOR = new MarkovGenerator[10];
 	public static MinecraftServer Server;
+	public static boolean DebugMonitoring = false;
 	public static DataDebug debugData = new DataDebug();
 	public static boolean FreezeNPCs = false;
 	@SuppressWarnings("all")
 	public static boolean showServerQuestCompass = true;
 	public static File Dir;
 	public static ConfigLoader Config;
-	public static ITextComponent prefix = new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2CustomNpcs" + ((char) 167) + "e]" + ((char) 167) + "r: ");
+	public static ITextComponent prefix = new TextComponentString(((char) 167) + "e[" + ((char) 167) + "2" + MODNAME + ((char) 167) + "e]" + ((char) 167) + "r: ");
 	public static DimensionType customDimensionType;
 	public static ModContainer mod;
 	public static final VisibilityController visibilityController = new VisibilityController();

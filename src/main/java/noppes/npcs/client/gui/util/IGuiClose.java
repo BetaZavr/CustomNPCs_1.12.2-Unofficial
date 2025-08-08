@@ -4,6 +4,6 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public interface IGuiClose {
 
-	void setClose(int id, NBTTagCompound nbt);
+	void setClose(NBTTagCompound nbt);
 
 }

@@ -41,73 +41,66 @@ implements ICustomScrollListener {
 	protected final String back = "   " + Character.toChars(0x2190)[0] + " (" + new TextComponentTranslation("gui.back").getFormattedText() + ")";
 	protected String baseResource = "";
 	protected EntityNPCInterface displayNPC;
-
+	protected int offsetX = 0;
 	public ResourceLocation resource;
 
 	public static boolean dark = false;
 
-	public GuiTextureSelection(int id, EntityNPCInterface npcIn, String texture, String suffix, int type) {
-		this(npcIn, texture, suffix, type);
-		this.id = id;
+	/**
+	 * @param idIn id sub-gui
+	 * @param npcIn customizable npc
+	 * @param textureIn initial texture
+	 * @param suffixIn file index
+	 * @param typeIn 0:skin npc; 1:cape npc; 2:overlay npc; 3:any; 4:faction flag
+	 */
+	public GuiTextureSelection(int idIn, EntityNPCInterface npcIn, String textureIn, String suffixIn, int typeIn) {
+		this(npcIn, textureIn, suffixIn, typeIn);
+		id = idIn;
 	}
-	
-	public GuiTextureSelection(EntityNPCInterface npcIn, @Nonnull String texture, String suffixIn, int typeIn) {
+
+	public GuiTextureSelection(EntityNPCInterface npcIn, @Nonnull String textureIn, String suffixIn, int typeIn) {
 		super(npcIn);
-		if (npc != null) {
-			displayNPC = Util.instance.copyToGUI(npc, mc.world, false);
-		}
+		if (npc != null) { displayNPC = Util.instance.copyToGUI(npc, mc.world, false); }
 		drawDefaultBackground = false;
 		title = "";
 		setBackground("menubg.png");
 		xSize = 366;
 		ySize = 226;
 
-		this.type = typeIn;
+		type = typeIn;
 		selectDir = null;
 		suffix = suffixIn.toLowerCase();
 		if (ClientProxy.texturesData.containsKey(suffix)) {
 			data.putAll(ClientProxy.texturesData.get(suffix));
 		}
-		ResourceLocation loc = new ResourceLocation(texture);
+		ResourceLocation loc = new ResourceLocation(textureIn);
 		if (data.containsKey(loc.getResourceDomain()) && !data.get(loc.getResourceDomain()).containsKey(loc)) {
 			try {
-				if (!texture.isEmpty()) { mc.getTextureManager().bindTexture(loc); }
+				if (!textureIn.isEmpty()) { mc.getTextureManager().bindTexture(loc); }
 			}
 			catch (Exception ignored) { }
-			data.remove(loc.getResourceDomain());
 		}
 		if (!data.containsKey(loc.getResourceDomain())) {
 			resetFiles();
 			ClientProxy.texturesData.put(suffix, data);
 		}
-		baseResource = texture;
-		if (texture.isEmpty()) {
+		baseResource = textureIn;
+		if (textureIn.isEmpty()) {
 			if (selectDir == null) {
 				switch (type) {
-					case 1: {
-						selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/cloak");
-						break;
-					}
-					case 2: {
-						selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/overlays");
-						break;
-					}
-					case 3: {
-						selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/gui");
-						break;
-					}
-					default: {
-						selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale");
-					}
+					case 1: selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/cloak"); break;
+					case 2: selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/overlays"); break;
+					case 3: selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/gui"); break;
+					default: selectDir = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale"); break;
 				}
 			}
 			return;
 		}
-		resource = new ResourceLocation(texture);
-		if (texture.lastIndexOf("/") != -1) {
-			texture = texture.substring(0, texture.lastIndexOf("/"));
+		resource = new ResourceLocation(textureIn);
+		if (textureIn.lastIndexOf("/") != -1) {
+			textureIn = textureIn.substring(0, textureIn.lastIndexOf("/"));
 		}
-		selectDir = new ResourceLocation(texture);
+		selectDir = new ResourceLocation(textureIn);
 		if (!data.containsKey(selectDir.getResourceDomain())) {
 			selectDir = null;
 			return;
@@ -219,13 +212,9 @@ implements ICustomScrollListener {
 			int mouse = 0;
 			x = 0;
 			y = 0;
-			if (type == 0) {
-				rot = (int) (3 * player.world.getTotalWorldTime() % 360);
-			} else if (type == 1) {
-				rot = 215;
-			} else {
-				rot = 325;
-			}
+			if (type == 0) { rot = (int) (3 * player.world.getTotalWorldTime() % 360); }
+			else if (type == 1) { rot = 215; }
+			else { rot = 325; }
 			if (npc.textureLocation != null) {
 				drawNpc(displayNPC, guiLeft + 276 + x, guiTop + 155 + y, s, rot, 0, mouse);
 			}
@@ -235,13 +224,14 @@ implements ICustomScrollListener {
 	@Override
 	public void initGui() {
 		super.initGui();
+		guiLeft += offsetX;
 		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 264, guiTop + 190, 90, 20, "gui.cancel");
 		button.setHoverText("hover.back");
 		addButton(button);
 		button = new GuiNpcButton(2, guiLeft + 264, guiTop + 170, 90, 20, "gui.done");
 		button.setHoverText("texture.hover.done");
 		addButton(button);
-		button = new GuiNpcCheckBox(3, guiLeft + 256, guiTop + 2, 15, 15, null, null, GuiTextureSelection.dark);
+		button = new GuiNpcCheckBox(3, guiLeft + 254, guiTop + 5, 15, 15, null, null, GuiTextureSelection.dark);
 		button.setHoverText("texture.hover.dark");
 		addButton(button);
 		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(250, 199); }
@@ -328,17 +318,9 @@ implements ICustomScrollListener {
 				resource = new ResourceLocation(selectDir.getResourceDomain(), selectDir.getResourcePath() + "/" + scroll.getSelected());
 				if (npc != null && type >= 0 && type <= 2) {
 					switch (type) {
-						case 1: {
-							npc.display.setCapeTexture(resource.toString());
-							break;
-						}
-						case 2: {
-							npc.display.setOverlayTexture(resource.toString());
-							break;
-						}
-						default: {
-							npc.display.setSkinTexture(resource.toString());
-						}
+						case 1: npc.display.setCapeTexture(resource.toString()); break;
+						case 2: npc.display.setOverlayTexture(resource.toString()); break;
+						default: npc.display.setSkinTexture(resource.toString()); break;
 					}
 				}
 			}
@@ -380,6 +362,7 @@ implements ICustomScrollListener {
 					default: {
 						npc.display.setSkinTexture(resource.toString());
 						displayNPC.display.setSkinTexture(resource.toString());
+						break;
 					}
 				}
 			}
@@ -543,6 +526,11 @@ implements ICustomScrollListener {
 			}
 			addFile(f.getAbsolutePath(), f.length());
 		}
+	}
+
+	public GuiTextureSelection setOffsetX(int posX) {
+		offsetX = posX;
+		return this;
 	}
 
 }

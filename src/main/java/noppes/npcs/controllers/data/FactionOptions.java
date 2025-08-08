@@ -45,7 +45,7 @@ public class FactionOptions {
 
 	public FactionOptions copy() {
 		FactionOptions fp = new FactionOptions();
-		fp.readFromNBT(this.writeToNBT(new NBTTagCompound()));
+		fp.load(save(new NBTTagCompound()));
 		return fp;
 	}
 
@@ -76,7 +76,7 @@ public class FactionOptions {
 		return false;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		this.fps.clear();
 		if (!compound.hasKey("FactionOptions", 9)) { // OLD
 			if (compound.getInteger("OptionFactions1") > 0) {
@@ -104,7 +104,7 @@ public class FactionOptions {
 		return false;
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound save(NBTTagCompound compound) {
 		NBTTagList list = new NBTTagList();
 		for (FactionOption fo : this.fps) {
 			list.appendTag(fo.writeToNBT());

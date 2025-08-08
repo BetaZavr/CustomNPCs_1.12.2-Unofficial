@@ -20,55 +20,45 @@ public class RoleInterface implements INPCRole {
 		return false;
 	}
 
-	public void aiDeathExecute(Entity ignoredAttackingEntity) {
-	}
+	public void aiDeathExecute(Entity ignoredAttackingEntity) { }
 
 	public boolean aiShouldExecute() {
 		return false;
 	}
 
-	public void aiStartExecuting() {
-	}
+	public void aiStartExecuting() { }
 
-	public void aiUpdateTask() {
-	}
+	public void aiUpdateTask() { }
 
-	public void clientUpdate() {
-	}
+	public void clientUpdate() { }
 
 	public boolean defendOwner() {
 		return true;
 	}
 
-	public void delete() {
-	}
+	public void delete() { }
 
-	public RoleType getEnumType() {
-		return this.type;
-	}
-
-	@Override
-	public int getType() {
-		return this.type.get();
-	}
-
-	public void interact(EntityPlayer player) {
-	}
+	public void interact(EntityPlayer player) { }
 
 	public boolean isFollowing() {
 		return false;
 	}
 
-	public void killed() {
+	public void killed() { }
+
+	// New from Unofficial (BetaZavr)
+	public void load(NBTTagCompound compound) {
+		type = RoleType.get(compound.getInteger("Type"));
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.get(compound.getInteger("Type"));
-	}
-
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", this.type.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		compound.setInteger("Type", type.get());
 		return compound;
 	}
+
+	@Override
+	public int getType() { return type.get(); }
+
+	public RoleType getEnumType() { return type; }
 
 }

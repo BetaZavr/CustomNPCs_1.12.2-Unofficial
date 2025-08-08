@@ -164,8 +164,8 @@ implements ICustomScrollListener {
     public void save() {
         if (setting != null) {
             NBTTagCompound compound = new NBTTagCompound();
-            availability.writeToNBT(compound); // temp availability
-            setting.availability.readFromNBT(compound); // edit availability
+            availability.save(compound); // temp availability
+            setting.availability.load(compound); // edit availability
         }
     }
 

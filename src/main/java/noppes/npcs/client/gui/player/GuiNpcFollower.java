@@ -188,7 +188,7 @@ implements IGuiData {
 
     @Override
 	public void setGuiData(NBTTagCompound compound) {
-		npc.advanced.roleInterface.readFromNBT(compound);
+		npc.advanced.roleInterface.load(compound);
 		initGui();
 	}
 }

@@ -20,8 +20,8 @@ public class ContainerAvailabilityInv extends Container {
         Availability aParent = CommonProxy.availabilityStacks.get(player);
         availability = new Availability();
         NBTTagCompound compound = new NBTTagCompound();
-        aParent.writeToNBT(compound);
-        availability.readFromNBT(compound);
+        aParent.save(compound);
+        availability.load(compound);
 
         inv = availability.stacks;
         slot = new SlotAvailability(inv, 0, 8, 89);

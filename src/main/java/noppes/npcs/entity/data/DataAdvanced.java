@@ -5,6 +5,7 @@ import java.util.HashSet;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
@@ -54,32 +55,32 @@ public class DataAdvanced implements INPCAdvanced {
 	public HashSet<Integer> attackFactions = new HashSet<>();
 	public HashSet<Integer> friendFactions = new HashSet<>();
 
-	public DataAdvanced(EntityNPCInterface npc) {
-		this.npc = npc;
-		this.jobInterface = new JobInterface(npc);
-		this.roleInterface = new RoleInterface(npc);
-		this.scenes = new DataScenes(npc);
+	public DataAdvanced(EntityNPCInterface npcIn) {
+		npc = npcIn;
+		jobInterface = new JobInterface(npc);
+		roleInterface = new RoleInterface(npc);
+		scenes = new DataScenes(npc);
 	}
 
 	public Line getAttackLine() {
-		return this.attackLines.getLine(!this.orderedLines);
+		return attackLines.getLine(!orderedLines);
 	}
 
 	public Line getInteractLine() {
-		return this.interactLines.getLine(!this.orderedLines);
+		return interactLines.getLine(!orderedLines);
 	}
 
 	public Line getKilledLine() {
-		return this.killedLines.getLine(!this.orderedLines);
+		return killedLines.getLine(!orderedLines);
 	}
 
 	public Line getKillLine() {
-		return this.killLines.getLine(!this.orderedLines);
+		return killLines.getLine(!orderedLines);
 	}
 
 	@Override
 	public String getLine(int type, int slot) {
-		Lines lines = this.getLines(type);
+		Lines lines = getLines(type);
         if (lines == null) {
             return null;
         }
@@ -92,36 +93,36 @@ public class DataAdvanced implements INPCAdvanced {
 
 	@Override
 	public int getLineCount(int type) {
-		Lines lines = this.getLines(type);
+		Lines lines = getLines(type);
 		return lines == null ? 0 : lines.lines.size();
 	}
 
 	private Lines getLines(int type) {
 		switch (type) {
 		case 0: {
-			return this.interactLines;
+			return interactLines;
 		}
 		case 1: {
-			return this.attackLines;
+			return attackLines;
 		}
 		case 2: {
-			return this.worldLines;
+			return worldLines;
 		}
 		case 3: {
-			return this.killedLines;
+			return killedLines;
 		}
 		case 4: {
-			return this.killLines;
+			return killLines;
 		}
 		case 5: {
-			return this.npcInteractLines;
+			return npcInteractLines;
 		}
 		}
 		return null;
 	}
 
 	public Line getNPCInteractLine() {
-		return this.npcInteractLines.getLine(!this.orderedLines);
+		return npcInteractLines.getLine(!orderedLines);
 	}
 
 	@Override
@@ -129,23 +130,23 @@ public class DataAdvanced implements INPCAdvanced {
 		String sound = null;
 		switch (type) {
 		case 0: {
-			sound = this.idleSound;
+			sound = idleSound;
 			break;
 		}
 		case 1: {
-			sound = this.angrySound;
+			sound = angrySound;
 			break;
 		}
 		case 2: {
-			sound = this.hurtSound;
+			sound = hurtSound;
 			break;
 		}
 		case 3: {
-			sound = this.deathSound;
+			sound = deathSound;
 			break;
 		}
 		case 4: {
-			sound = this.stepSound;
+			sound = stepSound;
 			break;
 		}
 		default: {
@@ -159,11 +160,11 @@ public class DataAdvanced implements INPCAdvanced {
 	}
 
 	public Line getWorldLine() {
-		return this.worldLines.getLine(!this.orderedLines);
+		return worldLines.getLine(!orderedLines);
 	}
 
 	public boolean hasWorldLines() {
-		return !this.worldLines.isEmpty();
+		return !worldLines.isEmpty();
 	}
 
 	private boolean isAggressive(PlayerFactionData data, EntityPlayer player, Faction faction) {
@@ -171,8 +172,7 @@ public class DataAdvanced implements INPCAdvanced {
 	}
 
 	public boolean isAggressiveToNpc(EntityNPCInterface entity) {
-        return this.attackOtherFactions
-                && (this.npc.faction.isAggressiveToNpc(entity) || this.attackFactions.contains(entity.faction.id));
+        return attackOtherFactions && (npc.faction.isAggressiveToNpc(entity) || attackFactions.contains(entity.faction.id));
     }
 
 	public boolean isAggressiveToPlayer(EntityPlayer player) {
@@ -180,16 +180,16 @@ public class DataAdvanced implements INPCAdvanced {
 			return false;
 		}
 		PlayerFactionData data = PlayerData.get(player).factionData;
-		if (this.isAggressive(data, player, this.npc.faction)) {
+		if (isAggressive(data, player, npc.faction)) {
 			return true;
 		}
 		FactionController fData = FactionController.instance;
-		for (int id : this.attackFactions) {
+		for (int id : attackFactions) {
 			IFaction faction = fData.get(id);
 			if (faction == null) {
 				continue;
 			}
-			if (this.isAggressive(data, player, (Faction) faction)) {
+			if (isAggressive(data, player, (Faction) faction)) {
 				return true;
 			}
 		}
@@ -197,85 +197,83 @@ public class DataAdvanced implements INPCAdvanced {
 	}
 
 	public void playSound(int type, float volume, float pitch) {
-		String sound = this.getSound(type);
+		String sound = getSound(type);
 		if (sound == null) {
 			return;
 		}
-		BlockPos pos = this.npc.getPosition();
-		Server.sendRangedData(this.npc, 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(),
-				volume, pitch);
+		BlockPos pos = npc.getPosition();
+		Server.sendRangedData(npc, 16, EnumPacketClient.PLAY_SOUND, sound, pos.getX(), pos.getY(), pos.getZ(), volume, pitch);
 	}
 
-	public void readToNBT(NBTTagCompound compound) {
-		if (!compound.hasKey("Role")) {
-			return;
-		}
-		this.worldLines.readNBT(compound.getCompoundTag("NpcLines")); // 0
-		this.attackLines.readNBT(compound.getCompoundTag("NpcAttackLines")); // 1
-		this.interactLines.readNBT(compound.getCompoundTag("NpcInteractLines")); // 2
-		this.killedLines.readNBT(compound.getCompoundTag("NpcKilledLines")); // 3
-		this.killLines.readNBT(compound.getCompoundTag("NpcKillLines")); // 4
-		this.npcInteractLines.readNBT(compound.getCompoundTag("NpcInteractNPCLines")); // 5
-		this.orderedLines = compound.getBoolean("OrderedLines");
-		this.idleSound = compound.getString("NpcIdleSound");
-		this.angrySound = compound.getString("NpcAngrySound");
-		this.hurtSound = compound.getString("NpcHurtSound");
-		this.deathSound = compound.getString("NpcDeathSound");
-		this.stepSound = compound.getString("NpcStepSound");
-		this.npc.setFaction(compound.getInteger("FactionID"));
-		this.npc.faction = this.npc.getFaction();
-		this.attackOtherFactions = compound.getBoolean("AttackOtherFactions");
-		this.defendFaction = compound.getBoolean("DefendFaction");
-		this.disablePitch = compound.getBoolean("DisablePitch");
-		this.factions.readFromNBT(compound.getCompoundTag("FactionPoints"));
-		this.scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
+	public void load(NBTTagCompound compound) {
+		if (!compound.hasKey("Role")) { return; }
+		worldLines.readNBT(compound.getCompoundTag("NpcLines")); // 0
+		attackLines.readNBT(compound.getCompoundTag("NpcAttackLines")); // 1
+		interactLines.readNBT(compound.getCompoundTag("NpcInteractLines")); // 2
+		killedLines.readNBT(compound.getCompoundTag("NpcKilledLines")); // 3
+		killLines.readNBT(compound.getCompoundTag("NpcKillLines")); // 4
+		npcInteractLines.readNBT(compound.getCompoundTag("NpcInteractNPCLines")); // 5
+		orderedLines = compound.getBoolean("OrderedLines");
+		idleSound = compound.getString("NpcIdleSound");
+		angrySound = compound.getString("NpcAngrySound");
+		hurtSound = compound.getString("NpcHurtSound");
+		deathSound = compound.getString("NpcDeathSound");
+		stepSound = compound.getString("NpcStepSound");
+		npc.setFaction(compound.getInteger("FactionID"));
+		npc.faction = npc.getFaction();
+		attackOtherFactions = compound.getBoolean("AttackOtherFactions");
+		defendFaction = compound.getBoolean("DefendFaction");
+		disablePitch = compound.getBoolean("DisablePitch");
+		factions.load(compound.getCompoundTag("FactionPoints"));
+		scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
 
 		if (!compound.hasKey("ThroughWalls", 1)) {
-			this.throughWalls = true;
+			throughWalls = true;
 		} else {
-			this.throughWalls = compound.getBoolean("ThroughWalls");
+			throughWalls = compound.getBoolean("ThroughWalls");
 		}
 
 		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3)) {
-			this.setRole(compound.getInteger("Role"));
-			this.setJob(compound.getInteger("NpcJob"));
-			this.roleInterface.readFromNBT(compound);
-			this.jobInterface.readFromNBT(compound);
+			setRole(compound.getInteger("Role"));
+			setJob(compound.getInteger("NpcJob"));
+			roleInterface.load(compound);
+			jobInterface.load(compound);
 		}
 		if (compound.hasKey("Role", 10) && compound.hasKey("Job", 10)) {
-			this.setRole(compound.getCompoundTag("Role").getInteger("Type"));
-			this.setJob(compound.getCompoundTag("Job").getInteger("Type"));
-			this.roleInterface.readFromNBT(compound.getCompoundTag("Role"));
-			this.jobInterface.readFromNBT(compound.getCompoundTag("Job"));
+			setRole(compound.getCompoundTag("Role").getInteger("Type"));
+			setJob(compound.getCompoundTag("Job").getInteger("Type"));
+			roleInterface.load(compound.getCompoundTag("Role"));
+			jobInterface.load(compound.getCompoundTag("Job"));
 		}
 
-		if (this.roleInterface instanceof RoleTrader && compound.hasKey("MarketID", 3)) {
-			this.roleInterface.readFromNBT(compound);
+		if (roleInterface instanceof RoleTrader && compound.hasKey("MarketID", 3)) {
+			roleInterface.load(compound);
 		}
 		if (compound.hasKey("NPCDialogOptions", 11)) {
-			this.npc.dialogs = compound.getIntArray("NPCDialogOptions");
-		} else if (compound.hasKey("NPCDialogOptions", 9)) {
-			this.npc.dialogs = new int[compound.getTagList("NPCDialogOptions", 10).tagCount()];
-			for (int i = 0; i < compound.getTagList("NPCDialogOptions", 10).tagCount(); ++i) {
-				this.npc.dialogs[i] = compound.getTagList("NPCDialogOptions", 10).getCompoundTagAt(i)
-						.getCompoundTag("NPCDialog").getInteger("Dialog");
+			npc.dialogs = compound.getIntArray("NPCDialogOptions");
+		}
+		else if (compound.hasKey("NPCDialogOptions", 9)) {
+			NBTTagList list = compound.getTagList("NPCDialogOptions", 10);
+			npc.dialogs = new int[list.tagCount()];
+			for (int i = 0; i < list.tagCount(); ++i) {
+				npc.dialogs[i] = list.getCompoundTagAt(i).getCompoundTag("NPCDialog").getInteger("Dialog");
 			}
 		}
-		this.attackFactions = NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10));
-		this.friendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
+		attackFactions = NBTTags.getIntegerSet(compound.getTagList("AttackFactions", 10));
+		friendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
 	}
 
 	public void setJob(int i) {
-		JobType.get(i).setToNpc(this.npc);
-		if (!this.npc.world.isRemote) {
-			this.jobInterface.reset();
+		JobType.get(i).setToNpc(npc);
+		if (!npc.world.isRemote) {
+			jobInterface.reset();
 		}
 	}
 
 	@Override
 	public void setLine(int type, int slot, String text, String sound) {
 		slot = ValueUtil.correctInt(slot, 0, 7);
-		Lines lines = this.getLines(type);
+		Lines lines = getLines(type);
 		if (lines == null) { return; }
 		if (text == null || text.isEmpty()) {
 			lines.lines.remove(slot);
@@ -287,7 +285,7 @@ public class DataAdvanced implements INPCAdvanced {
 	}
 
 	public void setRole(int i) {
-		RoleType.get(i).setToNpc(this.npc);
+		RoleType.get(i).setToNpc(npc);
 	}
 
 	@Override
@@ -297,69 +295,68 @@ public class DataAdvanced implements INPCAdvanced {
 		}
 		switch (type) {
 		case 0:
-			this.idleSound = sound;
+			idleSound = sound;
 			break;
 		case 1:
-			this.angrySound = sound;
+			angrySound = sound;
 			break;
 		case 2:
-			this.hurtSound = sound;
+			hurtSound = sound;
 			break;
 		case 3:
-			this.deathSound = sound;
+			deathSound = sound;
 			break;
 		case 4:
-			this.stepSound = sound;
+			stepSound = sound;
 			break;
 		}
 	}
 
 	public void tryDefendFaction(int id, EntityLivingBase possibleFriend, EntityLivingBase attacked) {
-		if (this.npc.isKilled() || !this.defendFaction || possibleFriend.equals(attacked)) {
+		if (npc.isKilled() || !defendFaction || possibleFriend.equals(attacked)) {
 			return;
 		}
-		boolean canSee = this.npc.canSee(possibleFriend);
-		if (!canSee && this.throughWalls) {
-			float dist = this.npc.getDistance(possibleFriend);
-			canSee = dist <= this.npc.stats.aggroRange;
+		boolean canSee = npc.canSee(possibleFriend);
+		if (!canSee && throughWalls) {
+			float dist = npc.getDistance(possibleFriend);
+			canSee = dist <= npc.stats.aggroRange;
 		}
-		if (!(this.npc.faction.id == id || this.npc.faction.frendFactions.contains(id)
-				|| this.friendFactions.contains(id)) || !canSee) {
+		if (!(npc.faction.id == id || npc.faction.frendFactions.contains(id) || friendFactions.contains(id)) || !canSee) {
 			return;
 		}
-		this.npc.onAttack(attacked);
+		npc.onAttack(attacked);
 	}
 
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setTag("NpcLines", this.worldLines.writeToNBT()); // 0
-		compound.setTag("NpcAttackLines", this.attackLines.writeToNBT()); // 1
-		compound.setTag("NpcInteractLines", this.interactLines.writeToNBT()); // 2
-		compound.setTag("NpcKilledLines", this.killedLines.writeToNBT()); // 3
-		compound.setTag("NpcKillLines", this.killLines.writeToNBT()); // 4
-		compound.setTag("NpcInteractNPCLines", this.npcInteractLines.writeToNBT()); // 5
-		compound.setBoolean("OrderedLines", this.orderedLines);
-		compound.setString("NpcIdleSound", this.idleSound);
-		compound.setString("NpcAngrySound", this.angrySound);
-		compound.setString("NpcHurtSound", this.hurtSound);
-		compound.setString("NpcDeathSound", this.deathSound);
-		compound.setString("NpcStepSound", this.stepSound);
-		compound.setInteger("FactionID", this.npc.getFaction().id);
-		compound.setBoolean("AttackOtherFactions", this.attackOtherFactions);
-		compound.setBoolean("DefendFaction", this.defendFaction);
-		compound.setBoolean("ThroughWalls", this.throughWalls);
-		compound.setBoolean("DisablePitch", this.disablePitch);
-		compound.setTag("FactionPoints", this.factions.writeToNBT(new NBTTagCompound()));
-		compound.setIntArray("NPCDialogOptions", this.npc.dialogs);
-		compound.setTag("NpcScenes", this.scenes.writeToNBT(new NBTTagCompound()));
+	public NBTTagCompound save(NBTTagCompound compound) {
+		compound.setTag("NpcLines", worldLines.writeToNBT()); // 0
+		compound.setTag("NpcAttackLines", attackLines.writeToNBT()); // 1
+		compound.setTag("NpcInteractLines", interactLines.writeToNBT()); // 2
+		compound.setTag("NpcKilledLines", killedLines.writeToNBT()); // 3
+		compound.setTag("NpcKillLines", killLines.writeToNBT()); // 4
+		compound.setTag("NpcInteractNPCLines", npcInteractLines.writeToNBT()); // 5
+		compound.setBoolean("OrderedLines", orderedLines);
+		compound.setString("NpcIdleSound", idleSound);
+		compound.setString("NpcAngrySound", angrySound);
+		compound.setString("NpcHurtSound", hurtSound);
+		compound.setString("NpcDeathSound", deathSound);
+		compound.setString("NpcStepSound", stepSound);
+		compound.setInteger("FactionID", npc.getFaction().id);
+		compound.setBoolean("AttackOtherFactions", attackOtherFactions);
+		compound.setBoolean("DefendFaction", defendFaction);
+		compound.setBoolean("ThroughWalls", throughWalls);
+		compound.setBoolean("DisablePitch", disablePitch);
+		compound.setTag("FactionPoints", factions.save(new NBTTagCompound()));
+		compound.setIntArray("NPCDialogOptions", npc.dialogs);
+		compound.setTag("NpcScenes", scenes.writeToNBT(new NBTTagCompound()));
 
 		NBTTagCompound roleNbt = new NBTTagCompound();
 		NBTTagCompound jobNbt = new NBTTagCompound();
-		this.jobInterface.writeToNBT(jobNbt);
-		this.roleInterface.writeToNBT(roleNbt);
+		roleInterface.save(roleNbt);
+		jobInterface.save(jobNbt);
 		compound.setTag("Role", roleNbt);
 		compound.setTag("Job", jobNbt);
-		compound.setTag("AttackFactions", NBTTags.nbtIntegerCollection(this.attackFactions));
-		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(this.friendFactions));
+		compound.setTag("AttackFactions", NBTTags.nbtIntegerCollection(attackFactions));
+		compound.setTag("FrendFactions", NBTTags.nbtIntegerCollection(friendFactions));
 
 		return compound;
 	}

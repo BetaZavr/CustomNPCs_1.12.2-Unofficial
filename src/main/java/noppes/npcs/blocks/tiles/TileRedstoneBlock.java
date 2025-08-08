@@ -93,7 +93,7 @@ implements ITickable {
 		offRangeY = compound.getInteger("BlockOffRangeY");
 		offRangeZ = compound.getInteger("BlockOffRangeZ");
 		if (compound.hasKey("BlockActivated")) { isActivated = compound.getBoolean("BlockActivated"); }
-		availability.readFromNBT(compound);
+		availability.load(compound);
 	}
 
 	private void setActive(Block block, boolean bo) {
@@ -168,7 +168,7 @@ implements ITickable {
 		compound.setInteger("BlockOffRangeX", offRangeX);
 		compound.setInteger("BlockOffRangeY", offRangeY);
 		compound.setInteger("BlockOffRangeZ", offRangeZ);
-		availability.writeToNBT(compound);
+		availability.save(compound);
 		return super.writeToNBT(compound);
 	}
 }

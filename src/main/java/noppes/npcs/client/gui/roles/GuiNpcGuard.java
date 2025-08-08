@@ -175,7 +175,7 @@ extends GuiNPCInterface2 {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, role.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, role.save(new NBTTagCompound()));
 	}
 
 }

@@ -100,12 +100,10 @@ public class NoppesStringUtils {
 	public static String translate(Object... arr) {
 		StringBuilder s = new StringBuilder();
 		for (Object str : arr) {
-			try {
-				s.append(new TextComponentTranslation(str.toString()).getFormattedText());
-			} catch (Exception e) {
-				s.append(str);
-			}
+			try { s.append(new TextComponentTranslation(str.toString()).getFormattedText()); }
+			catch (Exception e) { s.append(str); }
 		}
 		return s.toString();
 	}
+
 }

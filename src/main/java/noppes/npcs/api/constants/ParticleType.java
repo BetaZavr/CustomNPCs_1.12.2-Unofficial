@@ -4,7 +4,15 @@ import net.minecraft.util.EnumParticleTypes;
 
 public enum ParticleType {
 
-	CRIT(8), ENCHANT(7), LARGE_SMOKE(5), LIGHTNING(4), MAGIC(6), NONE(0), PORTAL(2), REDSTONE(3), SMOKE(1);
+	NONE(0),
+	SMOKE(1),
+	PORTAL(2),
+	REDSTONE(3),
+	LIGHTNING(4),
+	LARGE_SMOKE(5),
+	MAGIC(6),
+	ENCHANT(7),
+	CRIT(8);
 
 	public static EnumParticleTypes getMCType(int type) {
 		if (type == 1) {
@@ -36,11 +44,8 @@ public enum ParticleType {
 
 	final int type;
 
-	ParticleType(int t) {
-		this.type = t;
-	}
+	ParticleType(int t) { type = t; }
 
-	public int get() {
-		return this.type;
-	}
+	public int get() { return type; }
+
 }

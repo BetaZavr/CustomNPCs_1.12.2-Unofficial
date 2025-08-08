@@ -2250,7 +2250,7 @@ implements GuiYesNoCallback, IGuiData, ISliderListener, ITextfieldListener {
 			NBTTagList list = compound.getTagList("FactionList", 10);
 			for (int i = 0; i < list.tagCount(); ++i) {
 				Faction faction = new Faction();
-				faction.readNBT(list.getCompoundTagAt(i));
+				faction.load(list.getCompoundTagAt(i));
 				playerFactions.add(faction);
 			}
 			PlayerFactionData data = new PlayerFactionData();

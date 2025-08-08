@@ -104,7 +104,8 @@ public class JobFollower extends JobInterface implements IJobFollower {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
 		type = JobType.FOLLOWER;
 		name = compound.getString("FollowingEntityName");
 	}
@@ -120,8 +121,8 @@ public class JobFollower extends JobInterface implements IJobFollower {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", JobType.FOLLOWER.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setString("FollowingEntityName", name);
 		return compound;
 	}

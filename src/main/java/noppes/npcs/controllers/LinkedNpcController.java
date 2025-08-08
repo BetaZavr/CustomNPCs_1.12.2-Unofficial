@@ -102,7 +102,7 @@ public class LinkedNpcController {
 			NBTTagCompound compound = NBTTags.NBTMerge(this.readNpcData(npc), data.data);
 			npc.display.readToNBT(compound);
 			npc.stats.readToNBT(compound);
-			npc.advanced.readToNBT(compound);
+			npc.advanced.load(compound);
 			npc.inventory.readEntityFromNBT(compound);
 			if (compound.hasKey("ModelData")) {
 				((EntityCustomNpc) npc).modelData.load(compound.getCompoundTag("ModelData"));
@@ -144,7 +144,7 @@ public class LinkedNpcController {
 		npc.inventory.writeEntityToNBT(compound);
 		npc.stats.writeToNBT(compound);
 		npc.ais.writeToNBT(compound);
-		npc.advanced.writeToNBT(compound);
+		npc.advanced.save(compound);
 		npc.transform.save(compound);
 		compound.setTag("ModelData", ((EntityCustomNpc) npc).modelData.save());
 		return compound;

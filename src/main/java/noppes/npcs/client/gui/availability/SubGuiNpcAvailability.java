@@ -69,7 +69,7 @@ implements ISliderListener, ITextfieldListener {
 				CommonProxy.availabilityStacks.put(player, availability);
 
 				NBTTagCompound compound = new NBTTagCompound();
-				availability.writeToNBT(compound);
+				availability.save(compound);
 				Client.sendData(EnumPacketServer.AvailabilityStacks, compound);
 
 				NoppesUtil.requestOpenGUI(EnumGuiType.AvailabilityStack);

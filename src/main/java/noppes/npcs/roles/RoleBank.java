@@ -39,14 +39,15 @@ public class RoleBank extends RoleInterface implements IRoleBank {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		this.type = RoleType.BANK;
-		this.bankId = compound.getInteger("RoleBankID");
+	public void load(NBTTagCompound compound) {
+		super.load(compound);
+		type = RoleType.BANK;
+		bankId = compound.getInteger("RoleBankID");
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		compound.setInteger("Type", RoleType.BANK.get());
+	public NBTTagCompound save(NBTTagCompound compound) {
+		super.save(compound);
 		compound.setInteger("RoleBankID", this.bankId);
 		return compound;
 	}

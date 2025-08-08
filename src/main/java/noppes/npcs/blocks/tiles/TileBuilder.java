@@ -125,7 +125,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 		this.enabled = compound.getBoolean("Enabled");
 		this.started = compound.getBoolean("Started");
 		this.finished = compound.getBoolean("Finished");
-		this.availability.readFromNBT(compound.getCompoundTag("Availability"));
+		this.availability.load(compound.getCompoundTag("Availability"));
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -208,7 +208,7 @@ public class TileBuilder extends TileEntity implements ITickable {
 		compound.setBoolean("Enabled", this.enabled);
 		compound.setBoolean("Started", this.started);
 		compound.setBoolean("Finished", this.finished);
-		compound.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
+		compound.setTag("Availability", this.availability.save(new NBTTagCompound()));
 		return compound;
 	}
 

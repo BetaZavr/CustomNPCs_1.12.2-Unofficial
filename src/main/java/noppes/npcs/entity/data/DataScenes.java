@@ -18,6 +18,7 @@ import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.AnimationType;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.controllers.data.Line;
@@ -141,24 +142,7 @@ public class DataScenes {
 				EntityProjectile projectile = npc.shoot(entity2, 100, stack, false);
 				projectile.damage = damage;
 			} else if (event.type == SceneType.ANIMATE) {
-				npc.animateAi.tempAnimation = 0;
-				if (event.param.equalsIgnoreCase("sleep")) {
-					npc.animateAi.tempAnimation = 2;
-				} else if (event.param.equalsIgnoreCase("sneak")) {
-					npc.ais.animationType = 4;
-				} else if (event.param.equalsIgnoreCase("normal")) {
-					npc.ais.animationType = 0;
-				} else if (event.param.equalsIgnoreCase("sit")) {
-					npc.animateAi.tempAnimation = 1;
-				} else if (event.param.equalsIgnoreCase("crawl")) {
-					npc.ais.animationType = 7;
-				} else if (event.param.equalsIgnoreCase("bow")) {
-					npc.animateAi.tempAnimation = 11;
-				} else if (event.param.equalsIgnoreCase("yes")) {
-					npc.animateAi.tempAnimation = 13;
-				} else if (event.param.equalsIgnoreCase("no")) {
-					npc.animateAi.tempAnimation = 12;
-				}
+				npc.animateAi.tempAnimation = AnimationType.get(event.param);
 			} else if (event.type == SceneType.COMMAND) {
 				NoppesUtilServer.runCommand(npc, npc.getName(), event.param, null);
 			} else if (event.type == SceneType.STATS) {

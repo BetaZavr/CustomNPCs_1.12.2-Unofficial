@@ -19,22 +19,26 @@ import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Dialog;
 import noppes.npcs.controllers.data.PlayerMail;
+import noppes.npcs.entity.EntityNPCInterface;
 
 public class GuiDialogEdit
 extends SubGuiInterface
 implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 
 	private final Dialog dialog;
+
+	// New from Unofficial (BetaZavr)
 	public final GuiScreen parent;
 
-	public GuiDialogEdit(Dialog d, GuiScreen gui) {
+	public GuiDialogEdit(EntityNPCInterface npcIn, Dialog dialogIn, GuiScreen gui) {
+		super(npcIn);
 		setBackground("menubg.png");
 		xSize = 386;
 		ySize = 226;
 		closeOnEsc = true;
 
+		dialog = dialogIn;
 		parent = gui;
-		dialog = d;
 	}
 
 	@Override
@@ -53,7 +57,7 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 				break;
 			}
 			case 6: {
-				setSubGui(new SubGuiNpcDialogOptions(dialog, this));
+				setSubGui(new SubGuiNpcDialogOptions(npc, dialog, this));
 				break;
 			}
 			case 7: {
@@ -106,13 +110,13 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 				dialog.showFits = ((GuiNpcCheckBox) button).isSelected();
 				break;
 			}
-			case 24: { // reset ID
+			case 24: {
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						new TextComponentTranslation("message.change.id", "" + dialog.id).getFormattedText(),
 						new TextComponentTranslation("message.change").getFormattedText(), 0);
 				displayGuiScreen(guiyesno);
 				break;
-			}
+			} // reset ID
 			case 66: {
 				close();
 				break;
@@ -133,18 +137,6 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 		}
 		if (id == 0) {
 			Client.sendData(EnumPacketServer.DialogMinID, dialog.id);
-		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		if (getButton(17) != null) {
-			getButton(17).setEnabled(getTextField(2) != null && !getTextField(2).getFullText().isEmpty());
-		}
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (subgui == null) {
-			drawVerticalLine(guiLeft + 196, guiTop + 24, guiTop + 159, 0xFF808080);
-			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 5, guiTop + 159, 0xFF808080);
 		}
 	}
 
@@ -196,10 +188,10 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 		// quest
 		button = new GuiNpcButton(7, xl, y += 22, 166, 20, "availability.selectquest");
 		if (dialog.hasQuest()) { button.setDisplayText(dialog.getQuest().getTitle()); }
-		button.setHoverText("dialog.hover.quest");
+		button.setHoverText("dialog.hover.quests");
 		addButton(button);
 		button = new GuiNpcButton(8, xl + 168, y, 20, 20, "X");
-		button.setHoverText("dialog.hover.quest.del");
+		button.setHoverText("dialog.hover.quests.del");
 		addButton(button);
 		// mail
 		button = new GuiNpcButton(13, xl, y += 22, 166, 20, "mailbox.setup");
@@ -266,50 +258,31 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		Client.sendData(EnumPacketServer.DialogSave, dialog.category.id, dialog.writeToNBT(new NBTTagCompound()));
-	}
-
-	@Override
-	public void setGuiData(NBTTagCompound compound) {
-		if (compound != null && compound.hasKey("MinimumID", 3) && dialog.id != compound.getInteger("MinimumID")) {
-			Client.sendData(EnumPacketServer.DialogRemove, dialog.id);
-			dialog.id = compound.getInteger("MinimumID");
-			Client.sendData(EnumPacketServer.DialogSave, dialog.category.id, dialog.writeToNBT(new NBTTagCompound()));
-			initGui();
-		}
+		Client.sendData(EnumPacketServer.DialogSave, dialog.category.id, dialog.save(new NBTTagCompound()));
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiNpcTextArea) {
-			SubGuiNpcTextArea gui = (SubGuiNpcTextArea) subgui;
-			dialog.text = gui.text;
-		}
-		if (subgui instanceof SubGuiNpcDialogOption) {
-			setSubGui(new SubGuiNpcDialogOptions(dialog, this));
-		}
-		if (subgui instanceof SubGuiNpcCommand) {
-			dialog.command = ((SubGuiNpcCommand) subgui).command;
-		}
-		if (subgui instanceof GuiQuestSelection) {
-			GuiQuestSelection gqs = (GuiQuestSelection) subgui;
-			if (gqs.selectedQuest != null) {
-				dialog.quest = gqs.selectedQuest.id;
+		if (subgui instanceof SubGuiNpcTextArea) { dialog.text = ((SubGuiNpcTextArea) subgui).text; }
+		else if (subgui instanceof SubGuiNpcDialogOption) { setSubGui(new SubGuiNpcDialogOptions(npc, dialog, this)); }
+		else if (subgui instanceof SubGuiNpcCommand) { dialog.command = ((SubGuiNpcCommand) subgui).command; }
+		else if (subgui instanceof GuiQuestSelection) {
+			GuiQuestSelection gui = (GuiQuestSelection) subgui;
+			if (gui.selectedQuest != null) {
+				dialog.quest = gui.selectedQuest.id;
 				initGui();
 			}
 		}
-		if (subgui instanceof GuiSoundSelection) {
+		else if (subgui instanceof GuiSoundSelection) {
 			GuiSoundSelection gss = (GuiSoundSelection) subgui;
 			if (gss.selectedResource != null) {
 				getTextField(2).setFullText(gss.selectedResource.toString());
 				unFocused(getTextField(2));
 			}
 		}
-		if (subgui instanceof GuiTextureSelection) {
+		else if (subgui instanceof GuiTextureSelection) {
 			GuiTextureSelection gts = (GuiTextureSelection) subgui;
-			if (gts.resource == null) {
-				return;
-			}
+			if (gts.resource == null) { return; }
 			dialog.texture = gts.resource.toString();
 			initGui();
 		}
@@ -337,6 +310,29 @@ implements ISubGuiListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
 			case 2: dialog.sound = textField.getFullText(); break;
 			case 3: dialog.delay = textField.getInteger(); break;
 			case 4: dialog.texture = textField.getFullText(); break;
+		}
+	}
+
+	// New from Unofficial (BetaZavr)
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		if (getButton(17) != null) {
+			getButton(17).setEnabled(getTextField(2) != null && !getTextField(2).getFullText().isEmpty());
+		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		if (subgui == null) {
+			drawVerticalLine(guiLeft + 196, guiTop + 24, guiTop + 159, 0xFF808080);
+			drawHorizontalLine(guiLeft + 4, guiLeft + xSize - 5, guiTop + 159, 0xFF808080);
+		}
+	}
+
+	@Override
+	public void setGuiData(NBTTagCompound compound) {
+		if (compound != null && compound.hasKey("MinimumID", 3) && dialog.id != compound.getInteger("MinimumID")) {
+			Client.sendData(EnumPacketServer.DialogRemove, dialog.id);
+			dialog.id = compound.getInteger("MinimumID");
+			Client.sendData(EnumPacketServer.DialogSave, dialog.category.id, dialog.save(new NBTTagCompound()));
+			initGui();
 		}
 	}
 

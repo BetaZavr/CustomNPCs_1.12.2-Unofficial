@@ -684,7 +684,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			int[] p = nbtRegion.getTagList("Points", 11).getIntArrayAt(i);
 			points.put(i, new Point(p[0], p[1]));
 		}
-		availability.readFromNBT(nbtRegion.getCompoundTag("Availability"));
+		availability.load(nbtRegion.getCompoundTag("Availability"));
 		message = nbtRegion.getString("Message");
 
 		if (nbtRegion.hasKey("HomePos", 4)) {
@@ -990,7 +990,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		nbtRegion.setTag("Points", ps);
 		nbtRegion.setIntArray("AxisY", y);
-		nbtRegion.setTag("Availability", availability.writeToNBT(new NBTTagCompound()));
+		nbtRegion.setTag("Availability", availability.save(new NBTTagCompound()));
 		nbtRegion.setString("Message", message);
 
 		nbtRegion.setLong("HomePos", homePos.getMCBlockPos().toLong());

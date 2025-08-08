@@ -43,7 +43,7 @@ extends SubGuiInterface {
 					return;
 				}
 				task.setType(EnumQuestTask.ITEM);
-				Client.sendData(EnumPacketServer.QuestReset, quest.writeToNBT(new NBTTagCompound()), quest.questInterface.getPos(task));
+				Client.sendData(EnumPacketServer.QuestReset, quest.save(new NBTTagCompound()), quest.questInterface.getPos(task));
 				return;
 			}
 			case 72: {
@@ -52,7 +52,7 @@ extends SubGuiInterface {
 					return;
 				}
 				task.setType(EnumQuestTask.CRAFT);
-				Client.sendData(EnumPacketServer.QuestReset, quest.writeToNBT(new NBTTagCompound()), quest.questInterface.getPos(task));
+				Client.sendData(EnumPacketServer.QuestReset, quest.save(new NBTTagCompound()), quest.questInterface.getPos(task));
 				return;
 			}
 			case 73: {

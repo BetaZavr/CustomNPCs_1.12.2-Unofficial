@@ -105,7 +105,7 @@ implements ITextfieldListener, GuiSelectionListener, ISubGuiListener {
 
 	@Override
 	public void save() {
-		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, job.save(new NBTTagCompound()));
 	}
 
 	@Override

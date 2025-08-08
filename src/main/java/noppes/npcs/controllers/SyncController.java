@@ -41,7 +41,7 @@ public class SyncController {
 				NBTTagList list = compound.getTagList("Data", 10);
 				for (int i = 0; i < list.tagCount(); ++i) {
 					Faction faction = new Faction();
-					faction.readNBT(list.getCompoundTagAt(i));
+					faction.load(list.getCompoundTagAt(i));
 					FactionController.instance.factionsSync.put(faction.id, faction);
 				}
 				if (syncEnd) {
@@ -56,17 +56,19 @@ public class SyncController {
 			}
 			case QuestCategoriesData: {
 				if (!compound.getKeySet().isEmpty()) {
-					QuestCategory category = new QuestCategory();
-					category.readNBT(compound);
+					QuestCategory category;
+					if (QuestController.instance.categoriesSync.containsKey(compound.getInteger("Slot"))) {
+						category = QuestController.instance.categoriesSync.get(compound.getInteger("Slot"));
+					}
+					else { category = new QuestCategory(); }
+					category.load(compound);
 					QuestController.instance.categoriesSync.put(category.id, category);
 				}
 				if (syncEnd) {
 					QuestController qData = QuestController.instance;
 					TreeMap<Integer, Quest> quests = new TreeMap<>();
-					for (QuestCategory category2 : qData.categoriesSync.values()) {
-						for (Quest quest : category2.quests.values()) {
-							quests.put(quest.id, quest);
-						}
+					for (QuestCategory category : qData.categoriesSync.values()) {
+						for (Quest quest : category.quests.values()) { quests.put(quest.id, quest); }
 					}
 					qData.categories.clear();
 					qData.categories.putAll(qData.categoriesSync);
@@ -78,17 +80,19 @@ public class SyncController {
 			}
 			case DialogCategoriesData: {
 				if (!compound.getKeySet().isEmpty()) {
-					DialogCategory category3 = new DialogCategory();
-					category3.readNBT(compound);
-					DialogController.instance.categoriesSync.put(category3.id, category3);
+					DialogCategory category;
+					if (DialogController.instance.categoriesSync.containsKey(compound.getInteger("Slot"))) {
+						category = DialogController.instance.categoriesSync.get(compound.getInteger("Slot"));
+					}
+					else { category = new DialogCategory(); }
+					category.load(compound);
+					DialogController.instance.categoriesSync.put(category.id, category);
 				}
 				if (syncEnd) {
 					DialogController dData = DialogController.instance;
 					TreeMap<Integer, Dialog> dialogs = new TreeMap<>();
 					for (DialogCategory category4 : dData.categoriesSync.values()) {
-						for (Dialog dialog : category4.dialogs.values()) {
-							dialogs.put(dialog.id, dialog);
-						}
+						for (Dialog dialog : category4.dialogs.values()) { dialogs.put(dialog.id, dialog); }
 					}
 					dData.categories.clear();
 					dData.categories.putAll(dData.categoriesSync);
@@ -151,10 +155,8 @@ public class SyncController {
 				break;
 			}
 			case QuestCategoriesData: {
-				QuestCategory category2 = QuestController.instance.categories.remove(id);
-				if (category2 != null) {
-					QuestController.instance.quests.keySet().removeAll(category2.quests.keySet());
-				}
+				QuestCategory category = QuestController.instance.categories.remove(id);
+				if (category != null) { QuestController.instance.quests.keySet().removeAll(category.quests.keySet()); }
 				break;
 			}
 			case DialogData: {
@@ -214,7 +216,7 @@ public class SyncController {
 		switch (synctype) {
 			case FactionsData: {
 				Faction faction = new Faction();
-				faction.readNBT(compound);
+				faction.load(compound);
 				FactionController.instance.factions.put(faction.id, faction);
 				break;
 			}
@@ -222,11 +224,11 @@ public class SyncController {
 				int id = compound.getInteger("Id");
 				if (QuestController.instance.quests.containsKey(id)) {
 					Quest quest = QuestController.instance.quests.get(id);
-					quest.readNBT(compound);
+					quest.load(compound);
 				} else {
 					QuestCategory category = QuestController.instance.categories.get(buffer.readInt());
 					Quest quest = new Quest(category);
-					quest.readNBT(compound);
+					quest.load(compound);
 					QuestController.instance.quests.put(quest.id, quest);
 					category.quests.put(quest.id, quest);
 				}
@@ -234,24 +236,24 @@ public class SyncController {
 					if (q.id != id) {
 						continue;
 					}
-					q.readNBT(compound);
+					q.load(compound);
 				}
 				break;
 			}
 			case QuestCategoriesData: {
 				QuestCategory category = new QuestCategory();
-				category.readNBT(compound);
+				category.load(compound);
 				QuestController.instance.categories.put(category.id, category);
 				break;
 			}
 			case DialogData: {
 				if (DialogController.instance.dialogs.containsKey(compound.getInteger("DialogId"))) {
 					Dialog dialog = DialogController.instance.dialogs.get(compound.getInteger("DialogId"));
-					dialog.readNBT(compound);
+					dialog.load(compound);
 				} else {
 					DialogCategory category = DialogController.instance.categories.get(buffer.readInt());
 					Dialog dialog = new Dialog(category);
-					dialog.readNBT(compound);
+					dialog.load(compound);
 					DialogController.instance.dialogs.put(dialog.id, dialog);
 					category.dialogs.put(dialog.id, dialog);
 				}
@@ -259,7 +261,7 @@ public class SyncController {
 			}
 			case DialogCategoriesData: {
 				DialogCategory category = new DialogCategory();
-				category.readNBT(compound);
+				category.load(compound);
 				DialogController.instance.categories.put(category.id, category);
 				break;
 			}
@@ -379,8 +381,7 @@ public class SyncController {
 
 	public static void syncAllDialogs(MinecraftServer server) {
 		for (DialogCategory category : DialogController.instance.categories.values()) {
-			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
-					category.writeNBT(new NBTTagCompound()));
+			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData, category.save(new NBTTagCompound()));
 		}
 		Server.sendToAll(server, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
 		Server.sendToAll(server, EnumPacketClient.SYNC_UPDATE, EnumSync.DialogGuiSettings, DialogController.instance.getGuiSettings().save());
@@ -388,8 +389,7 @@ public class SyncController {
 
 	public static void syncAllQuests(MinecraftServer server) {
 		for (QuestCategory category : QuestController.instance.categories.values()) {
-			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
-					category.writeNBT(new NBTTagCompound()));
+			Server.sendToAll(server, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData, category.save(new NBTTagCompound()));
 		}
 		Server.sendToAll(server, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
 	}
@@ -399,7 +399,7 @@ public class SyncController {
 		NBTTagList list = new NBTTagList();
 		NBTTagCompound compound;
 		for (Faction faction : FactionController.instance.factions.values()) {
-			list.appendTag(faction.writeNBT(new NBTTagCompound()));
+			list.appendTag(faction.save(new NBTTagCompound()));
 			if (list.tagCount() > 20) {
 				compound = new NBTTagCompound();
 				compound.setTag("Data", list);
@@ -412,14 +412,12 @@ public class SyncController {
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.FactionsData, compound);
 
 		for (QuestCategory category : QuestController.instance.categories.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData,
-					category.writeNBT(new NBTTagCompound()));
+			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.QuestCategoriesData, category.save(new NBTTagCompound()));
 		}
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.QuestCategoriesData, new NBTTagCompound());
 
-		for (DialogCategory category2 : DialogController.instance.categories.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData,
-					category2.writeNBT(new NBTTagCompound()));
+		for (DialogCategory category : DialogController.instance.categories.values()) {
+			Server.sendData(player, EnumPacketClient.SYNC_ADD, EnumSync.DialogCategoriesData, category.save(new NBTTagCompound()));
 		}
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogCategoriesData, new NBTTagCompound());
 		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.DialogGuiSettings, DialogController.instance.getGuiSettings().save());

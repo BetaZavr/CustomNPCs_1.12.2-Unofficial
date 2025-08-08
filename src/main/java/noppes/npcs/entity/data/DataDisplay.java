@@ -294,7 +294,7 @@ public class DataDisplay implements INPCDisplay {
 			skinColor = displayNbt.getInteger("SkinColor");
 		}
 		visible = displayNbt.getInteger("NpcVisible");
-		availability.readFromNBT(displayNbt.getCompoundTag("VisibleAvailability"));
+		availability.load(displayNbt.getCompoundTag("VisibleAvailability"));
 		disableLivingAnimation = displayNbt.getBoolean("NoLivingAnimation");
 		hitboxState = displayNbt.getByte("IsStatue");
 		isNormalModel = displayNbt.getBoolean("HasJoints");
@@ -573,7 +573,7 @@ public class DataDisplay implements INPCDisplay {
 		displayNbt.setInteger("ShowName", showName);
 		displayNbt.setInteger("SkinColor", skinColor);
 		displayNbt.setInteger("NpcVisible", visible);
-		displayNbt.setTag("VisibleAvailability", availability.writeToNBT(new NBTTagCompound()));
+		displayNbt.setTag("VisibleAvailability", availability.save(new NBTTagCompound()));
 		displayNbt.setBoolean("NoLivingAnimation", disableLivingAnimation);
 		displayNbt.setByte("IsStatue", hitboxState);
 		displayNbt.setBoolean("HasJoints", isNormalModel);

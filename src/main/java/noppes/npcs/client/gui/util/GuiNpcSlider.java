@@ -5,7 +5,6 @@ import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
@@ -23,18 +22,18 @@ implements IComponentGui, IGuiNpcSlider {
 	public boolean dragging;
 	public boolean isVertical;
 	public int id;
-	private ISliderListener listener;
+	private final ISliderListener listener;
 	public float sliderValue;
 	private final List<String> hoverText = new ArrayList<>();
 
-	public GuiNpcSlider(GuiScreen parent, int id, int xPos, int yPos, float sliderValue) {
+	public GuiNpcSlider(ISliderListener parent, int id, int xPos, int yPos, float sliderValue) {
 		this(parent, id, xPos, yPos, "", sliderValue);
 		if (listener != null) {
 			listener.mouseDragged(this);
 		}
 	}
 
-	public GuiNpcSlider(GuiScreen parent, int id, int xPos, int yPos, int width, int height, float sliderValue) {
+	public GuiNpcSlider(ISliderListener parent, int id, int xPos, int yPos, int width, int height, float sliderValue) {
 		this(parent, id, xPos, yPos, "", sliderValue);
 		this.width = width;
 		this.height = height;
@@ -44,13 +43,11 @@ implements IComponentGui, IGuiNpcSlider {
 		}
 	}
 
-	public GuiNpcSlider(GuiScreen parent, int id, int xPos, int yPos, String displayString, float sliderValue) {
+	public GuiNpcSlider(ISliderListener parent, int id, int xPos, int yPos, String displayString, float sliderValue) {
 		super(id, xPos, yPos, 150, 20, NoppesStringUtils.translate(displayString));
         this.id = id;
 		this.sliderValue = sliderValue;
-		if (parent instanceof ISliderListener) {
-			listener = (ISliderListener) parent;
-		}
+		listener = parent;
 		visible = true;
 	}
 

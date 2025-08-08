@@ -124,7 +124,7 @@ public class QuestController implements IQuestHandler {
 		NBTTagList list = compound.getTagList("Data", 10);
         for (int i = 0; i < list.tagCount(); ++i) {
             QuestCategory category = new QuestCategory();
-            category.readNBT(list.getCompoundTagAt(i));
+            category.load(list.getCompoundTagAt(i));
             categories.put(category.id, category);
             saveCategory(category);
             Iterator<Map.Entry<Integer, Quest>> ita = category.quests.entrySet().iterator();
@@ -150,7 +150,7 @@ public class QuestController implements IQuestHandler {
 					try {
 						Quest quest = new Quest(category);
 						quest.id = Integer.parseInt(file.getName().substring(0, file.getName().length() - 5));
-						quest.readNBTPartial(NBTJsonUtil.LoadFile(file));
+						quest.loadPartial(NBTJsonUtil.LoadFile(file));
 						category.quests.put(quest.id, quest);
 					} catch (Exception e) {
 						LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
@@ -234,7 +234,7 @@ public class QuestController implements IQuestHandler {
 				quest.category = category;
 			}
 		}
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestCategoriesData, category.save(new NBTTagCompound()));
 		CustomNpcs.debugData.end(null);
 	}
 
@@ -258,13 +258,12 @@ public class QuestController implements IQuestHandler {
 		File file = new File(dir, quest.id + ".json_new");
 		File file2 = new File(dir, quest.id + ".json");
 		try {
-			Util.instance.saveFile(file, quest.writeToNBTPartial(new NBTTagCompound()));
+			Util.instance.saveFile(file, quest.saveToPartial(new NBTTagCompound()));
 			if (file2.exists()) {
 				file2.delete();
 			}
 			file.renameTo(file2);
-			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData,
-					quest.writeToNBT(new NBTTagCompound()), category.id);
+			Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.QuestData, quest.save(new NBTTagCompound()), category.id);
 		} catch (Exception e) { LogWriter.error(e); }
 		CustomNpcs.debugData.end(null);
 	}

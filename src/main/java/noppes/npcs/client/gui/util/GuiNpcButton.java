@@ -157,11 +157,14 @@ implements IComponentGui, IGuiNpcButton {
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
 		GlStateManager.disableLighting();
+		if (layerColor != 0) {
+			GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f,
+					(float) (layerColor >> 8 & 255) / 255.0f,
+					(float) (layerColor & 255) / 255.0f,
+					(float) (layerColor >> 24 & 255) / 255.0f);
+		}
 		if (texture == null) {
 			mc.getTextureManager().bindTexture(GuiNPCInterface.MENU_BUTTON);
-			if (layerColor != 0) {
-				GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f, (float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f, (float) (layerColor >> 24 & 255) / 255.0f);
-			}
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
@@ -187,7 +190,7 @@ implements IComponentGui, IGuiNpcButton {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			mouseDragged(mc, mouseX, mouseY);
 		}
-		if (texture != null) {
+		else {
 			if (hasDefBack) {
 				drawGradientRect(x - 1, y - 1, x + width + 1, y + height + 1, 0xFF202020, 0xFF202020);
 				drawGradientRect(x, y, x + width, y + height, 0xFFA0A0A0, 0xFFA0A0A0);
@@ -216,10 +219,6 @@ implements IComponentGui, IGuiNpcButton {
 				mc.getTextureManager().bindTexture(texture);
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-
-				if (layerColor != 0) {
-					GlStateManager.color((float) (layerColor >> 16 & 255) / 255.0f, (float) (layerColor >> 8 & 255) / 255.0f, (float) (layerColor & 255) / 255.0f, (float) (layerColor >> 24 & 255) / 255.0f);
-				}
 				if (isPrefabricated) {
 					tw = (int) (((float) width / 2.0f) / scaleH);
 					drawTexturedModalRect(0, 0, txrX, txrY + state * th, tw, th);

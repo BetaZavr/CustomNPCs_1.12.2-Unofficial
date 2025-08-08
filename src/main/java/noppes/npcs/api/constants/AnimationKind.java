@@ -21,9 +21,8 @@ public enum AnimationKind {
 	SWING(16, false, true),
 	INTERACT(17, false, false),
 	BLOCKED(18, false, true),
-	EDITING_All(18, false, true),
-	EDITING_PART(18, false, true),
-	; // -> GuiNpcAnimation
+	EDITING_All(19, false, true),
+	EDITING_PART(20, false, true);
 
 	public static AnimationKind get(int type) {
 		for (AnimationKind ak : AnimationKind.values()) {
@@ -51,11 +50,11 @@ public enum AnimationKind {
 		isQuickStart = quickStart;
 	}
 
-	public int get() { return this.type; }
+	public int get() { return type; }
 
-	public boolean isMovement() { return this.isMovement; }
+	public boolean isMovement() { return isMovement; }
 
-	public boolean isQuickStart() { return this.isQuickStart; }
+	public boolean isQuickStart() { return isQuickStart; }
 
 	public void setEditingBooleans(AnimationKind parentEnum) {
 		if (this != AnimationKind.EDITING_All && this != AnimationKind.EDITING_PART) { return; }

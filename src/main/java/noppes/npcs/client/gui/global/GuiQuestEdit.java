@@ -68,8 +68,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				break;
 			}
 			case 5: { // reward
-				Client.sendData(EnumPacketServer.QuestOpenGui, EnumGuiType.QuestReward,
-						this.quest.writeToNBT(new NBTTagCompound()));
+				Client.sendData(EnumPacketServer.QuestOpenGui, EnumGuiType.QuestReward, quest.save(new NBTTagCompound()));
 				break;
 			}
 			case 8: { // reiteration
@@ -150,8 +149,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 				} else if (this.tasksData.get(this.task).getEnumType() == EnumQuestTask.MANUAL) {
 					this.setSubGui(new GuiNpcQuestTypeManual(this.npc, this.tasksData.get(this.task), this));
 				} else { // Item or Craft
-					Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-							this.quest.questInterface.getPos(this.tasksData.get(this.task)));
+					Client.sendData(EnumPacketServer.QuestReset, quest.save(new NBTTagCompound()), quest.questInterface.getPos(this.tasksData.get(this.task)));
 				}
 				break;
 			}
@@ -397,7 +395,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.QuestSave, quest.category.id, quest.save(new NBTTagCompound()));
 	}
 
 	@Override
@@ -428,8 +426,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 			} else if (this.tasksData.get(this.task).getEnumType() == EnumQuestTask.MANUAL) {
 				this.setSubGui(new GuiNpcQuestTypeManual(this.npc, this.tasksData.get(this.task), this));
 			} else { // Item or Craft
-				Client.sendData(EnumPacketServer.QuestReset, this.quest.writeToNBT(new NBTTagCompound()),
-						this.quest.questInterface.getPos(this.tasksData.get(this.task)));
+				Client.sendData(EnumPacketServer.QuestReset, quest.save(new NBTTagCompound()), quest.questInterface.getPos(this.tasksData.get(this.task)));
 			}
 		}
 	}
@@ -446,8 +443,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiSelectionListener, ITextfi
 		if (compound != null && compound.hasKey("MinimumID", 3) && this.quest.id != compound.getInteger("MinimumID")) {
 			Client.sendData(EnumPacketServer.QuestRemove, this.quest.id);
 			this.quest.id = compound.getInteger("MinimumID");
-			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id,
-					this.quest.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.QuestSave, this.quest.category.id, quest.save(new NBTTagCompound()));
 			this.initGui();
 		}
 	}

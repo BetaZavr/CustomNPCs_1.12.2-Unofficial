@@ -143,7 +143,7 @@ implements ISubGuiListener, ITextfieldListener {
 		if (job.range[0] > job.range[1]) { job.range[1] = job.range[0]; }
 		MusicController.Instance.stopSound("", SoundCategory.MUSIC);
 		MusicController.Instance.stopSound("", SoundCategory.AMBIENT);
-		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, job.save(new NBTTagCompound()));
 	}
 
 	@Override

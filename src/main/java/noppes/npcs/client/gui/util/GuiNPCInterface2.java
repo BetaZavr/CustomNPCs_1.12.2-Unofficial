@@ -15,29 +15,15 @@ extends GuiNPCInterface {
 	private final ResourceLocation background;
 	private GuiNpcMenu menu;
 
-	public GuiNPCInterface2(EntityNPCInterface npc) {
-		this(npc, -1);
-	}
+	public GuiNPCInterface2(EntityNPCInterface npc) { this(npc, -1); }
 
 	public GuiNPCInterface2(EntityNPCInterface npc, int activeMenu) {
 		super(npc);
 		background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
 		xSize = 420;
 		ySize = 200;
-		if (npc != null) {
-			menu = new GuiNpcMenu(this, activeMenu, npc);
-		}
 		closeOnEsc = true;
-	}
-
-	@Override
-	public void close() {
-		if (menu != null && menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
-			menu.save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuDisplay);
-			return;
-		}
-		super.close();
+		if (npc != null) { menu = new GuiNpcMenu(this, activeMenu, npc); }
 	}
 
 	@Override
@@ -48,7 +34,8 @@ extends GuiNPCInterface {
 		if (menu == null && this instanceof GuiNPCGlobalMainMenu) {
 			drawTexturedModalRect(guiLeft + 70, guiTop, 0, 0, 142, 220);
 			drawTexturedModalRect(guiLeft + xSize - 208, guiTop, 113, 0, 143, 220);
-		} else {
+		}
+		else {
 			drawTexturedModalRect(guiLeft, guiTop, 0, 0, 200, 220);
 			drawTexturedModalRect(guiLeft + xSize - 230, guiTop, 26, 0, 230, 220);
 		}
@@ -188,20 +175,26 @@ extends GuiNPCInterface {
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (!hasSubGui() && menu != null) {
-			menu.initGui(guiLeft, guiTop, xSize);
-		}
+		if (!hasSubGui() && menu != null) { menu.initGui(guiLeft, guiTop, xSize); }
 	}
 
 	@Override
 	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
-		if (!hasSubGui() && menu != null) {
-			menu.mouseClicked(mouseX, mouseY, mouseBottom);
-		}
+		if (!hasSubGui() && menu != null) { menu.mouseClicked(mouseX, mouseY, mouseBottom); }
 		super.mouseClicked(mouseX, mouseY, mouseBottom);
 	}
 
 	@Override
 	public abstract void save();
 
+	// New from Unofficial (BetaZavr)
+	@Override
+	public void close() {
+		if (menu != null && menu.activeMenu != 1 && ClientProxy.playerData.editingNpc != null) {
+			menu.save();
+			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuDisplay);
+			return;
+		}
+		super.close();
+	}
 }

@@ -58,7 +58,7 @@ implements ICustomScrollListener {
 	@Override
 	public void save() {
 		job.name = getTextField(1).getFullText();
-		Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound()));
+		Client.sendData(EnumPacketServer.JobSave, job.save(new NBTTagCompound()));
 	}
 
 	@Override

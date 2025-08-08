@@ -193,7 +193,7 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void save() {
 		if (hasChanges) {
-			Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.writeToNBT(new NBTTagCompound()));
+			Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.save(new NBTTagCompound()));
 			this.hasChanges = false;
 		}
 	}
@@ -201,7 +201,7 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		if (compound.hasKey("RoleData")) {
-			if (this.npc.advanced.roleInterface != null) { npc.advanced.roleInterface.readFromNBT(compound); }
+			if (this.npc.advanced.roleInterface != null) { npc.advanced.roleInterface.load(compound); }
 			if (this.npc.advanced.roleInterface != null) {
 				switch (this.npc.advanced.roleInterface.getEnumType()) {
 					case TRADER: {
@@ -237,7 +237,7 @@ implements IGuiData, ISubGuiListener {
 		}
 		else if (compound.hasKey("JobData")) {
 			if (this.npc.advanced.jobInterface != null) {
-				this.npc.advanced.jobInterface.readFromNBT(compound);
+				this.npc.advanced.jobInterface.load(compound);
 			}
 			if (this.npc.advanced.jobInterface != null) {
 				switch (this.npc.advanced.jobInterface.getEnumType()) {
@@ -281,7 +281,7 @@ implements IGuiData, ISubGuiListener {
 			}
 		}
 		else if (compound.hasKey("NpcInteractLines", 10)) {
-			this.npc.advanced.readToNBT(compound);
+			this.npc.advanced.load(compound);
 			this.initGui();
 		}
 		else if (compound.hasKey("NpcInv", 9)) {

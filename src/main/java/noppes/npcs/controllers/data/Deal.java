@@ -164,7 +164,7 @@ public class Deal implements IDeal {
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
-		this.availability.readFromNBT(compound.getCompoundTag("Availability"));
+		this.availability.load(compound.getCompoundTag("Availability"));
 		this.ignoreDamage = compound.getBoolean("IgnoreDamage");
 		this.ignoreNBT = compound.getBoolean("IgnoreNBT");
 		this.inventoryCurrency.load(compound.getCompoundTag("Currency"));
@@ -346,7 +346,7 @@ public class Deal implements IDeal {
 
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setTag("Availability", this.availability.writeToNBT(new NBTTagCompound()));
+		compound.setTag("Availability", this.availability.save(new NBTTagCompound()));
 		compound.setBoolean("IgnoreDamage", this.ignoreDamage);
 		compound.setBoolean("IgnoreNBT", this.ignoreNBT);
 		compound.setTag("Currency", this.inventoryCurrency.save());

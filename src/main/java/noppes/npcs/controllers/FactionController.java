@@ -106,7 +106,7 @@ public class FactionController implements IFactionHandler {
 		for (int slot : this.factions.keySet()) {
 			Faction faction = this.factions.get(slot);
 			NBTTagCompound nbtfactions = new NBTTagCompound();
-			faction.writeNBT(nbtfactions);
+			faction.save(nbtfactions);
 			list.appendTag(nbtfactions);
 		}
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
@@ -197,7 +197,7 @@ public class FactionController implements IFactionHandler {
         for (int i = 0; i < list.tagCount(); ++i) {
             NBTTagCompound nbt = list.getCompoundTagAt(i);
             Faction faction = new Faction();
-            faction.readNBT(nbt);
+            faction.load(nbt);
             factions.put(faction.id, faction);
         }
     }
@@ -223,7 +223,7 @@ public class FactionController implements IFactionHandler {
 			}
 		}
 		this.factions.put(faction.id, faction);
-		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData, faction.writeNBT(new NBTTagCompound()));
+		Server.sendToAll(CustomNpcs.Server, EnumPacketClient.SYNC_UPDATE, EnumSync.FactionsData, faction.save(new NBTTagCompound()));
 		this.saveFactions();
 	}
 

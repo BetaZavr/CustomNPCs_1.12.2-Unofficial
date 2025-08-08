@@ -44,6 +44,6 @@ extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void save() { Client.sendData(EnumPacketServer.JobSave, job.writeToNBT(new NBTTagCompound())); }
+	public void save() { Client.sendData(EnumPacketServer.JobSave, job.save(new NBTTagCompound())); }
 
 }

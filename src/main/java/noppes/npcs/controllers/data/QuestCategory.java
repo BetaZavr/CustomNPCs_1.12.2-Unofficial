@@ -10,15 +10,9 @@ import noppes.npcs.api.handler.data.IQuestCategory;
 
 public class QuestCategory implements IQuestCategory {
 
-	public int id = -1;
 	public final TreeMap<Integer, Quest> quests = new TreeMap<>();
+	public int id = -1;
 	public String title = "";
-
-	public QuestCategory copy() {
-		QuestCategory newCat = new QuestCategory();
-		newCat.readNBT(this.writeNBT(new NBTTagCompound()));
-		return newCat;
-	}
 
 	@Override
 	public IQuest create() {
@@ -27,36 +21,42 @@ public class QuestCategory implements IQuestCategory {
 
 	@Override
 	public String getName() {
-		return new TextComponentTranslation(this.title).getFormattedText();
+		return new TextComponentTranslation(title).getFormattedText();
 	}
 
 	@Override
 	public IQuest[] quests() {
-		return this.quests.values().toArray(new IQuest[0]);
+		return quests.values().toArray(new IQuest[0]);
 	}
 
-	public void readNBT(NBTTagCompound nbttagcompound) {
-		this.id = nbttagcompound.getInteger("Slot");
-		this.title = nbttagcompound.getString("Title");
+	public void load(NBTTagCompound nbttagcompound) {
+		id = nbttagcompound.getInteger("Slot");
+		title = nbttagcompound.getString("Title");
 		NBTTagList dialogsList = nbttagcompound.getTagList("Dialogs", 10);
         for (int ii = 0; ii < dialogsList.tagCount(); ++ii) {
             NBTTagCompound compound = dialogsList.getCompoundTagAt(ii);
             Quest quest = new Quest(this);
-            quest.readNBT(compound);
-            this.quests.put(quest.id, quest);
+            quest.load(compound);
+            quests.put(quest.id, quest);
         }
     }
 
-	public NBTTagCompound writeNBT(NBTTagCompound nbttagcompound) {
-		nbttagcompound.setInteger("Slot", this.id);
-		nbttagcompound.setString("Title", this.title);
+	public NBTTagCompound save(NBTTagCompound nbttagcompound) {
+		nbttagcompound.setInteger("Slot", id);
+		nbttagcompound.setString("Title", title);
 		NBTTagList dialogs = new NBTTagList();
-		for (int dialogId : this.quests.keySet()) {
-			Quest quest = this.quests.get(dialogId);
-			dialogs.appendTag(quest.writeToNBT(new NBTTagCompound()));
+		for (int dialogId : quests.keySet()) {
+			Quest quest = quests.get(dialogId);
+			dialogs.appendTag(quest.save(new NBTTagCompound()));
 		}
 		nbttagcompound.setTag("Dialogs", dialogs);
 		return nbttagcompound;
+	}
+
+	public QuestCategory copy() {
+		QuestCategory newCat = new QuestCategory();
+		newCat.load(save(new NBTTagCompound()));
+		return newCat;
 	}
 
 }

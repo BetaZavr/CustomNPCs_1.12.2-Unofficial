@@ -421,7 +421,7 @@ implements ICompatibilty, IAvailability {
 		return false;
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		this.clear();
 
 		this.version = compound.getInteger("ModRev");
@@ -903,7 +903,7 @@ implements ICompatibilty, IAvailability {
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+	public NBTTagCompound save(NBTTagCompound compound) {
 		compound.setInteger("ModRev", this.version);
 		compound.setIntArray("AvailabilityDayTime", this.daytime);
 		compound.setInteger("AvailabilityMinPlayerLevel", this.minPlayerLevel);

@@ -47,7 +47,7 @@ public class PlayerFactionData {
 			if (faction != null) {
 				// if (faction.hideFaction) { continue; }
 				NBTTagCompound com = new NBTTagCompound();
-				faction.writeNBT(com);
+				faction.save(com);
 				list.appendTag(com);
 			}
 		}
