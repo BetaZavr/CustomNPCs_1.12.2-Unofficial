@@ -130,13 +130,12 @@ implements IGlStateManager {
 	}
 	
 	@Override
-	public void drawOBJ(String resourseLocation) {
-		if (resourseLocation == null || !resourseLocation.isEmpty()) { return; }
-		int displayList = ModelBuffer.getDisplayList(new ResourceLocation(resourseLocation), null, null);
+	public void drawOBJ(String resourceLocation) {
+		if (resourceLocation == null || !resourceLocation.isEmpty()) { return; }
+		int displayList = ModelBuffer.getDisplayList(new ResourceLocation(resourceLocation), null, null);
 		if (displayList > 0) {
-			minecraft.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 			GL11.glEnable(GL11.GL_DEPTH_TEST);
-	        GlStateManager.callList(displayList);
+			GlStateManager.callList(displayList);
 		}
 	}
 

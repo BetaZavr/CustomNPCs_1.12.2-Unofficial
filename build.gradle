@@ -41,8 +41,6 @@ minecraft {
 
     runs {
         client {
-            String id = "" + (new Random()).nextInt(10)
-            if (id == "0") { id = "" }
             workingDirectory project.file('run/client')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
@@ -50,8 +48,7 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            jvmArgs '-Xms2G', '-Xmx4G'
-            args '--username=BetaZavr' + id, '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"
+            args '--username=BetaZavr', '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"
         }
         server {
             workingDirectory project.file('run/server')
@@ -61,7 +58,6 @@ minecraft {
             properties 'mixin.env.remapRefMap': 'true'
             property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
             property "mixin.debug", 'true'
-            jvmArgs '-Xms2G', '-Xmx4G'
             args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', mod_id + ".mixins.json"//, 'nogui'
         }
     }
@@ -92,10 +88,9 @@ dependencies {
 processResources {
     inputs.property 'version', project.version
     inputs.property 'mcversion', minecraft_version
-    // changed mcmod.info file
     from(sourceSets.main.resources.srcDirs) {
-        include('mcmod.info')
-        expand('modid'         : mod_id,
+        include 'mcmod.info'
+        expand  'modid'         : mod_id,
                 'name'          : mod_name,
                 'version'       : mod_version,
                 'mcversion'     : minecraft_version,
@@ -104,11 +99,10 @@ processResources {
                 'logoFile'      : mod_logoFile,
                 'authors'       : mod_authors,
                 'url'           : mod_url,
-                'updateUrl'     : mod_update_url)
+                'updateUrl'     : mod_update_url
     }
-    // copy the rest
     from(sourceSets.main.resources.srcDirs) {
-        exclude('mcmod.info')
+        exclude 'mcmod.info'
     }
 }
 
@@ -148,12 +142,14 @@ idea {
     }
 }
 
-subprojects { apply plugin: 'idea' }
-
-tasks.register('prepareAssets', Copy) {
-    dependsOn 'processResources'
-    from("$buildDir/resources/main/")
-    into("$buildDir/classes/java/main/")
+subprojects {
+    apply plugin: 'idea'
 }
 
-compileJava.dependsOn(prepareAssets)
+tasks.register('prepareAssets', Copy) {
+    group = 'build'
+    from project.file('src/main/resources')
+    into project.file('build/classes/java/main')
+}
+
+classes.dependsOn(prepareAssets)

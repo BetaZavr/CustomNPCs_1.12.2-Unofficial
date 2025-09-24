@@ -12,39 +12,11 @@ public class Lines {
 
 	private static final Random random = new Random();
 	private int lastLine = -1;
-	public Map<Integer, Line> lines = new TreeMap<>();
-
-	public Lines copy() {
-		Lines newLines = new Lines();
-		for (int i : lines.keySet()) {
-			newLines.lines.put(i, lines.get(i));
-		}
-		return newLines;
-	}
-
-	public void correctLines() {
-		Map<Integer, Line> newLines = new TreeMap<>();
-		int i = 0;
-		boolean isChanged = false;
-		for (int pos : this.lines.keySet()) {
-			if (pos != i) {
-				isChanged = true;
-			}
-			Line line = this.lines.get(pos);
-			if (line.getText().isEmpty()) {
-				isChanged = true;
-				continue;
-			}
-			newLines.put(i, line);
-			i++;
-		}
-		if (isChanged) {
-			this.lines = newLines;
-		}
-	}
+	public final Map<Integer, Line> lines = new TreeMap<>();
 
 	public Line getLine(boolean isRandom) {
 		if (lines.isEmpty()) { return null; }
+		// New from Unofficial (BetaZavr)
 		if (isRandom) {
 			int i = lastLine;
 			if (lines.size() == 1) { i = 0; }
@@ -67,40 +39,27 @@ public class Lines {
 		while (true) {
 			lastLine %= lines.size();
 			line = lines.get(lastLine);
-			if (line != null) {
-				break;
-			}
+			if (line != null) { break; }
 			++lastLine;
 		}
 		return line.copy();
 	}
 
-	public boolean isEmpty() {
-		return lines.isEmpty();
-	}
+	public boolean isEmpty() { return lines.isEmpty(); }
 
-	public void readNBT(NBTTagCompound compound) {
+	public void load(NBTTagCompound compound) {
 		NBTTagList nbttaglist = compound.getTagList("Lines", 10);
-		HashMap<Integer, Line> map = new HashMap<>();
+		lines.clear();
 		for (int i = 0; i < nbttaglist.tagCount(); ++i) {
 			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
 			Line line = new Line();
 			line.setText(nbttagcompound.getString("Line"));
 			line.setSound(nbttagcompound.getString("Song"));
-			map.put(nbttagcompound.getInteger("Slot"), line);
+			lines.put(nbttagcompound.getInteger("Slot"), line);
 		}
-		lines = map;
 	}
 
-	public void remove(int pos) {
-		if (!lines.containsKey(pos)) {
-			return;
-		}
-		lines.remove(pos);
-		correctLines();
-	}
-
-	public NBTTagCompound writeToNBT() {
+	public NBTTagCompound save() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		NBTTagList list = new NBTTagList();
 		for (int slot : lines.keySet()) {
@@ -113,6 +72,39 @@ public class Lines {
 		}
 		nbt.setTag("Lines", list);
 		return nbt;
+	}
+
+	// New from Unofficial (BetaZavr)
+	public Lines copy() {
+		Lines newLines = new Lines();
+		for (int i : lines.keySet()) { newLines.lines.put(i, lines.get(i)); }
+		return newLines;
+	}
+
+	public void remove(int pos) {
+		if (!lines.containsKey(pos)) { return; }
+		lines.remove(pos);
+		correctLines();
+	}
+
+	public void correctLines() {
+		Map<Integer, Line> newLines = new TreeMap<>();
+		int i = 0;
+		boolean isChanged = false;
+		for (int pos : lines.keySet()) {
+			if (pos != i) { isChanged = true; }
+			Line line = lines.get(pos);
+			if (line.getText().isEmpty()) {
+				isChanged = true;
+				continue;
+			}
+			newLines.put(i, line);
+			i++;
+		}
+		if (isChanged) {
+			lines.clear();
+			lines.putAll(newLines);
+		}
 	}
 
 }

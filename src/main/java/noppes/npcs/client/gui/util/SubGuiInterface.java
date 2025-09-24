@@ -2,37 +2,47 @@ package noppes.npcs.client.gui.util;
 
 import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.entity.EntityNPCInterface;
+import org.lwjgl.input.Keyboard;
 
-public class SubGuiInterface
-extends GuiNPCInterface {
+public class SubGuiInterface extends GuiNPCInterface {
 
 	public int id;
 	public GuiScreen parent;
 	public Object object;
 
-	public SubGuiInterface() {
-		super(null);
-	}
+	public SubGuiInterface(int id) { this(id, null); }
 
-	public SubGuiInterface(EntityNPCInterface npc) {
+	public SubGuiInterface(int idIn, EntityNPCInterface npc) {
 		super(npc);
+		id = idIn;
 	}
 
 	@Override
-	public void close() {
+	public void onClosed() {
+		GuiNpcTextField.unfocus();
 		save();
-		ISubGuiListener screen = null;
-		if (parent instanceof ISubGuiListener) { screen = (ISubGuiListener) parent; }
-		else if (mc.currentScreen instanceof ISubGuiListener) { screen = (ISubGuiListener) mc.currentScreen; }
+		IEditNPC screen = null;
+		if (parent instanceof IEditNPC) { screen = (IEditNPC) parent; }
+		else if (mc.currentScreen instanceof IEditNPC) { screen = (IEditNPC) mc.currentScreen; }
 		if (screen != null) {
 			screen.subGuiClosed(this);
-			if (screen instanceof GuiNPCInterface) { ((GuiNPCInterface) screen).setSubGui(null); }
-			else if (screen instanceof GuiContainerNPCInterface) { ((GuiContainerNPCInterface) screen).setSubGui(null); }
+			screen.setSubGui(null);
+			while (screen instanceof SubGuiInterface && ((SubGuiInterface) screen).parent instanceof IEditNPC) { screen = (IEditNPC) ((SubGuiInterface) screen).parent; }
 			displayGuiScreen((GuiScreen) screen);
 			return;
 		}
 		displayGuiScreen(null);
 		mc.setIngameFocus();
+	}
+
+	@Override
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		boolean bo = super.keyCnpcsPressed(typedChar, keyCode);
+		if (!bo && !hasSubGui() && keyCode == Keyboard.KEY_ESCAPE) {
+			onClosed();
+			return true;
+		}
+		return bo;
 	}
 
 	public int getId() { return id; }

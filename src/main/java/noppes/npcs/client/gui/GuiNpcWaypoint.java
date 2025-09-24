@@ -7,13 +7,12 @@ import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 
-public class GuiNpcWaypoint
-extends GuiNPCInterface
-implements IGuiData {
+public class GuiNpcWaypoint extends GuiNPCInterface implements IGuiData {
 
-	private final TileWaypoint tile;
+	protected final TileWaypoint tile;
 
 	public GuiNpcWaypoint(int x, int y, int z) {
 		super();
@@ -24,38 +23,31 @@ implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() == 0) {
-			close();
-		}
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		if (button.getID() == 66) { onClosed(); }
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (tile == null) {
-			close();
-			return;
-		}
+		if (tile == null) { onClosed(); return; }
 		int color = new Color(0xFFFFFF).getRGB();
 		// name
 		addLabel(new GuiNpcLabel(0, "gui.name", guiLeft + 1, guiTop + 76, color));
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, guiLeft + 60, guiTop + 71, 200, 20, tile.name);
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(0, this, guiLeft + 60, guiTop + 71, 200, 20, tile.name));
 		// range
 		addLabel(new GuiNpcLabel(1, "gui.range", guiLeft + 1, guiTop + 97, color));
-		textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 60, guiTop + 92, 200, 20, tile.range + "");
-		textField.setMinMaxDefault(2, 60, 10);
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(1, this, guiLeft + 60, guiTop + 92, 200, 20, tile.range + "")
+				.setMinMaxDefault(2, 60, 10));
 		// exit
-		GuiNpcButton button = new GuiNpcButton(0, guiLeft + 40, guiTop + 190, 120, 20, "gui.done");
-		button.setHoverText("hover.exit");
-		addButton(button);
+		addButton(new GuiNpcButton(66, guiLeft + 40, guiTop + 190, 120, 20, "gui.done")
+				.setHoverText("hover.exit"));
 	}
 
 	@Override
 	public void save() {
-		tile.name = getTextField(0).getFullText();
+		tile.name = getTextField(0).getText();
 		tile.range = getTextField(1).getInteger();
 		NBTTagCompound compound = new NBTTagCompound();
 		tile.writeToNBT(compound);
@@ -67,4 +59,5 @@ implements IGuiData {
 		tile.readFromNBT(compound);
 		initGui();
 	}
+
 }

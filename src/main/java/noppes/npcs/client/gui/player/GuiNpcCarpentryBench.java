@@ -12,7 +12,6 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.containers.ContainerCarpentryBench;
 
 import javax.annotation.Nonnull;
@@ -21,13 +20,13 @@ public class GuiNpcCarpentryBench
 extends GuiContainerNPCInterface
 implements IRecipeShownListener {
 
-	private static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(CustomNpcs.MODID, "textures/gui/carpentry.png");
-	private final ResourceLocation buttonTexture = new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
-	private final ContainerCarpentryBench container;
+	protected static final ResourceLocation CRAFTING_TABLE_GUI_TEXTURES = new ResourceLocation(CustomNpcs.MODID, "textures/gui/carpentry.png");
+	protected final ResourceLocation buttonTexture = new ResourceLocation("minecraft", "textures/gui/container/crafting_table.png");
+	protected final ContainerCarpentryBench container;
 	// from GuiCrafting
-	private final GuiRecipeBook recipeBookGui = new GuiRecipeBook();
-	private GuiNpcButton recipeButton;
-	private boolean widthTooNarrow;
+	protected final GuiRecipeBook recipeBookGui = new GuiRecipeBook();
+	protected GuiNpcButton recipeButton;
+	protected boolean widthTooNarrow;
 
 	public GuiNpcCarpentryBench(ContainerCarpentryBench cont) {
 		super(null, cont);
@@ -43,7 +42,8 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		if (button.getID() == 10) {
 			recipeBookGui.initVisuals(widthTooNarrow, ((ContainerCarpentryBench) inventorySlots).craftMatrix);
 			recipeBookGui.toggleVisibility();
@@ -103,8 +103,7 @@ implements IRecipeShownListener {
 		widthTooNarrow = width < 379;
 		recipeBookGui.func_194303_a(width, height, mc, widthTooNarrow, ((ContainerCarpentryBench) inventorySlots).craftMatrix);
 		guiLeft = recipeBookGui.updateScreenPosition(widthTooNarrow, width, xSize);
-		recipeButton = new GuiNpcButton(10, guiLeft + 5, height / 2 - 49, 20, 19, 0, 168, buttonTexture).simple(true);
-		addButton((IGuiNpcButton) recipeButton);
+		addButton(recipeButton = new GuiNpcButton(10, guiLeft + 5, height / 2 - 49, 20, 19, 0, 168, buttonTexture).simple(true));
 	}
 
 	@Override
@@ -113,19 +112,17 @@ implements IRecipeShownListener {
 	}
 
 	@Override
-	public void keyTyped(char typedChar, int keyCode) {
-		if (!recipeBookGui.keyPressed(typedChar, keyCode)) {
-			super.keyTyped(typedChar, keyCode);
-		}
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (subgui == null && recipeBookGui.keyPressed(typedChar, keyCode)) { return true; }
+		return super.keyCnpcsPressed(typedChar, keyCode);
 	}
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-		if (!recipeBookGui.mouseClicked(mouseX, mouseY, mouseButton)) {
-			if (!widthTooNarrow || !recipeBookGui.isVisible()) {
-				super.mouseClicked(mouseX, mouseY, mouseButton);
-			}
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+		if (subgui == null && (widthTooNarrow || recipeBookGui.isVisible()) && recipeBookGui.mouseClicked(mouseX, mouseY, mouseButton)) {
+			return true;
 		}
+		return super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
 	}
 
 	@Override

@@ -28,17 +28,17 @@ import java.util.Objects;
 public class CustomParticle extends Particle implements ICustomElement, ICustomParticle {
 
 	public NBTTagCompound nbtData;
-	public ResourceLocation texture, obj;
+	public ResourceLocation texture;
+	public ResourceLocation obj;
 	public boolean full = false;
-	public int objList;
 	protected float particleAngleX;
 	protected float particleAngleZ;
 	protected long rndStart;
+	public int objList = -1;
 
 	public CustomParticle(NBTTagCompound data, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn) {
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 		this.nbtData = data;
-		this.objList = -1;
 		this.rndStart = this.rand.nextInt(7000);
 		if (data.hasKey("OBJModel", 8)) {
 			this.obj = new ResourceLocation(CustomNpcs.MODID, "models/particle/" + data.getString("OBJModel") + ".obj");

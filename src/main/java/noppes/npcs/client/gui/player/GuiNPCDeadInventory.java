@@ -15,32 +15,30 @@ import noppes.npcs.util.Util;
 import java.util.HashMap;
 import java.util.Vector;
 
-public class GuiNPCDeadInventory
-extends GuiContainerNPCInterface
-implements ICustomScrollListener,  IScrollData {
+public class GuiNPCDeadInventory extends GuiContainerNPCInterface implements ICustomScrollListener,  IScrollData {
 
-    private final ContainerDead container;
-    private GuiCustomScroll scroll;
-    private boolean wait = false;
+    protected final ContainerDead container;
+    protected GuiCustomScroll scroll;
+    protected boolean wait = false;
 
     public GuiNPCDeadInventory(EntityNPCInterface npc, ContainerDead cont) {
         super(npc, cont);
-        container = cont;
+        setBackground("largebg.png");
+        drawDefaultBackground = false;
+        closeOnEsc = true;
         title = "";
         xSize = 177;
-        ySize = container.size + 152;
-        closeOnEsc = true;
-        drawDefaultBackground = false;
-        setBackground("largebg.png");
+        ySize = cont.size + 152;
+
+        container = cont;
     }
 
     @Override
     public void drawDefaultBackground() {
         super.drawDefaultBackground();
-        if (npc.isEntityAlive()) { close(); }
+        if (npc.isEntityAlive()) { onClosed(); }
         int size = container.size - 1;
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-
         GlStateManager.pushMatrix();
         GlStateManager.translate(guiLeft, guiTop + 20, 0.0f);
         GlStateManager.scale(bgScale, bgScale, bgScale);
@@ -82,10 +80,7 @@ implements ICustomScrollListener,  IScrollData {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        if (wait) {
-            drawWait();
-            return;
-        }
+        if (wait) { drawWait(); return; }
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
@@ -109,20 +104,20 @@ implements ICustomScrollListener,  IScrollData {
     }
 
     @Override
-    public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
-        scroll.setList(list);
+    public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
+        scroll.setList(dataList);
         scroll.setSelected(container.playerParent);
     }
 
     @Override
-    public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+    public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
         if (container.playerParent.equals(scroll.getSelected())) { return; }
         wait = true;
         NoppesUtilPlayer.sendData(EnumPlayerPacket.DropData, Util.instance.deleteColor(scroll.getSelected()));
     }
 
     @Override
-    public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
+    public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
     @Override
     public void setSelected(String select) { }

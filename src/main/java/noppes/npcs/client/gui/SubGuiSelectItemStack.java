@@ -11,29 +11,25 @@ import net.minecraft.item.ItemStack;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 
-public class SubGuiSelectItemStack
-extends SubGuiInterface {
+public class SubGuiSelectItemStack extends SubGuiInterface {
 
+    protected int hoverPos = -2;
     public ItemStack stack;
-    private int hoverPos = -2;
 
-    public SubGuiSelectItemStack(int id, ItemStack item) {
+    public SubGuiSelectItemStack(int idIn, ItemStack item) {
+        super(idIn);
+        setBackground("followerhire.png");
         xSize = 176;
         ySize = 166;
-        setBackground("followerhire.png");
-
         closeOnEsc = true;
-        this.id = id;
-        stack = item;
 
+        stack = item;
     }
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
         GlStateManager.translate(0.0f, 0.0f, -300.0f);
         super.drawScreen(mouseX, mouseY, partialTicks);
-
 
         List<String> list = null;
         int x = guiLeft + 79;
@@ -85,19 +81,21 @@ extends SubGuiInterface {
         }
         GlStateManager.popMatrix();
         if (list != null && !list.isEmpty()) {
-            setHoverText(list);
+            putHoverText(list);
             drawHoverText(null);
         }
     }
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (hoverPos == -1) {
-            stack = ItemStack.EMPTY;
-        } else if (hoverPos >= 0) {
-            stack = player.inventory.mainInventory.get(hoverPos);
+    public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+        if (subgui == null) {
+            if (hoverPos == -1) { stack = ItemStack.EMPTY; }
+            else if (hoverPos >= 0) {
+                stack = player.inventory.mainInventory.get(hoverPos);
+                return true;
+            }
         }
+        return super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
     }
 
 }

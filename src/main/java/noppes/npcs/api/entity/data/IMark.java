@@ -10,7 +10,11 @@ public interface IMark {
 
 	int getType();
 
-	boolean isRotate();
+    boolean is3D();
+
+    boolean isRotate();
+
+	void set3D(boolean bo);
 
 	void setColor(int color);
 

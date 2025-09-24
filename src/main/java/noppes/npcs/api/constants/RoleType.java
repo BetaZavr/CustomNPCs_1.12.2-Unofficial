@@ -17,14 +17,14 @@ import noppes.npcs.roles.RoleTransporter;
 
 public enum RoleType {
 
-	DEFAULT(RoleInterface.class, "none", 0, false),
-	TRADER(RoleTrader.class, "trader", 1, true),
-	FOLLOWER(RoleFollower.class, "mercenary", 2, true),
-	BANK(RoleBank.class, "bank", 3, true),
-	TRANSPORTER(RoleTransporter.class, "transporter", 4, true),
-	POSTMAN(RolePostman.class, "mailman", 5, false),
-	COMPANION(RoleCompanion.class, "companion", 6, true),
-	DIALOG(RoleDialog.class, "dialog", 7, true);
+	DEFAULT("none", 0, false),
+	TRADER("trader", 1, true),
+	FOLLOWER("mercenary", 2, true),
+	BANK("bank", 3, true),
+	TRANSPORTER("transporter", 4, true),
+	POSTMAN("mailman", 5, false),
+	COMPANION("companion", 6, true),
+	DIALOG("dialog", 7, true);
 
 	public static RoleType get(int id) {
 		for (RoleType er : RoleType.values()) {
@@ -50,13 +50,11 @@ public enum RoleType {
 	private final int type;
 	public final String name;
 	public final boolean hasSettings;
-	private final Class<?> parent;
 
-	RoleType(Class<?> clazz, String named, int t, boolean hasSet) {
-		this.type = t;
-		this.parent = clazz;
-		this.name = "role." + named;
-		this.hasSettings = hasSet;
+	RoleType(String named, int t, boolean hasSet) {
+		type = t;
+		name = "role." + named;
+		hasSettings = hasSet;
 	}
 
 	public int get() {
@@ -64,10 +62,15 @@ public enum RoleType {
 	}
 
 	public void setToNpc(EntityNPCInterface npc) {
-		try {
-			npc.advanced.roleInterface = (RoleInterface) parent.getConstructor(EntityNPCInterface.class).newInstance(npc);
-		} catch (Exception e) {
-			LogWriter.error(e);
+		switch (this) {
+			case DEFAULT: npc.advanced.roleInterface = new RoleInterface(npc); break;
+			case TRADER: npc.advanced.roleInterface = new RoleTrader(npc); break;
+			case FOLLOWER: npc.advanced.roleInterface = new RoleFollower(npc); break;
+			case BANK: npc.advanced.roleInterface = new RoleBank(npc); break;
+			case TRANSPORTER: npc.advanced.roleInterface = new RoleTransporter(npc); break;
+			case POSTMAN: npc.advanced.roleInterface = new RolePostman(npc); break;
+			case COMPANION: npc.advanced.roleInterface = new RoleCompanion(npc); break;
+			case DIALOG: npc.advanced.roleInterface = new RoleDialog(npc); break;
 		}
 	}
 

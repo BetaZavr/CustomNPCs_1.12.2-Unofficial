@@ -13,28 +13,29 @@ import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Zone3D;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
-public class SubGuiNpcAvailabilityRegions
-extends SubGuiInterface
-implements ICustomScrollListener {
+public class SubGuiNpcAvailabilityRegions extends SubGuiInterface implements ICustomScrollListener {
 
-    private final Availability availability;
-    private final Map<String, Integer> data = new TreeMap<>();
-    private GuiCustomScroll scroll;
-    private String select = "";
+    protected final Availability availability;
+    protected final Map<String, Integer> data = new TreeMap<>();
+    protected GuiCustomScroll scroll;
+    protected String select = "";
 
-    public SubGuiNpcAvailabilityRegions(Availability availability) {
+    public SubGuiNpcAvailabilityRegions(Availability availabilityIn) {
+        super(0);
         setBackground("smallbg.png");
+        closeOnEsc = true;
         xSize = 176;
         ySize = 222;
-        closeOnEsc = true;
 
-        this.availability = availability;
+        availability = availabilityIn;
     }
 
     @Override
-    public void buttonEvent(IGuiNpcButton button) {
+    public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+        if (mouseButton != 0) { return; }
         switch (button.getID()) {
             case 0: {
                 if (!data.containsKey(select)) { return; }
@@ -47,22 +48,15 @@ implements ICustomScrollListener {
             case 1: {
                 if (!data.containsKey(select)) { return; }
                 int id = data.get(select);
-                if (button.getValue() == 0) {
-                    availability.regions.remove(id);
-                } else {
-                    if (!availability.regions.containsKey(id)) {
-                        availability.regions.put(id, EnumAvailabilityRegion.Always);
-                    } else {
-                        availability.regions.put(id, EnumAvailabilityRegion.values()[button.getValue() - 1]);
-                    }
+                if (button.getValue() == 0) { availability.regions.remove(id); }
+                else {
+                    if (!availability.regions.containsKey(id)) { availability.regions.put(id, EnumAvailabilityRegion.Always); }
+                    else { availability.regions.put(id, EnumAvailabilityRegion.values()[button.getValue() - 1]); }
                 }
                 initGui();
                 break;
             }
-            case 66: {
-                close();
-                break;
-            }
+            case 66: onClosed(); break;
         }
     }
 
@@ -72,18 +66,13 @@ implements ICustomScrollListener {
         int x = guiLeft + 5;
         int y = guiTop + 197;
         // exit
-        GuiNpcButton button = new GuiNpcButton(66, x, y, 70, 20, "gui.done");
-        button.setHoverText("hover.back");
-        addButton(button);
+        addButton(new GuiNpcButton(66, x, y, 70, 20, "gui.done")
+                .setHoverText("hover.back"));
         // data
         int selID = -1;
-        if (!select.isEmpty() && data.containsKey(select)) {
-            selID = data.get(select);
-        }
+        if (!select.isEmpty() && data.containsKey(select)) { selID = data.get(select); }
         data.clear();
-        if (scroll == null) {
-            (scroll = new GuiCustomScroll(this, 0)).setSize(168, 191);
-        }
+        if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(168, 191); }
         List<String> list = new ArrayList<>();
         List<String> suffixes = new ArrayList<>();
         BorderController bData = BorderController.getInstance();
@@ -109,13 +98,9 @@ implements ICustomScrollListener {
                 String key = id + " - " + name;
                 if (availability.regions.containsKey(id)) {
                     key = c + "r" + key;
-                    if (availability.regions.get(id) == EnumAvailabilityRegion.Always) {
-                        suffixes.add(c + "aA");
-                    } else if (availability.regions.get(id) == EnumAvailabilityRegion.InSide) {
-                        suffixes.add(c + "bIn");
-                    } else {
-                        suffixes.add(c + "dOut");
-                    }
+                    if (availability.regions.get(id) == EnumAvailabilityRegion.Always) { suffixes.add(c + "aA"); }
+                    else if (availability.regions.get(id) == EnumAvailabilityRegion.InSide) { suffixes.add(c + "bIn"); }
+                    else { suffixes.add(c + "dOut"); }
                 } else {
                     key = c + "7" + key;
                     suffixes.add(c + "cN");
@@ -128,39 +113,34 @@ implements ICustomScrollListener {
                 list.add(key);
             }
         }
-        scroll.setListNotSorted(list);
-        scroll.setSuffixes(suffixes);
-        scroll.setHoverTexts(hts);
         scroll.guiLeft = guiLeft + 4;
         scroll.guiTop = guiTop + 4;
+        scroll.setUnsortedList(list)
+                .setSuffixes(suffixes)
+                .setHoverTexts(hts);
         if (!select.isEmpty()) { scroll.setSelected(select); }
         addScroll(scroll);
-
         EnumAvailabilityRegion aData = null;
         if (!select.isEmpty() && data.containsKey(select) && availability.regions.containsKey(data.get(scroll.getSelected()))) {
             aData = availability.regions.get(data.get(scroll.getSelected()));
         }
         // tp
-        button = new GuiNpcButton(0, x += 73, y, 20, 20, "TP");
-        button.setEnabled(!select.isEmpty());
-        button.setHoverText("hover.teleport");
-        addButton(button);
+        addButton(new GuiNpcButton(0, x += 73, y, 20, 20, "TP")
+                .setIsEnable(!select.isEmpty())
+                .setHoverText("hover.teleport"));
         // type
-        button = new GuiNpcButton(1, x + 23, y, 70, 20, new String[] { "gui.disabled", "availability.always", "availability.inside", "availability.outside" }, aData == null ? 0 : aData.ordinal() + 1);
-        button.setEnabled(!select.isEmpty());
-        button.setHoverText("region.hover.available.type");
-        addButton(button);
+        addButton(new GuiNpcButton(1, x + 23, y, 70, 20, new String[] { "gui.disabled", "availability.always", "availability.inside", "availability.outside" }, aData == null ? 0 : aData.ordinal() + 1)
+                .setIsEnable(!select.isEmpty())
+                .setHoverText("region.hover.available.type"));
     }
 
     @Override
-    public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+    public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
         select = scroll.getSelected();
         initGui();
     }
 
     @Override
-    public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-
-    }
+    public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 }

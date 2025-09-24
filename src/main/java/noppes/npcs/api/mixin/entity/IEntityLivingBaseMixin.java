@@ -13,10 +13,6 @@ public interface IEntityLivingBaseMixin {
 
     void npcs$setRecentlyHit(int newRecentlyHit);
 
-    void npcs$setInterpTargetYaw(double newInterpTargetYaw);
-
-    void npcs$setInterpTargetPitch(double newInterpTargetPitch);
-
     void npcs$setCurrentDamageSource(DamageSource source);
 
     DataParameter<Byte> npcs$getHandStates();

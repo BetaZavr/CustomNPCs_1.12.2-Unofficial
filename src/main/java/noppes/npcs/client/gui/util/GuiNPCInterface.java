@@ -1,14 +1,15 @@
 package noppes.npcs.client.gui.util;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.INpc;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.event.ClientEvent;
@@ -18,7 +19,6 @@ import org.lwjgl.input.Keyboard;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
@@ -30,78 +30,77 @@ import net.minecraftforge.common.MinecraftForge;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.GuiBoundarySetting;
 import noppes.npcs.entity.EntityNPCInterface;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class GuiNPCInterface
-extends GuiScreen
-implements IEditNPC, ICustomScrollListener, ISubGuiListener {
+public class GuiNPCInterface extends GuiScreen implements IEditNPC {
+
+	public static final Poses[] ps = new Poses[] { new Poses(0), new Poses(1), new Poses(2), new Poses(3), new Poses(4), new Poses(5), new Poses(6), new Poses(7) };
 
 	// Minecraft Resources
+	public static final ResourceLocation MONEY = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_gold.png");
+	public static final ResourceLocation DONAT = new ResourceLocation(CustomNpcs.MODID, "textures/items/coin_donat.png");
 	public static final ResourceLocation WIDGETS = new ResourceLocation("textures/gui/widgets.png");
+	public static long altH = System.currentTimeMillis();
+	public static boolean showHoverText = true;
 
 	// Mod Resources
+	public static final ResourceLocation INFO = new ResourceLocation(CustomNpcs.MODID, "textures/gui/info.png");
 	public static final ResourceLocation RESOURCE_SLOT = new ResourceLocation(CustomNpcs.MODID, "textures/gui/slot.png");
 	public static final ResourceLocation MENU_BUTTON = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubutton.png");
 	public static final ResourceLocation MENU_SIDE_BUTTON = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menusidebutton.png");
 	public static final ResourceLocation MENU_TOP_BUTTON = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menutopbutton.png");
 	public static final ResourceLocation ANIMATION_BUTTONS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/animation/buttons.png");
 	public static final ResourceLocation ANIMATION_BUTTONS_SLOTS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/animation/button_slots.png");
+	public static int savedMouseX = -1;
+	public static int savedMouseY = -1;
 
-	public boolean closeOnEsc = false;
-	public boolean hoverMiniWin = false;
-	public boolean drawDefaultBackground = false;
 	protected boolean hasArea = false;
-	public int guiLeft;
-	public int guiTop;
+	protected boolean isInit = true;
+	protected final List<String> hoverText = new ArrayList<>();
+	protected final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
+	protected final List<IComponentGui> components = new ArrayList<>();
+	protected final Map<Integer, GuiNpcButton> buttons = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiNpcLabel> labels = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiCustomScroll> scrolls = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiMenuSideButton> sideButtons = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiNpcSlider> sliders = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiNpcTextField> textFields = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiMenuTopButton> topButtons = new ConcurrentHashMap<>();
+	protected final Map<Integer, GuiNpcMiniWindow> miniWindows = new ConcurrentHashMap<>();
 	public int mouseX;
 	public int mouseY;
-	public int xSize;
-	public int ySize;
+	public boolean drawDefaultBackground = false;
+	public boolean hoverIsGame = false;
+	public boolean closeOnEsc = false;
+	public int guiLeft;
+	public int guiTop;
+	public int xSize = 200;
+	public int ySize = 222;
 	public int widthTexture = 0;
 	public int heightTexture = 0;
 	public int borderTexture = 4;
 	public float bgScale = 1.0f;
 	public float translateZ = 0.0f;
 	public String title = "";
-
-	protected final List<String> hoverText = new ArrayList<>();
 	public ResourceLocation background = null;
 	public EntityNPCInterface npc;
 	public EntityPlayerSP player;
-	protected GuiButton selectedButton;
 	public SubGuiInterface subgui;
-
-	protected final List<int[]> line = new ArrayList<>(); // startX, startY, endX, endY, color, lineSize
-	protected final List<IComponentGui> components = new ArrayList<>();
-	protected final Map<Integer, IGuiNpcButton> buttons = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiNpcLabel> labels = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiCustomScroll> scrolls = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiMenuSideButton> sideButtons = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiNpcSlider> sliders = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiNpcTextField> textFields = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiMenuTopButton> topButtons = new ConcurrentHashMap<>();
-	protected final Map<Integer, IGuiNpcMiniWindow> miniWindows = new ConcurrentHashMap<>();
-
-	public GuiNPCInterface(INpc npc) {
-		this(npc instanceof EntityNPCInterface ? (EntityNPCInterface) npc : null);
-	}
 
 	public GuiNPCInterface() {
 		this(null);
 	}
 
-	public GuiNPCInterface(EntityNPCInterface npc) {
-		this.npc = npc;
-		xSize = 200;
-		ySize = 222;
+	public GuiNPCInterface(EntityNPCInterface npcIn) {
 		mc = Minecraft.getMinecraft();
 		player = mc.player;
 		itemRender = mc.getRenderItem();
 		fontRenderer = mc.fontRenderer;
-		if (this.npc == null) { this.npc = NoppesUtilServer.getEditingNpc(player); }
+		if (npcIn == null) { npc = NoppesUtilServer.getEditingNpc(player); } else { npc = npcIn; }
 	}
 
 	public static void fill(int left, int top, int right, int bottom, float zLevel, int startColor, int endColor) {
@@ -134,7 +133,8 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		GlStateManager.enableTexture2D();
 	}
 
-	protected List<String> getHoverText() { return hoverText; }
+	@Override
+	public List<String> getHoverText() { return hoverText; }
 
 	/**
 	 * 0: LMB - used in "buttonEvent(IGuiNpcButton button)"
@@ -143,223 +143,55 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 	 * next - extra buttons
 	 */
 	@Override
-	public void buttonEvent(@Nonnull IGuiNpcButton button, int mouseButton) { }
-
-	@Override
-	protected void actionPerformed(@Nonnull GuiButton guibutton) {
-		if (!(guibutton instanceof IGuiNpcButton)) {
-			return;
-		}
-		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
-			mwin.buttonEvent((IGuiNpcButton) guibutton);
-		}
-		if (hoverMiniWin) { return; }
-		if (subgui != null) {
-			subgui.buttonEvent((IGuiNpcButton) guibutton);
-		} else {
-			buttonEvent((IGuiNpcButton) guibutton);
-		}
-	}
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) { }
 
 	public void add(IComponentGui component) {
+		components.removeIf(c -> c.getID() == component.getID() && c.getClass().isAssignableFrom(component.getClass()));
 		components.add(component);
 		if (component instanceof GuiNpcTextArea) { hasArea = true; }
 	}
 
 	@Override
-	public IComponentGui get(int id) {
-		for (IComponentGui component : components) {
-			if (component.getID() == id) { return component; }
-		}
-		return id < components.size() ? components.get(id) : null;
-	}
-
 	public IComponentGui get(int id, Class<?> classType) {
-		for (IComponentGui component : components) {
+		for (IComponentGui component : new ArrayList<>(components)) {
 			if (component.getID() == id && component.getClass().isAssignableFrom(classType)) { return component; }
 		}
 		return id < components.size() ? components.get(id) : null;
 	}
 
-	public void addButton(GuiNpcButton button) { addButton((IGuiNpcButton) button); }
+	public void addButton(GuiNpcButton button) { buttons.put(button.getID(), button); add(button); }
 
-	@Override
-	public void addButton(IGuiNpcButton button) {
-		buttons.put(button.getID(), button);
-		add(button);
-	}
+	public void addLabel(GuiNpcLabel label) { labels.put(label.getID(), label); add(label); }
 
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, width, height, textureX, textureY, texture);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, int width, int height, int val, String... display) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, width, height, val, display);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, int width, int height, String label) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, width, height, label);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, int width, int height, String label, boolean enabled) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, width, height, label, enabled);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, int width, int height, String[] display, int val) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, width, height, display, val);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, String label) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, label);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcButton addButton(int id, int x, int y, String[] display, int val) {
-		IGuiNpcButton button = new GuiNpcButton(id, x, y, display, val);
-		addButton(button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcCheckBox addCheckBox(int id, int x, int y, int width, int height, String trueLabel, String falseLabel) {
-		IGuiNpcCheckBox button = new GuiNpcCheckBox(id, x, y, width, height, trueLabel, falseLabel);
-		addButton((GuiNpcButton) button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcCheckBox addCheckBox(int id, int x, int y, int width, int height, String trueLabel, String falseLabel, boolean select) {
-		IGuiNpcCheckBox button = new GuiNpcCheckBox(id, x, y, width, height, trueLabel, falseLabel, select);
-		addButton((GuiNpcButton) button);
-		return button;
-	}
-
-	@Override
-	public IGuiNpcCheckBox addCheckBox(int id, int x, int y, String trueLabel, String falseLabel, boolean select) {
-		IGuiNpcCheckBox button = new GuiNpcCheckBox(id, x, y, trueLabel, falseLabel, select);
-		addButton((GuiNpcButton) button);
-		return button;
-	}
-
-	public void addLabel(GuiNpcLabel label) { addLabel((IGuiNpcLabel) label); }
-
-	@Override
-	public void addLabel(IGuiNpcLabel label) {
-		labels.put(label.getID(), label);
-		add(label);
-	}
-
-	@Override
-	public IGuiNpcLabel addLabel(int id, Object label, int x, int y, int color) {
-		IGuiNpcLabel iLabel = new GuiNpcLabel(id, label, x, y, color);
-		addLabel(iLabel);
-		return iLabel;
-	}
-
-	@Override
-	public IGuiNpcLabel addLabel(int id, Object label, int x, int y) {
-		IGuiNpcLabel iLabel = new GuiNpcLabel(id, label, x, y);
-		addLabel(iLabel);
-		return iLabel;
-	}
-
-	public void addScroll(GuiCustomScroll scroll) { addScroll((IGuiCustomScroll) scroll); }
-
-	@Override
-	public void addScroll(IGuiCustomScroll scroll) {
-		if (scroll instanceof GuiScreen) {
-			((GuiScreen) scroll).setWorldAndResolution(mc, scroll.getWidth(), scroll.getHeight());
-		}
-		scroll.setParent(this);
+	public void addScroll(GuiCustomScroll scroll) {
+		scroll.setWorldAndResolution(mc, scroll.width, scroll.height);
 		scrolls.put(scroll.getID(), scroll);
 		add(scroll);
 	}
 
-	@Override
-	public IGuiCustomScroll addScroll(ICustomScrollListener parent, int scrollId) {
-		IGuiCustomScroll scroll = new GuiCustomScroll(parent, scrollId);
-		addScroll(scroll);
-		return scroll;
-	}
+	public void addSideButton(GuiMenuSideButton slider) { sideButtons.put(slider.getID(), slider); add(slider); }
 
-	@Override
-	public IGuiCustomScroll addScroll(ICustomScrollListener parent, boolean setSearch, int id) {
-		IGuiCustomScroll scroll = new GuiCustomScroll(parent, setSearch, id);
-		addScroll(scroll);
-		return scroll;
-	}
+	public void addSlider(GuiNpcSlider slider) { sliders.put(slider.getID(), slider); add(slider); }
 
-	@Override
-	public IGuiCustomScroll addScroll(ICustomScrollListener parent, int id, boolean isMultipleSelection) {
-		IGuiCustomScroll scroll = new GuiCustomScroll(parent, id, isMultipleSelection);
-		addScroll(scroll);
-		return scroll;
-	}
+	public void addTextField(GuiNpcTextField textField) { textFields.put(textField.getID(), textField); add(textField); }
 
-	public void addSideButton(GuiMenuSideButton slider) { addSideButton((IGuiMenuSideButton) slider); }
+	public void addTopButton(GuiMenuTopButton button) { topButtons.put(button.getID(), button); add(button); }
 
-	@Override
-	public void addSideButton(IGuiMenuSideButton slider) {
-		sideButtons.put(slider.getID(), slider);
-		add(slider);
-	}
-
-	public void addSlider(GuiNpcSlider slider) { addSlider((IGuiNpcSlider) slider); }
-
-	@Override
-	public void addSlider(IGuiNpcSlider slider) {
-		sliders.put(slider.getID(), slider);
-		add(slider);
-	}
-
-	public void addTextField(GuiNpcTextField textField) { addTextField((IGuiNpcTextField) textField); }
-
-	@Override
-	public void addTextField(IGuiNpcTextField textField) {
-		textFields.put(textField.getID(), textField);
-		add(textField);
-	}
-
-	public void addTopButton(IGuiMenuTopButton button) {
-		topButtons.put(button.getID(), button);
-		add(button);
-	}
-
-	public void addMiniWindow(GuiNpcMiniWindow miniwindows) { addMiniWindow((IGuiNpcMiniWindow) miniwindows); }
-
-	@Override
-	public void addMiniWindow(IGuiNpcMiniWindow miniwindows) {
+	public void addMiniWindow(GuiNpcMiniWindow miniwindows) {
 		miniWindows.put(miniwindows.getID(), miniwindows);
 		miniwindows.resetButtons();
 		add(miniwindows);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) { }
+	public void onClosed() { onGuiClosed(); }
 
 	@Override
-	public void close() {
+	public void onGuiClosed() {
+		GuiNpcTextField.unfocus();
+		save();
 		displayGuiScreen(null);
 		mc.setIngameFocus();
-		save();
 	}
 
 	public void displayGuiScreen(GuiScreen gui) {
@@ -455,30 +287,32 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		drawNpc(npc, x, y, 1.0f, 0, 0, 1);
 	}
 
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		drawMainScreen(mouseX, mouseY, partialTicks);
-	}
-
 	@Override
-	public void drawMainScreen(int mouseX, int mouseY, float partialTicks) {
-		if (translateZ != 0.0f) {
-			GlStateManager.translate(0.0f, 0.0f, translateZ);
+	public void drawScreen(int mouseXIn, int mouseYIn, float partialTicks) {
+		if (translateZ != 0.0f) { GlStateManager.translate(0.0f, 0.0f, translateZ); }
+		if (isInit && savedMouseX >= 0) {
+			Mouse.setCursorPosition(savedMouseX, savedMouseY);
+			isInit = false;
 		}
-		this.mouseX = mouseX;
-		this.mouseY = mouseY;
-		int x = mouseX;
-		int y = mouseY;
-		if (subgui != null) {
-			y = (x = 0);
+		RenderHelper.disableStandardItemLighting();
+		savedMouseX = Mouse.getX();
+		savedMouseY = Mouse.getY();
+		mouseX = mouseXIn;
+		mouseY = mouseYIn;
+		int x = mouseXIn;
+		int y = mouseYIn;
+		if (subgui != null) { y = (x = 0); }
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		if (drawDefaultBackground) {
+			drawDefaultBackground();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		}
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		if (drawDefaultBackground && subgui == null) { drawDefaultBackground(); }
-		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		if (background != null) {
+		if (background != null && !(this instanceof GuiNPCInterface2)) {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft, guiTop, 0.0f);
 			GlStateManager.scale(bgScale, bgScale, bgScale);
 			mc.getTextureManager().bindTexture(background);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			if (widthTexture != 0 && heightTexture != 0) {
 				int maxCol = ValueUtil.correctInt((int) Math.ceil((float) xSize / (float) (widthTexture - 2 * borderTexture)), 2, 10);
 				int maxRow = ValueUtil.correctInt((int) Math.ceil((float) ySize / (float) (heightTexture - 2 * borderTexture)), 2, 10);
@@ -491,6 +325,7 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 				int uMax = widthTexture - lastTileWidth;
 				int vOffset = (heightTexture - 2 * borderTexture - tileHeight) / 2;
 				int vMax = heightTexture - lastTileHeight;
+
 
 				for (int col = 0; col < maxCol; ++col) {
 					for (int row = 0; row < maxRow; ++row) {
@@ -510,7 +345,6 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 			else { drawTexturedModalRect(0, 0, 0, 0, xSize, ySize); }
 			GlStateManager.popMatrix();
 		}
-
 		postDrawBackground();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.translate(0, 0, 1.0f);
@@ -523,99 +357,68 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		drawCenteredString(fontRenderer, title, width / 2, height + 10, CustomNpcs.MainColor.getRGB());
-		hoverMiniWin = false;
 		for (IComponentGui component : new ArrayList<>(components)) {
 			component.render(this, x, y, partialTicks);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			if (component instanceof GuiNpcMiniWindow && ((GuiNpcMiniWindow) component).hovered) { hoverMiniWin = true; }
 		}
-		if (translateZ != 0.0f) {
-			GlStateManager.translate(0.0f, 0.0f, -translateZ);
-		}
-		super.drawScreen(x, y, partialTicks);
-		if (subgui != null) { subgui.drawScreen(mouseX, mouseY, partialTicks); }
-		else if (CustomNpcs.ShowDescriptions && !hoverText.isEmpty()) {
-			drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY, fontRenderer);
+		postDrawScreen(mouseXIn, mouseYIn, partialTicks);
+		if (translateZ != 0.0f) { GlStateManager.translate(0.0f, 0.0f, -translateZ); }
+		if (subgui != null) { subgui.drawScreen(mouseXIn, mouseYIn, partialTicks); }
+		else if (hoverIsGame || (CustomNpcs.ShowDescriptions && showHoverText) && !hoverText.isEmpty()) {
+			drawHoveringText(new ArrayList<>(hoverText), mouseXIn, mouseYIn, fontRenderer);
 			RenderHelper.disableStandardItemLighting();
 			hoverText.clear();
 		}
 	}
 
+	protected void postDrawScreen(int mouseXIn, int mouseYIn, float partialTicks) { }
+
 	public void postDrawBackground() { }
 
-	public void elementClicked() {
-		if (subgui != null) { subgui.elementClicked(); }
-	}
-
-	@Override
-	public IGuiTextArea getTextArea(int id) {
-		for (IComponentGui component : components) {
-			if (component instanceof IGuiTextArea && component.getID() == id) { return (IGuiTextArea) component; }
+	public GuiTextArea getTextArea(int id) {
+		for (IComponentGui component : new ArrayList<>(components)) {
+			if (component instanceof GuiTextArea && component.getID() == id) { return (GuiTextArea) component; }
 		}
 		return null;
 	}
 
-	@Override
-	public IGuiNpcButton getButton(int id) { return buttons.get(id); }
+	public GuiNpcButton getButton(int id) { return buttons.get(id); }
 
 	@Override
 	public int getEventButton() { return ((IGuiScreenMixin) this).npcs$getEventButton(); }
 
-	public FontRenderer getFontRenderer() {
-		return fontRenderer;
-	}
+	public GuiNpcLabel getLabel(int id) { return labels.get(id); }
 
-	@Override
-	public IGuiNpcLabel getLabel(int id) {
-		return labels.get(id);
-	}
+	@SuppressWarnings("all")
+	public GuiCustomScroll getScroll(int id) { return scrolls.get(id);	}
 
-	@Override
-	public ResourceLocation getResource(String texture) { return new ResourceLocation(CustomNpcs.MODID, "textures/gui/" + texture); }
+	public GuiMenuSideButton getSideButton(int id) { return sideButtons.get(id); }
 
-	@Override
-	public IGuiCustomScroll getScroll(int id) { return scrolls.get(id);	}
+	public GuiNpcSlider getSlider(int id) { return sliders.get(id); }
 
-	@Override
-	public IGuiMenuSideButton getSideButton(int id) { return sideButtons.get(id); }
-
-	@Override
-	public IGuiNpcSlider getSlider(int id) { return sliders.get(id); }
-
-	@Override
 	public SubGuiInterface getSubGui() {
 		if (hasSubGui() && subgui.hasSubGui()) { return subgui.getSubGui(); }
 		return subgui;
 	}
 
-	@Override
-	public IGuiNpcTextField getTextField(int id) { return textFields.get(id); }
+	public GuiNpcTextField getTextField(int id) { return textFields.get(id); }
+
+	public GuiMenuTopButton getTopButton(int id) { return topButtons.get(id); }
+
+	@SuppressWarnings("all")
+	public GuiNpcMiniWindow getMiniWindow(int id) { return miniWindows.get(id); }
 
 	@Override
-	public IGuiMenuTopButton getTopButton(int id) { return topButtons.get(id); }
-
-	@Override
-	public IGuiNpcMiniWindow getMiniWindow(int id) { return miniWindows.get(id); }
-
-	@Override
-	public boolean hasSubGui() {
-		return subgui != null;
-	}
+	public boolean hasSubGui() { return subgui != null; }
 
 	@Override
 	public void initGui() {
 		super.initGui();
 		GuiNpcTextField.unfocus();
-		if (subgui != null) {
-			subgui.setWorldAndResolution(mc, width, height);
-			subgui.initGui();
-		}
 		guiLeft = (width - xSize) / 2;
 		guiTop = (height - ySize) / 2;
 		hasArea = false;
-		hoverText.clear();
 		components.clear();
-		buttonList.clear();
 		buttons.clear();
 		topButtons.clear();
 		sideButtons.clear();
@@ -624,145 +427,107 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 		scrolls.clear();
 		sliders.clear();
 		miniWindows.clear();
+		hoverText.clear();
+		if (subgui != null) {
+			subgui.setWorldAndResolution(mc, width, height);
+			subgui.initGui();
+		}
 	}
-	
-	public List<GuiButton> getButtonList() { return buttonList; }
 
 	public void initPacket() { }
 
-	public boolean isInventoryKey(int i) {
-		return i == mc.gameSettings.keyBindInventory.getKeyCode();
-	}
+	public boolean isInventoryKey(int keyCode) { return keyCode == mc.gameSettings.keyBindInventory.getKeyCode(); }
 
-	@Override
 	public boolean isMouseHover(int mX, int mY, int px, int py, int pWidth, int pHeight) {
 		return mX >= px && mY >= py && mX < (px + pWidth) && mY < (py + pHeight);
 	}
 
-	public void keyTyped(char c, int i) {
-		if (subgui != null) {
-			subgui.keyTyped(c, i);
-			return;
-		}
-		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
-			mwin.customKeyTyped(c, i);
-		}
-		if (hoverMiniWin) { return; }
-		boolean active = false;
-		for (IComponentGui component : components) {
-			if (component instanceof GuiTextArea && ((GuiTextArea) component).isActive()) {
-				active = true;
-				break;
-			}
-		}
-		active = (active || GuiNpcTextField.isActive());
-		if (subgui == null) {
-			boolean helpButtons = false;
-			if (i == 56 || i == 184) { helpButtons = Keyboard.isKeyDown(35); } // Alts
-			else if (i == 35) { helpButtons = Keyboard.isKeyDown(56) || Keyboard.isKeyDown(184); }
-			if (helpButtons) { CustomNpcs.ShowDescriptions = !CustomNpcs.ShowDescriptions; }
-		}
-		if (closeOnEsc && (i == 1 || (!active && isInventoryKey(i)))) {
-			close();
-			return;
-		}
-		for (IGuiNpcTextField tf : new ArrayList<>(textFields.values())) {
-			tf.customKeyTyped(c, i);
-		}
-		for (IComponentGui component : components) {
-			if (component instanceof IKeyListener) {
-				((IKeyListener) component).customKeyTyped(c, i);
-			}
+	@Override
+	protected void keyTyped(char typedChar, int keyCode) throws IOException { keyCnpcsPressed(typedChar, keyCode); }
+
+	@Override
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (altH < System.currentTimeMillis() && (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) && Keyboard.isKeyDown(Keyboard.KEY_H)) {
+			altH = System.currentTimeMillis() + 1000L;
+			showHoverText = !showHoverText;
 		}
 		if (hasSubGui()) {
-			return;
+			subgui.keyCnpcsPressed(typedChar, keyCode);
+			return true;
 		}
-		for (IGuiCustomScroll scroll : new ArrayList<>(scrolls.values())) {
-			scroll.customKeyTyped(c, i);
+		else if (closeOnEsc && keyCode == Keyboard.KEY_ESCAPE) {
+			onClosed();
+			return true;
 		}
+		for (IComponentGui component : new ArrayList<>(components)) {
+			if (component.keyCnpcsPressed(typedChar, keyCode)) { return true; }
+		}
+		return false;
 	}
 
-	public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+	@Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException { mouseCnpcsPressed(mouseX, mouseY, mouseButton); }
+
+	@Override
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
 		if (subgui != null) {
-			subgui.mouseClicked(mouseX, mouseY, mouseButton);
-			return;
+			subgui.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
+			return true;
 		}
-		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
-			mwin.customMouseClicked(mouseX, mouseY, mouseButton);
-		}
-		if (hoverMiniWin) { return; }
-		for (IGuiNpcTextField tf : new ArrayList<>(textFields.values())) {
-			if (tf.isEnabled()) {
-				tf.customMouseClicked(mouseX, mouseY, mouseButton);
+		List<GuiButton> list = new ArrayList<>(buttons.values());
+		for (IComponentGui component : new ArrayList<>(components)) {
+			if (component.mouseCnpcsPressed(mouseX, mouseY, mouseButton)) {
+				if (component instanceof GuiNpcButton) {
+					GuiNpcButton button = (GuiNpcButton) component;
+					if (mouseButton == 0) {
+						GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, button, list);
+						if (!MinecraftForge.EVENT_BUS.post(event)) {
+							GuiButton mcButton = event.getButton();
+							selectedButton = mcButton;
+							mcButton.playPressSound(this.mc.getSoundHandler());
+							if (mcButton instanceof GuiNpcButton) { buttonEvent((GuiNpcButton) mcButton, mouseButton); }
+							else {
+								try { actionPerformed(mcButton); } catch (Exception ignored) { }
+							}
+							if (equals(mc.currentScreen)) { MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, mcButton, list)); }
+						}
+						else { continue; }
+					}
+					else { buttonEvent(button, mouseButton); }
+				}
+				return true;
 			}
 		}
-		List<GuiButton> allButtons = new ArrayList<>();
+		return false;
+	}
+
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		mouseCnpcsReleased(mouseX, mouseY, state);
+		super.mouseReleased(mouseX, mouseY, state);
+	}
+
+	@Override
+	public boolean mouseCnpcsReleased(int mouseX, int mouseY, int state) {
+		if (subgui != null) {
+			subgui.mouseCnpcsReleased(mouseX, mouseY, state);
+			return true;
+		}
 		for (IComponentGui component : components) {
-			if (component instanceof IMouseListener) {
-				((IMouseListener) component).mouseClicked(mouseX, mouseY, mouseButton);
-			}
-			if (component instanceof GuiButton) {
-				allButtons.add((GuiButton) component);
-			}
+			if (component.mouseCnpcsReleased(mouseX, mouseY, state)) { return true; }
 		}
-		mouseEvent(mouseX, mouseY, mouseButton);
-		if (mouseButton != 0) {
-			for (IGuiNpcButton button : buttons.values()) {
-				if (button.isHovered()) {
-					buttonEvent(button, mouseButton);
-					break;
-				}
-			}
-			return;
-		}
-		for (IGuiCustomScroll scroll : new ArrayList<>(scrolls.values())) {
-			scroll.customMouseClicked(mouseX, mouseY, mouseButton);
-		}
-		for (GuiButton button : allButtons) {
-			if (button.mousePressed(mc, mouseX, mouseY)) {
-				GuiScreenEvent.ActionPerformedEvent.Pre event = new GuiScreenEvent.ActionPerformedEvent.Pre(this, button, allButtons);
-				if (MinecraftForge.EVENT_BUS.post(event)) { break; }
-				button = event.getButton();
-				(selectedButton = button).playPressSound(mc.getSoundHandler());
-				actionPerformed(button);
-				if (equals(mc.currentScreen)) {
-					MinecraftForge.EVENT_BUS.post(new GuiScreenEvent.ActionPerformedEvent.Post(this, event.getButton(), allButtons));
-					break;
-				}
-				break;
-			}
-		}
-	}
-
-	public void mouseEvent(int mouseX, int mouseY, int mouseButton) {
-		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
-			mwin.mouseEvent(mouseX, mouseY, mouseButton);
-		}
-	}
-
-	public void mouseReleased(int mouseX, int mouseY, int mouseButton) {
-		for (IGuiNpcMiniWindow mwin : miniWindows.values()) {
-			mwin.customMouseReleased(mouseX, mouseY, mouseButton);
-		}
-		if (hoverMiniWin) { return; }
-		if (selectedButton != null && mouseButton == 0) {
-			selectedButton.mouseReleased(mouseX, mouseY);
-			selectedButton = null;
-		}
-	}
-
-	public void onGuiClosed() {
-		GuiNpcTextField.unfocus();
+		return false;
 	}
 
 	public void openLink(String link) {
 		try {
 			Class<?> oclass = Class.forName("java.awt.Desktop");
-			Object object = oclass.getMethod("getDesktop", new Class[0]).invoke(null);
+			Object object = oclass.getMethod("getDesktop").invoke(null);
 			oclass.getMethod("browse", URI.class).invoke(object, new URI(link));
 		} catch (Exception e) { LogWriter.error(e); }
 	}
 
+	@Override
 	public void save() {}
 
 	@Override
@@ -808,13 +573,13 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public void setHoverText(@Nullable List<String> newHoverText) {
+	public void putHoverText(@Nullable List<String> newHoverText) {
 		hoverText.clear();
 		if (newHoverText != null && !newHoverText.isEmpty()) { hoverText.addAll(newHoverText); }
 	}
 
 	@Override
-	public void setHoverText(@Nullable String text, Object ... args) {
+	public void putHoverText(@Nullable String text, Object ... args) {
 		hoverText.clear();
 		if (text == null || text.isEmpty()) { return; }
 		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
@@ -828,13 +593,13 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 
 	@Override
 	public void drawHoverText(String text, Object... args) {
-		if (!CustomNpcs.ShowDescriptions) { return; }
+		if (!CustomNpcs.ShowDescriptions || !GuiNPCInterface.showHoverText) { return; }
 		if (text == null) {
 			if (!hoverText.isEmpty()) { drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY, fontRenderer); }
 			hoverText.clear();
 			return;
 		}
-		setHoverText(text, args);
+		putHoverText(text, args);
 		if (!hoverText.isEmpty()) {
 			drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY, fontRenderer);
 			hoverText.clear();
@@ -842,85 +607,78 @@ implements IEditNPC, ICustomScrollListener, ISubGuiListener {
 	}
 
 	@Override
-	public INpc getNpc() { return npc; }
-
-	@Override
-	public void setNpc(INpc iNpc) {
-		if (iNpc instanceof EntityNPCInterface) { npc = (EntityNPCInterface) iNpc; }
-	}
+	public boolean hasHoverText() { return !hoverText.isEmpty(); }
 
 	@Override
 	public void setSubGui(SubGuiInterface gui) {
 		subgui = gui;
 		if (subgui != null) {
-			subgui.setNpc(npc);
+			subgui.npc = npc;
 			subgui.setWorldAndResolution(mc, width, height);
 			subgui.setParent(this);
 			subgui.getParent().initGui();
 		}
 	}
 
-	public void setWorldAndResolution(@Nonnull Minecraft mc, int width, int height) {
-		super.setWorldAndResolution(mc, width, height);
+	@Override
+	public void setWorldAndResolution(@Nonnull Minecraft mcIn, int widthIn, int heightIn) {
+		mc = mcIn;
+		itemRender = mc.getRenderItem();
+		fontRenderer = mc.fontRenderer;
+		width = widthIn;
+		height = heightIn;
+		List<GuiButton> list = new ArrayList<>(buttons.values());
+		if (!net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Pre(this, list))) {
+			buttonList.clear();
+			initGui();
+		}
+		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent.Post(this, list));
 		initPacket();
 	}
 
+	@Override
 	public void updateScreen() {
 		if (subgui != null) { subgui.updateScreen(); }
 		else {
-			for (IComponentGui component : components) {
-				if (component instanceof GuiNpcTextField) { ((GuiNpcTextField) component).updateScreen(); }
-				if (component instanceof GuiTextArea) { ((GuiTextArea) component).updateScreen(); }
-			}
+			for (IComponentGui component : new ArrayList<>(components)) { component.updateCnpcsScreen(); }
 			super.updateScreen();
 		}
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) { }
+	public void addLine(int sX, int sY, int eX, int eY, int color, int size) { line.add(new int[] { sX, sY, eX, eY, color, size }); }
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
-
-	@Override
-	public void mouseDragged(IGuiNpcSlider slider) { }
-
-	@Override
-	public void mousePressed(IGuiNpcSlider slider) { }
-
-	@Override
-	public void mouseReleased(IGuiNpcSlider slider) { }
-
-	@Override
-	public void unFocused(IGuiNpcTextField textField) { }
-	
-	@Override
-	public void addLine(int sX, int sY, int eX, int eY, int color, int size) {
-		line.add(new int[] { sX, sY, eX, eY, color, size });
-	}
-
-	@Override
-	public void closeMiniWindow(IGuiNpcMiniWindow miniWindow) {
-		miniWindows.remove(miniWindow.getID());
-	}
-	
-	@Override
-	public void setMiniHoverText(int id, IComponentGui component) {}
+	public void closeMiniWindow(GuiNpcMiniWindow miniWindow) {  }
 
 	@Override
 	public boolean hasArea() { return hasArea; }
 
 	@Override
-	public void drawWait() {
-
-	}
-
-	@Override
-	public boolean hasHoverText() {
-		return false;
-	}
-
-	@Override
 	public void subGuiClosed(SubGuiInterface subgui) { }
+
+	@Override
+	public void elementClicked() {}
+
+
+	// New from Unofficial (BetaZavr)
+	public void drawWait() {
+		ScaledResolution scaleW = new ScaledResolution(mc);
+		int x = scaleW.getScaledWidth() / 2;
+		int y = scaleW.getScaledHeight() / 2 - 30;
+		drawCenteredString(fontRenderer, new TextComponentTranslation("gui.wait").getFormattedText(), mc.displayWidth / 2, mc.displayHeight / 2, CustomNpcs.MainColor.getRGB());
+		int pos_0 = (int) Math.floor((double) (player.world.getTotalWorldTime() % 16) / 2.0d);
+		GlStateManager.pushMatrix();
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		mc.getTextureManager().bindTexture(INFO);
+		drawTexturedModalRect(x + ps[pos_0].x - 1, y + ps[pos_0].y - 1, 0, 12, 6, 6);
+		int pos_1 = pos_0 - 1;
+		if (pos_1 < 0) { pos_1 += 8; }
+		drawTexturedModalRect(x + ps[pos_1].x, y + ps[pos_1].y, 6, 12, 5, 5);
+		int pos_2 = pos_0 - 2;
+		if (pos_2 < 0) { pos_2 += 8; }
+		drawTexturedModalRect(x + ps[pos_2].x + 1, y + ps[pos_2].y + 1, 11, 12, 4, 4);
+		GlStateManager.popMatrix();
+	}
 
 }

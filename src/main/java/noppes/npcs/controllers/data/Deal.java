@@ -1,324 +1,566 @@
 package noppes.npcs.controllers.data;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import noppes.npcs.CustomNpcs;
 import noppes.npcs.NpcMiscInventory;
 import noppes.npcs.Server;
+import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.handler.data.IAvailability;
 import noppes.npcs.api.handler.data.IDeal;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.MarcetController;
+import noppes.npcs.entity.data.DropSet;
+import noppes.npcs.util.ValueUtil;
 
-import java.util.Objects;
+import java.util.*;
 
 public class Deal implements IDeal {
 
+	public final static ResourceLocation defaultCaseOBJ = new ResourceLocation(CustomNpcs.MODID, "models/util/chest.obj");
+	public static ResourceLocation defaultCaseTexture = new ResourceLocation("minecraft", "entity/chest/christmas");
+
 	public Availability availability = new Availability();
-	private float chance = 1.0f; // 0.0 <-> 1.0
-	private int[] count = new int[] { 0, 0 };
-	private int id = -1;
-	private boolean ignoreDamage = false;
-	private boolean ignoreNBT = false;
-	private final NpcMiscInventory inventoryCurrency = new NpcMiscInventory(9);
-	private final NpcMiscInventory inventoryProduct = new NpcMiscInventory(1);
-	private int money = 0;
-	private int type = 2;
-	private int amount = 1;
+	protected float chance = 1.0f; // 0.0 <-> 1.0
+	protected int[] count = new int[] { 0, 0 };
+	protected int id = -1;
+	protected boolean ignoreDamage = false;
+	protected boolean ignoreNBT = false;
+	protected final NpcMiscInventory inventoryCurrency = new NpcMiscInventory(9);
+	protected final NpcMiscInventory inventoryProduct = new NpcMiscInventory(1);
+	protected int money = 0;
+	protected int donat = 0;
+	protected int type = 2; // 0: only bay; 1: only sell; 2: any
+	protected int amount = 1;
+	protected int rarityColor = 0;
+	// Case
+	protected final Map<Integer, DropSet> caseItems = new TreeMap<>();
+	protected ResourceLocation caseObjModel = null;
+	protected ResourceLocation caseSound = null;
+	protected ResourceLocation caseTexture = null;
+	protected boolean isCase = false;
+	protected boolean caseInShow = false;
+	protected int caseCount = 1;
+	protected String caseName = "gui.default";
+	protected String caseCommand = "";
+
 	public boolean update;
 
-	public Deal() {
-	}
+	public Deal() { }
 
-	public Deal(int id) {
-		this.id = id;
-	}
+	public Deal(int idIn) { id = idIn; }
 
 	public Deal copy() {
-		Deal deal = new Deal(this.id);
-		deal.availability = this.availability;
-		deal.ignoreDamage = this.ignoreDamage;
-		deal.ignoreNBT = this.ignoreNBT;
-		for (int i = 0; i < 9; i++) {
-			deal.inventoryCurrency.setInventorySlotContents(i, this.inventoryCurrency.getStackInSlot(i).copy());
-		}
-		deal.inventoryProduct.setInventorySlotContents(0, this.inventoryProduct.getStackInSlot(0).copy());
-		deal.type = this.type;
-		deal.money = this.money;
-		deal.count[0] = this.count[0];
-		deal.count[1] = this.count[1];
-		deal.chance = this.chance;
-		deal.amount = this.amount;
+		Deal deal = new Deal(id);
+		deal.availability = availability;
+		deal.ignoreDamage = ignoreDamage;
+		deal.ignoreNBT = ignoreNBT;
+		for (int i = 0; i < 9; i++) { deal.inventoryCurrency.setInventorySlotContents(i, inventoryCurrency.getStackInSlot(i).copy()); }
+		deal.inventoryProduct.setInventorySlotContents(0, inventoryProduct.getStackInSlot(0).copy());
+		deal.type = type;
+		deal.setRarityColor(rarityColor);
+		deal.money = money;
+		deal.donat = donat;
+		deal.count[0] = count[0];
+		deal.count[1] = count[1];
+		deal.chance = chance;
+		deal.amount = amount;
+
+		deal.isCase = isCase;
+		deal.caseInShow = caseInShow;
+		deal.caseCount = caseCount;
+		deal.caseName = caseName;
+		deal.caseCommand = caseCommand;
+		deal.caseObjModel = caseObjModel;
+		deal.caseSound = caseSound;
+		deal.caseTexture = caseTexture;
+		Map<Integer, DropSet> items = new TreeMap<>(caseItems);
+		deal.caseItems.clear();
+		deal.caseItems.putAll(items);
 		return deal;
 	}
 
 	@Override
 	public int getAmount() {
-		return this.amount;
+		return amount;
 	}
 
 	@Override
 	public IAvailability getAvailability() {
-		return this.availability;
+		return availability;
 	}
 
 	@Override
 	public int getChance() {
-		return (int) (this.chance * 100.0f);
+		return (int) (chance * 100.0f);
 	}
 
 	@Override
-	public IContainer getCurrency() {
-		return Objects.requireNonNull(NpcAPI.Instance()).getIContainer(this.inventoryCurrency);
-	}
+	public IContainer getCurrency() { return Objects.requireNonNull(NpcAPI.Instance()).getIContainer(inventoryCurrency); }
 
 	@Override
-	public int getId() {
-		return this.id;
-	}
+	public int getId() { return id; }
 
 	@Override
 	public boolean getIgnoreDamage() {
-		return this.ignoreDamage;
+		return ignoreDamage;
 	}
 
 	@Override
 	public boolean getIgnoreNBT() {
-		return this.ignoreNBT;
+		return ignoreNBT;
 	}
 
 	@Override
 	public int getMaxCount() {
-		return this.count[1];
+		return count[1];
 	}
 
 	@Override
-	public IInventory getMCInventoryCurrency() {
-		return this.inventoryCurrency;
-	}
+	public IInventory getMCInventoryCurrency() { return inventoryCurrency; }
 
 	@Override
-	public IInventory getMCInventoryProduct() {
-		return this.inventoryProduct;
-	}
+	public IInventory getMCInventoryProduct() { return inventoryProduct; }
 
 	@Override
 	public int getMinCount() {
-		return this.count[0];
+		return count[0];
 	}
 
 	@Override
-	public int getMoney() {
-		return this.money;
-	}
+	public int getMoney() { return money; }
+
+	@Override
+	public int getDonat() { return donat; }
 
 	@Override
 	public String getName() {
-		StringBuilder name = new StringBuilder();
-		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
-		if (!stack.isEmpty()) {
-			name.append(count[1] != 0 && amount == 0 ? ((char) 167) + "c" : "")
-					.append("x").append(stack.getCount())
-					.append(" ").append(stack.getDisplayName());
-		} else {
-			name.append(" - Empty");
+		ITextComponent name = new TextComponentString("");
+		ITextComponent temp;
+		if (isCase) {
+			temp = new TextComponentTranslation(caseName);
+			temp.getStyle().setColor(count[1] != 0 && amount == 0 ? TextFormatting.DARK_RED : TextFormatting.RESET);
+			name.appendSibling(temp);
 		}
-		return name.toString();
+		else {
+			ItemStack stack = inventoryProduct.getStackInSlot(0);
+			if (count[1] != 0 && amount == 0) {
+				temp = new TextComponentString(" x" + stack.getCount());
+				temp.getStyle().setColor(TextFormatting.DARK_RED);
+				name.appendText(stack.getDisplayName()).appendSibling(temp);
+			} else {
+				temp = new TextComponentString(" x" + stack.getCount());
+				temp.getStyle().setColor(TextFormatting.RESET);
+				name.appendText(stack.getDisplayName())
+						.appendSibling(temp)
+						.appendText(TextFormatting.GOLD + "" + stack.getCount());
+			}
+		}
+		return name.getFormattedText();
 	}
 
 	@Override
-	public IItemStack getProduct() {
-		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.inventoryProduct.getStackInSlot(0));
-	}
+	public IItemStack getProduct() { return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(inventoryProduct.getStackInSlot(0)); }
 
 	public String getSettingName() {
-		ItemStack stack = this.inventoryProduct.getStackInSlot(0);
-		return "ID:" + id + " "
-				+ (stack.isEmpty() ? ((char) 167) + "4" + new TextComponentTranslation("type.empty").getFormattedText()
-						: (this.inventoryCurrency.isEmpty() && this.money == 0 ? ((char) 167) + "c" : "")
-								+ stack.getDisplayName())
-				+ (!stack.isEmpty() ? " x" + stack.getCount() : "");
+		ItemStack stack = inventoryProduct.getStackInSlot(0);
+		ITextComponent keyName = new TextComponentString("ID:" + id + " ");
+		keyName.getStyle().setColor(TextFormatting.GRAY);
+		ITextComponent temp;
+		if (isCase) {
+			temp = new TextComponentTranslation(caseName);
+			temp.getStyle().setColor(inventoryCurrency.isEmpty() && money == 0 && donat == 0 ? TextFormatting.DARK_RED : TextFormatting.RESET);
+			keyName.appendSibling(temp);
+		}
+		else {
+			if (stack.isEmpty()) {
+				temp = new TextComponentTranslation("type.empty");
+				temp.getStyle().setColor(TextFormatting.DARK_RED);
+				keyName.appendSibling(temp);
+			}
+			else {
+				temp = new TextComponentString(stack.getDisplayName());
+				temp.getStyle().setColor(inventoryCurrency.isEmpty() && money == 0 && donat == 0 ? TextFormatting.DARK_RED : TextFormatting.RESET);
+				if (!stack.isEmpty()) { temp.appendText(TextFormatting.GRAY + " x" + TextFormatting.GOLD + stack.getCount()); }
+				keyName.appendSibling(temp);
+			}
+		}
+		return keyName.getFormattedText();
 	}
 
 	@Override
-	public int getType() {
-		return this.type;
-	}
+	public int getType() { return isCase ? 0 : type; }
 
 	public boolean isValid() {
-        this.inventoryProduct.getStackInSlot(0);
-        return !this.inventoryProduct.getStackInSlot(0).isEmpty() && (this.money > 0 || !this.inventoryCurrency.isEmpty());
-    }
-
-	public void readDataNBT(NBTTagCompound compound) {
-		this.readFromNBT(compound);
-		this.amount = compound.getInteger("Amount");
-		this.id = compound.getInteger("DealID");
+		if (isCase) {
+			return !caseItems.isEmpty() && !caseItems.get(0).getItem().isEmpty() && (money > 0 || donat > 0 || !inventoryCurrency.isEmpty());
+		}
+		else { return !inventoryProduct.getStackInSlot(0).isEmpty() && (money > 0 || donat > 0 || !inventoryCurrency.isEmpty()); }
 	}
 
-	public void readFromNBT(NBTTagCompound compound) {
-		this.availability.load(compound.getCompoundTag("Availability"));
-		this.ignoreDamage = compound.getBoolean("IgnoreDamage");
-		this.ignoreNBT = compound.getBoolean("IgnoreNBT");
-		this.inventoryCurrency.load(compound.getCompoundTag("Currency"));
-		this.inventoryProduct.load(compound.getCompoundTag("Product"));
-		this.type = compound.getInteger("Type");
-		this.money = compound.getInteger("Money");
-		this.count = compound.getIntArray("Count");
-		this.chance = compound.getFloat("Chance");
-		this.id = compound.getInteger("DealID");
+	public void readData(NBTTagCompound compound) {
+		load(compound);
+		amount = compound.getInteger("Amount");
+		id = compound.getInteger("DealID");
+	}
+
+	public void load(NBTTagCompound compound) {
+		availability.load(compound.getCompoundTag("Availability"));
+		ignoreDamage = compound.getBoolean("IgnoreDamage");
+		ignoreNBT = compound.getBoolean("IgnoreNBT");
+		inventoryCurrency.load(compound.getCompoundTag("Currency"));
+		inventoryProduct.load(compound.getCompoundTag("Product"));
+		type = compound.getInteger("Type");
+		money = compound.getInteger("Money");
+		donat = compound.getInteger("Donat");
+		count = compound.getIntArray("Count");
+		chance = compound.getFloat("Chance");
+		id = compound.getInteger("DealID");
+		setRarityColor(compound.getInteger("RarityColor"));
+
+		isCase = compound.getBoolean("IsCase");
+		caseInShow = compound.getBoolean("CaseInShow");
+		caseCount = compound.getInteger("CaseCount");
+		caseName = compound.getString("CaseName");
+		caseCommand = compound.getString("CaseCommand");
+		caseObjModel = null;
+		if (compound.hasKey("CaseObjModel", 8)) { caseObjModel = new ResourceLocation(compound.getString("CaseObjModel")); }
+		caseSound = null;
+		if (compound.hasKey("CaseSound", 8)) { caseSound = new ResourceLocation(compound.getString("CaseSound")); }
+		if (compound.hasKey("CaseTexture", 8)) { caseTexture = new ResourceLocation(compound.getString("CaseTexture")); }
+
+		caseItems.clear();
+		for (int i = 0; i < compound.getTagList("NpcInv", 10).tagCount(); i++) {
+			DropSet ds = new DropSet(null, this);
+			ds.load(compound.getTagList("NpcInv", 10).getCompoundTagAt(i));
+			ds.pos = i;
+			caseItems.put(i, ds);
+		}
 	}
 
 	@Override
-	public void set(IItemStack product, IItemStack[] currencys) {
-		if (product == null) {
-			product = ItemStackWrapper.AIR;
-		}
-		ItemStack[] cs = new ItemStack[currencys == null ? 0 : currencys.length];
-		if (currencys != null) {
+	public void set(IItemStack product, IItemStack[] currency) {
+		if (product == null) { product = ItemStackWrapper.AIR; }
+		ItemStack[] cs = new ItemStack[currency == null ? 0 : currency.length];
+		if (currency != null) {
 			int i = 0;
-			for (IItemStack stack : currencys) {
+			for (IItemStack stack : currency) {
 				cs[i] = stack.getMCItemStack();
 				i++;
 			}
 		}
-		this.set(product.getMCItemStack(), cs);
+		set(product.getMCItemStack(), cs);
 	}
 
-	public void set(ItemStack product, ItemStack[] currencys) {
-		if (product == null) {
-			product = ItemStack.EMPTY;
+	public void set(ItemStack product, ItemStack[] currency) {
+		if (product == null) { product = ItemStack.EMPTY; }
+		inventoryProduct.setInventorySlotContents(0, product);
+		if (count[1] != 0 && count[1] >= count[0]) {
+			amount = 0;
+			if (chance <= (float) Math.random()) { amount = count[0] + (int) (Math.random() * (count[1] - count[0])); }
 		}
-		this.inventoryProduct.setInventorySlotContents(0, product);
-
-		if (this.count[1] != 0 && this.count[1] >= this.count[0]) {
-			this.amount = 0;
-			if (this.chance <= (float) Math.random()) {
-				this.amount = this.count[0] + (int) (Math.random() * (this.count[1] - this.count[0]));
-			}
-		} else {
-			this.amount = 1;
-		}
-
-		this.inventoryCurrency.clear();
-		if (currencys != null) {
-			for (int i = 0, j = 0; i < currencys.length; i++) {
-				if (currencys[i] == null || currencys[i].isEmpty()) {
-					continue;
-				}
-				this.inventoryCurrency.setInventorySlotContents(j, currencys[i]);
+		else { amount = 1; }
+		inventoryCurrency.clear();
+		if (currency != null) {
+			for (int i = 0, j = 0; i < currency.length; i++) {
+				if (currency[i] == null || currency[i].isEmpty()) { continue; }
+				inventoryCurrency.setInventorySlotContents(j, currency[i]);
 				j++;
 			}
 		}
 	}
 
 	@Override
-	public void setAmount(int amount) {
-		if (amount < 0) {
-			amount = 0;
-		}
-		this.amount = amount;
-		this.update = true;
+	public void setAmount(int amountIn) {
+		amount = ValueUtil.correctInt(amountIn, 0, Integer.MAX_VALUE);
+		update = true;
 	}
 
-	public void setChance(float chance) {
-		if (chance < 0.0f) {
-			chance = 0.0f;
-		} else if (chance > 1.0f) {
-			chance = 1.0f;
-		}
-		this.chance = chance;
-		this.update = true;
+	public void setChance(float chanceIn) {
+		chance = ValueUtil.correctFloat(chanceIn, 0f, 1.0f);
+		update = true;
 	}
 
 	@Override
-	public void setChance(int chance) {
-		this.setChance(((float) chance) / 100.0f);
-	}
+	public void setChance(int chance) { setChance(((float) chance) / 100.0f); }
 
 	@Override
 	public void setCount(int min, int max) {
-		if (min < 0) {
-			min *= -1;
-		}
-		if (max < 0) {
-			max *= -1;
-		}
+		if (min < 0) { min *= -1; }
+		if (max < 0) { max *= -1; }
 		if (max < min) {
 			int m = min;
 			min = max;
 			max = m;
 		}
-		this.count[0] = min;
-		this.count[1] = max;
-		this.update = true;
+		count[0] = min;
+		count[1] = max;
+		update = true;
 	}
 
 	@Override
 	public void setIgnoreDamage(boolean bo) {
-		if (bo == this.ignoreDamage) {
-			return;
-		}
-		this.ignoreDamage = bo;
-		this.update = true;
+		if (bo == ignoreDamage) { return; }
+		ignoreDamage = bo;
+		update = true;
 	}
 
 	@Override
 	public void setIgnoreNBT(boolean bo) {
-		if (bo == this.ignoreNBT) {
-			return;
-		}
-		this.ignoreNBT = bo;
-		this.update = true;
+		if (bo == ignoreNBT) { return; }
+		ignoreNBT = bo;
+		update = true;
 	}
 
 	@Override
-	public void setMoney(int money) {
-		if (money < 0) {
-			money = 0;
-		}
-		this.money = money;
-		this.update = true;
+	public void setMoney(int moneyIn) {
+		money = ValueUtil.correctInt(moneyIn, 0, Integer.MAX_VALUE);
+		update = true;
+	}
+
+	@Override
+	public void setDonat(int moneyIn) {
+		donat = ValueUtil.correctInt(moneyIn, 0, Integer.MAX_VALUE);
+		update = true;
 	}
 
 	@Override
 	public void setProduct(IItemStack product) {
-		if (product == null) {
-			product = ItemStackWrapper.AIR;
-		}
-		this.inventoryProduct.setInventorySlotContents(0, product.getMCItemStack());
+		if (product == null) { product = ItemStackWrapper.AIR; }
+		inventoryProduct.setInventorySlotContents(0, product.getMCItemStack());
 	}
 
 	@Override
-	public void setType(int type) {
-		if (type < 0) {
-			type *= -1;
+	public void setType(int typeIn) {
+		if (typeIn < 0) { typeIn *= -1; }
+		type = typeIn % 3;
+		update = true;
+	}
+
+	@Override
+	public int getRarityColor() { return rarityColor; }
+
+	@Override
+	public void setRarityColor(int color) {
+		color = color & 0x00FFFFFF;
+		if (rarityColor != color) {
+			rarityColor = color;
+			update = true;
 		}
-		this.type = type % 3;
-		this.update = true;
+	}
+
+	@Override
+	public boolean isCase() { return isCase; }
+
+	@Override
+	public void setIsCase(boolean isCaseIn) {
+		isCase = isCaseIn;
+		update = true;
+	}
+
+	@Override
+	public int getCaseCount() { return caseCount; }
+
+	@Override
+	public void setCaseCount(int count) {
+		if (caseItems.isEmpty()) { return; }
+		count = ValueUtil.correctInt(count, 1, caseItems.size() - 1);
+		if (caseCount != count) {
+			caseCount = count;
+			update = true;
+		}
+	}
+
+	@Override
+	public String getCaseName() { return caseName; }
+
+	@Override
+	public void setCaseName(String newName) {
+		if (newName == null || newName.isEmpty()) { newName = "gui.default"; }
+		if (!caseName.equals(newName)) {
+			caseName = newName;
+			update = true;
+		}
+	}
+
+	@Override
+	public String getCaseCommand() { return caseCommand; }
+
+	@Override
+	public void setCaseCommand(String command) {
+		if (command == null) { command = ""; }
+		if (!caseCommand.equals(command)) {
+			caseCommand = command;
+			update = true;
+		}
+	}
+
+	@Override
+	public ResourceLocation getCaseObjModel() { return caseObjModel != null ? caseObjModel : Deal.defaultCaseOBJ; }
+
+	@Override
+	public void setCaseObjModel(ResourceLocation objModel) {
+		if ((caseObjModel != null && !caseObjModel.equals(objModel)) || (caseObjModel == null && objModel != null)) {
+			caseObjModel = objModel;
+			update = true;
+		}
+	}
+
+	@Override
+	public ResourceLocation getCaseSound() { return caseSound; }
+
+	@Override
+	public void setCaseSound(ResourceLocation sound) {
+		if ((caseSound != null && !caseSound.equals(sound)) || (caseSound == null && sound != null)) {
+			caseObjModel = sound;
+			update = true;
+		}
+	}
+
+	@Override
+	public ResourceLocation getCaseTexture() { return caseTexture != null ? caseTexture : Deal.defaultCaseTexture; }
+
+	@Override
+	public void setCaseTexture(ResourceLocation texture) {
+		if (texture != null && texture.getResourcePath().toLowerCase().endsWith(".png")) {
+			texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().substring(0, texture.getResourcePath().length() - 4));
+		}
+		if ((caseTexture != null && !caseTexture.equals(texture)) || (caseTexture == null && texture != null)) {
+			caseTexture = texture;
+			update = true;
+		}
+	}
+
+	@Override
+	public boolean showInCase() { return caseInShow; }
+
+	@Override
+	public void setShowInCase(boolean show) {
+		if (caseInShow != show) {
+			caseInShow = show;
+			update = true;
+		}
+	}
+
+	@Override
+	public DropSet addCaseItem(IItemStack item, double chance) {
+		return addCaseItem(item.getMCItemStack(), chance);
+	}
+
+	public DropSet addCaseItem(ItemStack item, double chance) {
+		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
+		DropSet ds = new DropSet(null, this);
+		ds.setInventorySlotContents(0, item);
+		ds.chance = chance;
+		ds.pos = caseItems.size();
+		caseItems.put(ds.pos, ds);
+		update = true;
+		return ds;
+	}
+
+	@Override
+	public ICustomDrop getCase(int slot) {
+		if (slot < 0 || slot >= caseItems.size()) {
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + caseItems.size() + " maximum");
+		}
+		return caseItems.get(slot);
+	}
+
+	@Override
+	public IItemStack getCaseItem(int slot) {
+		if (slot < 0 || slot >= caseItems.size()) {
+			throw new CustomNPCsException("Bad slot number: " + slot + " in " + caseItems.size() + " maximum");
+		}
+		DropSet g = caseItems.get(slot);
+		return g.getItem();
+	}
+
+	@Override
+	public DropSet[] getCaseItems() {
+		DropSet[] dss = new DropSet[caseItems.size()];
+		int i = 0;
+		for (DropSet ds : caseItems.values()) {
+			dss[i] = ds;
+			i++;
+		}
+		return dss;
+	}
+
+	public void setCaseItems(Map<Integer, DropSet> items) {
+		caseItems.clear();
+		if (items != null) { caseItems.putAll(items); }
+	}
+
+	@Override
+	public boolean removeCaseItem(ICustomDrop drop) {
+		Map<Integer, DropSet> newDrop = new TreeMap<>();
+		boolean del = false;
+		int j = 0;
+		for (int slot : caseItems.keySet()) {
+			if (caseItems.get(slot) == drop) {
+				del = true;
+				continue;
+			}
+			newDrop.put(j, caseItems.get(slot));
+			newDrop.get(j).pos = j;
+			j++;
+		}
+		if (del) {
+			caseItems.clear();
+			caseItems.putAll(newDrop);
+			update = true;
+		}
+		return del;
+	}
+
+	@Override
+	public boolean removeCaseItem(int slot) {
+		if (caseItems.containsKey(slot)) {
+			caseItems.remove(slot);
+			Map<Integer, DropSet> newDrop = new TreeMap<>();
+			int j = 0;
+			for (int s : caseItems.keySet()) {
+				if (s == slot) {
+					continue;
+				}
+				newDrop.put(j, caseItems.get(s));
+				newDrop.get(j).pos = j;
+				j++;
+			}
+			caseItems.clear();
+			caseItems.putAll(newDrop);
+			return update = true;
+		}
+		return false;
 	}
 
 	public void update() {
-		if (this.update) {
-			this.update = false;
+		if (update) {
+			update = false;
 			MarcetController mData = MarcetController.getInstance();
-			NBTTagCompound nbt = writeDataToNBT();
+			NBTTagCompound nbt = save();
 			for (Marcet marcet : mData.markets.values()) {
-				if (marcet.getSection(id) == -1) {
-					continue;
-				}
+				if (marcet.getSection(id) == -1) { continue;}
 				for (EntityPlayer listener : marcet.listeners) {
 					if (listener instanceof EntityPlayerMP) {
-						Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_DATA, 5, marcet.getId(),
-								nbt);
-						Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_DATA, 2);
+						Server.sendData((EntityPlayerMP) listener, EnumPacketClient.MARCET_DATA, 5, marcet.getId(), nbt);
 					}
 				}
 			}
@@ -327,36 +569,120 @@ public class Deal implements IDeal {
 
 	@Override
 	public void updateNew() {
-		if (this.chance >= (float) Math.random()) {
-			if (this.count[1] != 0 && this.count[1] >= this.count[0]) {
-				this.amount = this.count[0] + (int) (Math.random() * (this.count[1] - this.count[0]));
-			} else {
-				this.amount = 1;
+		if (chance >= (float) Math.random()) {
+			if (count[1] != 0 && count[1] >= count[0]) { amount = count[0] + (int) (Math.random() * (count[1] - count[0])); }
+			else { amount = 1; }
+		}
+		else { amount = 0; }
+	}
+
+	public NBTTagCompound save() {
+		NBTTagCompound compound = write();
+		compound.setInteger("Amount", amount);
+		return compound;
+	}
+
+	public NBTTagCompound write() {
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setTag("Availability", availability.save(new NBTTagCompound()));
+		compound.setBoolean("IgnoreDamage", ignoreDamage);
+		compound.setBoolean("IgnoreNBT", ignoreNBT);
+		compound.setTag("Currency", inventoryCurrency.save());
+		compound.setTag("Product", inventoryProduct.save());
+		compound.setInteger("Type", type);
+		compound.setIntArray("Count", count);
+		compound.setFloat("Chance", chance);
+		compound.setInteger("DealID", id);
+		compound.setInteger("Money", money);
+		compound.setInteger("Donat", donat);
+		compound.setInteger("RarityColor", rarityColor);
+
+		compound.setBoolean("IsCase", isCase);
+		compound.setBoolean("CaseInShow", caseInShow);
+		compound.setInteger("CaseCount", caseCount);
+		compound.setString("CaseName", caseName);
+		compound.setString("CaseCommand", caseCommand);
+		if (caseObjModel != null) { compound.setString("CaseObjModel", caseObjModel.toString()); }
+		if (caseSound != null) { compound.setString("CaseSound", caseSound.toString()); }
+		if (caseTexture != null) { compound.setString("CaseTexture", caseTexture.toString()); }
+
+		NBTTagList dropList = new NBTTagList();
+		int s = 0;
+		for (int slot : caseItems.keySet()) {
+			if (caseItems.get(slot) == null) { continue; }
+			if (caseItems.get(slot).pos != s) { caseItems.get(slot).pos = s; }
+			dropList.appendTag(caseItems.get(slot).save());
+			s++;
+		}
+		compound.setTag("NpcInv", dropList);
+
+		return compound;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void putHoverCaseItems(List<String> hovers, ITooltipFlag.TooltipFlags type) {
+		ITextComponent line, temp;
+		for (int pos: caseItems.keySet()) {
+			DropSet dropSet = caseItems.get(pos);
+			line = new TextComponentString(TextFormatting.GRAY + (type == ITooltipFlag.TooltipFlags.ADVANCED ? pos + ": \"" : "- \""));
+			line.appendText(TextFormatting.RESET + dropSet.item.getDisplayName());
+			line.appendText(TextFormatting.GRAY + "\" x");
+			if (dropSet.amount[0] == dropSet.amount[1]) { line.appendText(TextFormatting.GOLD + "" + dropSet.amount[0]); }
+			else {
+				line.appendText(TextFormatting.GRAY + "[")
+						.appendText(TextFormatting.GOLD + "" + dropSet.amount[0])
+						.appendText(TextFormatting.GRAY + "...")
+						.appendText(TextFormatting.GOLD + "" + dropSet.amount[1])
+						.appendText(TextFormatting.GRAY + "]");
 			}
-		} else {
-			this.amount = 0;
+			if (type == ITooltipFlag.TooltipFlags.ADVANCED) {
+				double ch = Math.round(dropSet.chance * 10.0d) / 10.d;
+				String chance = String.valueOf(ch).replace(".", ",");
+				if (ch == (int) ch) { chance = String.valueOf((int) ch); }
+				chance += "%";
+				temp = new TextComponentTranslation("drop.chance").appendText(": " + chance);
+				temp.getStyle().setColor(TextFormatting.GRAY);
+				line.appendText(TextFormatting.GRAY + "; ")
+						.appendSibling(temp);
+				if (!dropSet.enchants.isEmpty()) {
+					line.appendText(TextFormatting.GRAY + " |" + TextFormatting.AQUA + "E");
+				}
+				if (!dropSet.attributes.isEmpty()) {
+					line.appendText(TextFormatting.GRAY + " |" + TextFormatting.GREEN + "A");
+				}
+				if (!dropSet.tags.isEmpty()) {
+					line.appendText(TextFormatting.GRAY + " |" + TextFormatting.RED + "T");
+				}
+			}
+			line.appendText(TextFormatting.GRAY + ";");
+			hovers.add(line.getFormattedText());
 		}
 	}
 
-	public NBTTagCompound writeDataToNBT() {
-		NBTTagCompound compound = writeToNBT();
-		compound.setInteger("Amount", this.amount);
-		return compound;
-	}
-
-	public NBTTagCompound writeToNBT() {
-		NBTTagCompound compound = new NBTTagCompound();
-		compound.setTag("Availability", this.availability.save(new NBTTagCompound()));
-		compound.setBoolean("IgnoreDamage", this.ignoreDamage);
-		compound.setBoolean("IgnoreNBT", this.ignoreNBT);
-		compound.setTag("Currency", this.inventoryCurrency.save());
-		compound.setTag("Product", this.inventoryProduct.save());
-		compound.setInteger("Type", this.type);
-		compound.setIntArray("Count", this.count);
-		compound.setFloat("Chance", this.chance);
-		compound.setInteger("DealID", this.id);
-		compound.setInteger("Money", this.money);
-		return compound;
+	public Collection<ItemStack> createCaseItems(double baseChance) {
+		List<ItemStack> stacks = new ArrayList<>();
+		if (caseItems.isEmpty()) { return stacks; }
+		Map<ItemStack, Double> map = new LinkedHashMap<>();
+		float rnd = (float) Math.random() * 100.0f;
+		double max = -1.0d;
+		DropSet maxDS = null;
+		for (DropSet ds : new ArrayList<>(caseItems.values())) {
+			if (rnd <= ds.chance) { map.put(ds.createMCLoot(baseChance), ds.chance); }
+			if (max < ds.chance) {
+				max = ds.chance;
+				maxDS = ds;
+			}
+		}
+		if (map.isEmpty() && maxDS != null) { map.put(maxDS.createMCLoot(baseChance), maxDS.chance); }
+		List<Map.Entry<ItemStack, Double>> entries = new ArrayList<>(map.entrySet());
+		entries.sort(Comparator.comparingDouble(Map.Entry::getValue));
+		int i = 0;
+		for (Map.Entry<ItemStack, Double> entry : entries) {
+			stacks.add(entry.getKey());
+			i++;
+			if (i == caseCount) { break; }
+		}
+		return stacks;
 	}
 
 }

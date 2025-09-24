@@ -5,38 +5,40 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.TextBlockClient;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.constants.EnumRewardType;
 import noppes.npcs.controllers.data.Quest;
+import org.lwjgl.input.Keyboard;
 
-public class GuiQuestCompletion
-extends GuiNPCInterface
-implements ITopButtonListener {
+import javax.annotation.Nonnull;
 
-	private static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
-	
-	private final IQuest quest;
-	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
-	int maxLine;
-	int currentPage = 0;
-	int hover;
-	TextBlockClient textBlockClient;
+public class GuiQuestCompletion extends GuiNPCInterface {
 
-	public GuiQuestCompletion(IQuest iQuest) {
-		xSize = 176;
-		ySize = 222;
-		quest = iQuest;
+	protected static final ResourceLocation bookGuiTextures = new ResourceLocation("textures/gui/book.png");
+	protected final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	protected final Quest quest;
+	protected TextBlockClient textBlockClient;
+	protected int maxLine;
+	protected int currentPage = 0;
+	protected int hover;
+
+	public GuiQuestCompletion(Quest questIn) {
+		super();
 		drawDefaultBackground = false;
 		title = "";
+		xSize = 176;
+		ySize = 222;
+
+		quest = questIn;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() == 0) { close(); }
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		if (button.id == 66) { onClosed(); }
 	}
 
 	private void drawQuestText() {
@@ -88,31 +90,34 @@ implements ITopButtonListener {
 		addLabel(new GuiNpcLabel(0, questTitle, guiLeft + left, guiTop + 4));
 		textBlockClient = new TextBlockClient(quest.getCompleteText(), 170, true, npc, player);
 		maxLine = 180 / fontRenderer.FONT_HEIGHT;
-		GuiNpcButton button;
-		if (textBlockClient.lines.size() > maxLine) { button = new GuiNpcButton(0, guiLeft + 28, guiTop + ySize - 24, 80, 20, new TextComponentTranslation("quest.complete").getFormattedText()); }
-		else { button = new GuiNpcButton(0, guiLeft + 48, guiTop + ySize - 24, 80, 20, new TextComponentTranslation("quest.complete").getFormattedText()); }
-		addButton(button);
+		if (textBlockClient.lines.size() > maxLine) { addButton(new GuiNpcButton(0, guiLeft + 28, guiTop + ySize - 24, 80, 20, new TextComponentTranslation("quest.complete").getFormattedText())); }
+		else { addButton(new GuiNpcButton(66, guiLeft + 48, guiTop + ySize - 24, 80, 20, new TextComponentTranslation("quest.complete").getFormattedText())); }
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 || isInventoryKey(i)) { close(); }
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (subgui != null) { return subgui.keyCnpcsPressed(typedChar, keyCode); }
+		if (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode)) {
+			onClosed();
+			return true;
+		}
+		return super.keyCnpcsPressed(typedChar, keyCode);
 	}
 
 	@Override
 	public void save() {
-		if (((Quest) quest).rewardType == EnumRewardType.ONE_SELECT) { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, quest.getId()); }
+		if (quest.rewardType == EnumRewardType.ONE_SELECT) { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestChooseReward, quest.getId()); }
 		else { NoppesUtilPlayer.sendData(EnumPlayerPacket.QuestCompletion, quest.getId()); }
 	}
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
-		if (hover != -1) {
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+		if (subgui == null && hover != -1) {
 			if (hover == 1) { currentPage++; }
 			else { currentPage--; }
-			return;
+			return true;
 		}
-		super.mouseClicked(mouseX, mouseY, mouseBottom);
+		return super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
 	}
 
 }

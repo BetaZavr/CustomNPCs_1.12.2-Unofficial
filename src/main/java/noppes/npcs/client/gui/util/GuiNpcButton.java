@@ -19,86 +19,77 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GuiNpcButton
-extends GuiButton
-implements IComponentGui, IGuiNpcButton {
+public class GuiNpcButton extends GuiButton implements IComponentGui {
 
-	private static final double step = 60;
+	protected static final double step = 60;
 
+	protected final List<String> hoverText = new ArrayList<>();
+	protected ItemStack[] itemStacks = null;
 	protected String[] display;
-	private int displayValue = 0;
-	public int id;
-	public int layerColor;
-	public int txrX = 0;
-	public int txrY = 0;
-	public int txrW = 0;
-	public int txrH = 0;
+	protected int displayValue = 0;
+	protected int ticks = 0;
+	protected int wait = 0;
+	protected int txrX = 0;
+	protected int txrY = 0;
+	protected int txrW = 0;
+	protected int txrH = 0;
+	protected boolean isSimple = false;
+	protected int layerColor;
+	protected boolean hasDefBack;
+	protected boolean hasSound;
+
 	public ResourceLocation texture = null;
 	public String label = "";
 	public boolean dropShadow;
-	public boolean hasDefBack;
-	public boolean hasSound;
-	public boolean isSimple = false;
 	public boolean isAnim = false;
-	private ItemStack[] itemStacks = null;
 	public ItemStack currentStack = ItemStack.EMPTY;
 	public int currentStackID = -1;
-	private int ticks = 0;
-	private int wait = 0;
-	private final List<String> hoverText = new ArrayList<>();
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation texture) {
+	public GuiNpcButton(int id, int x, int y, int width, int height, int textureX, int textureY, ResourceLocation textureIn) {
 		this(id, x, y, width, height, "");
 		display = new String[] { "" };
-		this.texture = texture;
+		texture = textureIn;
 		txrX = textureX;
 		txrY = textureY;
 		isSimple = true;
 	}
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, int val, String... display) {
-		this(id, x, y, width, height, (display.length == 0) ? "" : display[val % display.length]);
-		this.display = display;
-		displayValue = ((display.length == 0) ? 0 : (val % display.length));
+	public GuiNpcButton(int id, int x, int y, int width, int height, int val, String... displayIn) {
+		this(id, x, y, width, height, (displayIn.length == 0) ? "" : displayIn[val % displayIn.length]);
+		display = displayIn;
+		displayValue = ((displayIn.length == 0) ? 0 : (val % displayIn.length));
 	}
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, String label) {
-		super(id, x, y, width, height, new TextComponentTranslation(label).getFormattedText());
-		this.id = id;
+	public GuiNpcButton(int idIn, int x, int y, int width, int height, String label) {
+		super(idIn, x, y, width, height, label != null ? new TextComponentTranslation(label).getFormattedText() : "");
+		id = idIn;
 		layerColor = 0;
 		dropShadow = true;
 		hasSound = true;
 	}
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, String label, boolean enabled) {
+	public GuiNpcButton(int id, int x, int y, int width, int height, String label, boolean enabledIn) {
 		this(id, x, y, width, height, label);
-		this.enabled = enabled;
+		enabled = enabledIn;
 	}
 
-	public GuiNpcButton(int id, int x, int y, int width, int height, String[] display, int val) {
-		this(id, x, y, width, height, (display.length == 0) ? "" : display[val % display.length]);
-		this.display = display;
-		displayValue = ((display.length == 0) ? 0 : (val % display.length));
+	public GuiNpcButton(int id, int x, int y, int width, int height, String[] displayIn, int val) {
+		this(id, x, y, width, height, (displayIn.length == 0) ? "" : displayIn[val % displayIn.length]);
+		display = displayIn;
+		displayValue = ((displayIn.length == 0) ? 0 : (val % displayIn.length));
 	}
 
-	public GuiNpcButton(int id, int x, int y, String label) {
-		super(id, x, y, new TextComponentTranslation(label).getFormattedText());
-		this.label = label;
-		this.id = id;
+	public GuiNpcButton(int idIn, int x, int y, String labelIn) {
+		super(idIn, x, y, labelIn != null ? new TextComponentTranslation(labelIn).getFormattedText() : "");
+		label = labelIn != null ? labelIn : "";
+		id = idIn;
 		layerColor = 0;
 		dropShadow = true;
 		hasSound = true;
 	}
 
-	public GuiNpcButton(int id, int x, int y, String[] display, int val) {
-		this(id, x, y, display[val]);
-		this.display = display;
-		displayValue = val;
-	}
-
-	public GuiNpcButton simple(boolean bo) {
-		isSimple = bo;
-		return this;
+	public GuiNpcButton(int id, int x, int y, String[] displayIn, int val) {
+		this(id, x, y, 200, 20, displayIn, val);
 	}
 
 	public static void renderString(@Nonnull FontRenderer font, @Nonnull String message, int left, int top, int right, int bottom, int color, boolean showShadow, boolean centered) {
@@ -144,14 +135,18 @@ implements IComponentGui, IGuiNpcButton {
 
 	@Override
 	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
+		if (!visible) { return; }
+		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
 		drawButton(Minecraft.getMinecraft(), mouseX, mouseY, partialTicks);
-		if (hovered && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
+		if (hovered && !hoverText.isEmpty()) { gui.putHoverText(hoverText); }
 	}
+
+	@Override
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) { return false; }
 
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) { return; }
-		hovered = (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
 		int state = getHoverState(hovered);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableBlend();
@@ -233,7 +228,7 @@ implements IComponentGui, IGuiNpcButton {
 		if (packedFGColour != 0) { color = packedFGColour; }
 		else if (!enabled) { color = CustomNpcs.NotEnableColor.getRGB(); }
 		else if (hovered) { color = CustomNpcs.HoverColor.getRGB(); }
-		renderString(mc.fontRenderer, getDisplayString(), x + 2, y, x + getWidth() - 2, y + getHeight(), color, false, true);
+		renderString(mc.fontRenderer, getDisplayString(), x + 2, y, x + width - 2, y + height, color, false, true);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		if (itemStacks != null && itemStacks.length != 0) {
 			currentStack = itemStacks[0];
@@ -250,7 +245,7 @@ implements IComponentGui, IGuiNpcButton {
 				RenderHelper.enableGUIStandardItemLighting();
 				GlStateManager.translate((float) x + (float) width / 2.0f - 8.0f, (float) y + (float) height / 2.0f - 8.0f, 0.0f);
 				mc.getRenderItem().renderItemAndEffectIntoGUI(currentStack, 0, 0);
-				drawString(mc.fontRenderer, "" + currentStack.getCount(), 16 - mc.fontRenderer.getStringWidth("" + currentStack.getCount()), 9, 0xFFFFFFFF);
+				mc.getRenderItem().renderItemOverlays(mc.fontRenderer, currentStack, 0, 0);
 				RenderHelper.disableStandardItemLighting();
 				GlStateManager.popMatrix();
 			}
@@ -261,91 +256,38 @@ implements IComponentGui, IGuiNpcButton {
 		}
 	}
 
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	@Override
-	public void customKeyTyped(char c, int id) { }
-
-	@Override
-	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mousePressed(Minecraft.getMinecraft(), mouseX, mouseY); }
-
-	@Override
-	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { mouseReleased(mouseX, mouseY); }
-
-	@Override
-	public boolean isVisible() { return visible; }
-
-	@Override
 	public int getValue() {
 		return displayValue;
 	}
 
-	@Override
 	public String[] getVariants() { return display; }
 
-	@Override
-	public int[] getTextureXY() { return new int[] { txrX, txrY }; }
-
-	@Override
-	public void setTextureXY(int x, int y) {
-		txrX = x;
-		txrY = y;
-	}
-
-	@Override
-	public int[] getTextureUV() { return new int[] { txrW, txrH }; }
-
-	@Override
-	public void setTextureUV(int u, int v) {
-		txrW = u;
-		txrH = v;
-	}
-
-	@Override
-	public void setLayerColor(int color) { layerColor = color; }
-
-	@Override
 	public String getDisplayString() { return displayString; }
 
-	@Override
-	public void setActive(boolean bo) { }
-
-	@Override
-	public void setHasSound(boolean bo) { hasSound = bo; }
-
-	@Override
-	public boolean hasSound() { return hasSound; }
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
 	public int getCurrentStackID() { return currentStackID; }
 
-	@Override
 	public ItemStack getCurrentStack() { return currentStack; }
 
-	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
-		boolean bo = super.mousePressed(mc, mouseX, mouseY);
-		if (bo && display != null && display.length != 0) {
-			displayValue = (displayValue + 1) % display.length;
-			setDisplayText(display[displayValue]);
+	@Override
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+		if (visible && enabled && hovered) {
+			if (display != null && display.length != 0) {
+				displayValue = (displayValue + 1) % display.length;
+				setDisplayText(display[displayValue]);
+			}
+			return true;
 		}
-		return bo;
-	}
-
-	public void playPressSound(@Nonnull SoundHandler soundHandlerIn) {
-		if (hasSound) {
-			super.playPressSound(soundHandlerIn);
-		}
+		return false;
 	}
 
 	@Override
+	public boolean mouseCnpcsReleased(int mouseX, int mouseY, int state) { return false; }
+
+	@Override
+	public void playPressSound(@Nonnull SoundHandler soundHandlerIn) {
+		if (hasSound) { super.playPressSound(soundHandlerIn); }
+	}
+
 	public void resetDisplay(List<String> list) {
 		display = list.toArray(new String[0]);
 		if (displayValue >= list.size()) { displayValue = list.size() - 1; }
@@ -356,7 +298,6 @@ implements IComponentGui, IGuiNpcButton {
 		else { setDisplayText(display[displayValue]); }
 	}
 
-	@Override
 	public void setDisplay(int value) {
 		if (display.length == 0) { return; }
 		if (value < 0) { value = 0; }
@@ -365,36 +306,65 @@ implements IComponentGui, IGuiNpcButton {
 		setDisplayText(display[displayValue]);
 	}
 
-	@Override
-	public void setDisplayText(String text) {
-		displayString = new TextComponentTranslation(text).getFormattedText();
+	public ItemStack[] getStacks() { return itemStacks; }
+
+	public void setCurrentStackPos(int pos) {
+		if (itemStacks == null || pos < 0 || pos >= itemStacks.length) { return; }
+		currentStackID = pos;
+		wait = 160;
+		ticks = 0;
 	}
 
-	@Override
-	public void setTexture(ResourceLocation location) { texture = location; }
-
-	@Override
-	public void setEnabled(boolean bo) {
-		enabled = bo;
+	public GuiNpcButton setUV(int u, int v, int width, int height) {
+		txrX = u;
+		txrY = v;
+		txrW = width;
+		txrH = height;
+		return this;
 	}
 
-	@Override
-	public void setHasDefaultBack(boolean bo) { hasDefBack = bo; }
+	public GuiNpcButton simple(boolean bo) { isSimple = bo; return this; }
 
-	@Override
-	public void setIsAnim(boolean bo) {
+	public GuiNpcButton setLayerColor(int color) { layerColor = color; return this; }
+
+	public GuiNpcButton setHasSound(boolean bo) { hasSound = bo; return this; }
+
+	public GuiNpcButton setDisplayText(String text) { displayString = new TextComponentTranslation(text).getFormattedText(); return this; }
+
+	public GuiNpcButton setTexture(ResourceLocation location) { texture = location; return this; }
+
+	public GuiNpcButton setHasDefaultBack(boolean bo) { hasDefBack = bo; return this; }
+
+	public GuiNpcButton setIsAnim(boolean bo) {
 		isAnim = bo;
 		isSimple = !bo;
+		return this;
+	}
+
+	public GuiNpcButton setTextColor(int color) { packedFGColour = color; return this; }
+
+	public GuiNpcButton setStacks(ItemStack... stacks) {
+		if (itemStacks != null && stacks != null) { wait = 160; }
+		itemStacks = stacks;
+		currentStackID = itemStacks != null ? 0 : -1;
+		ticks = 0;
+		return this;
 	}
 
 	@Override
-	public void setTextColor(int color) { packedFGColour = color; }
+	public GuiNpcButton setIsEnable(boolean isEnabled) { enabled = isEnabled; return this; }
 
 	@Override
-	public void setIsVisible(boolean bo) { visible = bo; }
+	public GuiNpcButton setIsVisible(boolean isVisible) { visible = isVisible; return this; }
 
 	@Override
-	public boolean isEnabled() { return enabled; }
+	public void moveTo(int addX, int addY) {
+		x += addX;
+		y += addY;
+	}
+
+	@Override
+	public void updateCnpcsScreen() { }
 
 	@Override
 	protected int getHoverState(boolean hovered) {
@@ -415,25 +385,6 @@ implements IComponentGui, IGuiNpcButton {
 	}
 
 	@Override
-	public void setStacks(ItemStack... stacks) {
-		if (itemStacks != null && stacks != null) { wait = 160; }
-		itemStacks = stacks;
-		currentStackID = itemStacks != null ? 0 : -1;
-		ticks = 0;
-	}
-
-	@Override
-	public ItemStack[] getStacks() { return itemStacks; }
-
-	@Override
-	public void setCurrentStackPos(int pos) {
-		if (itemStacks == null || pos < 0 || pos >= itemStacks.length) { return; }
-		currentStackID = pos;
-		wait = 160;
-		ticks = 0;
-	}
-
-	@Override
 	public int getID() { return id; }
 
 	@Override
@@ -442,9 +393,9 @@ implements IComponentGui, IGuiNpcButton {
 	}
 
 	@Override
-	public void setHoverText(String text, Object ... args) {
+	public GuiNpcButton setHoverText(String text, Object ... args) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return; }
+		if (text == null || text.isEmpty()) { return this; }
 		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
 		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
 		while (text.contains("<br>")) {
@@ -452,21 +403,46 @@ implements IComponentGui, IGuiNpcButton {
 			text = text.substring(text.indexOf("<br>") + 4);
 		}
 		hoverText.add(text);
+		return this;
+	}
+
+	public GuiNpcButton setHoverText(List<String> hovers) {
+		hoverText.clear();
+		if (hovers == null || hovers.isEmpty()) { return this; }
+		hoverText.addAll(hovers);
+		return this;
 	}
 
 	@Override
-	public int getLeft() { return x; }
+	public List<String> getHoversText() { return hoverText; }
 
 	@Override
-	public int getTop() { return y; }
+	public boolean isHovered() { return hovered; }
 
-	@Override
-	public void setLeft(int left) { x = left; }
+	public GuiNpcButton setWH(int widthIn, int heightIn) {
+		width = widthIn;
+		height = heightIn;
+		return this;
+	}
 
-	@Override
-	public void setTop(int top) { y = top; }
+	public GuiNpcButton setXY(int xIn, int yIn) {
+		x = xIn;
+		y = yIn;
+		return this;
+	}
 
-	@Override
-	public boolean isHovered() { return isMouseOver(); }
+	public GuiNpcButton setDropShadow(boolean isDropShadow) {
+		dropShadow = isDropShadow;
+		return this;
+	}
+
+	public int[] getTextureXY() {
+		return new int[] { txrX, txrY };
+	}
+
+	public void setTextureXY(int x, int y) {
+		txrX = x;
+		txrY = y;
+	}
 
 }

@@ -30,108 +30,102 @@ import noppes.npcs.controllers.ScriptContainer;
 
 public class CustomGuiWrapper implements ICustomGui {
 
-	String backgroundTexture;
-	List<ICustomGuiComponent> components;
-	int height;
-	int id;
-	boolean pauseGame;
-	private EntityPlayer player;
-	int playerInvX, playerInvY;
-	ScriptContainer scriptHandler;
-	boolean showPlayerInv, showPlayerSlots, isIndependent;
-	List<IItemSlot> slots;
-	int width;
-	public int stretched, bgW, bgH, bgTx, bgTy;
+	protected List<ICustomGuiComponent> components = new ArrayList<>();
+	protected ScriptContainer scriptHandler = ScriptContainer.Current;
+	protected String backgroundTexture = "";
+	protected List<IItemSlot> slots = new ArrayList<>();
+	protected EntityPlayer player;
+	protected boolean showPlayerSlots = true;
+	protected boolean showPlayerInv;
+	protected boolean isIndependent = false;
+	protected boolean pauseGame;
+	protected int height;
+	protected int id;
+	protected int playerInvX;
+	protected int playerInvY;
+	protected int width;
+	public int stretched = 0;
+	public int bgW = 0;
+	public int bgH = 0;
+	public int bgTx = 256;
+	public int bgTy = 256;
 
-	public CustomGuiWrapper(EntityPlayer player) {
-		this.backgroundTexture = "";
-		this.components = new ArrayList<>();
-		this.slots = new ArrayList<>();
-		this.isIndependent = false;
-		this.showPlayerSlots = true;
-		this.player = player;
-		this.stretched = 0;
-		this.bgW = 0;
-		this.bgH = 0;
-		this.bgTx = 256;
-		this.bgTy = 256;
-	}
+	public CustomGuiWrapper(EntityPlayer playerIn) { player = playerIn; }
 
-	public CustomGuiWrapper(int id, int width, int height, boolean pauseGame, EntityPlayer player) {
+	public CustomGuiWrapper(int idIn, int widthIn, int heightIn, boolean pauseGameIn, EntityPlayer player) {
 		this(player);
-		this.id = id;
-		this.width = width;
-		this.height = height;
-		this.pauseGame = pauseGame;
-		this.scriptHandler = ScriptContainer.Current;
+		id = idIn;
+		width = widthIn;
+		height = heightIn;
+		pauseGame = pauseGameIn;
 	}
 
 	@Override
 	public IButton addButton(int id, String label, int x, int y) {
 		CustomGuiButtonWrapper component = new CustomGuiButtonWrapper(id, label, x, y);
-		this.components.add(component);
-		return (IButton) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (IButton) components.get(components.size() - 1);
 	}
 
 	@Override
 	public IButton addButton(int id, String label, int x, int y, int width, int height) {
 		CustomGuiButtonWrapper component = new CustomGuiButtonWrapper(id, label, x, y, width, height);
-		this.components.add(component);
-		return (IButton) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (IButton) components.get(components.size() - 1);
 	}
 
 	@Override
 	public IGuiEntity addEntity(int id, int x, int y, IEntity<?> entity) {
 		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, entity);
-		this.components.add(component);
-		return (IGuiEntity) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (IGuiEntity) components.get(components.size() - 1);
 	}
 
 	@Override
 	public IItemSlot addItemSlot(int x, int y) {
-		return this.addItemSlot(x, y, ItemScriptedWrapper.AIR);
+		return addItemSlot(x, y, ItemScriptedWrapper.AIR);
 	}
 
 	@Override
 	public IItemSlot addItemSlot(int x, int y, IItemStack stack) {
 		CustomGuiItemSlotWrapper slot = new CustomGuiItemSlotWrapper(x, y, stack);
-		this.slots.add(slot);
+		slots.add(slot);
 		return slot;
 	}
 
 	@Override
 	public ILabel addLabel(int id, String label, int x, int y, int width, int height) {
 		CustomGuiLabelWrapper component = new CustomGuiLabelWrapper(id, label, x, y, width, height);
-		this.components.add(component);
-		return (ILabel) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (ILabel) components.get(components.size() - 1);
 	}
 
 	@Override
 	public ILabel addLabel(int id, String label, int x, int y, int width, int height, int color) {
 		CustomGuiLabelWrapper component = new CustomGuiLabelWrapper(id, label, x, y, width, height, color);
-		this.components.add(component);
-		return (ILabel) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (ILabel) components.get(components.size() - 1);
 	}
 
 	@Override
 	public IScroll addScroll(int id, int x, int y, int width, int height, String[] list) {
 		CustomGuiScrollWrapper component = new CustomGuiScrollWrapper(id, x, y, width, height, list);
-		this.components.add(component);
-		return (IScroll) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (IScroll) components.get(components.size() - 1);
 	}
 
 	@Override
 	public ITextField addTextField(int id, int x, int y, int width, int height) {
 		CustomGuiTextFieldWrapper component = new CustomGuiTextFieldWrapper(id, x, y, width, height);
-		this.components.add(component);
-		return (ITextField) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (ITextField) components.get(components.size() - 1);
 	}
 
 	@Override
 	public IButton addTexturedButton(int id, String label, int x, int y, int width, int height, String texture) {
 		CustomGuiButtonWrapper component = new CustomGuiButtonWrapper(id, label, x, y, width, height, texture);
-		this.components.add(component);
-		return (IButton) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (IButton) components.get(components.size() - 1);
 	}
 
 	@Override
@@ -139,138 +133,125 @@ public class CustomGuiWrapper implements ICustomGui {
 			int textureX, int textureY) {
 		CustomGuiButtonWrapper component = new CustomGuiButtonWrapper(id, label, x, y, width, height, texture, textureX,
 				textureY);
-		this.components.add(component);
-		return (IButton) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (IButton) components.get(components.size() - 1);
 	}
 
 	@Override
 	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height) {
 		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height);
-		this.components.add(component);
-		return (ITexturedRect) this.components.get(this.components.size() - 1);
+		components.add(component);
+		return (ITexturedRect) components.get(components.size() - 1);
 	}
 
 	@Override
-	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY) {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height,
-				textureX, textureY);
-		this.components.add(component);
-		return (ITexturedRect) this.components.get(this.components.size() - 1);
+	public ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
+		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture, x, y, width, height, textureX, textureY);
+		components.add(component);
+		return (ITexturedRect) components.get(components.size() - 1);
 	}
 
 	public ICustomGui fromNBT(NBTTagCompound tag) {
-		this.id = tag.getInteger("id");
-		this.width = tag.getIntArray("size")[0];
-		this.height = tag.getIntArray("size")[1];
-		this.pauseGame = tag.getBoolean("pause");
-		this.backgroundTexture = tag.getString("bgTexture");
-		this.stretched = tag.getInteger("bgStretched");
-		this.bgW = tag.getInteger("bgWidth");
-		this.bgH = tag.getInteger("bgHeight");
-		this.bgTx = tag.getInteger("bgTextureX");
-		this.bgTy = tag.getInteger("bgTextureY");
-		this.isIndependent = tag.getBoolean("isIndependent");
-		List<ICustomGuiComponent> components = new ArrayList<>();
+		id = tag.getInteger("id");
+		width = tag.getIntArray("size")[0];
+		height = tag.getIntArray("size")[1];
+		pauseGame = tag.getBoolean("pause");
+		backgroundTexture = tag.getString("bgTexture");
+		stretched = tag.getInteger("bgStretched");
+		bgW = tag.getInteger("bgWidth");
+		bgH = tag.getInteger("bgHeight");
+		bgTx = tag.getInteger("bgTextureX");
+		bgTy = tag.getInteger("bgTextureY");
+		isIndependent = tag.getBoolean("isIndependent");
+		components.clear();
 		NBTTagList list = tag.getTagList("components", 10);
 		for (NBTBase b : list) {
 			CustomGuiComponentWrapper component = CustomGuiComponentWrapper.createFromNBT((NBTTagCompound) b);
 			components.add(component);
 		}
-		this.components = components;
-		List<IItemSlot> slots = new ArrayList<>();
+		slots.clear();
 		list = tag.getTagList("slots", 10);
 		for (NBTBase b2 : list) {
-			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper
-					.createFromNBT((NBTTagCompound) b2);
+			CustomGuiItemSlotWrapper component2 = (CustomGuiItemSlotWrapper) CustomGuiComponentWrapper.createFromNBT((NBTTagCompound) b2);
 			slots.add(component2);
 		}
-		this.slots = slots;
-		if (this.player instanceof EntityPlayerMP) {
-			this.setPlayer((EntityPlayerMP) this.player);
-		}
-		this.showPlayerInv = tag.getBoolean("showPlayerInv");
-		this.showPlayerSlots = tag.getBoolean("showPlayerSlots");
-		if (this.showPlayerInv) {
-			this.playerInvX = tag.getIntArray("pInvPos")[0];
-			this.playerInvY = tag.getIntArray("pInvPos")[1];
+		if (player instanceof EntityPlayerMP) { setPlayer((EntityPlayerMP) player); }
+		showPlayerInv = tag.getBoolean("showPlayerInv");
+		showPlayerSlots = tag.getBoolean("showPlayerSlots");
+		if (showPlayerInv) {
+			playerInvX = tag.getIntArray("pInvPos")[0];
+			playerInvY = tag.getIntArray("pInvPos")[1];
 		}
 		return this;
 	}
 
-	public String getBackgroundTexture() {
-		return this.backgroundTexture;
-	}
+	public String getBackgroundTexture() { return backgroundTexture; }
 
 	@Override
 	public ICustomGuiComponent getComponent(int componentID) {
-		for (ICustomGuiComponent component : this.components) {
-			if (component.getId() == componentID) {
-				return component;
-			}
+		for (ICustomGuiComponent component : components) {
+			if (component.getId() == componentID) { return component; }
 		}
 		return null;
 	}
 
 	@Override
 	public ICustomGuiComponent[] getComponents() {
-		return this.components.toArray(new ICustomGuiComponent[0]);
+		return components.toArray(new ICustomGuiComponent[0]);
 	}
 
 	public boolean getDoesPauseGame() {
-		return this.pauseGame;
+		return pauseGame;
 	}
 
 	@Override
 	public int getHeight() {
-		return this.height;
+		return height;
 	}
 
 	@Override
 	public int getId() {
-		return this.id;
+		return id;
 	}
 
 	public int getPlayerInvX() {
-		return this.playerInvX;
+		return playerInvX;
 	}
 
 	public int getPlayerInvY() {
-		return this.playerInvY;
+		return playerInvY;
 	}
 
 	public ScriptContainer getScriptHandler() {
-		return this.scriptHandler;
+		return scriptHandler;
 	}
 
 	public boolean getShowPlayerInv() {
-		return this.showPlayerInv;
+		return showPlayerInv;
 	}
 
 	public boolean getShowPlayerSlots() {
-		return this.showPlayerInv && this.showPlayerSlots;
+		return showPlayerInv && showPlayerSlots;
 	}
 
 	@Override
 	public IItemSlot[] getSlots() {
-		if (this.player instanceof EntityPlayerMP) {
-			this.setPlayer((EntityPlayerMP) this.player);
-		}
-		return this.slots.toArray(new IItemSlot[0]);
+		if (player instanceof EntityPlayerMP) { setPlayer((EntityPlayerMP) player); }
+		return slots.toArray(new IItemSlot[0]);
 	}
 
 	@Override
 	public int getWidth() {
-		return this.width;
+		return width;
 	}
 
 	@Override
 	public void removeComponent(int componentID) {
-		for (int i = 0; i < this.components.size(); ++i) {
-			if (this.components.get(i).getId() == componentID) {
-				this.components.remove(i);
-				if (this.player instanceof EntityPlayerMP) {
-					this.update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player));
+		for (int i = 0; i < components.size(); ++i) {
+			if (components.get(i).getId() == componentID) {
+				components.remove(i);
+				if (player instanceof EntityPlayerMP) {
+					update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player));
 				}
 				return;
 			}
@@ -278,98 +259,89 @@ public class CustomGuiWrapper implements ICustomGui {
 	}
 
 	@Override
-	public void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretched,
-			String resourceLocation) {
-		this.backgroundTexture = resourceLocation;
-		this.stretched = stretched;
-		this.bgW = width;
-		this.bgH = height;
-		this.bgTx = textureX;
-		this.bgTy = textureY;
+	public void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretchedIn, String resourceLocation) {
+		backgroundTexture = resourceLocation;
+		stretched = stretchedIn;
+		bgW = width;
+		bgH = height;
+		bgTx = textureX;
+		bgTy = textureY;
 	}
 
 	@Override
 	public void setBackgroundTexture(String resourceLocation) {
-		this.backgroundTexture = resourceLocation;
-		this.stretched = 0;
-		this.bgW = 0;
-		this.bgH = 0;
-		this.bgTx = 256;
-		this.bgTy = 256;
+		backgroundTexture = resourceLocation;
+		stretched = 0;
+		bgW = 0;
+		bgH = 0;
+		bgTx = 256;
+		bgTy = 256;
 	}
 
 	@Override
-	public void setDoesPauseGame(boolean pauseGame) {
-		this.pauseGame = pauseGame;
-	}
+	public void setDoesPauseGame(boolean pauseGameIn) { pauseGame = pauseGameIn; }
 
-	public void setPlayer(EntityPlayerMP player) {
-		this.player = player;
-		if (this.slots.isEmpty()) {
-			return;
-		}
-		for (int i = 0; i < this.slots.size(); i++) {
-			CustomGuiItemSlotWrapper slot = (CustomGuiItemSlotWrapper) this.slots.get(i);
-			slot.setPlayer(player);
+	public void setPlayer(EntityPlayerMP playerIn) {
+		player = playerIn;
+		if (slots.isEmpty()) { return; }
+		for (int i = 0; i < slots.size(); i++) {
+			CustomGuiItemSlotWrapper slot = (CustomGuiItemSlotWrapper) slots.get(i);
+			slot.setPlayer(playerIn);
 			slot.setIndex(i);
 		}
 	}
 
 	@Override
-	public void setSize(int width, int height) {
-		if (width <= 0 || height <= 0) {
-			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+	public void setSize(int widthIn, int heightIn) {
+		if (widthIn <= 0 || heightIn <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + widthIn + ", " + heightIn + "]");
 		}
-		this.width = width;
-		this.height = height;
+		width = widthIn;
+		height = heightIn;
 	}
 
 	@Override
 	public void showPlayerInventory(int x, int y) {
-		this.showPlayerInv = true;
-		this.showPlayerSlots = false;
-		this.playerInvX = x;
-		this.playerInvY = y;
+		showPlayerInv = true;
+		showPlayerSlots = false;
+		playerInvX = x;
+		playerInvY = y;
 	}
 
 	@Override
 	public void showPlayerInventory(int x, int y, boolean showSlots) {
-		this.showPlayerInv = true;
-		this.playerInvX = x;
-		this.playerInvY = y;
-		this.showPlayerSlots = showSlots;
+		showPlayerInv = true;
+		playerInvX = x;
+		playerInvY = y;
+		showPlayerSlots = showSlots;
 	}
 
 	public NBTTagCompound toNBT() {
 		NBTTagCompound tag = new NBTTagCompound();
-		tag.setInteger("id", this.id);
-		tag.setIntArray("size", new int[] { this.width, this.height });
-		tag.setBoolean("pause", this.pauseGame);
-		tag.setString("bgTexture", this.backgroundTexture);
-		tag.setInteger("bgStretched", this.stretched);
-		tag.setInteger("bgWidth", this.bgW);
-		tag.setInteger("bgHeight", this.bgH);
-		tag.setInteger("bgTextureX", this.bgTx);
-		tag.setInteger("bgTextureY", this.bgTy);
-		tag.setBoolean("isIndependent", this.isIndependent);
+		tag.setInteger("id", id);
+		tag.setIntArray("size", new int[] { width, height });
+		tag.setBoolean("pause", pauseGame);
+		tag.setString("bgTexture", backgroundTexture);
+		tag.setInteger("bgStretched", stretched);
+		tag.setInteger("bgWidth", bgW);
+		tag.setInteger("bgHeight", bgH);
+		tag.setInteger("bgTextureX", bgTx);
+		tag.setInteger("bgTextureY", bgTy);
+		tag.setBoolean("isIndependent", isIndependent);
 		NBTTagList list = new NBTTagList();
-		for (ICustomGuiComponent c : this.components) {
-			if (c == null) {
-				continue;
-			}
+		for (ICustomGuiComponent c : components) {
+			if (c == null) { continue; }
 			list.appendTag(((CustomGuiComponentWrapper) c).toNBT(new NBTTagCompound()));
 		}
 		tag.setTag("components", list);
 		list = new NBTTagList();
-		for (ICustomGuiComponent c : this.slots) {
+		for (ICustomGuiComponent c : slots) {
 			list.appendTag(((CustomGuiItemSlotWrapper) c).toNBT(new NBTTagCompound()));
 		}
 		tag.setTag("slots", list);
-		tag.setBoolean("showPlayerInv", this.showPlayerInv);
-		tag.setBoolean("showPlayerSlots", this.showPlayerSlots);
-		if (this.showPlayerInv) {
-			tag.setIntArray("pInvPos", new int[] { this.playerInvX, this.playerInvY });
-		}
+		tag.setBoolean("showPlayerInv", showPlayerInv);
+		tag.setBoolean("showPlayerSlots", showPlayerSlots);
+		if (showPlayerInv) { tag.setIntArray("pInvPos", new int[] { playerInvX, playerInvY }); }
 		return tag;
 	}
 
@@ -381,13 +353,11 @@ public class CustomGuiWrapper implements ICustomGui {
 
 	@Override
 	public void updateComponent(ICustomGuiComponent component) {
-		for (int i = 0; i < this.components.size(); ++i) {
-			ICustomGuiComponent c = this.components.get(i);
+		for (int i = 0; i < components.size(); ++i) {
+			ICustomGuiComponent c = components.get(i);
 			if (c.getId() == component.getId()) {
-				this.components.set(i, component);
-				if (this.player instanceof EntityPlayerMP) {
-					this.update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player));
-				}
+				components.set(i, component);
+				if (player instanceof EntityPlayerMP) { update((IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player)); }
 				return;
 			}
 		}

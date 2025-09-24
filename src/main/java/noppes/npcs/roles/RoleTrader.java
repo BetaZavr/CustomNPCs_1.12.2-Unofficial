@@ -19,64 +19,54 @@ public class RoleTrader extends RoleInterface implements IRoleTrader {
 
 	public RoleTrader(EntityNPCInterface npc) {
 		super(npc);
-		this.marcetID = -1;
-		this.type = RoleType.TRADER;
+		marcetID = -1;
+		type = RoleType.TRADER;
 	}
 
 	@Override
-	public IMarcet getMarket() {
-		return MarcetController.getInstance().getMarcet(this.marcetID);
-	}
+	public IMarcet getMarket() { return MarcetController.getInstance().getMarcet(marcetID); }
 
 	@Override
-	public int getMarketID() {
-		return this.marcetID;
-	}
+	public int getMarketID() { return marcetID; }
 
 	@Override
 	public void interact(EntityPlayer player) {
-		this.npc.say(player, this.npc.advanced.getInteractLine());
+		npc.say(player, npc.advanced.getInteractLine());
 		Marcet marcet = (Marcet) getMarket();
-		if (marcet == null || !marcet.isValid()) {
-			return;
-		}
+		if (marcet == null || !marcet.isValid()) { return; }
 		if (player instanceof EntityPlayerMP) {
 			marcet.addListener(player, true);
-			PlayerData.get(player).game.getMarcetLevel(this.marcetID);
+			PlayerData.get(player).game.getMarcetLevel(marcetID);
 		}
-		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerTrader, this.npc);
+		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerTrader, npc);
 	}
 
 	@Override
 	public void load(NBTTagCompound compound) {
 		super.load(compound);
-		this.type = RoleType.TRADER;
-		if (!compound.hasKey("MarketID", 3)) { this.marcetID = MarcetController.getInstance().loadOld(compound); }
-		else { this.marcetID = compound.getInteger("MarketID"); }
+		type = RoleType.TRADER;
+		if (!compound.hasKey("MarketID", 3)) { marcetID = MarcetController.getInstance().loadOld(compound); }
+		else { marcetID = compound.getInteger("MarketID"); }
 	}
 
 	@Override
 	public void setMarket(IMarcet marcet) {
-		IMarcet m = this.getMarket();
-		if (m != null) {
-			((Marcet) m).closeForAllPlayers();
-		}
-		this.marcetID = marcet.getId();
+		IMarcet m = getMarket();
+		if (m != null) { ((Marcet) m).closeForAllPlayers(); }
+		marcetID = marcet.getId();
 	}
 
 	@Override
 	public void setMarket(int id) {
-		IMarcet m = this.getMarket();
-		if (m != null) {
-			((Marcet) m).closeForAllPlayers();
-		}
-		this.marcetID = id;
+		IMarcet m = getMarket();
+		if (m != null) { ((Marcet) m).closeForAllPlayers(); }
+		marcetID = id;
 	}
 
 	@Override
 	public NBTTagCompound save(NBTTagCompound compound) {
 		super.save(compound);
-		compound.setInteger("MarketID", this.marcetID);
+		compound.setInteger("MarketID", marcetID);
 		return compound;
 	}
 

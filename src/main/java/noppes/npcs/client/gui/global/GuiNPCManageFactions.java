@@ -9,15 +9,14 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
-import noppes.npcs.client.gui.SubGuiColorSelector;
+import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.SubGuiNpcFactionOptions;
 import noppes.npcs.client.gui.SubGuiNpcFactionPoints;
 import noppes.npcs.client.gui.SubGuiNpcFactionSelect;
 import noppes.npcs.client.gui.SubGuiNpcTextArea;
-import noppes.npcs.client.gui.select.GuiTextureSelection;
+import noppes.npcs.client.gui.select.SubGuiTextureSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -25,31 +24,34 @@ import noppes.npcs.controllers.data.Faction;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class GuiNPCManageFactions
-extends GuiNPCInterface2
-implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISubGuiListener, GuiYesNoCallback {
+import javax.annotation.Nonnull;
 
+public class GuiNPCManageFactions extends GuiNPCInterface2
+		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
+
+	protected final Map<String, Integer> data = new LinkedHashMap<>();
+	protected HashMap<String, Integer> base = new HashMap<>();
+	protected Faction faction;
+	protected GuiCustomScroll scrollFactions;
 	public static boolean isName = true;
-	private HashMap<String, Integer> base = new HashMap<>();
-	private final Map<String, Integer> data = new LinkedHashMap<>();
-	private Faction faction;
-	private GuiCustomScroll scrollFactions;
 
 	public GuiNPCManageFactions(EntityNPCInterface npc) {
 		super(npc);
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuGlobal;
+
 		faction = new Faction();
 		Client.sendData(EnumPacketServer.FactionsGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
 				save();
 				String name = new TextComponentTranslation("gui.new").getFormattedText();
-				while (data.containsKey(name)) {
-					name += "_";
-				}
+				while (data.containsKey(name)) { name += "_"; }
 				Faction faction = new Faction(-1, name, 65280, 1000);
 				NBTTagCompound compound = new NBTTagCompound();
 				faction.save(compound);
@@ -57,112 +59,76 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 				break;
 			}
 			case 1: {
-				if (!data.containsKey(scrollFactions.getSelected())) {
-					return;
-				}
+				if (!data.containsKey(scrollFactions.getSelected())) { return; }
 				Client.sendData(EnumPacketServer.FactionRemove, data.get(scrollFactions.getSelected()));
 				scrollFactions.clear();
 				faction = new Faction();
 				initGui();
 				break;
 			}
-			case 2: {
-				setSubGui(new SubGuiNpcFactionPoints(faction));
-				break;
-			}
-			case 3: {
-				faction.hideFaction = (button.getValue() == 1);
-				break;
-			}
-			case 4: {
-				faction.getsAttacked = (button.getValue() == 1);
-				break;
-			}
-			case 5: {
-				setSubGui(new SubGuiNpcFactionOptions(faction.factions));
-				break;
-			}
+			case 2: setSubGui(new SubGuiNpcFactionPoints(faction)); break;
+			case 3: faction.hideFaction = (button.getValue() == 1); break;
+			case 4: faction.getsAttacked = (button.getValue() == 1); break;
+			case 5: setSubGui(new SubGuiNpcFactionOptions(faction.factions)); break;
 			case 6: {
-				if (scrollFactions.getSelected() == null) {
-					return;
-				}
+				if (scrollFactions.getSelected() == null) { return; }
 				HashMap<String, Integer> corData = new HashMap<>();
 				for (String name : base.keySet()) {
 					int id = base.get(name);
-					if (faction.id == id || faction.frendFactions.contains(id)) {
-						continue;
-					}
+					if (faction.id == id || faction.frendFactions.contains(id)) { continue; }
 					corData.put(name, id);
 				}
 				setSubGui(new SubGuiNpcFactionSelect(6, scrollFactions.getSelected(), faction.attackFactions, corData));
 				break;
 			}
 			case 7: {
-				if (scrollFactions.getSelected() == null) {
-					return;
-				}
+				if (scrollFactions.getSelected() == null) { return; }
 				HashMap<String, Integer> corData = new HashMap<>();
 				for (String name : base.keySet()) {
 					int id = base.get(name);
-					if (faction.id == id || faction.attackFactions.contains(id)) {
-						continue;
-					}
+					if (faction.id == id || faction.attackFactions.contains(id)) { continue; }
 					corData.put(name, id);
 				}
 				setSubGui(new SubGuiNpcFactionSelect(7, scrollFactions.getSelected(), faction.frendFactions, corData));
 				break;
 			}
-			case 8: { // description
+			case 8: {
 				setSubGui(new SubGuiNpcTextArea(0, faction.description));
 				break;
-			}
-			case 9: { // flag
-				setSubGui(new GuiTextureSelection(null, faction.flag.toString(), "png", 4));
+			} // description
+			case 9: {
+				setSubGui(new SubGuiTextureSelection(0, null, faction.flag.toString(), "png", 4));
 				break;
-			}
+			} // flag
 			case 10: {
 				setSubGui(new SubGuiColorSelector(faction.color));
 				break;
 			}
-			case 11: { // get
-				if (faction == null || faction.id < 0) {
-					return;
-				}
+			case 11: {
+				if (faction == null || faction.id < 0) { return; }
 				ItemStack stack = new ItemStack(Items.BANNER);
 				NBTTagCompound nbt = stack.getTagCompound();
-				if (nbt == null) {
-					stack.setTagCompound(nbt = new NBTTagCompound());
-				}
+				if (nbt == null) { stack.setTagCompound(nbt = new NBTTagCompound()); }
 				nbt.setTag("BlockEntityTag", new NBTTagCompound());
 				nbt.getCompoundTag("BlockEntityTag").setInteger("FactionID", faction.id);
 				Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
 				break;
-			}
+			} // get
 			case 14: {
 				GuiNPCManageFactions.isName = ((GuiNpcCheckBox) button).isSelected();
 				if (!base.isEmpty()) { setData(new Vector<>(base.keySet()), new HashMap<>(base)); }
 				button.setHoverText("hover.sort", new TextComponentTranslation("global.factions").getFormattedText(), ((GuiNpcCheckBox) button).getText());
 				break;
 			}
-			case 24: { // reset ID
-				Client.sendData(EnumPacketServer.FactionMinID, faction.id);
-				break;
-			}
-			default: {
-				break;
-			}
+			case 24: Client.sendData(EnumPacketServer.FactionMinID, faction.id); break; // reset ID
 		}
 	}
 
 	@Override
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI(player, this);
-		if (!result) {
-			return;
-		}
-		if (id == 0) {
-			Client.sendData(EnumPacketServer.FactionMinID, faction.id);
-		}
+		if (!result) { return; }
+		if (id == 0) { Client.sendData(EnumPacketServer.FactionMinID, faction.id); }
 	}
 
 	@Override
@@ -195,37 +161,29 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		int x = guiLeft + 368;
 		int y = guiTop + 8;
 		// add
-		GuiNpcButton button = new GuiNpcButton(0, x, y, 45, 16, "gui.add");
-		button.setHoverText("faction.hover.add");
-		addButton(button);
+		addButton(new GuiNpcButton(0, x, y, 45, 16, "gui.add")
+				.setHoverText("faction.hover.add"));
 		// del
-		button = new GuiNpcButton(1, x, y += 18, 45, 16, "gui.remove");
-		button.setHoverText("faction.hover.del");
-		addButton(button);
+		addButton(new GuiNpcButton(1, x, y += 18, 45, 16, "gui.remove")
+				.setHoverText("faction.hover.del"));
 		// get flag
-		button = new GuiNpcButton(11, x, y + 87, 45, 16, "gui.get");
-		button.setIsVisible(faction != null && faction.id > -1);
-		button.setHoverText("faction.hover.flag.get");
-		addButton(button);
+		addButton(new GuiNpcButton(11, x, y + 87, 45, 16, "gui.get")
+				.setIsVisible(faction != null && faction.id > -1)
+				.setHoverText("faction.hover.flag.get"));
 		// factions list
-		if (scrollFactions == null) {
-			(scrollFactions = new GuiCustomScroll(this, 0)).setSize(143, 208);
-		}
+		if (scrollFactions == null) { scrollFactions = new GuiCustomScroll(this, 0).setSize(143, 208); }
 		scrollFactions.guiLeft = guiLeft + 220;
 		scrollFactions.guiTop = guiTop + 4;
 		addScroll(scrollFactions);
 		// sort
-		button = new GuiNpcCheckBox(14, x, y + 18, 45, 12, "gui.name" ,"ID", GuiNPCManageFactions.isName);
-		button.setHoverText("hover.sort", new TextComponentTranslation("global.factions").getFormattedText(), ((GuiNpcCheckBox) button).getText());
-		addButton(button);
-		if (faction.id == -1) {
-			return;
-		}
+		GuiNpcCheckBox button;
+		addButton(button = new GuiNpcCheckBox(14, x, y + 18, 45, 12, "gui.name" ,"ID", GuiNPCManageFactions.isName));
+		button.setHoverText("hover.sort", new TextComponentTranslation("global.factions").getFormattedText(), button.getText());
+		if (faction.id == -1) { return; }
 		// name
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, guiLeft + 40, guiTop + 4, 136, 16, Util.instance.deleteColor(faction.name));
-		textField.setMaxStringLength(50);
-		textField.setHoverText("faction.hover.name");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(0, this, guiLeft + 40, guiTop + 4, 136, 16, Util.instance.deleteColor(faction.name))
+				.setHoverText("faction.hover.name"));
+		getTextField(0).setMaxStringLength(50);
 		// info
 		addLabel(new GuiNpcLabel(0, "gui.name", guiLeft + 8, guiTop + 9));
 		addLabel(new GuiNpcLabel(10, "ID", guiLeft + 178, guiTop + 4));
@@ -233,136 +191,99 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 		// color
 		StringBuilder color = new StringBuilder(Integer.toHexString(faction.color));
 		while (color.length() < 6) { color.insert(0, "0"); }
-		button = new GuiNpcButton(10, guiLeft + 40, guiTop + 26, 60, 16, color.toString());
-		button.setHoverText("faction.hover.color");
-		button.setTextColor(faction.color);
-		addButton(button);
+		addButton(new GuiNpcButton(10, guiLeft + 40, guiTop + 26, 60, 16, color.toString())
+				.setHoverText("faction.hover.color")
+				.setTextColor(faction.color));
 		addLabel(new GuiNpcLabel(1, "gui.color", guiLeft + 8, guiTop + 31));
-
 		// reset ID
 		x = guiLeft + 170;
 		y = guiTop + 26;
 		int x0 = guiLeft + 8;
-		button = new GuiNpcButton(24, x, y, 45, 16, "gui.reset");
-		button.setHoverText("hover.reset.id");
-		addButton(button);
+		addButton(new GuiNpcButton(24, x, y, 45, 16, "gui.reset")
+				.setHoverText("hover.reset.id"));
 		// points
 		addLabel(new GuiNpcLabel(2, "faction.points", x0, (y += 18) + 5));
-		button = new GuiNpcButton(2, x, y, 45, 16, "selectServer.edit");
-		button.setHoverText("faction.hover.points");
-		addButton(button);
+		addButton(new GuiNpcButton(2, x, y, 45, 16, "selectServer.edit")
+				.setHoverText("faction.hover.points"));
 		// hidden
 		addLabel(new GuiNpcLabel(3, "faction.hidden", x0, (y += 18) + 5));
-		button = new GuiNpcButton(3, x, y, 45, 16, new String[] { "gui.no", "gui.yes" }, (faction.hideFaction ? 1 : 0));
-		button.setHoverText("faction.hover.hide");
-		addButton(button);
+		addButton(new GuiNpcButton(3, x, y, 45, 16, new String[] { "gui.no", "gui.yes" }, (faction.hideFaction ? 1 : 0))
+				.setHoverText("faction.hover.hide"));
 		// attacked
 		addLabel(new GuiNpcLabel(4, "faction.attacked", x0, (y += 18) + 5));
-		button = new GuiNpcButton(4, x, y, 45, 16, new String[] { "gui.no", "gui.yes" }, (faction.getsAttacked ? 1 : 0));
-		button.setHoverText("faction.hover.mobs");
-		addButton(button);
+		addButton(new GuiNpcButton(4, x, y, 45, 16, new String[] { "gui.no", "gui.yes" }, (faction.getsAttacked ? 1 : 0))
+				.setHoverText("faction.hover.mobs"));
 		// death points
 		addLabel(new GuiNpcLabel(5, "faction.ondeath", x0, (y += 18) + 5));
-		button = new GuiNpcButton(5, x, y, 45, 16, "faction.points");
-		button.setHoverText("faction.hover.dead.points");
-		addButton(button);
+		addButton(new GuiNpcButton(5, x, y, 45, 16, "faction.points")
+				.setHoverText("faction.hover.dead.points"));
 		// hostiles
 		addLabel(new GuiNpcLabel(6, "faction.hostiles", x0, (y += 18) + 5));
-		button = new GuiNpcButton(6, x, y, 45, 16, "selectServer.edit");
-		button.setHoverText("faction.hover.hostiles");
-		addButton(button);
+		addButton(new GuiNpcButton(6, x, y, 45, 16, "selectServer.edit")
+				.setHoverText("faction.hover.hostiles"));
 		// friends
 		addLabel(new GuiNpcLabel(7, "faction.friends", x0, (y += 18) + 5));
-		button = new GuiNpcButton(7, x, y, 45, 16, "selectServer.edit");
-		button.setHoverText("faction.hover.addfrends");
-		addButton(button);
+		addButton(new GuiNpcButton(7, x, y, 45, 16, "selectServer.edit")
+				.setHoverText("faction.hover.addfrends"));
 		// description
 		addLabel(new GuiNpcLabel(8, "faction.description", x0, (y += 18) + 5));
-		button = new GuiNpcButton(8, x, y, 45, 16, "selectServer.edit");
-		button.setHoverText("faction.hover.description");
-		addButton(button);
+		addButton(new GuiNpcButton(8, x, y, 45, 16, "selectServer.edit")
+				.setHoverText("faction.hover.description"));
 		// flag
 		addLabel(new GuiNpcLabel(9, "faction.flag", x0, (y += 18) + 5));
-		button = new GuiNpcButton(9, x, y, 45, 16, "selectServer.edit");
-		button.setHoverText("faction.hover.flag.txr");
-		addButton(button);
-		textField = new GuiNpcTextField(1, this, x0, y + 18, 208, 16, faction.flag.toString());
-		textField.setHoverText("faction.hover.flag.txr");
-		addTextField(textField);
-	}
-
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && subgui == null) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
+		addButton( new GuiNpcButton(9, x, y, 45, 16, "selectServer.edit")
+				.setHoverText("faction.hover.flag.txr"));
+		addTextField(new GuiNpcTextField(1, this, x0, y + 18, 208, 16, faction.flag.toString())
+				.setHoverText("faction.hover.flag.txr"));
 	}
 
 	@Override
 	public void save() {
-		if (scrollFactions == null || scrollFactions.getSelected() == null || !data.containsKey(scrollFactions.getSelected()) || faction == null || faction.id == -1) {
-			return;
-		}
+		if (scrollFactions == null || scrollFactions.getSelected() == null || !data.containsKey(scrollFactions.getSelected()) || faction == null || faction.id == -1) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		faction.save(compound);
 		Client.sendData(EnumPacketServer.FactionSave, compound);
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getID() == 0) {
-			if (!data.containsKey(scrollFactions.getSelected())) {
-				return;
-			}
+			if (!data.containsKey(scrollFactions.getSelected())) { return; }
 			save();
 			Client.sendData(EnumPacketServer.FactionGet, data.get(scrollFactions.getSelected()));
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
 		base = new HashMap<>(dataMap);
 		String select = scrollFactions == null || scrollFactions.getSelected() == null ? "" : scrollFactions.getSelected();
 		data.clear();
 		List<Entry<String, Integer>> newList = new ArrayList<>(dataMap.entrySet());
 		newList.sort((f_0, f_1) -> {
-            if (GuiNPCManageFactions.isName) {
-                return f_0.getKey().compareTo(f_1.getKey());
-            } else {
-                return f_0.getValue().compareTo(f_1.getValue());
-            }
+            if (GuiNPCManageFactions.isName) { return f_0.getKey().compareTo(f_1.getKey()); }
+			else { return f_0.getValue().compareTo(f_1.getValue()); }
         });
 		for (Entry<String, Integer> entry : newList) {
 			int id = entry.getValue();
 			String name = Util.instance.deleteColor(entry.getKey());
-			if (name.contains("ID:" + id + " ")) {
-				name = name.substring(name.indexOf(" ") + 3);
-			}
-			String key = ((char) 167) + "7ID:" + id + " " + ((char) 167) + "r"
-					+ new TextComponentTranslation(name).getFormattedText();
+			if (name.contains("ID:" + id + " ")) { name = name.substring(name.indexOf(" ") + 3); }
+			String key = ((char) 167) + "7ID:" + id + " " + ((char) 167) + "r" + new TextComponentTranslation(name).getFormattedText();
 			data.put(key, id);
-			if (select != null && select.equals(key)) {
-				select = key;
-			}
+			if (select != null && select.equals(key)) { select = key; }
 		}
 		if (scrollFactions != null) {
-			scrollFactions.setListNotSorted(new ArrayList<>(data.keySet()));
+			scrollFactions.setUnsortedList(new ArrayList<>(data.keySet()));
 			if (select != null && !select.isEmpty()) { scrollFactions.setSelected(select); }
 		}
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		if (compound == null) {
-			return;
-		}
+		if (compound == null) { return; }
 		if (compound.hasKey("MinimumID", 3)) {
 			if (faction.id != compound.getInteger("MinimumID")) {
 				Client.sendData(EnumPacketServer.FactionRemove, faction.id);
@@ -391,13 +312,12 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof GuiTextureSelection) {
-			faction.flag = ((GuiTextureSelection) subgui).resource;
+		if (subgui instanceof SubGuiTextureSelection) {
+			faction.flag = ((SubGuiTextureSelection) subgui).resource;
 			initGui();
 		}
-		if (subgui instanceof SubGuiNpcTextArea) {
-			faction.description = ((SubGuiNpcTextArea) subgui).text;
-		} else if (subgui instanceof SubGuiColorSelector) {
+		if (subgui instanceof SubGuiNpcTextArea) { faction.description = ((SubGuiNpcTextArea) subgui).text; }
+		else if (subgui instanceof SubGuiColorSelector) {
 			faction.color = ((SubGuiColorSelector) subgui).color;
 			initGui();
 		} else if (subgui instanceof SubGuiNpcFactionSelect) {
@@ -421,12 +341,10 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
-		if (faction.id == -1) {
-			return;
-		}
+	public void unFocused(GuiNpcTextField textField) {
+		if (faction.id == -1) { return; }
 		if (textField.getID() == 0) {
-			String name = textField.getFullText();
+			String name = textField.getText();
 			if (!name.isEmpty() && !data.containsKey(name)) {
 				String old = scrollFactions.getSelected();
 				data.remove(faction.name);
@@ -439,9 +357,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, ISu
 			}
 			initGui();
 		}
-		else if (textField.getID() == 1) {
-			faction.setFlag(textField.getFullText());
-		}
+		else if (textField.getID() == 1) { faction.setFlag(textField.getText()); }
 	}
 
 }

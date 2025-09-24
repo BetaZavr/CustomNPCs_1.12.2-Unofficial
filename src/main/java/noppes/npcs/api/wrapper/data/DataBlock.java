@@ -18,8 +18,6 @@ public class DataBlock {
         state = stateIn;
     }
 
-    public IBlock getIBlock() {
-        return BlockWrapper.createNew(world, pos, state);
-    }
+    public IBlock getIBlock() { return BlockWrapper.createNew(world, pos, state); }
 
 }

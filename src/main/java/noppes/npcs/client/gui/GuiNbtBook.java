@@ -27,9 +27,9 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.NBTJsonUtil;
 
-public class GuiNbtBook
-extends GuiNPCInterface
-implements IGuiData, ISubGuiListener {
+import javax.annotation.Nonnull;
+
+public class GuiNbtBook extends GuiNPCInterface implements ICustomScrollListener, IGuiData {
 
 	protected ItemStack blockStack;
 	protected String errorMessage;
@@ -42,17 +42,17 @@ implements IGuiData, ISubGuiListener {
 	protected final int z;
 	protected ItemStack stack;
 	protected GuiCustomScroll scroll;
-
+	public NBTTagCompound originalCompound;
 	public NBTTagCompound compound;
 	public Entity entity;
 	public int entityId;
-	public NBTTagCompound originalCompound;
 
 	public GuiNbtBook(int xPos, int yPos, int zPos) {
+		super();
 		setBackground("menubg.png");
+		closeOnEsc = true;
 		xSize = 256;
 		ySize = 217;
-		closeOnEsc = true;
 
 		faultyText = null;
 		errorMessage = null;
@@ -62,28 +62,27 @@ implements IGuiData, ISubGuiListener {
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
 				if (compound == null) { return; }
 				if (jsonCompound == null || jsonCompound.isEmpty()) { jsonCompound = compound.toString(); }
 				if (faultyText != null) { setSubGui(new SubGuiNpcTextArea(jsonCompound, faultyText).enableHighlighting()); }
-				else { setSubGui(new SubGuiNpcTextArea(jsonCompound).enableHighlighting()); }
+				else { setSubGui(new SubGuiNpcTextArea(0, jsonCompound).enableHighlighting()); }
 				break;
 			} // edit
 			case 1: {
-				if (stack != null && !stack.isEmpty()) {
-					Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound()));
-				}
+				if (stack != null && !stack.isEmpty()) { Client.sendData(EnumPacketServer.NbtBookCopyStack, stack.writeToNBT(new NBTTagCompound())); }
 				break;
 			} // copy
 			case 2: {
 				if (compound == null) { return; }
 				if (faultyText != null) { setSubGui(new SubGuiNpcTextArea(compound.toString(), faultyText).enableHighlighting()); }
-				else { setSubGui(new SubGuiNpcTextArea(compound.toString()).enableHighlighting()); }
+				else { setSubGui(new SubGuiNpcTextArea(0, compound.toString()).enableHighlighting()); }
 				break;
 			} // edit fast
-			case 66: close(); break;
+			case 66: onClosed(); break;
 			case 67: {
 				getLabel(0).setLabel("Saved");
 				if (compound.equals(originalCompound)) { return; }
@@ -91,7 +90,7 @@ implements IGuiData, ISubGuiListener {
 				if (tile == null) { Client.sendData(EnumPacketServer.NbtBookSaveEntity, entityId, compound); }
 				else { Client.sendData(EnumPacketServer.NbtBookSaveBlock, x, y, z, compound); }
 				originalCompound = compound.copy();
-				button.setEnabled(false);
+				button.setIsEnable(false);
 				break;
 			} // save
 		}
@@ -103,7 +102,8 @@ implements IGuiData, ISubGuiListener {
 			try {
 				setCompound(JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text));
 				errorMessage = faultyText = null;
-			} catch (NBTException e) {
+			}
+			catch (NBTException e) {
 				errorMessage = e.getLocalizedMessage();
 				faultyText = ((SubGuiNpcTextArea) gui).text;
 			}
@@ -114,15 +114,12 @@ implements IGuiData, ISubGuiListener {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (hasSubGui()) {
-			return;
-		}
+		if (hasSubGui()) { return; }
 		if (stack != null || state != null) {
 			GlStateManager.pushMatrix();
 			Gui.drawRect(guiLeft + 3, guiTop + 3, guiLeft + 55, guiTop + 55, 0xFF808080);
 			Gui.drawRect(guiLeft + 4, guiTop + 4, guiLeft + 54, guiTop + 54, 0xFF000000);
 			GlStateManager.popMatrix();
-
 			GlStateManager.pushMatrix();
 			GlStateManager.translate((guiLeft + 5), (guiTop + 5), 0.0f);
 			GlStateManager.scale(3.0f, 3.0f, 3.0f);
@@ -148,7 +145,7 @@ implements IGuiData, ISubGuiListener {
 	public void initGui() {
 		super.initGui();
 		boolean onlyClient = stack == null && state == null && entity == null;
-		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(188, 120); }
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(188, 120); }
 		scroll.guiLeft = guiLeft + 60;
 		scroll.guiTop = guiTop + 45;
 		if (stack != null) {
@@ -177,41 +174,34 @@ implements IGuiData, ISubGuiListener {
 			addLabel(new GuiNpcLabel(12, name, guiLeft + 60, guiTop + 6));
 			setObjectToScroll(entity);
 		}
-		GuiNpcButton button;
 		addScroll(scroll);
 		addLabel(new GuiNpcLabel(2, "nbt.edit", guiLeft + 4, guiTop + 172));
-		addButton(button = new GuiNpcButton(0, guiLeft + 128, guiTop + 166, 59, 20, "selectServer.edit"));
-		button.setEnabled(compound != null && !compound.getKeySet().isEmpty());
-		addButton(button = new GuiNpcButton(2, guiLeft + 189, guiTop + 166, 59, 20, "gui.fast"));
-		button.setEnabled(compound != null && !compound.getKeySet().isEmpty());
-
+		addButton(new GuiNpcButton(0, guiLeft + 128, guiTop + 166, 59, 20, "selectServer.edit")
+				.setIsEnable(compound != null && !compound.getKeySet().isEmpty()));
+		addButton(new GuiNpcButton(2, guiLeft + 189, guiTop + 166, 59, 20, "gui.fast")
+				.setIsEnable(compound != null && !compound.getKeySet().isEmpty()));
 		addLabel(new GuiNpcLabel(0, "", guiLeft + 4, guiTop + 167));
 		addLabel(new GuiNpcLabel(1, "", guiLeft + 4, guiTop + 177));
-
 		addButton(new GuiNpcButton(66, guiLeft + 128, guiTop + 190, 120, 20, "gui.close"));
 		addButton(new GuiNpcButton(67, guiLeft + 4, guiTop + 190, 120, 20, "gui.save"));
-		getButton(67).setEnabled(!onlyClient);
+		getButton(67).setIsEnable(!onlyClient);
 		if (!onlyClient) {
 			if (errorMessage != null) {
-				getButton(67).setEnabled(false);
+				getButton(67).setIsEnable(false);
 				int i = errorMessage.indexOf(" at: ");
 				if (i > 0) {
 					getLabel(0).setLabel(errorMessage.substring(0, i));
 					getLabel(1).setLabel(errorMessage.substring(i));
-				} else {
-					getLabel(0).setLabel(errorMessage);
 				}
+				else { getLabel(0).setLabel(errorMessage); }
 			}
-			if (getButton(67).isEnabled() && originalCompound != null) {
-				getButton(67).setEnabled(!originalCompound.equals(compound));
-			}
+			if (getButton(67).enabled && originalCompound != null) { getButton(67).setIsEnable(!originalCompound.equals(compound)); }
 		}
 	}
 
 	private void setObjectToScroll(Object obj) {
 		addLabel(new GuiNpcLabel(15, "(?) Class \"" + obj.getClass().getSimpleName() + "\":", guiLeft + 60, guiTop + (state != null ? 36 : 16)));
 		getLabel(15).setHoverText(obj.getClass().getName());
-		
 		List<String> list = new ArrayList<>();
 		Map<String, Field> fs = new TreeMap<>();
 		Map<String, Method> ms = new TreeMap<>();
@@ -222,7 +212,6 @@ implements IGuiData, ISubGuiListener {
 		for (Method m : obj.getClass().getMethods()) { if (!ms.containsKey(m.getName())) { ms.put(m.getName(), m); } }
 		for (Class<?> c : obj.getClass().getDeclaredClasses()) { cs.put(c.getName(), c); }
 		for (Class<?> c : obj.getClass().getClasses()) { if (!cs.containsKey(c.getName())) { cs.put(c.getName(), c); } }
-
 		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;
 		for (String key : fs.keySet()) {
@@ -273,8 +262,7 @@ implements IGuiData, ISubGuiListener {
 			hts.put(i, l);
 			i++;
 		}
-		scroll.setListNotSorted(list);
-		scroll.setHoverTexts(hts);
+		scroll.setUnsortedList(list).setHoverTexts(hts);
 	}
 
 	private static List<String> getFieldTypes(Object obj, int mdf, Field f) throws IllegalAccessException {
@@ -299,7 +287,6 @@ implements IGuiData, ISubGuiListener {
 		else { mf += ((char) 167) + "4private"; }
 		if (Modifier.isStatic(mdf)) { mf += ((char) 167) + "e static"; }
 		if (Modifier.isFinal(mdf)) { mf += ((char) 167) + "b final"; }
-
 		List<String> hoverText = new ArrayList<>();
 		hoverText.add(mf);
 		hoverText.add(((char) 167) + "7return type: " + ((char) 167) + "r" + m.getReturnType().getName());
@@ -313,21 +300,20 @@ implements IGuiData, ISubGuiListener {
 				hoverText.add(nm);
 			}
 			hoverText.add(((char) 167) + "7)");
-		} else {
-			hoverText.add(((char) 167) + "7parameters: " + ((char) 167) + "r()");
 		}
+		else { hoverText.add(((char) 167) + "7parameters: " + ((char) 167) + "r()"); }
 		return hoverText;
 	}
 
     @SuppressWarnings("deprecation")
 	@Override
 	public void setGuiData(NBTTagCompound nbt) {
-		if (nbt.hasKey("Item") && nbt.getBoolean("Item")) {
-			stack = new ItemStack(nbt.getCompoundTag("Data"));
-		} else if (nbt.hasKey("EntityId")) {
+		if (nbt.hasKey("Item") && nbt.getBoolean("Item")) { stack = new ItemStack(nbt.getCompoundTag("Data")); }
+		else if (nbt.hasKey("EntityId")) {
 			entityId = nbt.getInteger("EntityId");
 			entity = player.world.getEntityByID(entityId);
-		} else {
+		}
+		else {
 			tile = player.world.getTileEntity(new BlockPos(x, y, z));
 			state = player.world.getBlockState(new BlockPos(x, y, z));
 			blockStack = state.getBlock().getItem(player.world, new BlockPos(x, y, z), state);
@@ -342,5 +328,11 @@ implements IGuiData, ISubGuiListener {
 		jsonCompound = nbt.toString();
 		CustomNPCsScheduler.runTack(() -> jsonCompound = NBTJsonUtil.Convert(nbt));
 	}
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) { }
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 }

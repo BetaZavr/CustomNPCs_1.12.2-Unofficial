@@ -12,10 +12,9 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.gui.CustomGuiTexturedRectWrapper;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
+import noppes.npcs.util.ValueUtil;
 
-public class CustomGuiTexturedRect
-extends Gui
-implements IGuiComponent {
+public class CustomGuiTexturedRect extends Gui implements IGuiComponent {
 
 	public static CustomGuiTexturedRect fromComponent(CustomGuiTexturedRectWrapper component) {
 		CustomGuiTexturedRect rect;
@@ -36,88 +35,92 @@ implements IGuiComponent {
 		return rect;
 	}
 
-	GuiCustom parent;
-	float scale;
-	public int id, textureX, textureY, width, height, x, y, color;
-	ResourceLocation texture;
-	private final int[] offsets;
-	String[] hoverText;
-	IItemStack hoverStack;
+	protected GuiCustom parent;
+	protected float scale = 1.0f;
+	protected int textureX;
+	protected int textureY;
+	protected int width;
+	protected int height;
+	protected int x;
+	protected int y;
+	protected int color = 0xFFFFFFFF;
+	protected ResourceLocation texture;
+	protected final int[] offsets = new int[] { 0, 0 };
+	protected String[] hoverText;
+	protected IItemStack hoverStack;
+	public int id;
 
 	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height) {
 		this(id, texture, x, y, width, height, 0, 0);
 	}
 
-	public CustomGuiTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY) {
-		this.scale = 1.0f;
-		this.id = id;
-		this.texture = new ResourceLocation(texture);
-		this.x = GuiCustom.guiLeft + x;
-		this.y = GuiCustom.guiTop + y;
-		this.width = width;
-		this.height = height;
-		this.textureX = textureX;
-		this.textureY = textureY;
-		this.offsets = new int[] { 0, 0 };
-		this.color = 0xFFFFFFFF;
+	public CustomGuiTexturedRect(int idIn, String textureIn, int xIn, int yIn, int widthIn, int heightIn, int textureXIn, int textureYIn) {
+		id = idIn;
+		texture = new ResourceLocation(textureIn);
+		x = GuiCustom.guiLeft + xIn;
+		y = GuiCustom.guiTop + yIn;
+		width = widthIn;
+		height = heightIn;
+		textureX = textureXIn;
+		textureY = textureYIn;
 	}
 
-	public int getId() {
-		return this.id;
-	}
+	public int getId() { return id; }
 
 	@Override
-	public int[] getPosXY() {
-		return new int[] { this.x, this.y };
-	}
+	public int[] getPosXY() { return new int[] { x, y }; }
 
 	@Override
 	public void offSet(int offsetType, double[] windowSize) {
 		switch (offsetType) {
-		case 1: { // left down
-			this.offsets[0] = 0;
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		case 2: { // right up
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = 0;
-			break;
-		}
-		case 3: { // right down
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		default: { // left up
-			this.offsets[0] = 0;
-			this.offsets[1] = 0;
-		}
+			case 1: { // left down
+				offsets[0] = 0;
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 4: { // center
+				offsets[0] = (int) (windowSize[0] / 2.0d);
+				offsets[1] = (int) (windowSize[1] / 2.0d);
+				break;
+			}
+			default: { // left up
+				offsets[0] = 0;
+				offsets[1] = 0;
+			}
 		}
 	}
 
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
-		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;
-		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
-		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
+		int xIn = offsets[0] == 0 ? x : offsets[0] - x - width;
+		int yIn = offsets[1] == 0 ? y : offsets[1] - y - height;
+		boolean hovered = mouseX >= xIn && mouseY >= yIn && mouseX < xIn + width && mouseY < yIn + height;
 		GlStateManager.pushMatrix();
-		int pos = Math.min(this.id, 500);
+		int pos = Math.min(id, 500);
 		GlStateManager.translate(0, 0, pos);
-		float a = (float) (this.color >> 24 & 255) / 255.0f;
-		float r = (float) (this.color >> 16 & 255) / 255.0f;
-		float g = (float) (this.color >> 8 & 255) / 255.0f;
-		float b = (float) (this.color & 255) / 255.0f;
+		float a = (float) (color >> 24 & 255) / 255.0f;
+		float r = (float) (color >> 16 & 255) / 255.0f;
+		float g = (float) (color >> 8 & 255) / 255.0f;
+		float b = (float) (color & 255) / 255.0f;
 		GlStateManager.color(r, g, b, a);
 		GlStateManager.enableBlend();
-		mc.getTextureManager().bindTexture(this.texture);
+		mc.getTextureManager().bindTexture(texture);
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-		bufferbuilder.pos(x, (y + this.height * this.scale), pos).tex((this.textureX * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), (y + this.height * this.scale), pos).tex(((this.textureX + this.width) * 0.00390625f), ((this.textureY + this.height) * 0.00390625f)).endVertex();
-		bufferbuilder.pos((x + this.width * this.scale), y, pos).tex(((this.textureX + this.width) * 0.00390625f), (this.textureY * 0.00390625f)).endVertex();
-		bufferbuilder.pos(x, y, pos).tex((this.textureX * 0.00390625f), (this.textureY * 0.00390625f)).endVertex();
+		bufferbuilder.pos(xIn, (yIn + height * scale), pos).tex((textureX * 0.00390625f), ((textureY + height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((xIn + width * scale), (yIn + height * scale), pos).tex(((textureX + width) * 0.00390625f), ((textureY + height) * 0.00390625f)).endVertex();
+		bufferbuilder.pos((xIn + width * scale), yIn, pos).tex(((textureX + width) * 0.00390625f), (textureY * 0.00390625f)).endVertex();
+		bufferbuilder.pos(xIn, yIn, pos).tex((textureX * 0.00390625f), (textureY * 0.00390625f)).endVertex();
 		tessellator.draw();
 		if (hovered) {
 			if (hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
@@ -127,21 +130,21 @@ implements IGuiComponent {
 	}
 
 	@Override
-	public void setParent(GuiCustom parent) {
-		this.parent = parent;
-	}
+	public void setParent(GuiCustom parentIn) { parent = parentIn; }
 
 	@Override
 	public void setPosXY(int newX, int newY) {
-		this.x = newX;
-		this.y = newY;
+		x = newX;
+		y = newY;
 	}
 
+	public void setScale(float scaleIn) { scale = ValueUtil.correctFloat(scaleIn, 0.0f, 10.0f); }
+
+	@Override
 	public ICustomGuiComponent toComponent() {
-		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(this.id, this.texture.toString(),
-				this.x, this.y, this.width, this.height, this.textureX, this.textureY);
-		component.setHoverText(this.hoverText);
-		component.setScale(this.scale);
+		CustomGuiTexturedRectWrapper component = new CustomGuiTexturedRectWrapper(id, texture.toString(), x, y, width, height, textureX, textureY);
+		component.setHoverText(hoverText);
+		component.setScale(scale);
 		return component;
 	}
 

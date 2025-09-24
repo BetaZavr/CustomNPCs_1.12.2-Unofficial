@@ -308,7 +308,7 @@ public class CustomArmor extends ItemArmor implements ICustomElement {
 	}
 
 	public List<String> getMeshNames(EnumParts slot) {
-		if (this.parts.containsKey(slot)) { return this.parts.get(slot); }
+		if (parts.containsKey(slot)) { return parts.get(slot); }
 		return new ArrayList<>();
 	}
 

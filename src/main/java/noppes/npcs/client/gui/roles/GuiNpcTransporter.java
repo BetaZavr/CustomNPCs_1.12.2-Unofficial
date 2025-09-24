@@ -7,7 +7,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.*;
@@ -18,21 +17,23 @@ import noppes.npcs.controllers.data.TransportCategory;
 import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcTransporter
-extends GuiNPCInterface2
-implements IScrollData, IGuiData {
+import javax.annotation.Nonnull;
 
-	private final HashMap<String, Integer> data = new HashMap<>();
+public class GuiNpcTransporter extends GuiNPCInterface2 implements ICustomScrollListener, IScrollData, IGuiData {
+
+	protected final HashMap<String, Integer> data = new HashMap<>();
+	protected GuiCustomScroll scroll;
 	public TransportLocation location = new TransportLocation();
-	private GuiCustomScroll scroll;
 
 	public GuiNpcTransporter(EntityNPCInterface npc) {
 		super(npc);
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() == 0) { location.type = button.getValue(); }
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton == 1 && button.getID() == 0) { location.type = button.getValue();}
 	}
 
 	@Override
@@ -55,12 +56,11 @@ implements IScrollData, IGuiData {
 		addLabel(new GuiNpcLabel(0, "gui.categories", x + 2, y - 11));
 		x += 147;
 		addLabel(new GuiNpcLabel(1, "gui.name", x, y - 11));
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, x, y, 140, 20, location.name);
-		textField.setHoverText("manager.hover.transport.loc.name");
-		addTextField(textField);
-		GuiNpcButton button = new GuiNpcButton(0, x, y + 24, new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, location.type);
-		button.setHoverText(new TextComponentTranslation("manager.hover.transport.type").appendSibling(new TextComponentTranslation("manager.hover.transport.addinfo")).getFormattedText());
-		add(button);
+		addTextField(new GuiNpcTextField(0, this, x, y, 140, 20, location.name)
+				.setHoverText("manager.hover.transport.loc.name"));
+		addButton(new GuiNpcButton(0, x, y + 24, new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, location.type)
+				.setHoverText(new TextComponentTranslation("manager.hover.transport.type")
+						.appendSibling(new TextComponentTranslation("manager.hover.transport.addinfo")).getFormattedText()));
 	}
 
 	@Override
@@ -70,20 +70,9 @@ implements IScrollData, IGuiData {
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-		}
-	}
-
-	@Override
 	public void save() {
-		if (!scroll.hasSelected()) {
-			return;
-		}
-		String name = getTextField(0).getFullText();
+		if (!scroll.hasSelected()) { return; }
+		String name = getTextField(0).getText();
 		if (!name.isEmpty()) { location.name = name; }
 		location.pos = new BlockPos(player);
 		location.dimension = player.dimension;
@@ -94,18 +83,18 @@ implements IScrollData, IGuiData {
 	}
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
 		data.clear();
 		data.putAll(dataMap);
-		Collections.sort(list);
-		scroll.setListNotSorted(list);
+		Collections.sort(dataList);
+		scroll.setUnsortedList(dataList);
 		ITextComponent l = new TextComponentTranslation("gui.localization");
 		ITextComponent p = new TextComponentTranslation("gui.points");
 		l.getStyle().setColor(TextFormatting.GRAY);
 		p.getStyle().setColor(TextFormatting.GRAY);
 		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
 		int i = 0;
-		for (String str : list) {
+		for (String str : dataList) {
 			StringBuilder hover = new StringBuilder();
 			TransportCategory cat = TransportController.getInstance().categories.get(data.get(str));
 			if (cat != null && !cat.locations.isEmpty()) {
@@ -133,5 +122,11 @@ implements IScrollData, IGuiData {
 
 	@Override
 	public void setSelected(String selected) { scroll.setSelected(selected); }
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) { }
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 }

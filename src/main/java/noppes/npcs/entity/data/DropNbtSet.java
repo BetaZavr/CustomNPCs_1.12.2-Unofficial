@@ -132,12 +132,8 @@ public class DropNbtSet implements IDropNbtSet {
 				try {
 					int i = Integer.parseInt(str);
 					if (text.length() > 0) {
-						if (type == this.type) {
-							text.append(",");
-						}
-						{
-							text.append(";");
-						}
+						if (type == this.type) { text.append(","); }
+						else { text.append(";"); }
 					}
 					text.append(i);
 				} catch (Exception e) { LogWriter.error(e); }
@@ -157,7 +153,7 @@ public class DropNbtSet implements IDropNbtSet {
 	}
 
 	@Override
-	public INbt getConstructoredTag(INbt nbt) {
+	public INbt getConstructorTag(INbt nbt) {
 		NBTTagCompound pos = nbt.getMCNBT();
 		String key = this.path;
 		if (this.path.contains(".")) {

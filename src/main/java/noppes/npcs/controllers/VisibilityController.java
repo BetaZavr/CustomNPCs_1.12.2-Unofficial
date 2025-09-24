@@ -2,6 +2,7 @@ package noppes.npcs.controllers;
 
 import java.util.*;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.internal.FMLMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -69,6 +70,8 @@ public class VisibilityController {
 			LogWriter.debug("CNPCs: npc: "+npc);
 			LogWriter.debug("CNPCs: npc.world: "+(npc != null ? npc.world : "n/a"));
 			LogWriter.debug("CNPCs: npc.getEntityId(): "+(npc != null ? npc.getEntityId() : "n/a"));
+			LogWriter.debug("CNPCs: mc: "+ Minecraft.getMinecraft());
+			LogWriter.debug("CNPCs: mc.player: "+ Minecraft.getMinecraft().player);
 			LogWriter.error(e);
 		}
 	}

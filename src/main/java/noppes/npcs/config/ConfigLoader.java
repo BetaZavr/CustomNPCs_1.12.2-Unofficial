@@ -534,7 +534,7 @@ public class ConfigLoader {
 		for (Field field : CustomNpcs.class.getDeclaredFields()) {
 			if (!field.isAnnotationPresent(ConfigProp.class)) { continue; }
             ConfigProp prop = field.getAnnotation(ConfigProp.class);
-			if (prop.type().equals(Configuration.CATEGORY_GENERAL)) { data.add(field); }
+			if (prop.type().equals(Configuration.CATEGORY_GENERAL)) {data.add(field); }
 			String name = field.getName();
 			ConfigCategory cat = config.getCategory(prop.type());
 			if (!cat.containsKey(name)) {
@@ -545,9 +545,8 @@ public class ConfigLoader {
 			if (field.getType().isArray()) {
 				String[] values = property.getValidValues();
 				try {
-					if (type == Type.STRING) {
-						field.set(null, values);
-					} else if (type == Type.INTEGER) {
+					if (type == Type.STRING) { field.set(null, values); }
+					else if (type == Type.INTEGER) {
 						int[] base = (int[]) field.get(null);
 						int[] def = null;
 						int[] min = null;
@@ -594,7 +593,8 @@ public class ConfigLoader {
 							}
 						}
 						field.set(null, vs);
-					} else if (type == Type.BOOLEAN) {
+					}
+					else if (type == Type.BOOLEAN) {
 						boolean[] base = (boolean[]) field.get(null);
 						boolean[] def = null;
 						if (!prop.def().isEmpty()) {
@@ -617,7 +617,8 @@ public class ConfigLoader {
 							vs[i] = Boolean.parseBoolean(values[i]);
 						}
 						field.set(null, vs);
-					} else if (type == Type.DOUBLE) {
+					}
+					else if (type == Type.DOUBLE) {
 						double[] base = (double[]) field.get(null);
 						double[] def = null;
 						double[] min = null;
@@ -664,7 +665,8 @@ public class ConfigLoader {
 							}
 						}
 						field.set(null, vs);
-					} else if (type == Type.COLOR) {
+					}
+					else if (type == Type.COLOR) {
 						Color[] base = (Color[]) field.get(null);
 						Color[] def = null;
 						if (!prop.def().isEmpty()) {
@@ -700,7 +702,8 @@ public class ConfigLoader {
 				try {
 					if (type == Type.STRING) {
 						field.set(null, property.getString());
-					} else if (type == Type.INTEGER) {
+					}
+					else if (type == Type.INTEGER) {
 						int v = Integer.parseInt(property.getString());
 						if (!prop.min().isEmpty()) {
 							int m = Integer.parseInt(prop.min());
@@ -715,9 +718,11 @@ public class ConfigLoader {
 							}
 						}
 						field.set(null, v);
-					} else if (type == Type.BOOLEAN) {
+					}
+					else if (type == Type.BOOLEAN) {
 						field.set(null, Boolean.valueOf(property.getString()));
-					} else if (type == Type.DOUBLE) {
+					}
+					else if (type == Type.DOUBLE) {
 						double v = Double.parseDouble(property.getString());
 						if (!prop.min().isEmpty()) {
 							double m = Double.parseDouble(prop.min());
@@ -732,7 +737,8 @@ public class ConfigLoader {
 							}
 						}
 						field.set(null, v);
-					} else if (type == Type.COLOR) {
+					}
+					else if (type == Type.COLOR) {
 						Color color = new Color((int) Long.parseLong(property.getString(), 16));
 						color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 255);
 						field.set(null, color);

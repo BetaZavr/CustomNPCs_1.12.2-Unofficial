@@ -26,7 +26,7 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 				entity == npc ||
 				!npc.isInRange(entity, npc.stats.aggroRange) ||
 				entity.getHealth() <= 0.1f ||
-				!Util.instance.npcCanSeeTarget(npc, entity, false, true)
+				!npc.canSee(entity)
 		)
 		{ return false; }
 		if (!npc.isFollower() && npc.ais.shouldReturnHome()) {
@@ -34,8 +34,7 @@ public class NPCAttackSelector implements Predicate<EntityLivingBase> {
 			if (npc.ais.getMovingType() == 1) {
 				allowedDistance += npc.ais.walkingRange;
 			}
-			double distance = entity.getDistanceSq(npc.getStartXPos(), npc.getStartYPos(),
-					npc.getStartZPos());
+			double distance = entity.getDistanceSq(npc.getStartXPos(), npc.getStartYPos(), npc.getStartZPos());
 			if (npc.ais.getMovingType() == 2) {
 				int[] arr = npc.ais.getCurrentMovingPath();
 				distance = entity.getDistanceSq(arr[0], arr[1], arr[2]);

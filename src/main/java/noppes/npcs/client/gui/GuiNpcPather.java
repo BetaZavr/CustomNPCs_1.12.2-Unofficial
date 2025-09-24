@@ -12,33 +12,32 @@ import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNpcPather
-extends GuiNPCInterface
-implements IGuiData {
+import javax.annotation.Nonnull;
+
+public class GuiNpcPather extends GuiNPCInterface implements ICustomScrollListener, IGuiData {
 
 	private List<int[]> path;
 	private GuiCustomScroll scroll;
 
 	public GuiNpcPather(EntityNPCInterface npc) {
 		super(npc);
-		drawDefaultBackground = false;
-		xSize = 176;
-		title = "Npc Pather";
 		setBackground("smallbg.png");
+		drawDefaultBackground = false;
+		closeOnEsc = true;
+		title = "Npc Pather";
+		xSize = 176;
 
 		path = npc.ais.getMovingPath();
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (scroll.getSelect() < 0) { return; }
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
-			case 0 : { // down
+			case 0 : {
 				List<int[]> list = new ArrayList<>(path);
 				int selected = scroll.getSelect();
-				if (list.size() <= selected + 1) {
-					return;
-				}
+				if (list.size() <= selected + 1) { return; }
 				int[] a = list.get(selected);
 				int[] b = list.get(selected + 1);
 				list.set(selected, b);
@@ -47,11 +46,9 @@ implements IGuiData {
 				initGui();
 				scroll.setSelect(selected + 1);
 				break;
-			}
-			case 1 : { // up
-				if (scroll.getSelect() - 1 < 0) {
-					return;
-				}
+			} // down
+			case 1 : {
+				if (scroll.getSelect() - 1 < 0) { return; }
 				List<int[]> list = new ArrayList<>(path);
 				int selected = scroll.getSelect();
 				int[] a = list.get(selected);
@@ -62,31 +59,27 @@ implements IGuiData {
 				initGui();
 				scroll.setSelect(selected - 1);
 				break;
-			}
-			case 2 : { // remove
+			} // up
+			case 2 : {
 				List<int[]> list = new ArrayList<>(path);
-				if (list.size() <= 1) {
-					return;
-				}
+				if (list.size() <= 1) { return; }
 				list.remove(scroll.getSelect());
 				scroll.setSelect(scroll.getSelect() - 1);
 				path = list;
 				initGui();
 				break;
-			}
+			} // remove
 		}
 		npc.ais.setMovingPath(path);
 	}
 
-	protected void drawGuiContainerBackgroundLayer(float ignoredF, int ignoredI, int ignoredJ) {
-	}
+	protected void drawGuiContainerBackgroundLayer(float ignoredF, int ignoredI, int ignoredJ) { }
 
 	@Override
 	public void initGui() {
 		int sel;
-		if (scroll != null) {
-			sel = scroll.getSelect();
-		} else {
+		if (scroll != null) { sel = scroll.getSelect(); }
+		else {
 			sel = 0;
 			Vec3d vec3d = player.getPositionEyes(1.0f);
 			Vec3d vec3d2 = player.getLook(1.0f);
@@ -107,15 +100,12 @@ implements IGuiData {
             }
 		}
 		super.initGui();
-		(scroll = new GuiCustomScroll(this, 0)).setSize(160, 164);
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(160, 164); }
 		List<String> list = new ArrayList<>();
-		for (int[] arr : path) {
-			list.add("x:" + arr[0] + " y:" + arr[1] + " z:" + arr[2]);
-		}
-		scroll.setListNotSorted(list);
+		for (int[] arr : path) { list.add("x:" + arr[0] + " y:" + arr[1] + " z:" + arr[2]); }
+		scroll.setUnsortedList(list).setSelect(sel);
 		scroll.guiLeft = guiLeft + 7;
 		scroll.guiTop = guiTop + 12;
-		scroll.setSelect(sel);
 		addScroll(scroll);
 		addButton(new GuiNpcButton(0, guiLeft + 6, guiTop + 178, 52, 20, "gui.down"));
 		addButton(new GuiNpcButton(1, guiLeft + 62, guiTop + 178, 52, 20, "gui.up"));
@@ -123,22 +113,7 @@ implements IGuiData {
 	}
 
 	@Override
-	public void initPacket() {
-		Client.sendData(EnumPacketServer.MovingPathGet);
-	}
-
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 || isInventoryKey(i)) {
-			close();
-		}
-	}
-
-	@Override
-	public void mouseClicked(int i, int j, int k) {
-		super.mouseClicked(i, j, k);
-		scroll.mouseClicked(i, j, k);
-	}
+	public void initPacket() { Client.sendData(EnumPacketServer.MovingPathGet); }
 
 	@Override
 	public void save() {
@@ -153,4 +128,11 @@ implements IGuiData {
 		npc.ais.setMovingPath(path);
 		initGui();
 	}
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) { }
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+
 }

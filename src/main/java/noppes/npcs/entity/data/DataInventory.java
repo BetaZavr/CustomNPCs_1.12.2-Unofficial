@@ -73,7 +73,7 @@ public class DataInventory implements IInventory, INPCInventory {
 			throw new CustomNPCsException("Bad maximum size: " + drops.size() + " (" + CustomNpcs.MaxItemInDropsNPC + " slots maximum)");
 		}
 		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
-		DropSet ds = new DropSet(this);
+		DropSet ds = new DropSet(this, null);
 		ds.item = item;
 		ds.chance = chance;
 		ds.pos = drops.size();
@@ -336,6 +336,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		return new TextComponentString(getName());
 	}
 
+	@Override
 	public ICustomDrop getDrop(int slot) {
 		if (slot < 0 || slot >= drops.size()) {
 			throw new CustomNPCsException("Bad slot number: " + slot + " in " + drops.size() + " maximum");
@@ -343,6 +344,7 @@ public class DataInventory implements IInventory, INPCInventory {
         return drops.get(slot);
 	}
 
+	@Override
 	public IItemStack getDropItem(int slot) {
 		if (slot < 0 || slot >= drops.size()) {
 			throw new CustomNPCsException("Bad slot number: " + slot + " in " + drops.size() + " maximum");
@@ -351,6 +353,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		return g.getItem();
 	}
 
+	@Override
 	public ICustomDrop[] getDrops() {
 		ICustomDrop[] dss = new ICustomDrop[drops.size()];
 		int i = 0;
@@ -475,7 +478,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
 		awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
 
-		Map<Integer, DropSet> drs = new HashMap<>();
+		drops.clear();
 		if (compound.hasKey("DropChance", 9)) { // if old items
 			Map<Integer, IItemStack> d_old = NBTTags.getIItemStackMap(compound.getTagList("NpcInv", 10));
 			Map<Integer, Integer> dc_old = NBTTags.getIntegerIntegerMap(compound.getTagList("DropChance", 10));
@@ -484,24 +487,23 @@ public class DataInventory implements IInventory, INPCInventory {
 				if (dc_old.get(slot) <= 0) {
 					continue;
 				}
-				DropSet ds = new DropSet(this);
+				DropSet ds = new DropSet(this, null);
 				ds.item = d_old.get(slot);
 				ds.chance = (double) dc_old.get(slot);
 				ds.amount = new int[] { ds.item.getStackSize(), ds.item.getStackSize() };
 				ds.pos = i;
-				drs.put(i, ds);
+				drops.put(i, ds);
 				i++;
 			}
 		} else { // create data
 			for (int i = 0; i < compound.getTagList("NpcInv", 10).tagCount(); i++) {
-				DropSet ds = new DropSet(this);
+				DropSet ds = new DropSet(this, null);
 				ds.load(compound.getTagList("NpcInv", 10).getCompoundTagAt(i));
 				ds.pos = i;
-				drs.put(ds.pos, ds);
+				drops.put(ds.pos, ds);
 			}
 		}
-		drops.clear();
-		drops.putAll(drs);
+
 		lootMode = compound.getBoolean("LootMode");
 		saveDropsName = compound.getString("SaveDropsName");
 		dropType = compound.getInteger("DropType");
@@ -510,6 +512,8 @@ public class DataInventory implements IInventory, INPCInventory {
 		if (dropType > 2) { dropType %= 3; }
 	}
 
+	// New from Unofficial (BetaZavr)
+	@Override
 	public boolean removeDrop(ICustomDrop drop) {
 		Map<Integer, DropSet> newDrop = new TreeMap<>();
 		boolean del = false;
@@ -530,6 +534,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		return del;
 	}
 
+	@Override
 	public boolean removeDrop(int slot) {
 		if (drops.containsKey(slot)) {
 			drops.remove(slot);
@@ -550,6 +555,7 @@ public class DataInventory implements IInventory, INPCInventory {
 		return false;
 	}
 
+	@Override
 	public @Nonnull ItemStack removeStackFromSlot(int slot) {
 		int i;
 		Map<Integer, IItemStack> map;
@@ -580,19 +586,21 @@ public class DataInventory implements IInventory, INPCInventory {
 		return ItemStack.EMPTY;
 	}
 
+	@Override
 	public void setArmor(int slot, IItemStack item) {
 		armor.put(slot, item);
 		npc.updateClient = true;
 	}
 
+	@Override
 	public void setExp(int min, int max) {
 		min = Math.min(min, max);
 		npc.inventory.minExp = min;
 		npc.inventory.maxExp = max;
 	}
 
-	public void setField(int id, int value) {
-	}
+	@Override
+	public void setField(int id, int value) { }
 
 	public void setInventorySlotContents(int slot, @Nonnull ItemStack item) {
 		int i;
@@ -653,7 +661,7 @@ public class DataInventory implements IInventory, INPCInventory {
 			if (drops.get(slot).pos != s) {
 				drops.get(slot).pos = s;
 			}
-			dropList.appendTag(drops.get(slot).getNBT());
+			dropList.appendTag(drops.get(slot).save());
 			s++;
 		}
 		compound.setTag("NpcInv", dropList);

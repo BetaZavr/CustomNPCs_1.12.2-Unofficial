@@ -12,26 +12,26 @@ import noppes.npcs.containers.ContainerCustomGui;
 
 import java.util.Objects;
 
-public class CustomGuiSlot
-extends Slot {
+public class CustomGuiSlot extends Slot {
 
-	public EntityPlayer player;
-	public IItemSlot slot;
+	protected EntityPlayer player;
+	protected IItemSlot slot;
 
-	public CustomGuiSlot(IInventory inventoryIn, int index, IItemSlot slot, EntityPlayer player, int cx, int cy) {
-		super(inventoryIn, index, slot.getPosX() + cx, slot.getPosY() + cy);
-		this.player = player;
-		this.slot = slot;
+	public CustomGuiSlot(IInventory inventoryIn, int index, IItemSlot slotIn, EntityPlayer playerIn, int cx, int cy) {
+		super(inventoryIn, index, slotIn.getPosX() + cx, slotIn.getPosY() + cy);
+		player = playerIn;
+		slot = slotIn;
 	}
 
+	@Override
 	public void onSlotChanged() {
-		if (!this.player.world.isRemote) {
-			this.slot.setStack(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.getStack()));
-			if (this.player.openContainer instanceof ContainerCustomGui) {
-				IItemStack heldItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(this.player.inventory.getItemStack());
-				EventHooks.onCustomGuiSlot((PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.player),
-						((ContainerCustomGui) this.player.openContainer).customGui, this.getSlotIndex(),
-						this.slot.getStack(), heldItem);
+		if (!player.world.isRemote) {
+			slot.setStack(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(getStack()));
+			if (player.openContainer instanceof ContainerCustomGui) {
+				IItemStack heldItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(player.inventory.getItemStack());
+				EventHooks.onCustomGuiSlot((PlayerWrapper<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player),
+						((ContainerCustomGui) player.openContainer).customGui, getSlotIndex(),
+						slot.getStack(), heldItem);
 			}
 		}
 		super.onSlotChanged();

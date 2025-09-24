@@ -6,16 +6,13 @@ import noppes.npcs.CustomRegisters;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
-public class GuiScriptItem
-extends GuiScriptInterface
-implements ISubGuiListener {
+public class GuiScriptItem extends GuiScriptInterface {
 
-	private final ItemScriptedWrapper item;
+	protected final ItemScriptedWrapper item;
 
 	public GuiScriptItem() {
 		super();
@@ -39,14 +36,14 @@ implements ISubGuiListener {
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
+		if (subgui instanceof SubGuiScriptEncrypt && ((SubGuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			((ItemScriptedWrapper) handler).getScriptNBT(nbt);
-			nbt.setString("Name", subgui.getTextField(0).getFullText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getText() + ((SubGuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setByte("Type", (byte) 3);
-			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
+			nbt.setBoolean("OnlyTab", ((SubGuiScriptEncrypt) subgui).onlyTab);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptEncrypt, nbt);
 			displayGuiScreen(null);
 			mc.setIngameFocus();

@@ -7,10 +7,10 @@ import java.util.UUID;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
-import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
 
 public class PlayerGameData {
 
@@ -20,10 +20,10 @@ public class PlayerGameData {
 		public int dimId;
 		public EntityNPCInterface npc;
 
-		public FollowerSet(EntityNPCInterface npc) {
-			id = npc.getUniqueID();
-			dimId = npc.world.provider.getDimension();
-			this.npc = npc;
+		public FollowerSet(EntityNPCInterface npcIn) {
+			npc = npcIn;
+			id = npcIn.getUniqueID();
+			dimId = npcIn.world.provider.getDimension();
 		}
 
 		public FollowerSet(NBTTagCompound nbt) {
@@ -32,7 +32,9 @@ public class PlayerGameData {
 		}
 
 	}
-	private long money;
+	protected long money = 0L;
+	protected long donat = 0L;
+
 	public boolean updateClient; // ServerTickHandler.onPlayerTick() 122
 	public boolean op = false; // ServerTickHandler.onPlayerTick() 62
 	public final List<MarkupData> marketData = new ArrayList<>(); // ID market, slot
@@ -46,33 +48,28 @@ public class PlayerGameData {
 
 	public FollowerSet addFollower(EntityNPCInterface npc) {
 		FollowerSet fs = new FollowerSet(npc);
-		this.followers.add(fs);
+		followers.add(fs);
 		return fs;
 	}
 
 	public void addMarkupXP(int marketID, int xp) {
-		if (xp == 0) {
-			return;
-		}
-		MarkupData md = this.getMarkupData(marketID);
+		if (xp == 0) { return; }
+		MarkupData md = getMarkupData(marketID);
 		md.addXP(xp);
-		IMarcet m = MarcetController.getInstance().getMarcet(marketID);
-		if (m != null) {
-			MarkupData d = ((Marcet) m).markup.get(md.level);
-			if (md.level < ((Marcet) m).markup.size() - 1 && d != null && d.xp <= md.xp) {
+		Marcet marcet = MarcetController.getInstance().getMarcet(marketID);
+		if (marcet != null) {
+			MarkupData d = marcet.markup.get(md.level);
+			if (md.level < marcet.markup.size() - 1 && d != null && d.xp <= md.xp) {
 				md.level++;
 				md.xp = 0;
 			}
 		}
-		this.updateClient = true;
+		updateClient = true;
 	}
 
-	public void addMoney(long money) {
-		this.money += money;
-		if (this.money < 0L) {
-			this.money = 0L;
-		}
-        this.updateClient = true;
+	public void addMoney(long moneyIn) {
+		money = ValueUtil.correctLong(money + moneyIn, 0, Integer.MAX_VALUE);
+        updateClient = true;
 	}
 
 	public FollowerSet getFollower(EntityNPCInterface npc) {
@@ -89,12 +86,12 @@ public class PlayerGameData {
 	}
 
 	public int getMarcetLevel(int marketID) {
-		return this.getMarkupData(marketID).level;
+		return getMarkupData(marketID).level;
 	}
 
 	public MarkupData getMarkupData(int marketID) {
 		MarkupData md = null;
-		for (MarkupData m : this.marketData) {
+		for (MarkupData m : marketData) {
 			if (m.id == marketID) {
 				md = m;
 				break;
@@ -102,7 +99,7 @@ public class PlayerGameData {
 		}
 		if (md == null) {
 			md = new MarkupData(marketID, 0, 0);
-			this.marketData.add(md);
+			marketData.add(md);
 		}
 		return md;
 	}
@@ -117,30 +114,23 @@ public class PlayerGameData {
 		return npcs;
 	}
 
-	public long getMoney() {
-		return this.money;
-	}
+	public long getMoney() { return money; }
 
 	public NBTTagCompound getNBT() {
 		NBTTagCompound compound = new NBTTagCompound();
-		compound.setLong("Money", this.money);
+		compound.setLong("Money", money);
+		compound.setLong("Donat", donat);
 		compound.setDouble("BlockReachDistance", blockReachDistance);
 		compound.setDouble("RenderDistance", renderDistance);
-		
-		compound.setBoolean("IsOP", this.op);
+		compound.setBoolean("IsOP", op);
 		NBTTagList markup = new NBTTagList();
-		for (MarkupData data : this.marketData) {
-			markup.appendTag(data.getPlayerNBT());
-		}
+		for (MarkupData data : marketData) { markup.appendTag(data.getPlayerNBT()); }
 		compound.setTag("MarketData", markup);
-		if (this.logPos != null) {
+		if (logPos != null) {
 			NBTTagList pos = new NBTTagList();
-			for (double d : this.logPos) {
-				pos.appendTag(new NBTTagDouble(d));
-			}
+			for (double d : logPos) { pos.appendTag(new NBTTagDouble(d)); }
 			compound.setTag("LoginPos", pos);
 		}
-
 		NBTTagList fls = new NBTTagList();
 		for (FollowerSet fs : followers) {
 			NBTTagCompound nbt = new NBTTagCompound();
@@ -149,39 +139,37 @@ public class PlayerGameData {
 			fls.appendTag(nbt);
 		}
 		compound.setTag("Followers", fls);
-
 		return compound;
 	}
 
 	public String getTextMoney() {
-		return Util.instance.getTextReducedNumber(this.money, true, true, false);
+		return Util.instance.getTextReducedNumber(money, true, true, false);
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
 		if (compound != null && compound.hasKey("GameData", 10)) {
 			NBTTagCompound gameNBT = compound.getCompoundTag("GameData");
-			this.money = gameNBT.getLong("Money");
-			if (compound.hasKey("BlockReachDistance", 6)) { this.blockReachDistance = compound.getDouble("BlockReachDistance"); }
-			if (compound.hasKey("RenderDistance", 6)) { this.renderDistance = compound.getDouble("RenderDistance"); }
-			this.op = gameNBT.getBoolean("IsOP");
+			money = gameNBT.getLong("Money");
+			donat = gameNBT.getLong("Donat");
+			if (compound.hasKey("BlockReachDistance", 6)) { blockReachDistance = compound.getDouble("BlockReachDistance"); }
+			if (compound.hasKey("RenderDistance", 6)) { renderDistance = compound.getDouble("RenderDistance"); }
+			op = gameNBT.getBoolean("IsOP");
 			if (gameNBT.hasKey("MarketData", 9)) {
-				this.marketData.clear();
+				marketData.clear();
 				for (int i = 0; i < gameNBT.getTagList("MarketData", 10).tagCount(); i++) {
 					NBTTagCompound nbt = gameNBT.getTagList("MarketData", 10).getCompoundTagAt(i);
-					this.marketData
-							.add(new MarkupData(nbt.getInteger("id"), nbt.getInteger("level"), nbt.getInteger("xp")));
+					marketData.add(new MarkupData(nbt.getInteger("id"), nbt.getInteger("level"), nbt.getInteger("xp")));
 				}
-				this.logPos = null;
+				logPos = null;
 				if (gameNBT.hasKey("LoginPos", 9) && gameNBT.getTagList("LoginPos", 6).tagCount() > 3) {
 					NBTTagList list = gameNBT.getTagList("LoginPos", 6);
-					this.logPos = new double[] { list.getDoubleAt(0), list.getDoubleAt(1), list.getDoubleAt(2),
-							list.getDoubleAt(3) };
+					logPos = new double[] { list.getDoubleAt(0), list.getDoubleAt(1), list.getDoubleAt(2), list.getDoubleAt(3) };
 				}
 			}
 			if (gameNBT.hasKey("Followers", 9)) {
-				this.followers.clear();
+				followers.clear();
 				for (int i = 0; i < gameNBT.getTagList("Followers", 10).tagCount(); i++) {
-					this.followers.add(new FollowerSet(gameNBT.getTagList("Followers", 10).getCompoundTagAt(i)));
+					followers.add(new FollowerSet(gameNBT.getTagList("Followers", 10).getCompoundTagAt(i)));
 				}
 			}
 		}
@@ -201,16 +189,29 @@ public class PlayerGameData {
 	}
 
 	public NBTTagCompound saveNBTData(NBTTagCompound compound) {
-		compound.setTag("GameData", this.getNBT());
+		compound.setTag("GameData", getNBT());
 		return compound;
 	}
 
-	public void setMoney(long money) {
-		if (money < 0L) {
-			money = 0L;
-		}
-        this.money = money;
-		this.updateClient = true;
+	public void setMoney(long moneyIn) {
+		money = ValueUtil.correctLong(moneyIn, 0, Integer.MAX_VALUE);
+		updateClient = true;
 	}
+
+	public long getDonat() { return donat; }
+
+	@SuppressWarnings("all")
+	public void addDonat(long moneyIn) {
+		donat = ValueUtil.correctLong(donat + moneyIn, 0, Long.MAX_VALUE);
+		updateClient = true;
+	}
+
+	public void setDonat(long moneyIn) {
+		donat = ValueUtil.correctLong(moneyIn, 0, Integer.MAX_VALUE);
+		updateClient = true;
+	}
+
+	@SuppressWarnings("all")
+	public String getTextDonat() { return Util.instance.getTextReducedNumber(donat, true, true, false); }
 
 }

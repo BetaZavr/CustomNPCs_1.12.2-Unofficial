@@ -3,7 +3,6 @@ package noppes.npcs.ai.attack;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.util.Util;
 
 public class EntityAIStalkTarget extends EntityAICustom {
 
@@ -12,14 +11,14 @@ public class EntityAIStalkTarget extends EntityAICustom {
 
 	public EntityAIStalkTarget(IRangedAttackMob npc) {
 		super(npc);
-		this.discovered = false;
+		discovered = false;
 	}
 
-	private void setDiscovered(boolean discovered) {
-		this.discovered = discovered;
-		if (this.npc.aiIsSneak == this.discovered) {
-			this.npc.aiIsSneak = !this.discovered;
-			this.npc.updateAiClient();
+	private void setDiscovered(boolean discoveredIn) {
+		discovered = discoveredIn;
+		if (npc.aiIsSneak == discovered) {
+			npc.aiIsSneak = !discovered;
+			npc.setSneaking(!discovered);
 		}
 	}
 
@@ -28,9 +27,9 @@ public class EntityAIStalkTarget extends EntityAICustom {
 		if (super.shouldExecute()) {
 			return true;
 		}
-		if (this.discovered) {
-			this.oldTarget = null;
-			this.setDiscovered(false);
+		if (discovered) {
+			oldTarget = null;
+			setDiscovered(false);
 		}
 		return false;
 	}
@@ -38,39 +37,24 @@ public class EntityAIStalkTarget extends EntityAICustom {
 	@Override
 	public void updateTask() {
 		super.updateTask();
-		if (this.isFriend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
-			return;
+		if (isFriend || npc.ticksExisted % (tickRate * 2) > 3) { return; }
+		canSeeToAttack = npc.canSee(target);
+		if (!discovered && distance < tacticalRange) { setDiscovered(true); }
+		if (canSeeToAttack && distance <= range) {
+			if (inMove) { npc.getNavigator().clearPath(); }
 		}
-		if (this.isRanged) {
-			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
-		} else {
-			this.canSeeToAttack = this.npc.canSee(this.target);
-		}
-
-		if (!this.discovered && this.distance < this.tacticalRange) {
-			this.setDiscovered(true);
-		}
-		if (this.canSeeToAttack && this.distance <= this.range) {
-			if (this.inMove) {
-				this.npc.getNavigator().clearPath();
-			}
-		} else {
-			this.npc.getNavigator().tryMoveToEntityLiving(this.target, this.discovered ? 1.3d : 0.725d);
-		}
-		this.tryToCauseDamage();
-		if (!this.discovered && this.hasAttack
-				|| Util.instance.npcCanSeeTarget(this.target, this.npc, true, true)) {
-			this.setDiscovered(true);
-		}
-		if (!this.target.equals(this.oldTarget)) {
-			this.oldTarget = this.target;
-			this.setDiscovered(this.discovered);
+		else { npc.getNavigator().tryMoveToEntityLiving(target, discovered ? 1.3d : 0.725d); }
+		tryToCauseDamage();
+		if (!discovered && hasAttack || target.canEntityBeSeen(npc)) { setDiscovered(true); }
+		if (!target.equals(oldTarget)) {
+			oldTarget = target;
+			setDiscovered(discovered);
 		}
 	}
 
 	@Override
 	public void writeToClientNBT(NBTTagCompound compound) {
-		compound.setBoolean("aiIsSneak", !this.discovered);
+		compound.setBoolean("aiIsSneak", !discovered);
 	}
 
 }

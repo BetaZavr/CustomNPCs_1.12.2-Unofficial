@@ -391,10 +391,7 @@ public class CommonProxy implements IGuiHandler {
 				return new ContainerNPCFollowerHire(npc, player, x);
 			}
             case PlayerTrader: {
-				if (npc != null) {
-					return new ContainerNPCTrader(npc, player);
-				}
-				return new ContainerNPCTrader(x, player);
+				return new ContainerNPCTrader(player, npc, x);
 			}
 			case SetupItemGiver: {
 				return new ContainerNpcItemGiver(npc, player);
@@ -504,12 +501,10 @@ public class CommonProxy implements IGuiHandler {
 	}
 
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-		if (ID > EnumGuiType.values().length) {
-			return null;
-		}
+		if (ID > EnumGuiType.values().length) { return null; }
 		EntityNPCInterface npc = NoppesUtilServer.getEditingNpc(player);
 		EnumGuiType gui = EnumGuiType.values()[ID];
-		return this.getContainer(gui, player, x, y, z, npc);
+		return getContainer(gui, player, x, y, z, npc);
 	}
 
 	public void load() {

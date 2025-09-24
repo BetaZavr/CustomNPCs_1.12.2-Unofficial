@@ -70,6 +70,7 @@ public enum EnumGuiType
 	CustomContainer,
 	DeadInventory,
 	QuestLog,
-	CreationParts
+	CreationParts,
+	PermissionsEdit
 
 }

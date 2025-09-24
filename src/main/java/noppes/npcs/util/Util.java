@@ -17,7 +17,6 @@ import java.util.zip.ZipFile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.net.ssl.SSLHandshakeException;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -25,7 +24,6 @@ import javax.script.ScriptException;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.nbt.*;
 import net.minecraft.pathfinding.Path;
@@ -40,14 +38,11 @@ import net.minecraft.command.CommandBase.CoordinateArg;
 import net.minecraft.command.CommandException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.EntitySenses;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
@@ -74,7 +69,6 @@ import noppes.npcs.api.util.IRayTraceResults;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.wrapper.NBTWrapper;
-import noppes.npcs.api.wrapper.data.DataBlock;
 import noppes.npcs.api.wrapper.data.DataElement;
 import noppes.npcs.controllers.ScriptController;
 import noppes.npcs.controllers.data.Availability;
@@ -86,7 +80,6 @@ import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.items.CustomArmor;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
-import noppes.npcs.reflection.entity.ai.EntitySensesReflection;
 import noppes.npcs.reflection.nbt.TagLongArrayReflection;
 import noppes.npcs.reflection.world.WorldReflection;
 import org.apache.commons.io.IOUtils;
@@ -110,27 +103,19 @@ public class Util implements IMethods {
 	public static final ResourceLocation RECIPE_BOOK = new ResourceLocation("textures/gui/recipe_book.png");
 
 	public boolean canAddItemAfterRemoveItems(NonNullList<ItemStack> inventory, ItemStack addStack, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
-		if (inventory == null || addStack.isEmpty()) {
-			return false;
-		}
+		if (inventory == null || addStack.isEmpty()) { return false; }
 		NonNullList<ItemStack> inv = NonNullList.withSize(inventory.size(), ItemStack.EMPTY);
 		for (int i = 0; i < inventory.size(); ++i) {
-			if (NoppesUtilServer.IsItemStackNull(inventory.get(i))) {
-				continue;
-			}
+			if (NoppesUtilServer.IsItemStackNull(inventory.get(i))) { continue; }
 			inv.set(i, inventory.get(i).copy());
 		}
 		if (items != null && !items.isEmpty()) {
 			for (ItemStack stack : items.keySet()) {
-				if (NoppesUtilServer.IsItemStackNull(stack)) {
-					continue;
-				}
+				if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
 				int count = items.get(stack);
 				for (int i = 0; i < inv.size(); ++i) {
 					ItemStack is = inv.get(i);
-					if (NoppesUtilServer.IsItemStackNull(is)) {
-						continue;
-					}
+					if (NoppesUtilServer.IsItemStackNull(is)) { continue; }
 					if (NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
 						if (count < is.getCount()) {
 							is.splitStack(count);
@@ -140,37 +125,27 @@ public class Util implements IMethods {
 							count -= is.getCount();
 							inv.set(i, ItemStack.EMPTY);
 						}
-						if (count <= 0) {
-							break;
-						}
+						if (count <= 0) { break; }
 					}
 				}
 			}
 		}
         for (ItemStack itemStack : inv) {
-            if (itemStack.isEmpty() || NoppesUtilPlayer.compareItems(addStack, itemStack, ignoreDamage, ignoreNBT)) {
-                return true;
-            }
+            if (itemStack.isEmpty() || NoppesUtilPlayer.compareItems(addStack, itemStack, ignoreDamage, ignoreNBT)) { return true; }
         }
 		return false;
 	}
 
 	public boolean canRemoveItems(Map<ItemStack, Integer> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
-		if (inventory == null || items == null || items.isEmpty()) {
-			return false;
-		}
+		if (inventory == null || items == null || items.isEmpty()) { return false; }
 		for (ItemStack stack : items.keySet()) {
 			int count = items.get(stack);
 			if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
 			for (ItemStack is : inventory.keySet()) {
-				if (!NoppesUtilServer.IsItemStackNull(is) && NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) {
-					count -= inventory.get(is);
-				}
+				if (!NoppesUtilServer.IsItemStackNull(is) && NoppesUtilPlayer.compareItems(stack, is, ignoreDamage, ignoreNBT)) { count -= inventory.get(is); }
 				if (count <= 0) { break; }
 			}
-			if (count > 0) {
-				return false;
-			}
+			if (count > 0) { return false; }
 		}
 		return true;
 	}
@@ -185,45 +160,23 @@ public class Util implements IMethods {
 	}
 
 	public boolean canRemoveItems(NonNullList<ItemStack> inventory, Map<ItemStack, Integer> items, boolean ignoreDamage, boolean ignoreNBT) {
-		if (inventory == null) {
-			return false;
-		}
-		if (items == null || items.isEmpty()) {
-			return true;
-		}
+		if (inventory == null) { return false; }
+		if (items == null || items.isEmpty()) { return true; }
 		Map<ItemStack, Integer> inv = new HashMap<>();
         for (ItemStack stack : inventory) {
-            if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) {
-                continue;
-            }
+            if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) { continue; }
             boolean found = false;
             for (ItemStack st : inv.keySet()) {
-                if (NoppesUtilServer.IsItemStackNull(st) || st.isEmpty()) {
-                    continue;
-                }
+                if (NoppesUtilServer.IsItemStackNull(st) || st.isEmpty()) { continue; }
                 if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
                     inv.put(st, inv.get(st) + stack.getCount());
                     found = true;
                     break;
                 }
             }
-            if (!found) {
-                inv.put(stack, stack.getCount());
-            }
+            if (!found) { inv.put(stack, stack.getCount()); }
         }
 		return this.canRemoveItems(inv, items, ignoreDamage, ignoreNBT);
-	}
-
-	public boolean containsDeleteColor(Set<String> set, String text, boolean ignoreCase) {
-		if (set == null || text == null) {
-			return false;
-		}
-		for (String str : set) {
-			if (this.equalsDeleteColor(str, text, ignoreCase)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public EntityNPCInterface copyToGUI(EntityNPCInterface npcParent, World world, boolean copyRotation) {
@@ -699,122 +652,6 @@ public class Util implements IMethods {
 			}
 		}
 		return count;
-	}
-
-	@SuppressWarnings("all")
-	public boolean npcCanSeeTarget(EntityLivingBase entity, EntityLivingBase target, boolean toShoot, boolean directLOS) {
-		if (entity == null || target == null) { return false; }
-		try {
-			IAttributeInstance follow_range = entity.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-			double aggroRange = follow_range == null ? 32.0d : follow_range.getAttributeValue();
-			if (entity.isPlayerSleeping()) { aggroRange /= 4.0d; }
-			if (aggroRange < 1.0d) { aggroRange = 1.0d; }
-			IRayTraceRotate rtr = Util.instance.getAngles3D(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ, target.posX, target.posY + target.getEyeHeight(), target.posZ);
-			List<Entity> seenEntities = null;
-			List<Entity> unseenEntities = null;
-			if (entity instanceof EntityLiving) {
-				EntitySenses senses = ((EntityLiving) entity).getEntitySenses();
-				if (senses != null) {
-					seenEntities = EntitySensesReflection.getSeenEntities(senses);
-					unseenEntities = EntitySensesReflection.getUnseenEntities(senses);
-				}
-			}
-			if (rtr == null || rtr.getDistance() > aggroRange) {
-				if (seenEntities != null) {
-					seenEntities.remove(target);
-				}
-				if (unseenEntities != null && !unseenEntities.contains(target)) {
-					unseenEntities.add(target);
-				}
-				return false;
-			}
-			IRayTraceResults rtrs = Util.instance.rayTraceBlocksAndEntitys(entity, rtr.getYaw(), rtr.getPitch(), rtr.getDistance());
-			if (rtrs != null) {
-				if (toShoot && rtrs.getEntitys().length > 0) {
-					double d = Util.instance.distanceTo(entity, target);
-					for (IEntity<?> ei : rtrs.getEntitys()) {
-						if (d > Util.instance.distanceTo(entity, ei.getMCEntity())) {
-							if (seenEntities != null) {
-								seenEntities.remove(target);
-							}
-							if (unseenEntities != null && !unseenEntities.contains(target)) {
-								unseenEntities.add(target);
-							}
-							return false;
-						}
-					}
-				}
-				boolean shoot = toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).stats.ranged.getFireType() != 2);
-				for (DataBlock db : rtrs.getMCBlocks()) {
-					if (shoot && !db.state.getBlock().isPassable(entity.world, db.pos)) {
-						if (seenEntities != null) {
-							seenEntities.remove(target);
-						}
-						if (unseenEntities != null && !unseenEntities.contains(target)) {
-							unseenEntities.add(target);
-						}
-						return false;
-					} else if (db.state.getBlock().isOpaqueCube(entity.world.getBlockState(db.pos))) {
-						if (seenEntities != null) {
-							seenEntities.remove(target);
-						}
-						if (unseenEntities != null && !unseenEntities.contains(target)) {
-							unseenEntities.add(target);
-						}
-						return false;
-					}
-				}
-				rtrs.clear();
-			}
-			if (directLOS && !toShoot && (!(entity instanceof EntityNPCInterface) || ((EntityNPCInterface) entity).ais.directLOS)) {
-				double yaw = (entity.rotationYawHead - rtr.getYaw()) % 360.0d;
-				double pitch = (entity.rotationPitch - rtr.getPitch()) % 360.0d;
-				while (yaw < 0.0d) { yaw += 360.0d; }
-				if ((yaw > 60.0d && yaw < 300.0d) || pitch > 60.0d || pitch < -60.0d) {
-					if (seenEntities != null) { seenEntities.remove(target); }
-					if (unseenEntities != null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
-					return false;
-				}
-			}
-			int invisible = 1 + (!target.isPotionActive(MobEffects.INVISIBILITY) ? -1 : Objects.requireNonNull(target.getActivePotionEffect(MobEffects.INVISIBILITY)).getAmplifier());
-			final double chance = getChance(invisible, rtr, aggroRange);
-			boolean canSee = chance > Math.random();
-			if (canSee) {
-				if (seenEntities != null && !seenEntities.contains(target)) { seenEntities.add(target); }
-				if (unseenEntities != null) { unseenEntities.remove(target); }
-			}
-			else {
-				if (seenEntities != null) { seenEntities.remove(target); }
-				if (unseenEntities != null && !unseenEntities.contains(target)) { unseenEntities.add(target); }
-			}
-			return canSee;
-		}
-		catch (Exception e) { }
-		return false;
-	}
-
-	private double getChance(int invisible, IRayTraceRotate rtr, double aggroRange) {
-		double chance = invisible == 0 ? 1.0d : -0.00026d * Math.pow(invisible, 3.0d) + 0.00489d * Math.pow(invisible, 2.0d) - 0.03166 * (double) invisible + 0.08d;
-		if (chance > 1.0d) {
-			chance = 1.0d;
-		}
-		if (chance < 0.002d) {
-			chance = 0.002d;
-		}
-		if (chance != 1.0d) {
-			chance *= -1.0d * (rtr.getDistance() / aggroRange) + 1.0d;
-		} // distance
-		if (chance != 1.0d) {
-			chance *= 0.3d;
-		} // is sneaks
-
-		if (chance > 1.0d) {
-			chance = 1.0d;
-		}
-		if (chance < 0.0005d) {
-			chance = 0.0005d;
-		}
-		return chance;
 	}
 
 	/** Correct deletion of folders */
@@ -1501,9 +1338,13 @@ public class Util implements IMethods {
 		else if (tag instanceof NBTTagIntArray) { return ((NBTTagIntArray) tag).getIntArray(); }
 		else if (tag instanceof NBTTagLongArray) { return TagLongArrayReflection.getData((NBTTagLongArray) tag); }
 		else if (tag instanceof NBTTagList) {
-			List<Object> list = new ArrayList<>();
-			for (NBTBase listTag : (NBTTagList) tag) { list.add(readObjectFromNbt(listTag)); }
-			return list.toArray();
+			Object[] arr = new Object[((NBTTagList) tag).tagCount()];
+			int i = 0;
+			for (NBTBase listTag : (NBTTagList) tag) {
+				arr[i] = readObjectFromNbt(listTag);
+				i++;
+			}
+			return arr;
 		}
 		LogWriter.warn("Not read tag: \""+tag+"\" to Object");
 		return null;
@@ -1840,12 +1681,8 @@ public class Util implements IMethods {
 		if (translationLanguageKey == null || translationLanguageKey.isEmpty() || originalText == null || originalText.isEmpty()) { return originalText; }
 		if (textLanguageKey == null || textLanguageKey.isEmpty()) { textLanguageKey = "auto"; }
 		String key = textLanguageKey+"_"+translationLanguageKey+"_"+originalText;
-		if (translateDate.containsKey(key)) {
-			return translateDate.get(key);
-		}
-		if (!hasInternet) {
-			return originalText;
-		}
+		if (translateDate.containsKey(key)) { return translateDate.get(key); }
+		if (!hasInternet) { return originalText; }
 		if (originalText.length() <= 5000) {
 			translateDate.put(key, translate(textLanguageKey, translationLanguageKey, originalText));
 			return translateDate.get(key);
@@ -1886,38 +1723,36 @@ public class Util implements IMethods {
 	}
 
 	private String translate(String textLanguageKey, String translationLanguageKey, String originalText) {
+		if (!hasInternet) { return originalText; }
 		try {
-			URLConnection connection = new URL("https://translate.google.com/translate_a/single?client=gtx&sl=" + textLanguageKey + "&tl=" + translationLanguageKey + "&dt=t&q=" + URLEncoder.encode(originalText, "UTF-8")).openConnection();
-			// Sending a GET request instead of POST
+			URLConnection connection = new URL(String.format("https://translate.google.com/translate_a/single?client=gtx&sl=%s&tl=%s&dt=t&q=%s", textLanguageKey, translationLanguageKey,
+					URLEncoder.encode(originalText, String.valueOf(StandardCharsets.UTF_8)))).openConnection();
 			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			connection.setRequestProperty("User-Agent", "Chrome/99.0.4844.51");
 			connection.setConnectTimeout(10000);
-			connection.setReadTimeout(10000);
-			// Read returned
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+			// Читаем текст с явным указанием кодировки
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
 			StringBuilder text = new StringBuilder();
 			String line;
-			while ((line = reader.readLine()) != null) { text.append(line).append("\n"); }
-			reader.close();
-			// Remove all empty values from JSON string
-			String json = text.toString().replaceAll("\\s*,\\s*null,\\s*", ",").replaceAll(",null", "").replaceAll("null", "");
-			// Convert a JSON string to an array of objects
-			JsonParser parser = new JsonParser();
-			JsonElement jsonElement = parser.parse(json);
-			JsonArray array = jsonElement.getAsJsonArray();
-			hasInternet = true;
-			// Do not change the original text if the languages are the same
-			if (textLanguageKey.equals("auto") && array.get(2) != null && array.get(2).getAsString().equals(translationLanguageKey)) {
-				return originalText;
+			while ((line = reader.readLine()) != null) {
+				text.append(line).append("\n");
 			}
-			// Extract translation
-			return array.get(0).getAsJsonArray().get(0).getAsJsonArray().get(0).getAsString();
-		}
-		catch (SocketTimeoutException | SSLHandshakeException se) {
+			reader.close();
+
+			Gson gson = new Gson();
+			JsonElement element = gson.fromJson(text.toString(), JsonElement.class);
+			JsonArray outerArray = element.getAsJsonArray();
+			JsonArray innerArray = outerArray.get(0).getAsJsonArray();
+			JsonArray firstPair = innerArray.get(0).getAsJsonArray();
+			String translatedText = firstPair.get(0).getAsString();
+
+			hasInternet = true;
+			return translatedText;
+		} catch (SocketTimeoutException se) {
 			hasInternet = false;
 			LogWriter.error("Error: No internet connection", se);
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LogWriter.error("Error trying to translate via Google", e);
 		}
 		return originalText;

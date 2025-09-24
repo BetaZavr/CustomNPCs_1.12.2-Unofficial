@@ -9,8 +9,7 @@ import noppes.npcs.api.handler.capability.IMarkDataHandler;
 public class MarkDataStorage implements Capability.IStorage<IMarkDataHandler> {
 
 	@Override
-	public void readNBT(Capability<IMarkDataHandler> capability, IMarkDataHandler instance, EnumFacing side,
-			NBTBase nbt) {
+	public void readNBT(Capability<IMarkDataHandler> capability, IMarkDataHandler instance, EnumFacing side, NBTBase nbt) {
 		instance.setNBT((NBTTagCompound) nbt);
 	}
 

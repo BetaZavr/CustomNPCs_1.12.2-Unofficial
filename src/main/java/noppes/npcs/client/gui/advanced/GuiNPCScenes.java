@@ -12,72 +12,69 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.entity.data.DataScenes;
 
-public class GuiNPCScenes
-extends GuiNPCInterface2
-implements ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	private DataScenes.SceneContainer scene;
-	private final DataScenes scenes;
+public class GuiNPCScenes extends GuiNPCInterface2 {
+
+	protected final DataScenes scenes;
+	protected DataScenes.SceneContainer scene;
 
 	public GuiNPCScenes(EntityNPCInterface npc) {
 		super(npc);
-		this.scenes = npc.advanced.scenes;
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
+
+		scenes = npc.advanced.scenes;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		if (button.getID() < 60) {
-			DataScenes.SceneContainer scene = this.scenes.scenes.get(button.getID() / 10);
+			DataScenes.SceneContainer sceneIn = scenes.scenes.get(button.getID() / 10);
 			if (button.getID() % 10 == 1) {
-				scene.enabled = button.getValue() == 1;
+				sceneIn.enabled = button.getValue() == 1;
 			}
 			if (button.getID() % 10 == 2) {
-				this.scene = scene;
-				this.setSubGui(new SubGuiNpcTextArea(scene.lines));
+				scene = sceneIn;
+				setSubGui(new SubGuiNpcTextArea(0, sceneIn.lines));
 			}
 			if (button.getID() % 10 == 3) {
-				this.scenes.scenes.remove(scene);
-				this.initGui();
+				scenes.scenes.remove(sceneIn);
+				initGui();
 			}
 			if (button.getID() % 10 == 4) {
 				scene.btn = button.getValue();
-				this.initGui();
+				initGui();
 			}
 		}
 		if (button.getID() == 101) {
-			this.scenes.addScene(this.getTextField(101).getFullText());
-			this.initGui();
+			scenes.addScene(getTextField(101).getText());
+			initGui();
 		}
-	}
-
-	@Override
-	public void close() {
-		this.save();
-		CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
-			this.scene.lines = ((SubGuiNpcTextArea) gui).text;
-			this.scene = null;
+			scene.lines = ((SubGuiNpcTextArea) gui).text;
+			scene = null;
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addLabel(new GuiNpcLabel(102, "gui.button", this.guiLeft + 236, this.guiTop + 4));
-		int y = this.guiTop + 14;
-		for (int i = 0; i < this.scenes.scenes.size(); ++i) {
-			DataScenes.SceneContainer scene = this.scenes.scenes.get(i);
-			this.addLabel(new GuiNpcLabel(i * 10, scene.name, this.guiLeft + 10, y + 5));
-			this.addButton(new GuiNpcButton(1 + i * 10, this.guiLeft + 120, y, 60, 20,
-					new String[] { "gui.disabled", "gui.enabled" }, (scene.enabled ? 1 : 0)));
-			this.addButton(new GuiNpcButton(2 + i * 10, this.guiLeft + 181, y, 50, 20, "selectServer.edit"));
-			this.addButton(new GuiNpcButton(3 + i * 10, this.guiLeft + 293, y, 50, 20, "X"));
+		addLabel(new GuiNpcLabel(102, "gui.button", guiLeft + 236, guiTop + 4));
+		int y = guiTop + 14;
+		for (int i = 0; i < scenes.scenes.size(); ++i) {
+			DataScenes.SceneContainer scene = scenes.scenes.get(i);
+			addLabel(new GuiNpcLabel(i * 10, scene.name, guiLeft + 10, y + 5));
+			addButton(new GuiNpcButton(1 + i * 10, guiLeft + 120, y, 60, 20, new String[] { "gui.disabled", "gui.enabled" }, (scene.enabled ? 1 : 0)));
+			addButton(new GuiNpcButton(2 + i * 10, guiLeft + 181, y, 50, 20, "selectServer.edit"));
+			addButton(new GuiNpcButton(3 + i * 10, guiLeft + 293, y, 50, 20, "X"));
 			if (CustomNpcs.SceneButtonsEnabled) {
-				this.addButton(new GuiNpcButton(4 + i * 10, this.guiLeft + 232, y, 60, 20,
+				addButton(new GuiNpcButton(4 + i * 10, guiLeft + 232, y, 60, 20,
 						new String[] { "gui.none", GameSettings.getKeyDisplayString(ClientProxy.Scene1.getKeyCode()),
 								GameSettings.getKeyDisplayString(ClientProxy.Scene2.getKeyCode()),
 								GameSettings.getKeyDisplayString(ClientProxy.Scene3.getKeyCode()) },
@@ -85,24 +82,13 @@ implements ISubGuiListener {
 			}
 			y += 22;
 		}
-		if (this.scenes.scenes.size() < 6) {
-			this.addTextField(new GuiNpcTextField(101, this, this.guiLeft + 4, y + 10, 190, 20,
-					"Scene" + (this.scenes.scenes.size() + 1)));
-			this.addButton(new GuiNpcButton(101, this.guiLeft + 204, y + 10, 60, 20, "gui.add"));
+		if (scenes.scenes.size() < 6) {
+			addTextField(new GuiNpcTextField(101, this, guiLeft + 4, y + 10, 190, 20, "Scene" + (scenes.scenes.size() + 1)));
+			addButton(new GuiNpcButton(101, guiLeft + 204, y + 10, 60, 20, "gui.add"));
 		}
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuAdvanced);
-		}
-		super.keyTyped(c, i);
-	}
+	public void save() { Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.save(new NBTTagCompound())); }
 
-	@Override
-	public void save() {
-		Client.sendData(EnumPacketServer.MainmenuAdvancedSave, this.npc.advanced.save(new NBTTagCompound()));
-	}
 }

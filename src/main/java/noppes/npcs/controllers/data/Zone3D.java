@@ -8,6 +8,7 @@ import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagIntArray;
@@ -29,12 +30,14 @@ import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.api.wrapper.BlockPosWrapper;
 import noppes.npcs.controllers.BorderController;
+import noppes.npcs.controllers.PlayerQuestController;
+import noppes.npcs.controllers.QuestController;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
 public class Zone3D implements IBorder, Predicate<Entity> {
 
-	private static class AntiLagTime {
+	protected static class AntiLagTime {
 		private int count;
 		private long time;
 		private BlockPos pos;
@@ -60,17 +63,23 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			return count > 50;
 		}
 	}
-	private int id = -1;
-	public String name = "Default Region";
+
+	protected final Map<Entity, AntiLagTime> playerAntiLag = new HashMap<>();
+	protected final List<Entity> entitiesWithinRegion = new ArrayList<>();
+	protected final List<float[][]> triangleList = new ArrayList<>();
+	protected final List<float[]> contourLines = new ArrayList<>();
+	protected int id = -1;
+
 	public final TreeMap<Integer, Point> points = new TreeMap<>();
+	public String name = "Default Region";
 	public int[] y = new int[] { 0, 255 };
 	public int dimensionID = 0;
 
 	public int color;
 	public Availability availability;
 	public String message; // kick message
-	private final List<Entity> entitiesWithinRegion = new ArrayList<>();
-	private final Map<Entity, AntiLagTime> playerAntiLag = new HashMap<>();
+	public int questID;
+	public boolean questWhenEnter = true;
 	public IPos homePos;
 	public boolean keepOut;
 	public boolean showInClient;
@@ -322,7 +331,65 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			points.putAll(newPoints);
 		}
 		getHomePos();
+		triangleList.clear();
+		List<Point> allPoints = new ArrayList<>(points.values());
+		boolean forward;
+		Point p0, p1;
+		while (allPoints.size() > 2) {
+			if (allPoints.size() == 3) {
+				triangleList.add(getTriangles(allPoints.get(0), allPoints.get(1), allPoints.get(2)));
+				break;
+			}
+			p0 = allPoints.get(0);
+			p1 = allPoints.get(2);
+			double x = (double) (p0.x + p1.x) / 2.0d;
+			double z = (double) (p0.y + p1.y) / 2.0d;
+			forward = !contains(x, getMinY(), z, 0);
+			if (forward) {
+				p0 = allPoints.get(0);
+				triangleList.add(getTriangles(allPoints.get(1), p0, allPoints.get(allPoints.size() - 1)));
+				Collections.swap(allPoints, 0, allPoints.size() - 1);
+				allPoints.remove(p0);
+			} else {
+				p0 = allPoints.get(1);
+				triangleList.add(getTriangles(allPoints.get(0), p0, allPoints.get(2)));
+				allPoints.remove(p0);
+			}
+		}
+		contourLines.clear();
+		for (float[][] tri : triangleList) {
+			for (i = 0; i < 3; i++) {
+				float f0 = tri[i][0];
+				float f1 = tri[i][1];
+				float f2 = tri[i == 2 ? 0 : i + 1][0];
+				float f3 = tri[i == 2 ? 0 : i + 1][1];
+				boolean has = false;
+				for (float[] cl : contourLines) {
+					if ((cl[0] == f0 && cl[1] == f1 && cl[2] == f2 && cl[3] == f3) ||
+							(cl[0] == f2 && cl[1] == f3 && cl[2] == f0 && cl[3] == f1)) {
+						has = true;
+						break;
+					}
+				}
+				if (!has) { contourLines.add(new float[] { f0, f1, f2, f3 }); }
+			}
+		}
 	}
+
+	private float[][] getTriangles(Point p0, Point p1, Point p2) {
+		float[][] fls = new float[3][2];
+		fls[0][0] = p0.x;
+		fls[0][1] = p0.y;
+		fls[1][0] = p1.x;
+		fls[1][1] = p1.y;
+		fls[2][0] = p2.x;
+		fls[2][1] = p2.y;
+		return fls;
+	}
+
+	public List<float[][]> getTriangleList() { return triangleList; }
+
+	public List<float[]> getContourLines() { return contourLines; }
 
 	@Override
 	public IAvailability getAvailability() {
@@ -347,24 +414,21 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public int getClosestPoint(Point point, IPos pos) {
-		if (points.isEmpty()) {
-			return -1;
-		}
-		if (points.size() == 1) {
-			return 0;
-		}
+	public int getClosestPoint(Point point, IPos pos) { return getClosestPoint(point, pos.getX(), pos.getZ()); }
+
+	public int getClosestPoint(Point point, double x, double z) {
+		if (points.isEmpty()) { return -1; }
+		if (points.size() == 1) { return 0; }
 		int n = 0;
-		Point entPoint = new Point((int) pos.getX(), (int) pos.getZ());
 		double dm0 = points.get(0).distance(point);
 		double dm1 = points.get(1).distance(point);
-		double dm2 = points.get(0).distance(entPoint);
-		double dm3 = points.get(1).distance(entPoint);
+		double dm2 = points.get(0).distance(x, z);
+		double dm3 = points.get(1).distance(x, z);
 		for (int p = 0; (p + 1) < points.size(); p++) {
 			double d0 = points.get(p).distance(point);
 			double d1 = points.get(p + 1).distance(point);
-			double d2 = points.get(p).distance(entPoint);
-			double d3 = points.get(p + 1).distance(entPoint);
+			double d2 = points.get(p).distance(x, z);
+			double d3 = points.get(p + 1).distance(x, z);
 			if (dm0 + dm1 + dm2 + dm3 > d0 + d1 + d2 + d3) {
 				dm0 = d0;
 				dm1 = d1;
@@ -375,28 +439,23 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		double d0 = points.get(0).distance(point);
 		double d1 = points.get(points.size() - 1).distance(point);
-		double d2 = points.get(0).distance(entPoint);
-		double d3 = points.get(points.size() - 1).distance(entPoint);
-		if (dm0 + dm1 + dm2 + dm3 > d0 + d1 + d2 + d3) {
-			n = points.size() - 1;
-		}
+		double d2 = points.get(0).distance(x, z);
+		double d3 = points.get(points.size() - 1).distance(x, z);
+		if (dm0 + dm1 + dm2 + dm3 > d0 + d1 + d2 + d3) { n = points.size() - 1; }
 		return n;
 	}
 
 	@Override
-	public Point[] getClosestPoints(Point point, IPos pos) {
+	public Point[] getClosestPoints(Point point, IPos pos) { return getClosestPoints(point, pos.getX(), pos.getZ()); }
+
+	public Point[] getClosestPoints(Point point, double x, double z) {
 		Point[] ps = new Point[2];
 		ps[0] = null;
 		ps[1] = null;
-		int n = getClosestPoint(point, pos);
-		if (points.containsKey(n)) {
-			ps[0] = points.get(n);
-		}
-		if (points.containsKey(n + 1)) {
-			ps[1] = points.get(n + 1);
-		} else if (n == points.size() - 1) {
-			ps[1] = points.get(0);
-		}
+		int n = getClosestPoint(point, x, z);
+		if (points.containsKey(n)) { ps[0] = points.get(n); }
+		if (points.containsKey(n + 1)) { ps[1] = points.get(n + 1); }
+		else if (n == points.size() - 1) { ps[1] = points.get(0); }
 		return ps;
 	}
 
@@ -504,9 +563,19 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public String getMessage() {
-		return message;
-	}
+	public String getMessage() { return message; }
+
+	@Override
+	public int getQuestID() { return questID; }
+
+	@Override
+	public void setQuestID(int id) { questID = ValueUtil.correctInt(id, 0, Integer.MAX_VALUE); }
+
+	@Override
+	public boolean isQuestWhenEnter() { return questWhenEnter; }
+
+	@Override
+	public void setIsQuestWhenEnter(boolean bo) { questWhenEnter = bo; }
 
 	@Override
 	public int getMinX() {
@@ -686,6 +755,9 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		}
 		availability.load(nbtRegion.getCompoundTag("Availability"));
 		message = nbtRegion.getString("Message");
+
+		questID = nbtRegion.getInteger("QuestID");
+		questWhenEnter = nbtRegion.getBoolean("QuestWhenEnter");
 
 		if (nbtRegion.hasKey("HomePos", 4)) {
 			BlockPos pos = BlockPos.fromLong(nbtRegion.getLong("HomePos"));
@@ -906,9 +978,7 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public void update() {
-		update = true;
-	}
+	public void update() { update = true; }
 
 	public void update(WorldServer world) {
 		if (update) {
@@ -916,11 +986,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			playerAntiLag.clear();
 			BorderController.getInstance().update(id);
 			update = false;
-			return;
 		}
-		if (points.isEmpty() || dimensionID != world.provider.getDimension()) {
-			return;
-		}
+		if (points.isEmpty() || dimensionID != world.provider.getDimension()) { return; }
 		List<Entity> entities = new ArrayList<>();
 		try {
 			entities = world.getEntitiesWithinAABB(Entity.class, getAxisAlignedBB().grow(1.0d), this);
@@ -931,6 +998,10 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 				if (tryEntityEnter(entity)) { continue; }
 				entitiesWithinRegion.add(entity);
 				MinecraftForge.EVENT_BUS.post(new ForgeEvent.EnterToRegion(entity, this));
+				if (questID > 0 && questWhenEnter && entity instanceof EntityPlayer) {
+					Quest quest = QuestController.instance.get(questID);
+					if (quest != null) { PlayerQuestController.addActiveQuest(quest, (EntityPlayer) entity, false); }
+				}
 			}
 		}
 		List<Entity> del = new ArrayList<>();
@@ -941,6 +1012,10 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 			entitiesWithinRegion.remove(entity);
 			playerAntiLag.remove(entity);
 			MinecraftForge.EVENT_BUS.post(new ForgeEvent.LeaveRegion(entity, this));
+			if (questID > 0 && !questWhenEnter && entity instanceof EntityPlayer) {
+				Quest quest = QuestController.instance.get(questID);
+				if (quest != null) { PlayerQuestController.addActiveQuest(quest, (EntityPlayer) entity, false); }
+			}
 		}
 	}
 
@@ -993,6 +1068,10 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 		nbtRegion.setTag("Availability", availability.save(new NBTTagCompound()));
 		nbtRegion.setString("Message", message);
 
+		nbtRegion.setInteger("QuestID", questID);
+		nbtRegion.setBoolean("QuestWhenEnter", questWhenEnter);
+
+		if (homePos == null) { homePos = getCenter(); }
 		nbtRegion.setLong("HomePos", homePos.getMCBlockPos().toLong());
 		nbtRegion.setBoolean("IsKeepOut", keepOut);
 		nbtRegion.setBoolean("ShowInClient", showInClient);

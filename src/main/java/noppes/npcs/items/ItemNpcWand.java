@@ -10,6 +10,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -59,15 +60,14 @@ public class ItemNpcWand extends Item implements IPermission, INPCToolItem {
 
 	public @Nonnull ActionResult<ItemStack> onItemRightClick(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull EnumHand hand) {
 		ItemStack itemstack = player.getHeldItem(hand);
-		if (!world.isRemote) {
-			return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
-		}
+		if (!world.isRemote) { return new ActionResult<>(EnumActionResult.SUCCESS, itemstack); }
 		CustomNpcs.proxy.openGui(0, 0, 0, EnumGuiType.NpcRemote, player);
 		return new ActionResult<>(EnumActionResult.SUCCESS, itemstack);
 	}
 
-	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
+	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer playerIn, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (world.isRemote) { return EnumActionResult.SUCCESS; }
+		EntityPlayerMP player = (EntityPlayerMP) playerIn;
 		if (CustomNpcs.OpsOnly && !Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile())) {
 			player.sendMessage(new TextComponentTranslation("availability.permission"));
 		} else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_CREATE)) {

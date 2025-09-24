@@ -13,32 +13,31 @@ import noppes.npcs.client.ClientProxy;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
-import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCFollowerHire;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.Util;
 
-public class GuiNpcFollowerHire
-extends GuiContainerNPCInterface {
+import javax.annotation.Nonnull;
 
-	private final RoleFollower role;
-	public ContainerNPCFollowerHire container;
+public class GuiNpcFollowerHire extends GuiContainerNPCInterface {
+
+	protected final RoleFollower role;
 
 	public GuiNpcFollowerHire(EntityNPCInterface npc, ContainerNPCFollowerHire cont) {
 		super(npc, cont);
-		closeOnEsc = true;
-		container = cont;
 		setBackground("followerhire.png");
+		closeOnEsc = true;
 
 		role = (RoleFollower) npc.advanced.roleInterface;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerHire, button.getID());
-		close();
+		onClosed();
 	}
 
 	@Override
@@ -49,9 +48,7 @@ extends GuiContainerNPCInterface {
 			ItemStack itemstack = role.rentalItems.items.get(slot);
 			if (!NoppesUtilServer.IsItemStackNull(itemstack)) {
 				int days = 1;
-				if (role.rates.containsKey(slot)) {
-					days = role.rates.get(slot);
-				}
+				if (role.rates.containsKey(slot)) { days = role.rates.get(slot); }
 				int yOffset = index * 18;
 				int x = guiLeft + 78;
 				int y = guiTop + yOffset + 10;
@@ -85,10 +82,10 @@ extends GuiContainerNPCInterface {
 			if (getButton(i) == null) {
 				continue;
 			}
-			getButton(i).setEnabled(mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(mc.player.inventory.mainInventory, role.rentalItems.getStackInSlot(i), false, false));
+			getButton(i).setIsEnable(mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(mc.player.inventory.mainInventory, role.rentalItems.getStackInSlot(i), false, false));
 		}
 		if (getButton(3) != null) {
-			getButton(3).setEnabled(mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= role.rentalMoney);
+			getButton(3).setIsEnable(mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= role.rentalMoney);
 		}
 		for (int i = 0; i < 4; ++i) {
 			if (getButton(i) != null && getButton(i).isHovered()) {
@@ -101,7 +98,7 @@ extends GuiContainerNPCInterface {
 					mes.appendSibling(new TextComponentString("<br>" + ((char) 167) + "7"));
 					mes.appendSibling(new TextComponentTranslation("follower.hover.infinite"));
 				}
-				setHoverText(mes.getFormattedText());
+				putHoverText(mes.getFormattedText());
 			}
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);

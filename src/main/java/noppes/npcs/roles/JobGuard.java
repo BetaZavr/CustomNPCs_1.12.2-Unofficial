@@ -72,7 +72,7 @@ public class JobGuard extends JobInterface implements IJobGuard {
 
 	@Override
 	public NBTTagCompound save(NBTTagCompound compound) {
-		super.load(compound);
+		super.save(compound);
 		compound.setTag("GuardTargets", NBTTags.nbtStringList(targets));
 		return compound;
 	}

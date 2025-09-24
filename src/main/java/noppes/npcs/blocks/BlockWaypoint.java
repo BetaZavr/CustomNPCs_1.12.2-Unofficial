@@ -5,6 +5,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -69,7 +70,7 @@ implements IPermission {
 			return false;
 		}
 		ItemStack currentItem = player.inventory.getCurrentItem();
-		if (currentItem.getItem() == CustomRegisters.wand && CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.EDIT_BLOCKS)) {
+		if (currentItem.getItem() == CustomRegisters.wand && CustomNpcsPermissions.hasPermission((EntityPlayerMP) player, CustomNpcsPermissions.EDIT_BLOCKS)) {
 			NoppesUtilServer.sendOpenGui(player, EnumGuiType.Waypoint, null, pos.getX(), pos.getY(), pos.getZ());
 			return true;
 		}

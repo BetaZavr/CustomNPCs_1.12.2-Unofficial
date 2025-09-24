@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockDoor;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.dispenser.BehaviorDefaultDispenseItem;
@@ -926,10 +925,10 @@ public class CustomRegisters {
 	@SubscribeEvent
 	public void registerModels(ModelRegistryEvent event) {
 		// Blocks
-		ModelLoader.setCustomStateMapper(CustomRegisters.mailbox, new StateMap.Builder().ignore(new IProperty[] { BlockMailbox.ROTATION, BlockMailbox.TYPE }).build());
-		ModelLoader.setCustomStateMapper(CustomRegisters.scriptedDoor, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
-		ModelLoader.setCustomStateMapper(CustomRegisters.builder, new StateMap.Builder().ignore(new IProperty[] { BlockBuilder.ROTATION }).build());
-		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench, new StateMap.Builder().ignore(new IProperty[] { BlockCarpentryBench.ROTATION }).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.mailbox, new StateMap.Builder().ignore(BlockMailbox.ROTATION, BlockMailbox.TYPE).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.scriptedDoor, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.builder, new StateMap.Builder().ignore(BlockBuilder.ROTATION).build());
+		ModelLoader.setCustomStateMapper(CustomRegisters.carpentyBench, new StateMap.Builder().ignore(BlockCarpentryBench.ROTATION).build());
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(CustomRegisters.redstoneBlock), 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.redstoneBlock.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemMailbox, 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.mailbox.getRegistryName()), "inventory"));
 		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemMailbox, 1, new ModelResourceLocation(CustomRegisters.mailbox.getRegistryName(), "inventory"));
@@ -943,9 +942,9 @@ public class CustomRegisters {
 		ModelLoader.setCustomModelResourceLocation(CustomRegisters.itemCarpentyBench, 0, new ModelResourceLocation(Objects.requireNonNull(CustomRegisters.carpentyBench.getRegistryName()), "inventory"));
 		for (Block block : CustomRegisters.customblocks.keySet()) {
 			if (block instanceof CustomBlockPortal) {
-				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { CustomBlockPortal.TYPE }).build());
+				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(CustomBlockPortal.TYPE).build());
 			} else if (block instanceof CustomDoor) {
-				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(new IProperty[] { BlockDoor.POWERED }).build());
+				ModelLoader.setCustomStateMapper(block, new StateMap.Builder().ignore(BlockDoor.POWERED).build());
 			}
 			ModelLoader.setCustomModelResourceLocation(CustomRegisters.customblocks.get(block), 0, new ModelResourceLocation(Objects.requireNonNull(block.getRegistryName()), "inventory"));
 		}

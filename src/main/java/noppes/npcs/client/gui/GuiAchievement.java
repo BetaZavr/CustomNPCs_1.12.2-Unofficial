@@ -13,17 +13,18 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.awt.*;
 
 @SideOnly(Side.CLIENT)
-public class GuiAchievement
-implements IToast {
+public class GuiAchievement implements IToast {
 
-	private long firstDrawTime;
-	private boolean newDisplay;
-	private String subtitle;
-	private String title;
-	private final int type;
+	protected final int type;
+	protected boolean newDisplay;
+	protected long firstDrawTime;
+	protected String subtitle;
+	protected String title;
 
 	public GuiAchievement(ITextComponent titleComponent, ITextComponent subtitleComponent, int messageType) {
+		super();
 		title = titleComponent.getUnformattedText();
+
 		subtitle = ((subtitleComponent == null) ? null : subtitleComponent.getUnformattedText());
 		type = messageType;
 	}
@@ -52,4 +53,5 @@ implements IToast {
 		subtitle = ((subtitleComponent == null) ? null : subtitleComponent.getUnformattedText());
 		newDisplay = true;
 	}
+
 }

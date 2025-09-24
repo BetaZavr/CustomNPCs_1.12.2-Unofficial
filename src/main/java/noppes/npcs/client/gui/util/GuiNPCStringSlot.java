@@ -9,8 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiSlot;
 import noppes.npcs.util.NaturalOrderComparator;
 
-public class GuiNPCStringSlot
-extends GuiSlot {
+public class GuiNPCStringSlot extends GuiSlot {
 
 	private List<String> list;
 	private final boolean multiSelect;
@@ -37,19 +36,14 @@ extends GuiSlot {
 
 	protected void drawSlot(int i, int j, int k, int l, int var6, int var7, float partialTick) {
 		String s = list.get(i);
-		parent.drawString(parent.getFontRenderer(), s, j + 50, k + 3, 16777215);
+		parent.drawString(Minecraft.getMinecraft().fontRenderer, s, j + 50, k + 3, 16777215);
 	}
 
 	protected void elementClicked(int i, boolean flag, int j, int k) {
-		if (selected != null && selected.equals(list.get(i)) && flag) {
-			parent.doubleClicked();
-		}
+		if (selected != null && selected.equals(list.get(i)) && flag) { parent.doubleClicked(); }
 		selected = list.get(i);
-		if (selectedList.contains(selected)) {
-			selectedList.remove(selected);
-		} else {
-			selectedList.add(selected);
-		}
+		if (selectedList.contains(selected)) { selectedList.remove(selected); }
+		else { selectedList.add(selected); }
 		parent.elementClicked();
 	}
 
@@ -62,9 +56,7 @@ extends GuiSlot {
 	}
 
 	protected boolean isSelected(int i) {
-		if (!multiSelect) {
-			return selected != null && selected.equals(list.get(i));
-		}
+		if (!multiSelect) { return selected != null && selected.equals(list.get(i)); }
 		return selectedList.contains(list.get(i));
 	}
 
@@ -73,4 +65,5 @@ extends GuiSlot {
 		list = newList;
 		selected = "";
 	}
+
 }

@@ -26,9 +26,7 @@ import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
-import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.CustomNPCsScheduler;
 import noppes.npcs.util.IPermission;
 import noppes.npcs.util.Util;
 
@@ -59,15 +57,16 @@ public class ItemNpcScripter extends Item implements IPermission, INPCToolItem {
 				|| e == EnumPacketServer.ScriptClientGet || e == EnumPacketServer.ScriptClientSave;
 	}
 
-	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
+	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer playerIn, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (world.isRemote) { return EnumActionResult.SUCCESS; }
+		EntityPlayerMP player = (EntityPlayerMP) playerIn;
 		if (CustomNpcs.OpsOnly && !Objects.requireNonNull(player.getServer()).getPlayerList().canSendCommands(player.getGameProfile())) {
 			player.sendMessage(new TextComponentTranslation("availability.permission"));
 		} else if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.NPC_GUI)) {
 			Entity rayTraceEntity = Util.instance.getLookEntity(player, 4.0d, false);
 			if (rayTraceEntity instanceof EntityNPCInterface) {
 				NoppesUtilServer.setEditingNpc(player, (EntityNPCInterface) rayTraceEntity);
-				Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI, EnumGuiType.Script.ordinal(), 0, 0, 0);
+				Server.sendData(player, EnumPacketClient.GUI, EnumGuiType.Script.ordinal(), 0, 0, 0);
 				return EnumActionResult.FAIL;
 			}
 		} else {

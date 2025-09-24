@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTSizeTracker;
@@ -177,24 +178,31 @@ public class Server {
 					((MerchantRecipeList) ob).writeToBuf(new PacketBuffer(buffer));
 				}
 				else if (ob instanceof List) {
+					boolean bo = false;
 					try {
 						@SuppressWarnings("unchecked")
 						List<String> list = (List<String>) ob;
 						buffer.writeInt(list.size());
-						for (String s : list) {
-							writeString(buffer, s);
-						}
-					} catch (Exception ignore) {
+						for (String s : list) { writeString(buffer, s); }
+						bo = true;
+					} catch (Exception ignore) { }
+					if (!bo) {
 						try {
 							@SuppressWarnings("unchecked")
 							List<Integer> list = (List<Integer>) ob;
 							int[] a = new int[list.size()];
 							int j = 0;
-							for (int i : list) {
-								a[j] = i;
-								j++;
-							}
+							for (int i : list) { a[j] = i; j++; }
+							bo = true;
 							writeIntArray(buffer, a);
+						} catch (Exception ignored) { }
+					}
+					if (!bo) {
+						try {
+							@SuppressWarnings("unchecked")
+							List<ItemStack> list = (List<ItemStack>) ob;
+							buffer.writeInt(list.size());
+                            for (ItemStack itemStack : list) { writeNBT(buffer, itemStack.writeToNBT(new NBTTagCompound())); }
 						} catch (Exception ignored) { }
 					}
 				}

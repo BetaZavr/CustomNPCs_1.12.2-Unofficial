@@ -3,7 +3,6 @@ package noppes.npcs.client.gui.roles;
 import java.util.HashMap;
 
 import net.minecraft.nbt.NBTTagCompound;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcTextArea;
 import noppes.npcs.client.gui.util.*;
@@ -12,28 +11,31 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleDialog;
 
-public class GuiRoleDialog
-extends GuiNPCInterface2
-implements ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	private final RoleDialog role;
-	private int slot;
+public class GuiRoleDialog extends GuiNPCInterface2 {
+
+	protected final RoleDialog role;
+	protected int slot;
 
 	public GuiRoleDialog(EntityNPCInterface npc) {
 		super(npc);
+		closeOnEsc =true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
+
 		slot = 0;
 		role = (RoleDialog) npc.advanced.roleInterface;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() <= 6) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton == 1 && button.getID() <= 6) {
 			save();
 			slot = button.getID();
 			String text = role.dialog;
 			if (slot >= 1) { text = role.optionsTexts.get(slot); }
 			if (text == null) { text = ""; }
-			setSubGui(new SubGuiNpcTextArea(text));
+			setSubGui(new SubGuiNpcTextArea(0, text));
 		}
 	}
 
@@ -54,22 +56,11 @@ implements ISubGuiListener {
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-		}
-	}
-
-	@Override
 	public void save() {
 		HashMap<Integer, String> map = new HashMap<>();
 		for (int i = 1; i <= 6; ++i) {
-			String text = getTextField(i).getFullText();
-			if (!text.isEmpty()) {
-				map.put(i, text);
-			}
+			String text = getTextField(i).getText();
+			if (!text.isEmpty()) { map.put(i, text); }
 		}
 		role.options = map;
 		Client.sendData(EnumPacketServer.RoleSave, role.save(new NBTTagCompound()));
@@ -84,4 +75,5 @@ implements ISubGuiListener {
 			else { role.optionsTexts.put(slot, text.text); }
 		}
 	}
+
 }

@@ -4,132 +4,112 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.constants.GuiComponentType;
 import noppes.npcs.api.gui.ITexturedRect;
+import noppes.npcs.util.ValueUtil;
 
 public class CustomGuiTexturedRectWrapper extends CustomGuiComponentWrapper implements ITexturedRect {
 
-	float scale;
-	String texture;
-	int textureX, textureY, width, height, color;
+	protected String texture;
+	protected float scale = 1.0f;
+	protected int textureX;
+	protected int textureY = -1;
+	protected int width;
+	protected int height;
+	protected int color = 0xFFFFFFFF;
 
-	public CustomGuiTexturedRectWrapper() {
-		this.textureY = -1;
-		this.scale = 1.0f;
-		this.color = 0xFFFFFFFF;
-	}
+	public CustomGuiTexturedRectWrapper() { }
 
 	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height) {
-		this.textureY = -1;
-		this.scale = 1.0f;
-		this.color = 0xFFFFFFFF;
-		this.setId(id);
-		this.setTexture(texture);
-		this.setPos(x, y);
-		this.setSize(width, height);
+		setId(id);
+		setTexture(texture);
+		setPos(x, y);
+		setSize(width, height);
 	}
 
-	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height, int textureX,
-			int textureY) {
+	public CustomGuiTexturedRectWrapper(int id, String texture, int x, int y, int width, int height, int textureX, int textureY) {
 		this(id, texture, x, y, width, height);
-		this.setTextureOffset(textureX, textureY);
+		setTextureOffset(textureX, textureY);
 	}
 
 	@Override
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
-		this.setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
-		this.setScale(nbt.getFloat("scale"));
-		this.setTexture(nbt.getString("texture"));
-		if (nbt.hasKey("texPos")) {
-			this.setTextureOffset(nbt.getIntArray("texPos")[0], nbt.getIntArray("texPos")[1]);
+		setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
+		setScale(nbt.getFloat("scale"));
+		setTexture(nbt.getString("texture"));
+		if (nbt.hasKey("texPos")) { setTextureOffset(nbt.getIntArray("texPos")[0], nbt.getIntArray("texPos")[1]); }
+		return this;
+	}
+
+	@Override
+	public int getColor() { return color; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public float getScale() { return scale; }
+
+	@Override
+	public String getTexture() { return texture; }
+
+	@Override
+	public int getTextureX() { return textureX; }
+
+	@Override
+	public int getTextureY() { return textureY; }
+
+	@Override
+	public int getType() { return GuiComponentType.TEXTURED_RECT.get(); }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public ITexturedRect setColor(int colorIn) {
+		color = colorIn;
+		return this;
+	}
+
+	@Override
+	public ITexturedRect setScale(float scaleIn) {
+		scale = ValueUtil.correctFloat(scaleIn, 0.0f, 10.0f);
+		return this;
+	}
+
+	@Override
+	public ITexturedRect setSize(int widthIn, int heightIn) {
+		if (widthIn <= 0 || heightIn <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + widthIn + ", " + heightIn + "]");
 		}
+		width = widthIn;
+		height = heightIn;
 		return this;
 	}
 
 	@Override
-	public int getColor() {
-		return this.color;
-	}
-
-	@Override
-	public int getHeight() {
-		return this.height;
-	}
-
-	@Override
-	public float getScale() {
-		return this.scale;
-	}
-
-	@Override
-	public String getTexture() {
-		return this.texture;
-	}
-
-	@Override
-	public int getTextureX() {
-		return this.textureX;
-	}
-
-	@Override
-	public int getTextureY() {
-		return this.textureY;
-	}
-
-	@Override
-	public int getType() {
-		return GuiComponentType.TEXTURED_RECT.get();
-	}
-
-	@Override
-	public int getWidth() {
-		return this.width;
-	}
-
-	@Override
-	public ITexturedRect setColor(int color) {
-		this.color = color;
-		return this;
-	}
-
-	@Override
-	public ITexturedRect setScale(float scale) {
-		this.scale = scale;
-		return this;
-	}
-
-	@Override
-	public ITexturedRect setSize(int width, int height) {
-		if (width <= 0 || height <= 0) {
-			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
-		}
-		this.width = width;
-		this.height = height;
-		return this;
-	}
-
-	@Override
-	public ITexturedRect setTexture(String texture) {
-		this.texture = texture;
+	public ITexturedRect setTexture(String textureIn) {
+		texture = textureIn;
 		return this;
 	}
 
 	@Override
 	public ITexturedRect setTextureOffset(int offsetX, int offsetY) {
-		this.textureX = offsetX;
-		this.textureY = offsetY;
+		textureX = Math.max(0, offsetX);
+		textureY = Math.max(0, offsetY);
 		return this;
 	}
 
 	@Override
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
 		super.toNBT(nbt);
-		nbt.setIntArray("size", new int[] { this.width, this.height });
-		nbt.setFloat("scale", this.scale);
-		nbt.setInteger("color", this.color);
-		nbt.setString("texture", this.texture);
-		if (this.textureX >= 0 && this.textureY >= 0) {
-			nbt.setIntArray("texPos", new int[] { this.textureX, this.textureY });
+		nbt.setIntArray("size", new int[] { width, height });
+		nbt.setFloat("scale", scale);
+		nbt.setInteger("color", color);
+		nbt.setString("texture", texture);
+		if (textureX >= 0 && textureY >= 0) {
+			nbt.setIntArray("texPos", new int[] { textureX, textureY });
 		}
 		return nbt;
 	}
+
 }

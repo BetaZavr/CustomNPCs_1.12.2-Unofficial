@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -41,7 +42,7 @@ public class ItemSoulstoneEmpty extends Item {
 		list.add(new TextComponentTranslation("info.item.soulstone.0").getFormattedText());
 	}
 
-	public boolean hasPermission(EntityLivingBase entity, EntityPlayer player) {
+	public boolean hasPermission(EntityLivingBase entity, EntityPlayerMP player) {
 		if (NoppesUtilServer.isOp(player)) {
 			return true;
 		}
@@ -65,7 +66,7 @@ public class ItemSoulstoneEmpty extends Item {
 		return entity instanceof EntityAnimal && CustomNpcs.SoulStoneAnimals;
 	}
 
-	public boolean store(EntityLivingBase entity, ItemStack stack, EntityPlayer player) {
+	public boolean store(EntityLivingBase entity, ItemStack stack, EntityPlayerMP player) {
 		if (!this.hasPermission(entity, player) || entity instanceof EntityPlayer) {
 			return false;
 		}

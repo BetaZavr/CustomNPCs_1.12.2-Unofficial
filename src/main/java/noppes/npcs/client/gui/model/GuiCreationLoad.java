@@ -3,103 +3,58 @@ package noppes.npcs.client.gui.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.controllers.Preset;
 import noppes.npcs.client.controllers.PresetController;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
-import noppes.npcs.client.gui.util.IGuiCustomScroll;
 import noppes.npcs.containers.ContainerLayer;
 import noppes.npcs.entity.EntityNPCInterface;
 
 import javax.annotation.Nonnull;
 
-public class GuiCreationLoad
-extends GuiCreationScreenInterface
-implements ICustomScrollListener {
+public class GuiCreationLoad extends GuiCreationScreenInterface implements ICustomScrollListener {
 
-	private final List<String> list;
-	private GuiCustomScroll scroll;
+	protected final List<String> list = new ArrayList<>();
+	protected GuiCustomScroll scroll;
 
 	public GuiCreationLoad(EntityNPCInterface npc, ContainerLayer container) {
 		super(npc, container);
-		this.list = new ArrayList<>();
-		this.active = 5;
-		this.xOffset = 60;
+
+		active = 5;
+		xOffset = 60;
 		PresetController.instance.load();
 	}
 
 	@Override
-	protected void actionPerformed(@Nonnull GuiButton btn) {
-		super.actionPerformed(btn);
-		if (btn.id == 10 && this.scroll.hasSelected()) {
-			PresetController.instance.removePreset(this.scroll.getSelected());
-			this.initGui();
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton == 0 && button.getID() == 10 && scroll.hasSelected()) {
+			PresetController.instance.removePreset(scroll.getSelected());
+			initGui();
 		}
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!CustomNpcs.ShowDescriptions) {
-			return;
-		}
-		if (this.getButton(1) != null && this.getButton(1).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.parts").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.size").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(10) != null && this.getButton(10).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("hover.delete").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else {
-			for (GuiButton b : this.buttonList) {
-				if (b != null && b.isMouseOver()) {
-					if (b.id == 500) {
-						this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText());
-					}
-				}
-			}
-		}
-		drawHoverText(null);
+		super.buttonEvent(button, mouseButton);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.scroll == null) {
-			this.scroll = new GuiCustomScroll(this, 0);
-		}
-		this.list.clear();
-		for (Preset preset : PresetController.instance.presets.values()) {
-			this.list.add(preset.name);
-		}
-		this.scroll.setList(this.list);
-		this.scroll.guiLeft = this.guiLeft;
-		this.scroll.guiTop = this.guiTop + 45;
-		this.scroll.setSize(100, this.ySize - 96);
-		this.addScroll(this.scroll);
-		this.addButton(new GuiNpcButton(10, this.guiLeft, this.guiTop + this.ySize - 46, 120, 20, "gui.remove"));
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0); }
+		list.clear();
+		for (Preset preset : PresetController.instance.presets.values()) { list.add(preset.name); }
+		scroll.guiLeft = guiLeft;
+		scroll.guiTop = guiTop + 45;
+		addScroll(scroll.setList(list).setSize(100, ySize - 96));
+		addButton(new GuiNpcButton(10, guiLeft, guiTop + ySize - 46, 120, 20, "gui.remove"));
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		Preset preset = PresetController.instance.getPreset(scroll.getSelected());
-		this.playerdata.load(preset.data.save());
-		this.initGui();
+		playerdata.load(preset.data.save());
+		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 }

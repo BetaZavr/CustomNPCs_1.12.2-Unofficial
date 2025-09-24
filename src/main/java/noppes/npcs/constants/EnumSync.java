@@ -7,24 +7,26 @@ public enum EnumSync {
     BankData,
     BuilderData,
     Debug,
-    DialogCategoriesData, // 5
+    DialogCategoriesData,   // 5
     DialogGuiSettings,
-    DialogData, // 4
+    DialogData,             // 4
     EmotionData,
-    FactionsData, // 1
+    FactionsData,           // 1
     GameData,
-    ItemScriptedModels, // 9
-    KeysData, // 10
+    ItemScriptedModels,     // 9
+    KeysData,               // 10
     MailData,
     MarcetData,
     MarcetDeal,
-    ModData, // 7
-    PlayerData, // 8
+    ModData,                // 7
+    PlayerData,             // 8
     PlayerGameData,
-    PlayerQuestData, // 12
-    QuestCategoriesData, // 3
-    QuestData, // 2
-    RecipesData, // 6
-    TransportData // 11
+    PlayerQuestData,        // 12
+    QuestCategoriesData,    // 3
+    QuestData,              // 2
+    RecipesData,            // 6
+    TransportData,          // 11
+    MoneyChars,             // 13
+    PermissionsData         // 14
 
 }

@@ -80,7 +80,7 @@ public class ItemNpcMovingPath extends Item implements IPermission, INPCToolItem
 		}
 		stack = player.getHeldItem(hand);
 		if (!world.isRemote) {
-			if (CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER)) {
+			if (CustomNpcsPermissions.hasPermission((EntityPlayerMP) player, CustomNpcsPermissions.TOOL_MOUNTER)) {
 				EntityNPCInterface npc = this.getNpc(stack, world);
 				if (npc != null && (player.isSneaking() || npc.ais.getMovingType() == 2)) { NoppesUtilServer.sendOpenGui(player, EnumGuiType.MovingPath, npc); }
 				return new ActionResult<>(EnumActionResult.SUCCESS, stack);
@@ -90,7 +90,7 @@ public class ItemNpcMovingPath extends Item implements IPermission, INPCToolItem
 	}
 
 	public @Nonnull EnumActionResult onItemUse(@Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos bpos, @Nonnull EnumHand hand, @Nonnull EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (world.isRemote || !CustomNpcsPermissions.hasPermission(player, CustomNpcsPermissions.TOOL_MOUNTER) || hand != EnumHand.MAIN_HAND) {
+		if (world.isRemote || !CustomNpcsPermissions.hasPermission((EntityPlayerMP) player, CustomNpcsPermissions.TOOL_MOUNTER) || hand != EnumHand.MAIN_HAND) {
 			if (world.isRemote) { ClientGuiEventHandler.movingPath.clear(); }
 			return EnumActionResult.FAIL;
 		}

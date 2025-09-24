@@ -28,7 +28,7 @@ import noppes.npcs.api.gui.ICustomGui;
 import noppes.npcs.api.handler.*;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.WrapperNpcAPI;
-import noppes.npcs.client.gui.util.IResourceData;
+import noppes.npcs.client.util.ResourceData;
 
 @SuppressWarnings("all")
 public abstract class NpcAPI {
@@ -139,7 +139,7 @@ public abstract class NpcAPI {
 
 	public abstract ICustomPlayerData getPlayerData(EntityPlayer player);
 
-	public abstract IResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height);
+	public abstract ResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height);
 
 	public abstract IData getTempdata();
 

@@ -316,4 +316,6 @@ public class ModelDataShared {
 		if (newLayers != null && newLayers.length != 0) { disableLayers.addAll(Arrays.asList(newLayers)); }
 	}
 
+	public boolean hasDisableLayers() { return !disableLayers.isEmpty(); }
+
 }

@@ -23,11 +23,7 @@ public class EntityAIDodge extends EntityAICustom {
 		if (this.isFriend || this.npc.ticksExisted % (this.tickRate * 2) > 3) {
 			return;
 		}
-		if (this.isRanged) {
-			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
-		} else {
-			this.canSeeToAttack = this.npc.canSee(this.target);
-		}
+		this.canSeeToAttack = this.npc.canSee(this.target);
 
 		if (this.canSeeToAttack && this.distance <= this.range) {
 			if (this.inMove) {

@@ -1,22 +1,14 @@
 package nikedemos.markovnames.generators;
 
-import java.util.Random;
-
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovSaami extends MarkovGenerator {
 
 	public MarkovSaami(int seqlen) {
-		this(seqlen, new Random());
-	}
-
-	public MarkovSaami(int seqlen, Random rng) {
-		this.rng = rng;
-		this.markov = new MarkovDictionary("saami_bothgenders.txt", seqlen, rng);
+		markov = new MarkovDictionary("saami_bothgenders.txt", seqlen);
 	}
 
 	@Override
-	public String fetch(int gender) {
-		return this.markov.generateWord();
-	}
+	public String fetch(int gender) { return markov.generateWord(); }
+
 }

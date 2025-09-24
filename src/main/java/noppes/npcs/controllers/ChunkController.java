@@ -36,16 +36,10 @@ public class ChunkController implements ForgeChunkManager.LoadingCallback {
 
 	public ForgeChunkManager.Ticket getTicket(EntityNPCInterface npc) {
 		ForgeChunkManager.Ticket ticket = tickets.get(npc);
-		if (ticket != null) {
-			return ticket;
-		}
-		if (this.size() >= CustomNpcs.ChuckLoaders) {
-			return null;
-		}
+		if (ticket != null) { return ticket; }
+		if (this.size() >= CustomNpcs.ChuckLoaders) { return null; }
 		ticket = ForgeChunkManager.requestTicket(CustomNpcs.instance, npc.world, ForgeChunkManager.Type.ENTITY);
-		if (ticket == null) {
-			return null;
-		}
+		if (ticket == null) { return null; }
 		ticket.bindEntity(npc);
 		ticket.setChunkListDepth(6);
 		tickets.put(npc, ticket);

@@ -61,29 +61,40 @@ public class TextBlockClient extends TextBlock {
 		final List<String> tempList = getStrings();
 		String[] words = tempList.toArray(new String[0]);
 		FontRenderer font = Minecraft.getMinecraft().fontRenderer;
-		String color = ((char) 167) + "r";
-		for (String word : words) {
-			if (word.isEmpty()) { continue; }
-			if (word.length() == 1) {
-				char c = word.charAt(0);
-				if (c == '\r' || c == '\n') {
-					addLine(color + line);
-					color = Util.instance.getLastColor(color, line);
+
+		String language = Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode();
+		if (language.startsWith("zh_") || language.startsWith("ja_")) {
+			for(int i = 0; i < text.length(); ++i) {
+				line = line + text.charAt(i);
+				if ((mcFont ? font.getStringWidth(line) : ClientProxy.Font.width(line)) > lineWidth) {
+					addLine(line);
 					line = "";
-					continue;
 				}
 			}
-			String newLine = line + word;
-			int widthLine = (mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine));
-			if (widthLine > lineWidth && !line.isEmpty()) {
-				addLine(color + line);
-				color = Util.instance.getLastColor(color, line);
-				line = word;
-			}
-			else { line = newLine; }
 		}
-		if (!line.isEmpty()) {
-			addLine(color + line);
+		else {
+			String color = ((char) 167) + "r";
+			for (String word : words) {
+				if (word.isEmpty()) { continue; }
+				if (word.length() == 1) {
+					char c = word.charAt(0);
+					if (c == '\r' || c == '\n') {
+						addLine(color + line);
+						color = Util.instance.getLastColor(color, line);
+						line = "";
+						continue;
+					}
+				}
+				String newLine = line + word;
+				int widthLine = (mcFont ? font.getStringWidth(newLine) : ClientProxy.Font.width(newLine));
+				if (widthLine > lineWidth && !line.isEmpty()) {
+					addLine(color + line);
+					color = Util.instance.getLastColor(color, line);
+					line = word;
+				}
+				else { line = newLine; }
+			}
+			if (!line.isEmpty()) { addLine(color + line); }
 		}
 	}
 

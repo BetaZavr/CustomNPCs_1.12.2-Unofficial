@@ -107,7 +107,6 @@ public class TextContainer {
 			StringBuilder line = new StringBuilder();
 			int lineWidth = 0;
 			Matcher m = regexWord.matcher(l);
-
 			for (int i = 0; m.find(); i = m.start()) {
 				String word = l.substring(i, m.start());
 				// end current line and start new
@@ -138,7 +137,6 @@ public class TextContainer {
 					lineWidth += getWordWidth(word);
 				}
 			}
-
 			lines.add(new LineData(line.toString(), totalChars, totalChars + line.length() + 1));
 			totalChars += line.length() + 1;
 		}

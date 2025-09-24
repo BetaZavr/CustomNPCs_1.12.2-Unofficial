@@ -18,6 +18,7 @@
     "stats.RecipeBookServerMixin",
     "tileentity.TileEntityBannerMixin",
     "tileentity.TileEntityMixin",
+    "util.DamageSourceMixin",
     "util.ServerRecipeBookHelperMixin",
     "util.text.translation.LanguageMapMixin"
   ],
@@ -50,6 +51,7 @@
     "client.particle.ParticleFlameMixin",
     "client.particle.ParticleManagerMixin",
     "client.particle.ParticleSmokeNormalMixin",
+    "client.renderer.entity.RenderLivingBaseLayersMixin",
     "client.renderer.entity.RenderLivingBaseMixin",
     "client.resources.I18nMixin",
     "client.world.storage.WorldSummaryMixin",

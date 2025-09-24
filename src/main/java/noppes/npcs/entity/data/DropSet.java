@@ -24,6 +24,7 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.controllers.QuestController;
+import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
@@ -32,8 +33,10 @@ import javax.annotation.Nonnull;
 
 public class DropSet implements IInventory, ICustomDrop {
 
-	private final Map<String, Integer> attributeSlotsName;
-	private final DataInventory npcInv;
+	protected final Map<String, Integer> attributeSlotsName = new HashMap<>();
+	protected final DataInventory npcInv;
+	protected final Deal parentDeal;
+
 	public List<AttributeSet> attributes = new ArrayList<>();
 	public List<EnchantSet> enchants = new ArrayList<>();
 	public List<DropNbtSet> tags = new ArrayList<>();
@@ -47,21 +50,21 @@ public class DropSet implements IInventory, ICustomDrop {
 	public int lootMode = 0; // 0: normal; 1: drop to Player; 2: inventory
 	public boolean tiedToLevel = false;
 
-	public DropSet(DataInventory ni) {
-		this.npcInv = ni;
-		Map<String, Integer> sln = new HashMap<>();
-		sln.put("mainhand", 0);
-		sln.put("offhand", 1);
-		sln.put("feet", 2);
-		sln.put("legs", 3);
-		sln.put("chest", 4);
-		sln.put("head", 5);
-		this.attributeSlotsName = sln;
-		this.npcLevel = ni == null ? 1 : ni.npc.stats.getLevel();
+	public DropSet(DataInventory npcInvIn, Deal dealIn) {
+		npcInv = npcInvIn;
+		parentDeal = dealIn;
+		npcLevel = npcInvIn != null ? npcInvIn.npc.stats.getLevel() : dealIn != null ? 0 : 1;
+		attributeSlotsName.put("mainhand", 0);
+		attributeSlotsName.put("offhand", 1);
+		attributeSlotsName.put("feet", 2);
+		attributeSlotsName.put("legs", 3);
+		attributeSlotsName.put("chest", 4);
+		attributeSlotsName.put("head", 5);
 	}
 
+	@SuppressWarnings("all")
 	public IAttributeSet addAttribute(IAttributeSet attribute) {
-		this.attributes.add((AttributeSet) attribute);
+		attributes.add((AttributeSet) attribute);
 		return attribute;
 	}
 
@@ -69,12 +72,13 @@ public class DropSet implements IInventory, ICustomDrop {
 	public IAttributeSet addAttribute(String attributeName) {
 		AttributeSet newAS = new AttributeSet(this);
 		newAS.setAttribute(attributeName);
-		this.attributes.add(newAS);
+		attributes.add(newAS);
 		return newAS;
 	}
 
+	@SuppressWarnings("all")
 	public IDropNbtSet addDropNbtSet(IDropNbtSet nbtDS) {
-		this.tags.add((DropNbtSet) nbtDS);
+		tags.add((DropNbtSet) nbtDS);
 		return nbtDS;
 	}
 
@@ -85,7 +89,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		dns.setChance(chance);
 		dns.setPath(path);
 		dns.setValues(values);
-		this.tags.add(dns);
+		tags.add(dns);
 		return dns;
 	}
 
@@ -93,15 +97,16 @@ public class DropSet implements IInventory, ICustomDrop {
 		if (enchant != null) {
 			EnchantSet newES = new EnchantSet(this);
 			newES.setEnchant(enchant);
-			this.enchants.add(newES);
+			enchants.add(newES);
 			return newES;
 		}
 		return null;
 	}
 
+	@SuppressWarnings("all")
 	public IEnchantSet addEnchant(IEnchantSet enchant) {
 		if (enchant != null) {
-			this.enchants.add((EnchantSet) enchant);
+			enchants.add((EnchantSet) enchant);
 			return enchant;
 		}
 		return null;
@@ -119,7 +124,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public void clear() {
-		this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
+		item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
 	}
 
 	@Override
@@ -128,13 +133,17 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public @Nonnull IItemStack createLoot(double addChance) {
-		ItemStack dItem = this.item.getMCItemStack().copy();
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(createMCLoot(addChance));
+	}
+
+	public @Nonnull ItemStack createMCLoot(double addChance) {
+		ItemStack dItem = item.getMCItemStack().copy();
 		// Amount
-		int a = this.amount[0];
-		if (this.amount[0] != this.amount[1]) {
-			if (this.tiedToLevel) {
+		int a = amount[0];
+		if (amount[0] != amount[1]) {
+			if (tiedToLevel) {
 				a = (int) Math.round((double) amount[0]
-						+ (double) (amount[1] - amount[0]) * (double) this.npcLevel / (double) CustomNpcs.MaxLv);
+						+ (double) (amount[1] - amount[0]) * (double) npcLevel / (double) CustomNpcs.MaxLv);
 			} else {
 				a = (int) Math.round((double) amount[0] + (double) (amount[1] - amount[0]) * Math.random());
 			}
@@ -143,16 +152,16 @@ public class DropSet implements IInventory, ICustomDrop {
 		// Damage
 		if (dItem.getMaxDamage() > 0 && (damage < 1.0f)) {
 			int d, max = dItem.getMaxDamage();
-			if (this.tiedToLevel) {
-				d = Math.round((1.0f - this.damage) * (float) max * (float) this.npcLevel / (float) CustomNpcs.MaxLv);
+			if (tiedToLevel) {
+				d = Math.round((1.0f - damage) * (float) max * (float) npcLevel / (float) CustomNpcs.MaxLv);
 			} else {
-				d = (int) Math.round((1.0f - this.damage) * (float) max * Math.random());
+				d = (int) Math.round((1.0f - damage) * (float) max * Math.random());
 			}
 			dItem.setItemDamage(d);
 		}
 		// Enchants
-		if (!this.enchants.isEmpty()) {
-			for (EnchantSet es : this.enchants) {
+		if (!enchants.isEmpty()) {
+			for (EnchantSet es : enchants) {
 				if (es.chance >= 1.0d || es.chance * addChance / 100.0d < Math.random()) {
 					int lvlM = es.getMinLevel();
 					int lvlN = es.getMaxLevel();
@@ -161,9 +170,9 @@ public class DropSet implements IInventory, ICustomDrop {
 					}
 					int lvl = lvlM;
 					if (lvlM != lvlN) {
-						if (this.tiedToLevel) {
+						if (tiedToLevel) {
 							lvl = (int) Math.round((double) lvlM
-									+ (double) (lvlN - lvlM) * (double) this.npcLevel / (double) CustomNpcs.MaxLv);
+									+ (double) (lvlN - lvlM) * (double) npcLevel / (double) CustomNpcs.MaxLv);
 						} else {
 							lvl = (int) Math.round((double) lvlM + (double) (lvlN - lvlM) * Math.random());
 						}
@@ -174,8 +183,8 @@ public class DropSet implements IInventory, ICustomDrop {
 
 		}
 		// Attributes
-		if (!this.attributes.isEmpty()) {
-			for (AttributeSet as : this.attributes) {
+		if (!attributes.isEmpty()) {
+			for (AttributeSet as : attributes) {
 				if (as.chance >= 1.0d || as.chance * addChance / 100.0d < Math.random()) {
 					double vM = as.getMinValue();
 					double vN = as.getMaxValue();
@@ -184,9 +193,9 @@ public class DropSet implements IInventory, ICustomDrop {
 					}
 					double v = vM;
 					if (vM != vN) {
-						if (this.tiedToLevel) {
+						if (tiedToLevel) {
 							v = Math.round(
-									(vM + (vN - vM) * (double) this.npcLevel / (double) CustomNpcs.MaxLv) * 10000.0d)
+									(vM + (vN - vM) * (double) npcLevel / (double) CustomNpcs.MaxLv) * 10000.0d)
 									/ 10000.0d;
 						} else {
 							v = Math.round((vM + (vN - vM) * Math.random()) * 10000.0d) / 10000.0d;
@@ -197,14 +206,14 @@ public class DropSet implements IInventory, ICustomDrop {
 			}
 		}
 		// Tags
-		if (!this.tags.isEmpty()) {
+		if (!tags.isEmpty()) {
 			NBTTagCompound tag = dItem.getTagCompound();
 			if (tag == null) {
 				dItem.setTagCompound(tag = new NBTTagCompound());
 			}
-			for (DropNbtSet dns : this.tags) {
+			for (DropNbtSet dns : tags) {
 				if (dns.values.length > 0 && (dns.chance >= 1.0d || dns.chance * addChance / 100.0d < Math.random())) {
-					tag = dns.getConstructoredTag(new NBTWrapper(tag)).getMCNBT();
+					tag = dns.getConstructorTag(new NBTWrapper(tag)).getMCNBT();
 				}
 			}
 		}
@@ -213,22 +222,21 @@ public class DropSet implements IInventory, ICustomDrop {
 				dItem.setTagCompound(null);
 			}
 		}
-		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(dItem);
+		return dItem;
 	}
 
 	@Override
 	public @Nonnull ItemStack decrStackSize(int index, int count) {
 		if (index == 0) {
 			ItemStack it;
-			if (this.item.getMCItemStack().getCount() <= count) {
-				it = this.item.getMCItemStack().copy();
-				this.item = ItemStackWrapper.AIR;
-			} else {
-				this.item.getMCItemStack().splitStack(count);
-				it = this.item.getMCItemStack().copy();
-				if (this.item.getMCItemStack().getCount() == 0) {
-					this.item = ItemStackWrapper.AIR;
-				}
+			if (item.getMCItemStack().getCount() <= count) {
+				it = item.getMCItemStack().copy();
+				item = ItemStackWrapper.AIR;
+			}
+			else {
+				item.getMCItemStack().splitStack(count);
+				it = item.getMCItemStack().copy();
+				if (item.getMCItemStack().getCount() == 0) { item = ItemStackWrapper.AIR; }
 			}
 			return it;
 		}
@@ -237,9 +245,9 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public IAttributeSet[] getAttributeSets() {
-		IAttributeSet[] ass = new IAttributeSet[this.attributes.size()];
+		IAttributeSet[] ass = new IAttributeSet[attributes.size()];
 		int i = 0;
-		for (AttributeSet as : this.attributes) {
+		for (AttributeSet as : attributes) {
 			ass[i] = as;
 			i++;
 		}
@@ -247,14 +255,10 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public double getChance() {
-		return Math.round(this.chance * 10000.0d) / 10000.0d;
-	}
+	public double getChance() { return Math.round(chance * 10000.0d) / 10000.0d; }
 
 	@Override
-	public float getDamage() {
-		return this.damage;
-	}
+	public float getDamage() { return damage; }
 
 	@Override
 	public @Nonnull ITextComponent getDisplayName() {
@@ -263,9 +267,9 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public IDropNbtSet[] getDropNbtSets() {
-		IDropNbtSet[] nts = new IDropNbtSet[this.tags.size()];
+		IDropNbtSet[] nts = new IDropNbtSet[tags.size()];
 		int i = 0;
-		for (DropNbtSet ts : this.tags) {
+		for (DropNbtSet ts : tags) {
 			nts[i] = ts;
 			i++;
 		}
@@ -274,9 +278,9 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public IEnchantSet[] getEnchantSets() {
-		IEnchantSet[] ess = new IEnchantSet[this.enchants.size()];
+		IEnchantSet[] ess = new IEnchantSet[enchants.size()];
 		int i = 0;
-		for (EnchantSet es : this.enchants) {
+		for (EnchantSet es : enchants) {
 			ess[i] = es;
 			i++;
 		}
@@ -284,39 +288,25 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public int getField(int id) {
-		return 0;
-	}
+	public int getField(int id) { return 0; }
 
 	@Override
-	public int getFieldCount() {
-		return 0;
-	}
+	public int getFieldCount() { return 0; }
 
 	@Override
-	public int getInventoryStackLimit() {
-		return 64;
-	}
+	public int getInventoryStackLimit() { return 64; }
 
 	@Override
-	public IItemStack getItem() {
-		return this.item;
-	}
+	public IItemStack getItem() { return item; }
 
 	@Override
-	public int getLootMode() {
-		return this.lootMode;
-	}
+	public int getLootMode() { return lootMode; }
 
 	@Override
-	public int getMaxAmount() {
-		return this.amount[1];
-	}
+	public int getMaxAmount() { return amount[1]; }
 
 	@Override
-	public int getMinAmount() {
-		return this.amount[0];
-	}
+	public int getMinAmount() { return amount[0]; }
 
 	// inventory
 	@Override
@@ -324,55 +314,43 @@ public class DropSet implements IInventory, ICustomDrop {
 		return "NPC Drop";
 	}
 
-	public NBTTagCompound getNBT() {
+	public NBTTagCompound save() {
 		NBTTagCompound nbtDS = new NBTTagCompound();
-		nbtDS.setTag("Item", this.item.getMCItemStack().writeToNBT(new NBTTagCompound()));
-		nbtDS.setDouble("Chance", this.chance);
-		nbtDS.setDouble("DamageToItem", this.damage);
-		nbtDS.setInteger("LootMode", this.lootMode);
-		nbtDS.setBoolean("TiedToLevel", this.tiedToLevel);
-		nbtDS.setInteger("QuestId", this.questId);
-		nbtDS.setIntArray("Amount", this.amount);
+		nbtDS.setTag("Item", item.getMCItemStack().writeToNBT(new NBTTagCompound()));
+		nbtDS.setDouble("Chance", chance);
+		nbtDS.setDouble("DamageToItem", damage);
+		nbtDS.setInteger("LootMode", lootMode);
+		nbtDS.setBoolean("TiedToLevel", tiedToLevel);
+		nbtDS.setInteger("QuestId", questId);
+		nbtDS.setIntArray("Amount", amount);
 		NBTTagList ench = new NBTTagList();
-		for (EnchantSet es : this.enchants) {
-			ench.appendTag(es.getNBT());
-		}
+		for (EnchantSet es : enchants) { ench.appendTag(es.getNBT()); }
 		nbtDS.setTag("EnchantSettings", ench);
 		NBTTagList attr = new NBTTagList();
-		for (AttributeSet as : this.attributes) {
-			attr.appendTag(as.getNBT());
-		}
+		for (AttributeSet as : attributes) { attr.appendTag(as.getNBT()); }
 		nbtDS.setTag("AttributeSettings", attr);
 		NBTTagList tgsl = new NBTTagList();
-		for (DropNbtSet ts : this.tags) {
-			tgsl.appendTag(ts.getNBT());
-		}
+		for (DropNbtSet ts : tags) { tgsl.appendTag(ts.getNBT()); }
 		nbtDS.setTag("TagSettings", tgsl);
-		nbtDS.setInteger("Slot", this.pos);
+		nbtDS.setInteger("Slot", pos);
 		return nbtDS;
 	}
 
 	@Override
-	public int getQuestID() {
-		return this.questId;
-	}
+	public int getQuestID() { return questId; }
 
 	@Override
-	public int getSizeInventory() {
-		return 1;
-	}
+	public int getSizeInventory() { return 1; }
 
 	@Override
 	public @Nonnull ItemStack getStackInSlot(int index) {
-		if (index == 0) {
-			return ItemStackWrapper.MCItem(this.item);
-		}
+		if (index == 0) { return ItemStackWrapper.MCItem(item); }
 		return ItemStack.EMPTY;
 	}
 
 	@Override
 	public boolean getTiedToLevel() {
-		return this.tiedToLevel;
+		return tiedToLevel;
 	}
 
 	@Override
@@ -382,7 +360,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public boolean isEmpty() {
-        return NoppesUtilServer.IsItemStackNull(this.item.getMCItemStack()) || item.isEmpty();
+        return NoppesUtilServer.IsItemStackNull(item.getMCItemStack()) || item.isEmpty();
     }
 
 	@Override
@@ -396,28 +374,22 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	public void load(NBTTagCompound nbtDS) {
-		this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtDS.getCompoundTag("Item")));
-		this.chance = nbtDS.getDouble("Chance");
-		this.damage = nbtDS.getFloat("DamageToItem");
+		item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtDS.getCompoundTag("Item")));
+		chance = nbtDS.getDouble("Chance");
+		damage = nbtDS.getFloat("DamageToItem");
 		if (nbtDS.hasKey("LootMode", 1)) { lootMode = nbtDS.getBoolean("LootMode") ? 1 : 0;}
 		else if (nbtDS.hasKey("LootMode", 3)) { lootMode = nbtDS.getInteger("LootMode");}
-		this.tiedToLevel = nbtDS.getBoolean("TiedToLevel");
-		this.questId = nbtDS.getInteger("QuestId");
+		tiedToLevel = nbtDS.getBoolean("TiedToLevel");
+		questId = nbtDS.getInteger("QuestId");
 		int[] cnts = nbtDS.getIntArray("Amount");
 		if (nbtDS.hasKey("Amount", 9)) {
 			cnts = new int[2];
-			for (int i = 0; i < 2; i++) {
-				cnts[i] = nbtDS.getTagList("Amount", 3).getIntAt(i);
-			}
+			for (int i = 0; i < 2; i++) { cnts[i] = nbtDS.getTagList("Amount", 3).getIntAt(i); }
 		}
 		if (cnts.length != 2) {
 			int m = 1, n = 1;
-			if (cnts.length >= 1) {
-				m = cnts[0];
-			}
-			if (cnts.length >= 2) {
-				n = cnts[1];
-			}
+			if (cnts.length >= 1) { m = cnts[0]; }
+			if (cnts.length >= 2) { n = cnts[1]; }
 			cnts = new int[] { m, n };
 		}
 		List<EnchantSet> ench = new ArrayList<>();
@@ -426,97 +398,77 @@ public class DropSet implements IInventory, ICustomDrop {
 			es.load((NBTTagCompound) ne);
 			ench.add(es);
 		}
-		this.enchants = ench;
+		enchants = ench;
 		List<AttributeSet> attr = new ArrayList<>();
 		for (NBTBase na : nbtDS.getTagList("AttributeSettings", 10)) {
 			AttributeSet as = new AttributeSet(this);
 			as.load((NBTTagCompound) na);
 			attr.add(as);
 		}
-		this.attributes = attr;
+		attributes = attr;
 		List<DropNbtSet> tgsl = new ArrayList<>();
 		for (NBTBase na : nbtDS.getTagList("TagSettings", 10)) {
 			DropNbtSet ts = new DropNbtSet(this);
 			ts.load((NBTTagCompound) na);
 			tgsl.add(ts);
 		}
-		this.tags = tgsl;
-		this.pos = nbtDS.getInteger("Slot");
-		this.setAmount(cnts[0], cnts[1]);
+		tags = tgsl;
+		pos = nbtDS.getInteger("Slot");
+		setAmount(cnts[0], cnts[1]);
 	}
 
 	@Override
-	public void markDirty() {
-	}
+	public void markDirty() { }
 
 	@Override
-	public void openInventory(@Nonnull EntityPlayer player) {
-	}
+	public void openInventory(@Nonnull EntityPlayer player) { }
 
 	@Override
 	public void remove() {
-		if (this.npcInv != null) {
-			this.npcInv.removeDrop(this);
-		}
+		if (npcInv != null) { npcInv.removeDrop(this); }
+		if (parentDeal != null) { parentDeal.removeCaseItem(this); }
 	}
 
 	@Override
 	public void removeAttribute(IAttributeSet attribute) {
-		this.attributes.remove((AttributeSet) attribute);
+		attributes.remove((AttributeSet) attribute);
 	}
 
 	@Override
-	public void removeDropNbt(IDropNbtSet nbt) {
-		this.tags.remove((DropNbtSet) nbt);
-	}
+	public void removeDropNbt(IDropNbtSet nbt) { tags.remove((DropNbtSet) nbt); }
 
 	@Override
-	public void removeEnchant(IEnchantSet enchant) {
-		this.enchants.remove((EnchantSet) enchant);
-	}
+	public void removeEnchant(IEnchantSet enchant) { enchants.remove((EnchantSet) enchant); }
 
 	@Override
 	public @Nonnull ItemStack removeStackFromSlot(int index) {
-		if (index == 0) {
-			ItemStack it = this.item.getMCItemStack();
-			this.item = ItemStackWrapper.AIR;
-			return it;
-		}
-		return ItemStack.EMPTY;
+		ItemStack stack = item.getMCItemStack();
+		item = ItemStackWrapper.AIR;
+		return stack;
 	}
 
 	@Override
-	public void resetTo(IItemStack item) {
-		if (item == null) {
-			return;
-		}
-		if (item.isEmpty()) {
-			return;
-		}
+	public void resetTo(IItemStack itemIn) {
+		if (itemIn == null || itemIn.isEmpty()) { return; }
 		double ch = 85.0d;
-		this.damage = 1.0f;
-		this.lootMode = 0;
-		this.tiedToLevel = false;
-		this.enchants = new ArrayList<>();
-		this.attributes = new ArrayList<>();
-		this.tags = new ArrayList<>();
+		damage = 1.0f;
+		lootMode = 0;
+		tiedToLevel = false;
+		enchants = new ArrayList<>();
+		attributes = new ArrayList<>();
+		tags = new ArrayList<>();
 		// Item Damage
-		if (item.getAttackDamage() > 1.0d) {
-			if (item.getItemDamage() == item.getMaxItemDamage()) {
-				this.damage = 1.0f;
-			} else {
-				this.damage = (float) Math.round((double) item.getItemDamage() / (double) item.getMaxItemDamage() * 100.0d) / 100.0f;
-			}
+		if (itemIn.getAttackDamage() > 1.0d) {
+			if (itemIn.getItemDamage() == itemIn.getMaxItemDamage()) { damage = 1.0f; }
+			else { damage = (float) Math.round((double) itemIn.getItemDamage() / (double) itemIn.getMaxItemDamage() * 100.0d) / 100.0f; }
 		}
-		this.amount = new int[] { 1, 1 };
+		amount = new int[] { 1, 1 };
 		// Amount
-		if (item.getStackSize() > 1) {
-			this.amount[1] = item.getStackSize();
-		}
-		NBTTagCompound itemNbt = item.getNbt().getMCNBT();
+		if (itemIn.getStackSize() > 1) { amount[1] = itemIn.getStackSize(); }
+		NBTTagCompound itemNbt = itemIn.getNbt().getMCNBT();
 		// Enchants
 		if (itemNbt.hasKey("ench")) {
-			this.lootMode = 2;
+			lootMode = 2;
 			ch /= itemNbt.getTagList("ench", 10).tagCount();
 			for (NBTBase nbtEnch : itemNbt.getTagList("ench", 10)) {
 				IEnchantSet es = addEnchant(((NBTTagCompound) nbtEnch).getShort("id"));
@@ -529,24 +481,18 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		// Attributes
 		if (itemNbt.hasKey("AttributeModifiers")) {
-			this.lootMode = 2;
+			lootMode = 2;
 			ch /= itemNbt.getTagList("AttributeModifiers", 10).tagCount();
 			for (NBTBase nbtAttr : itemNbt.getTagList("AttributeModifiers", 10)) {
 				IAttributeSet as = addAttribute(((NBTTagCompound) nbtAttr).getString("AttributeName"));
 				if (as != null) {
 					int slot = -1;
-					if (this.attributeSlotsName.containsKey(((NBTTagCompound) nbtAttr).getString("Slot"))) {
-						slot = this.attributeSlotsName.get(((NBTTagCompound) nbtAttr).getString("Slot"));
-					}
+					if (attributeSlotsName.containsKey(((NBTTagCompound) nbtAttr).getString("Slot"))) { slot = attributeSlotsName.get(((NBTTagCompound) nbtAttr).getString("Slot")); }
 					as.setSlot(slot);
 					double value = ((NBTTagCompound) nbtAttr).getDouble("Amount");
-					if (value < 0.0d) {
-						as.setValues(value, 0.0d);
-					} else if (value > 0.0d) {
-						as.setValues(0.0d, value);
-					} else {
-						as.setValues(0.0d, 0.05d);
-					}
+					if (value < 0.0d) { as.setValues(value, 0.0d); }
+					else if (value > 0.0d) { as.setValues(0.0d, value); }
+					else { as.setValues(0.0d, 0.05d); }
 					as.setChance(85.0d / (double) itemNbt.getTagList("AttributeModifiers", 10).tagCount());
 				}
 			}
@@ -556,14 +502,12 @@ public class DropSet implements IInventory, ICustomDrop {
 		setChance(ch);
 		// Simple Item Set
 		NBTTagCompound itemFromNbt = new NBTTagCompound();
-		item.getMCItemStack().writeToNBT(itemFromNbt);
+		itemIn.getMCItemStack().writeToNBT(itemFromNbt);
 		itemFromNbt.setTag("tag", itemNbt);
 		IItemStack newItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(itemFromNbt));
 		newItem.setStackSize(1);
-		if (newItem.getAttackDamage() > 1) {
-			newItem.setItemDamage(0);
-		}
-		this.item = newItem;
+		if (newItem.getAttackDamage() > 1) { newItem.setItemDamage(0); }
+		item = newItem;
 	}
 
 	@Override
@@ -577,79 +521,57 @@ public class DropSet implements IInventory, ICustomDrop {
 		if (newMin < 1) {
 			newMin = 1;
 		}
-		if (newMin > this.item.getMaxStackSize()) {
-			newMin = this.item.getMaxStackSize();
+		if (newMin > item.getMaxStackSize()) {
+			newMin = item.getMaxStackSize();
 		}
 		if (newMax < newMin) {
 			newMax = newMin;
 		}
-		if (newMax > this.item.getMaxStackSize()) {
-			newMax = this.item.getMaxStackSize();
+		if (newMax > item.getMaxStackSize()) {
+			newMax = item.getMaxStackSize();
 		}
-		this.amount[0] = newMin;
-		this.amount[1] = newMax;
+		amount[0] = newMin;
+		amount[1] = newMax;
 	}
 
 	@Override
-	public void setChance(double chance) {
-		double newChance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
-		this.chance = Math.round(newChance * 10000.0d) / 10000.0d;
-	}
+	public void setChance(double chanceIn) { chance = Math.round(ValueUtil.correctDouble(chanceIn, 0.0001d, 100.0d) * 10000.0d) / 10000.0d; }
 
 	@Override
-	public void setDamage(float dam) {
-		this.damage = ValueUtil.correctFloat(dam, 0.0f, 1.0f);
-	}
+	public void setDamage(float dam) { damage = ValueUtil.correctFloat(dam, 0.0f, 1.0f); }
 
 	@Override
-	public void setField(int id, int value) {
-	}
+	public void setField(int id, int value) { }
 
 	@Override
 	public void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
-		if (index == 0) {
-			this.item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack);
-		}
+		if (index == 0) { item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack); }
 	}
 
 	@Override
-	public void setItem(IItemStack item) {
-		this.item = item;
-	}
+	public void setItem(IItemStack itemIn) { item = itemIn; }
 
 	@Override
-	public void setLootMode(int mode) {
-		lootMode = mode % 3;
-	}
+	public void setLootMode(int mode) { lootMode = mode % 3; }
 
 	@Override
 	public void setQuestID(int id) {
 		List<Integer> ids = new ArrayList<>();
 		for (IQuestCategory cat : Objects.requireNonNull(NpcAPI.Instance()).getQuests().categories()) {
-			for (IQuest q : cat.quests()) {
-				ids.add(q.getId());
-			}
+			for (IQuest q : cat.quests()) { ids.add(q.getId()); }
 		}
-		if (ids.contains(id)) {
-			this.questId = id;
-		}
+		if (ids.contains(id)) { questId = id; }
 	}
 
 	@Override
-	public void setTiedToLevel(boolean tied) {
-		this.tiedToLevel = tied;
-	}
+	public void setTiedToLevel(boolean tied) { tiedToLevel = tied; }
 
 
 	public String getKey() {
 		String keyName;
 		char c = ((char) 167);
-		if (item == null) {
-			return "null";
-		}
-		if (item.isEmpty()) {
-			return "type.empty";
-		}
+		if (item == null) { return "null"; }
+		if (item.isEmpty()) { return "type.empty"; }
 		keyName = c + "7" + (pos + 1) + ": ";
 
 		double ch = Math.round(chance * 10.0d) / 10.d;
@@ -658,31 +580,20 @@ public class DropSet implements IInventory, ICustomDrop {
 		chance += "%";
 		keyName += c + "e" + chance;
 
-		if (amount[0] == amount[1]) {
-			keyName += c + "7[" + c + "6" + amount[0] + c + "7]";
-		} else {
-			keyName += c + "7[" + c + "6" + amount[0] + c + "7-" + c + "6" + amount[1] + c + "7]";
-		}
+		if (amount[0] == amount[1]) { keyName += c + "7[" + c + "6" + amount[0] + c + "7]"; }
+		else { keyName += c + "7[" + c + "6" + amount[0] + c + "7-" + c + "6" + amount[1] + c + "7]"; }
 		String effs = "";
-		if (!enchants.isEmpty()) {
-			effs = c + "7 |" + c + "bE" + c + "7|";
-		}
+		if (!enchants.isEmpty()) { effs = c + "7 |" + c + "bE" + c + "7|"; }
 		if (!attributes.isEmpty()) {
-			if (effs.isEmpty()) {
-				effs += c + "7 |";
-			}
+			if (effs.isEmpty()) { effs += c + "7 |"; }
 			effs += c + "aA" + c + "7|";
 		}
 		if (!tags.isEmpty()) {
-			if (effs.isEmpty()) {
-				effs += c + "7 |";
-			}
+			if (effs.isEmpty()) { effs += c + "7 |"; }
 			effs += c + "cT" + c + "7|";
 		}
 		keyName += effs + " " + c + "r" + item.getDisplayName();
-		if (pos < 0) {
-			keyName += c + "8 ID:" + toString().substring(toString().indexOf("@") + 1);
-		}
+		if (pos < 0) { keyName += c + "8 ID:" + toString().substring(toString().indexOf("@") + 1); }
 		return keyName;
 	}
 
@@ -756,6 +667,12 @@ public class DropSet implements IInventory, ICustomDrop {
 		}
 		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "\"NBT tags\" - not specified")); }
 		return list;
+	}
+
+	public DropSet copy() {
+		DropSet drop = new DropSet(npcInv, parentDeal);
+		drop.load(save());
+		return drop;
 	}
 
 }

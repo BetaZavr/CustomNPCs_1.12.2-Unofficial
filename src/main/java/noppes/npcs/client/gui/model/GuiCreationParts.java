@@ -6,10 +6,7 @@ import java.util.*;
 import java.util.List;
 
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -18,11 +15,10 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.ModelPartData;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.select.GuiTextureSelection;
+import noppes.npcs.client.gui.select.SubGuiTextureSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.part.LayerModel;
 import noppes.npcs.client.model.part.ModelEyeData;
-import noppes.npcs.client.renderer.RenderCustomNpc;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumParts;
 import noppes.npcs.containers.ContainerLayer;
@@ -34,128 +30,133 @@ import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
 
-public class GuiCreationParts
-extends GuiCreationScreenInterface
-implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderListener  {
+public class GuiCreationParts extends GuiCreationScreenInterface
+		implements ITextfieldListener, ICustomScrollListener, ISliderListener  {
 
-	public class GuiPart implements ISubGuiListener {
+	public class GuiPart {
 
-		protected boolean canBeDeleted;
+		protected String[] types;
 		protected ModelPartData data;
+		protected EnumParts part;
+		protected boolean canBeDeleted;
 		protected boolean hasPlayerOption;
 		protected boolean noPlayerTypes;
-		EnumParts part;
+		protected final GuiCreationParts parent;
 		public int patterns;
-		protected String[] types;
 
-		public GuiPart(EnumParts part) {
-			this.patterns = 0;
-			this.types = new String[] { "gui.none" };
-			this.hasPlayerOption = true;
-			this.noPlayerTypes = false;
-			this.canBeDeleted = true;
-			this.part = part;
-			this.data = playerdata.getPartData(part);
+		public GuiPart(EnumParts partIn, GuiCreationParts parentIn) {
+			parent = parentIn;
+			patterns = 0;
+			types = new String[] { "gui.none" };
+			hasPlayerOption = true;
+			noPlayerTypes = false;
+			canBeDeleted = true;
+			part = partIn;
+			data = playerdata.getPartData(partIn);
 		}
 
-		protected void actionPerformed(GuiButton btn) {
-			if (btn.id == 20) {
-				int i = ((GuiNpcButton) btn).getValue();
-				if (i == 0 && this.canBeDeleted) {
-					playerdata.removePart(this.part);
-				} else {
-					this.data = playerdata.getOrCreatePart(this.part);
-					this.data.pattern = 0;
-					this.data.setType(i - 1);
+		public boolean buttonEvent(@Nonnull GuiNpcButton button) {
+			switch (button.getID()) {
+				case 20: {
+					int i = button.getValue();
+					if (i == 0 && canBeDeleted) { playerdata.removePart(part); }
+					else {
+						data = playerdata.getOrCreatePart(part);
+						data.pattern = 0;
+						data.setType(i - 1);
+					}
+					parent.initGui();
+					return true;
 				}
-				initGui();
+				case 21: {
+					if (data != null && button instanceof GuiNpcButtonYesNo) { data.playerTexture = ((GuiNpcButtonYesNo) button).getBoolean(); }
+					parent.initGui();
+					return true;
+				}
+				case 22: {
+					data.pattern = (byte) button.getValue();
+					parent.initGui();
+					return true;
+				}
+				case 23: {
+					setSubGui(new SubGuiModelColor(GuiCreationParts.this, data.color, color -> data.color = color));
+					parent.initGui();
+					return true;
+				}
 			}
-			if (btn.id == 22) {
-				this.data.pattern = (byte) ((GuiNpcButton) btn).getValue();
-			}
-			if (btn.id == 21) {
-				this.data.playerTexture = ((GuiNpcButtonYesNo) btn).getBoolean();
-				initGui();
-			}
-			if (btn.id == 23) {
-				setSubGui(new GuiModelColor(GuiCreationParts.this, this.data.color, color -> this.data.color = color));
-			}
+			return false;
 		}
 
 		public int initGui() {
-			this.data = playerdata.getPartData(this.part);
+			data = playerdata.getPartData(part);
 			int x0 = guiLeft + 123;
 			int x1 = guiLeft + 175;
 			int y = guiTop + 50;
-			if (this.data == null || !this.data.playerTexture || !this.noPlayerTypes) {
+			if (data != null || !noPlayerTypes) {
 				addLabel(new GuiNpcLabel(20, "gui.type", x0, y + 5, 0xFFFFFF));
-				addButton(new GuiButtonBiDirectional(20, x1, y, 100, 20, this.types, (this.data == null) ? 0 : (this.data.type + 1)));
+				addButton(new GuiButtonBiDirectional(20, x1, y, 100, 20, types, (data == null) ? 0 : (data.type + 1))
+						.setHoverText(new TextComponentTranslation("display.hover.part.type").getFormattedText()));
 				y += 25;
 			}
-			if (this.data != null && this.hasPlayerOption) {
+			if (data != null && hasPlayerOption) {
 				addLabel(new GuiNpcLabel(21, "gui.playerskin", x0, y + 5, 0xFFFFFF));
-				addButton(new GuiNpcButtonYesNo(21, x1, y, this.data.playerTexture));
+				addButton(new GuiNpcButtonYesNo(21, x1, y, data.playerTexture)
+						.setHoverText("display.hover.part.skin"));
 				y += 25;
 			}
-			if (this.data != null && !this.data.playerTexture) {
+			if (data != null && !data.playerTexture) {
 				addLabel(new GuiNpcLabel(23, "gui.color", x0, y + 5, 0xFFFFFF));
-				addButton(new GuiColorButton(23, x1, y, data.color));
+				addButton(new GuiColorButton(23, x1, y, data.color)
+						.setHoverText("display.hover.part.color"));
 				y += 25;
 			}
 			return y;
 		}
 
-		public GuiPart noPlayerOptions() {
-			hasPlayerOption = false;
-			return this;
-		}
+		public GuiPart noPlayerOptions() { hasPlayerOption = false; return this; }
 
-		public GuiPart noPlayerTypes() {
-			noPlayerTypes = true;
-			return this;
-		}
+		public GuiPart noPlayerTypes() { noPlayerTypes = true; return this; }
 
-		public GuiPart setTypes(String[] typesIn) {
-			types = typesIn;
-			return this;
-		}
+		public GuiPart setTypes(String[] typesIn) { types = typesIn; return this; }
 
-		@Override
 		public void subGuiClosed(SubGuiInterface subgui) { }
 
 	}
 
 	class GuiPartBeard extends GuiPart {
-		public GuiPartBeard() {
-			super(EnumParts.BEARD);
+
+		public GuiPartBeard(GuiCreationParts parentIn) {
+			super(EnumParts.BEARD, parentIn);
 			noPlayerTypes().types = new String[] { "gui.none", "1", "2", "3", "4" };
 		}
+
 	}
 
 	class GuiPartClaws extends GuiPart {
-		public GuiPartClaws() {
-			super(EnumParts.CLAWS);
+
+		public GuiPartClaws(GuiCreationParts parentIn) {
+			super(EnumParts.CLAWS, parentIn);
 			types = new String[] { "gui.none", "gui.show" };
 		}
 
 		@Override
 		public int initGui() {
 			int y = super.initGui();
-			if (data == null) {
-				return y;
-			}
+			if (data == null) { return y; }
 			addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 123, y + 5, 0xFFFFFF));
-			addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern));
+			addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern)
+					.setHoverText("display.hover.part.pattern"));
 			return y;
 		}
+
 	}
 
 	class GuiPartEyes extends GuiPart {
 		
 		private final ModelEyeData eyes;
 
-		public GuiPartEyes() {
-			super(EnumParts.EYES);
+		public GuiPartEyes(GuiCreationParts parentIn) {
+			super(EnumParts.EYES, parentIn);
 			types = new String[] { "gui.none", "gui.small", "gui.normal", "gui.select" };
 			noPlayerOptions();
 			canBeDeleted = false;
@@ -163,94 +164,49 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		}
 
 		@Override
-		protected void actionPerformed(GuiButton btn) {
-			switch (btn.id) {
-				case 23:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.eyeColor[1], color -> eyes.eyeColor[1] = color));
-					break;
-				case 24:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.eyeColor[0], color -> eyes.eyeColor[0] = color));
-					break;
-				case 25:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.pupilColor[0], color -> eyes.pupilColor[0] = color));
-					break;
-				case 26:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.pupilColor[1], color -> eyes.pupilColor[1] = color));
-					break;
-				case 27:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.browColor[1], color -> eyes.browColor[1] = color));
-					break;
-				case 28:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.browColor[0], color -> eyes.browColor[0] = color));
-					break;
-				case 29:
-					eyes.browThickness = ((GuiNpcButton) btn).getValue();
-					break;
-				case 30:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.skinColor, color -> eyes.skinColor = color));
-					break;
-				case 31:
-					eyes.closed = ((GuiNpcButton) btn).getValue();
-					break;
-				case 32:
-					eyes.eyePos = ((GuiNpcButton) btn).getValue() - 1;
-					break;
-				case 33:
-					eyes.glint = ((GuiNpcButtonYesNo) btn).getBoolean();
-					break;
-				case 34:
-					setSubGui(new GuiTextureSelection(0, null, eyes.eyeRight.toString(), "png", 5));
-					break;
-				case 35:
-					setSubGui(new GuiTextureSelection(1, null, eyes.eyeLeft.toString(), "png", 5));
-					break;
-				case 36:
-					setSubGui(new GuiTextureSelection(2, null, eyes.pupilRight.toString(), "png", 5));
-					break;
-				case 37:
-					setSubGui(new GuiTextureSelection(3, null, eyes.pupilLeft.toString(), "png", 5));
-					break;
-				case 38:
-					setSubGui(new GuiTextureSelection(4, null, eyes.browRight.toString(), "png", 5));
-					break;
-				case 39:
-					setSubGui(new GuiTextureSelection(5, null, eyes.browLeft.toString(), "png", 5));
-					break;
-				case 40:
-					eyes.reset();
-					initGui();
-					break;
-				case 41:
-					eyes.activeRight = ((GuiNpcButtonYesNo) btn).getBoolean();
-					break;
-				case 42:
-					eyes.activeLeft = ((GuiNpcButtonYesNo) btn).getBoolean();
-					break;
-				case 43:
-					eyes.activeCenter = ((GuiNpcButtonYesNo) btn).getBoolean();
-					break;
-				case 44:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.centerColor, color -> eyes.centerColor = color));
-					break;
+		public boolean buttonEvent(@Nonnull GuiNpcButton button) {
+			switch (button.getID()) {
+				case 23: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.eyeColor[1], color -> eyes.eyeColor[1] = color)); return true;
+				case 24: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.eyeColor[0], color -> eyes.eyeColor[0] = color)); return true;
+				case 25: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.pupilColor[0], color -> eyes.pupilColor[0] = color)); return true;
+				case 26: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.pupilColor[1], color -> eyes.pupilColor[1] = color)); return true;
+				case 27: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.browColor[1], color -> eyes.browColor[1] = color)); return true;
+				case 28: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.browColor[0], color -> eyes.browColor[0] = color)); return true;
+				case 29: eyes.browThickness = button.getValue(); return true;
+				case 30: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.skinColor, color -> eyes.skinColor = color)); return true;
+				case 31: eyes.closed = button.getValue(); return true;
+				case 32: eyes.eyePos = button.getValue() - 1; return true;
+				case 33: eyes.glint = ((GuiNpcButtonYesNo) button).getBoolean(); return true;
+				case 34: setSubGui(new SubGuiTextureSelection(0, null, eyes.eyeRight.toString(), "png", 5)); return true;
+				case 35: setSubGui(new SubGuiTextureSelection(1, null, eyes.eyeLeft.toString(), "png", 5)); return true;
+				case 36: setSubGui(new SubGuiTextureSelection(2, null, eyes.pupilRight.toString(), "png", 5)); return true;
+				case 37: setSubGui(new SubGuiTextureSelection(3, null, eyes.pupilLeft.toString(), "png", 5)); return true;
+				case 38: setSubGui(new SubGuiTextureSelection(4, null, eyes.browRight.toString(), "png", 5)); return true;
+				case 39: setSubGui(new SubGuiTextureSelection(5, null, eyes.browLeft.toString(), "png", 5)); return true;
+				case 40: eyes.reset(); parent.initGui(); return true;
+				case 41: eyes.activeRight = ((GuiNpcButtonYesNo) button).getBoolean(); return true;
+				case 42: eyes.activeLeft = ((GuiNpcButtonYesNo) button).getBoolean(); return true;
+				case 43: eyes.activeCenter = ((GuiNpcButtonYesNo) button).getBoolean(); return true;
+				case 44: setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.centerColor, color -> eyes.centerColor = color)); return true;
 				case 45:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.eyeColor[0], color -> {
+					setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.eyeColor[0], color -> {
 						eyes.eyeColor[0] = color;
 						eyes.eyeColor[1] = color;
 					}));
-					break;
+					return true;
 				case 46:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.pupilColor[0], color -> {
+					setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.pupilColor[0], color -> {
 						eyes.pupilColor[0] = color;
 						eyes.pupilColor[1] = color;
 					}));
-					break;
+					return true;
 				case 47:
-					setSubGui(new GuiModelColor(GuiCreationParts.this, eyes.browColor[0], color -> {
+					setSubGui(new SubGuiModelColor(GuiCreationParts.this, eyes.browColor[0], color -> {
 						eyes.browColor[0] = color;
 						eyes.browColor[1] = color;
 					}));
-					break;
-				default: super.actionPerformed(btn); break;
+					return true;
+				default: return super.buttonEvent(button);
 			}
 		}
 
@@ -261,243 +217,236 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 				int x0 = guiLeft + 123;
 				int x1 = guiLeft + 175;
 				y = guiTop + 50;
-				GuiNpcLabel label = (GuiNpcLabel) getLabel(20);
-				GuiNpcButton button = (GuiNpcButton) getButton(20);
-				label.y = y + 3;
-				button.x = x1;
-				button.y = y;
-				button.height = 14;
+				getLabel(20).y = y + 3;
+				getButton(20).setXY(x1, y).height = 14;
 				if (eyes.type != -1) {
-					addButton(new GuiNpcButton(40, x1 + 104, y, 31, 14, "RND"));
+					addButton(new GuiNpcButton(40, x1 + 104, y, 31, 14, "RND").setHoverText("display.hover.part.rnd"));
 				}
-				
 				// eye color
 				y += 16;
 				// left
-				label = (GuiNpcLabel) getLabel(23);
-				button = (GuiNpcButton) getButton(23);
-				label.setLabel("eye.color.0");
-				label.y = y + 3;
-				button.y = y;
-				button.x = x1;
-				button.height = 14;
-				button.width = 40;
-				((GuiColorButton) button).color = eyes.eyeColor[1];
-				addButton(new GuiNpcButton(45, x1 + 42, y, 18, 14, "-"));
+				getLabel(23).setLabel("eye.color.0").y = y + 3;
+				getButton(23).setXY(x1, y).setWH(40, 14);
+				((GuiColorButton) getButton(23).setHoverText("display.hover.part.eye.color.r")).color = eyes.eyeColor[1];
+				addButton(new GuiNpcButton(45, x1 + 42, y, 18, 14, "-")
+						.setHoverText("display.hover.part.eye.color"));
 				// right
-				addButton(new GuiColorButton(24, x1 + 62, y, 40, 14, eyes.eyeColor[0]));
+				addButton(new GuiColorButton(24, x1 + 62, y, 40, 14, eyes.eyeColor[0])
+						.setHoverText("display.hover.part.eye.color.l"));
 				if (data.type == 2) {
-					addButton(new GuiNpcButton(34, x1 + 104, y, 14, 14, "EL"));
-					addButton(new GuiNpcButton(35, x1 + 120, y, 14, 14, "ER"));
+					addButton(new GuiNpcButton(34, x1 + 104, y, 14, 14, "EL")
+							.setHoverText("display.hover.part.eye.txr.r"));
+					addButton(new GuiNpcButton(35, x1 + 120, y, 14, 14, "ER")
+							.setHoverText("display.hover.part.eye.txr.l"));
 				}
-				
 				// pupil color
-				y += 16;
 				// left
-				addLabel(new GuiNpcLabel(25, "eye.color.1", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(25, x1, y, 40, 14, eyes.pupilColor[0]);
-				addButton(button);
-				addButton(new GuiNpcButton(46, x1 + 42, y, 18, 14, "-"));
+				addLabel(new GuiNpcLabel(25, "eye.color.1", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiColorButton(25, x1, y, 40, 14, eyes.pupilColor[0])
+						.setHoverText("display.hover.part.pupil.color.r"));
+				addButton(new GuiNpcButton(46, x1 + 42, y, 18, 14, "-")
+						.setHoverText("display.hover.part.pupil.color"));
 				// right
-				addButton(new GuiColorButton(26, x1 + 62, y, 40, 14, eyes.pupilColor[1]));
+				addButton(new GuiColorButton(26, x1 + 62, y, 40, 14, eyes.pupilColor[1])
+						.setHoverText("display.hover.part.pupil.color.l"));
 				if (data.type == 2) {
-					addButton(new GuiNpcButton(36, x1 + 104, y, 14, 14, "PL"));
-					addButton(new GuiNpcButton(37, x1 + 120, y, 14, 14, "PR"));
+					addButton(new GuiNpcButton(36, x1 + 104, y, 14, 14, "PL")
+							.setHoverText("display.hover.part.pupil.txr.r"));
+					addButton(new GuiNpcButton(37, x1 + 120, y, 14, 14, "PR")
+							.setHoverText("display.hover.part.pupil.txr.l"));
 				}
-
 				// center
-				y += 16;
-				addLabel(new GuiNpcLabel(44, "eye.color.2", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(44, x1, y, 102, 14, eyes.centerColor);
-				addButton(button);
-				button = new GuiNpcButtonYesNo(43, x1 + 104, y, 20, 14, eyes.activeCenter);
-				addButton(button);
-
+				addLabel(new GuiNpcLabel(44, "eye.color.2", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiColorButton(44, x1, y, 102, 14, eyes.centerColor));
+				addButton(new GuiNpcButtonYesNo(43, x1 + 104, y, 20, 14, eyes.activeCenter)
+						.setHoverText("display.hover.part.center.active"));
 				// brow color
-				y += 16;
 				// left
-				addLabel(new GuiNpcLabel(27, "eye.color.3", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(27, x1 + 62, y, 40, 14, eyes.browColor[1]);
-				addButton(button);
-				addButton(new GuiNpcButton(47, x1 + 42, y, 18, 14, "-"));
+				addLabel(new GuiNpcLabel(27, "eye.color.3", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiColorButton(27, x1 + 62, y, 40, 14, eyes.browColor[1])
+						.setHoverText("display.hover.part.brow.color.r"));
+				addButton(new GuiNpcButton(47, x1 + 42, y, 18, 14, "-")
+						.setHoverText("display.hover.part.brow.color"));
 				// right
-				addButton(new GuiColorButton(28, x1, y, 40, 14, eyes.browColor[0]));
+				addButton(new GuiColorButton(28, x1, y, 40, 14, eyes.browColor[0])
+						.setHoverText("display.hover.part.brow.color.l"));
 				if (data.type == 2) {
-					addButton(new GuiNpcButton(38, x1 + 104, y, 14, 14, "BL"));
-					addButton(new GuiNpcButton(39, x1 + 120, y, 14, 14, "BR"));
+					addButton(new GuiNpcButton(38, x1 + 104, y, 14, 14, "BL")
+							.setHoverText("display.hover.part.brow.txr.r"));
+					addButton(new GuiNpcButton(39, x1 + 120, y, 14, 14, "BR")
+							.setHoverText("display.hover.part.brow.txr.l"));
 				}
-
 				// brow size
-				y += 16;
-				addLabel(new GuiNpcLabel(29, "eye.brow", x0, y + 3, 0xFFFFFF));
-				addButton(new GuiNpcButton(29, x1, y, 102, 14, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, eyes.browThickness));
-
+				addLabel(new GuiNpcLabel(29, "eye.brow", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiNpcButton(29, x1, y, 102, 14, new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8" }, eyes.browThickness)
+						.setHoverText("display.hover.part.brow.size"));
 				// skin color
-				y += 16;
-				addLabel(new GuiNpcLabel(30, "eye.lid", x0, y + 3, 0xFFFFFF));
-				button = new GuiColorButton(30, x1, y, eyes.skinColor);
-				button.width = 100;
-				button.height = 14;
-				addButton(button);
-				
+				addLabel(new GuiNpcLabel(30, "eye.lid", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiColorButton(30, x1, y, eyes.skinColor)
+						.setWH(100, 14)
+						.setHoverText("display.hover.part.skin.color"));
 				// both eyes
-				y += 16;
-				addLabel(new GuiNpcLabel(22, "gui.draw", x0, y + 3, 0xFFFFFF));
-				addButton(new GuiNpcButton(22, x1, y, 102, 14, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern));
-
+				addLabel(new GuiNpcLabel(22, "gui.draw", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiNpcButton(22, x1, y, 102, 14, new String[] { "gui.both", "gui.left", "gui.right" }, data.pattern)
+						.setHoverText("display.hover.part.pattern"));
 				// closed
-				y += 16;
-				addLabel(new GuiNpcLabel(31, "eye.closed", x0, y + 3, 0xFFFFFF));
-				button = new GuiNpcButton(31, x1, y, 102, 14, new String[] { "gui.none", "gui.both", "gui.left", "gui.right" }, eyes.closed);
-				addButton(button);
-				button = new GuiNpcButtonYesNo(41, x1 + 104, y, 20, 14, eyes.activeRight);
-				addButton(button);
-				button = new GuiNpcButtonYesNo(42, x1 + 126, y, 20, 14, eyes.activeLeft);
-				addButton(button);
-				
+				addLabel(new GuiNpcLabel(31, "eye.closed", x0, (y += 16) + 3, 0xFFFFFF));
+				addButton(new GuiNpcButton(31, x1, y, 102, 14, new String[] { "gui.none", "gui.both", "gui.left", "gui.right" }, eyes.closed)
+						.setHoverText("display.hover.part.closed"));
+				addButton(new GuiNpcButtonYesNo(41, x1 + 104, y, 20, 14, eyes.activeRight)
+						.setHoverText("display.hover.part.eye.active"));
+				addButton(new GuiNpcButtonYesNo(42, x1 + 126, y, 20, 14, eyes.activeLeft)
+						.setHoverText("display.hover.part.eye.active"));
 				// vertical pos
 				y += 16;
 				addLabel(new GuiNpcLabel(32, "gui.position", x0, y + 3, 0xFFFFFF));
-				addButton(new GuiNpcButton(32, x1, y, 102, 14, new String[] { new TextComponentTranslation("gui.down").getFormattedText() + " x2", "gui.down", "gui.normal", "gui.up", new TextComponentTranslation("gui.up").getFormattedText() + " x2" }, eyes.eyePos + 1));
-
+				addButton(new GuiNpcButton(32, x1, y, 102, 14, new String[] {
+						new TextComponentTranslation("gui.down").getFormattedText() + " x2",
+						"gui.down", "gui.normal", "gui.up",
+						new TextComponentTranslation("gui.up").getFormattedText() + " x2" }, eyes.eyePos + 1)
+						.setHoverText("display.hover.part.pos"));
 				// glint
 				y += 16;
 				addLabel(new GuiNpcLabel(33, "eye.glint", x0, y + 3, 0xFFFFFF));
-				button = new GuiNpcButtonYesNo(33, x1, y, 102, 14, eyes.glint);
-				addButton(button);
+				addButton(new GuiNpcButtonYesNo(33, x1, y, 102, 14, eyes.glint)
+						.setHoverText("display.hover.part.glint"));
 			}
 			return y;
 		}
 		
 		@Override
 		public void subGuiClosed(SubGuiInterface subgui) {
-			if (subgui instanceof GuiTextureSelection) {
-				GuiTextureSelection tGui = (GuiTextureSelection) subgui;
-				if (subgui.getId() == 0) { this.eyes.eyeRight = tGui.resource; }
-				else if (subgui.getId() == 1) { this.eyes.eyeLeft = tGui.resource; }
-				else if (subgui.getId() == 2) { this.eyes.pupilRight = tGui.resource; }
-				else if (subgui.getId() == 3) { this.eyes.pupilLeft = tGui.resource; }
-				else if (subgui.getId() == 4) { this.eyes.browRight = tGui.resource; }
-				else if (subgui.getId() == 5) { this.eyes.browLeft = tGui.resource; }
+			if (subgui instanceof SubGuiTextureSelection) {
+				SubGuiTextureSelection tGui = (SubGuiTextureSelection) subgui;
+				if (subgui.getId() == 0) { eyes.eyeRight = tGui.resource; }
+				else if (subgui.getId() == 1) { eyes.eyeLeft = tGui.resource; }
+				else if (subgui.getId() == 2) { eyes.pupilRight = tGui.resource; }
+				else if (subgui.getId() == 3) { eyes.pupilLeft = tGui.resource; }
+				else if (subgui.getId() == 4) { eyes.browRight = tGui.resource; }
+				else if (subgui.getId() == 5) { eyes.browLeft = tGui.resource; }
 			}
 		}
 		
 	}
 
 	class GuiPartHair extends GuiPart {
-		public GuiPartHair() {
-			super(EnumParts.HAIR);
-			this.noPlayerTypes().types = new String[] { "gui.none", "1", "2", "3", "4" };
+
+		public GuiPartHair(GuiCreationParts parentIn) {
+			super(EnumParts.HAIR, parentIn);
+			noPlayerTypes().types = new String[] { "gui.none", "1", "2", "3", "4" };
 		}
+
 	}
 
 	class GuiPartHorns extends GuiPart {
-		public GuiPartHorns() {
-			super(EnumParts.HORNS);
-			this.types = new String[] { "gui.none", "horns.bull", "horns.antlers", "horns.antenna" };
+
+		public GuiPartHorns(GuiCreationParts parentIn) {
+			super(EnumParts.HORNS, parentIn);
+			types = new String[] { "gui.none", "horns.bull", "horns.antlers", "horns.antenna" };
 		}
 
 		@Override
 		public int initGui() {
 			int y = super.initGui();
-			if (this.data != null && this.data.type == 2) {
+			if (data != null && data.type == 2) {
 				addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 123, y + 5, 0xFFFFFF));
-				addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "1", "2" }, this.data.pattern));
+				addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "1", "2" }, data.pattern)
+						.setHoverText("display.hover.part.pattern"));
 			}
 			return y;
 		}
+
 	}
 
 	class GuiPartLegs extends GuiPart {
-		public GuiPartLegs() {
-			super(EnumParts.LEGS);
-			this.types = new String[] { "gui.none", "gui.normal", "legs.naga", "legs.spider", "legs.horse", "legs.mermaid", "legs.digitigrade" };
-			this.canBeDeleted = false;
+
+		public GuiPartLegs(GuiCreationParts parentIn) {
+			super(EnumParts.LEGS, parentIn);
+			types = new String[] { "gui.none", "gui.normal", "legs.naga", "legs.spider", "legs.horse", "legs.mermaid", "legs.digitigrade" };
+			canBeDeleted = false;
 		}
 
 		@Override
-		protected void actionPerformed(GuiButton btn) {
-			if (btn.id == 20) {
-				int i = ((GuiNpcButton) btn).getValue();
-				this.data.playerTexture = (i <= 1);
+		public boolean buttonEvent(@Nonnull GuiNpcButton button) {
+			if (button.getID() == 20) {
+				int i = button.getValue();
+				data.playerTexture = (i <= 1);
+				return true;
 			}
-			super.actionPerformed(btn);
+			super.buttonEvent(button);
+			return false;
 		}
 
 		@Override
 		public int initGui() {
-			this.hasPlayerOption = (this.data.type == 1 || this.data.type == 5);
+			hasPlayerOption = (data.type == 1 || data.type == 5);
 			return super.initGui();
 		}
+
 	}
 
 	class GuiPartParticles extends GuiPart {
-		public GuiPartParticles() {
-			super(EnumParts.PARTICLES);
-			this.types = new String[] { "gui.none", "1", "2" };
+
+		public GuiPartParticles(GuiCreationParts parentIn) {
+			super(EnumParts.PARTICLES, parentIn);
+			types = new String[] { "gui.none", "1", "2" };
 		}
 
 		@Override
-		public int initGui() {
-            return super.initGui();
-		}
+		public int initGui() { return super.initGui(); }
+
 	}
 
 	class GuiPartSnout extends GuiPart {
-		public GuiPartSnout() {
-			super(EnumParts.SNOUT);
-			this.types = new String[] { "gui.none", "snout.small", "snout.medium", "snout.large", "snout.bunny",
-					"snout.beak" };
+		public GuiPartSnout(GuiCreationParts parentIn) {
+			super(EnumParts.SNOUT, parentIn);
+			types = new String[] { "gui.none", "snout.small", "snout.medium", "snout.large", "snout.bunny", "snout.beak" };
 		}
 	}
 
 	class GuiPartTail extends GuiPart {
-		public GuiPartTail() {
-			super(EnumParts.TAIL);
-			this.types = new String[] { "gui.none", "part.tail", "tail.dragon", "tail.horse", "tail.squirrel",
-					"tail.fin", "tail.rodent", "tail.bird", "tail.fox" };
+		public GuiPartTail(GuiCreationParts parentIn) {
+			super(EnumParts.TAIL, parentIn);
+			types = new String[] { "gui.none", "part.tail", "tail.dragon", "tail.horse", "tail.squirrel", "tail.fin", "tail.rodent", "tail.bird", "tail.fox" };
 		}
 
 		@Override
 		public int initGui() {
-			this.data = playerdata.getPartData(this.part);
-			this.hasPlayerOption = (this.data != null
-					&& (this.data.type == 0 || this.data.type == 1 || this.data.type == 6 || this.data.type == 7));
+			data = playerdata.getPartData(part);
+			hasPlayerOption = (data != null && (data.type == 0 || data.type == 1 || data.type == 6 || data.type == 7));
 			int y = super.initGui();
-			if (this.data != null && this.data.type == 0) {
+			if (data != null && data.type == 0) {
 				addLabel(new GuiNpcLabel(22, "gui.pattern", guiLeft + 123, y + 5, 0xFFFFFF));
-				addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "1", "2" }, this.data.pattern));
+				addButton(new GuiButtonBiDirectional(22, guiLeft + 175, y, 100, 20, new String[] { "1", "2" }, data.pattern)
+						.setHoverText("display.hover.part.pattern"));
 			}
 			return y;
 		}
 	}
 
 	class GuiPartWings extends GuiPart {
-		public GuiPartWings() {
-			super(EnumParts.WINGS);
-			this.setTypes(new String[] { "gui.none", "1", "2", "3", "4" });
+
+		public GuiPartWings(GuiCreationParts parentIn) {
+			super(EnumParts.WINGS, parentIn);
+			setTypes(new String[] { "gui.none", "1", "2", "3", "4" });
 		}
 
 		@Override
-		public int initGui() {
-			return super.initGui();
-		}
+		public int initGui() { return super.initGui(); }
+
 	}
 
 	class GuiPartLayers extends GuiPart {
 
-		private final GuiCreationParts parent;
 		private final ContainerLayer cont;
 
-		public boolean isCustomLayers = false;
 		public GuiCustomScroll scrollIn;
 		public int selectPos = 0;
 		public Map<Integer, EnumParts> partNames = new LinkedHashMap<>();
 
         public GuiPartLayers(GuiCreationParts parentIn) {
-			super(EnumParts.CUSTOM_LAYERS);
+			super(EnumParts.CUSTOM_LAYERS, parentIn);
 			cont = (ContainerLayer) inventorySlots;
-			parent = parentIn;
 			partNames.put(0, EnumParts.HEAD);
 			partNames.put(1, EnumParts.BODY);
 			partNames.put(2, EnumParts.ARM_RIGHT);
@@ -514,19 +463,14 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		}
 
 		@Override
-		protected void actionPerformed(GuiButton btn) {
-			switch (btn.id) {
-				case 20: {
-					isCustomLayers = ((GuiNpcCheckBox) btn).isSelected();
-					parent.initGui();
-					break;
-				} // change isCustomLayers
+		public boolean buttonEvent(@Nonnull GuiNpcButton button) {
+			switch (button.getID()) {
 				case 21: {
-					if (cont == null) { return; }
+					if (cont == null) { return true; }
 					selectPos = playerdata.addNewLayer();
 					cont.getSlot(0).putStack(ItemStack.EMPTY);
 					Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, ItemStack.EMPTY.writeToNBT(new NBTTagCompound()));
-					break;
+					return true;
 				} // add new item layer
 				case 22: {
 					selectPos = playerdata.removeLayer(selectPos);
@@ -541,252 +485,193 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 						cont.getSlot(0).putStack(lm.getStack());
 					}
 					Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, compound);
-					initGui();
-					break;
+					parent.initGui();
+					return true;
 				} // remove item layer
 				case 23: {
-					if (toolType == 1) { return; }
+					if (toolType == 1) { return true; }
 					GuiNpcTextField.unfocus();
 					toolType = 1;
 					parent.initGui();
-					break;
+					return true;
 				} // select tool pos
 				case 24: {
-					if (toolType == 0) { return; }
+					if (toolType == 0) { return true; }
 					GuiNpcTextField.unfocus();
 					toolType = 0;
 					parent.initGui();
-					break;
+					return true;
 				} // select tool rot
 				case 25: {
-					if (toolType == 2) { return; }
+					if (toolType == 2) { return true; }
 					GuiNpcTextField.unfocus();
 					toolType = 2;
 					parent.initGui();
-					break;
+					return true;
 				} // select tool scale
 				case 26: {
 					resetAxis(0);
-					if (showEntity instanceof EntityCustomNpc && playerdata != null){
-						((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
-					}
-					break;
+					if (showEntity instanceof EntityCustomNpc && playerdata != null){ ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
+					return true;
 				} // reset X
 				case 27: {
 					resetAxis(1);
-					if (showEntity instanceof EntityCustomNpc && playerdata != null){
-						((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
-					}
-					break;
+					if (showEntity instanceof EntityCustomNpc && playerdata != null){ ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
+					return true;
 				} // reset Y
 				case 28: {
 					resetAxis(2);
-					if (showEntity instanceof EntityCustomNpc && playerdata != null){
-						((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
-					}
-					break;
+					if (showEntity instanceof EntityCustomNpc && playerdata != null){ ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
+					return true;
 				} // reset Z
 				case 29: {
 					LayerModel lm = playerdata.getLayerModel(selectPos);
-					if (lm == null) { return; }
-					lm.part = partNames.get(((GuiNpcButton) btn).getValue());
+					if (lm == null) { return true; }
+					lm.part = partNames.get(button.getValue());
 					if (showEntity instanceof EntityCustomNpc && playerdata != null) { ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
-					break;
+					return true;
 				} // reset part
-				default: super.actionPerformed(btn); break;
+				default: return super.buttonEvent(button);
 			}
 		}
 
 		@Override
 		public int initGui() {
 			GuiNpcTextField.unfocus();
-			parent.components.removeIf(component -> component.getID() != 66 && component.getID() != 500 && component.getID() > 19 || (component instanceof GuiCustomScroll && component.getID() == 1));
-			parent.buttonList.removeIf(button -> button.id != 500 && button.id > 19);
-			for (int id : new ArrayList<>(parent.buttons.keySet())) {
-				if (id != 66 && id != 500 && id > 19 || parent.buttons.get(id).getID() == 1) { parent.buttons.remove(id); }
-			}
-			for (int id : new ArrayList<>(parent.labels.keySet())) {
-				if (id > 19 || parent.labels.get(id).getID() == 1) { parent.labels.remove(id); }
-			}
-			for (int id : new ArrayList<>(parent.scrolls.keySet())) {
-				if (id > 1 || parent.scrolls.get(id).getID() == 1) { parent.scrolls.remove(id); }
+			super.initGui();
+			for (int i = 20; i < 24; i++) {
+				if (getLabel(i) != null) { getLabel(i).setIsVisible(false); }
+				if (getButton(i) != null) { getButton(i).setIsVisible(false); }
 			}
 			int x0 = guiLeft + 123;
 			int y = guiTop;
-			addButton(new GuiNpcCheckBox(20, x0, y, 100, 20, "part.layers.true", "part.layers.false", isCustomLayers));
-			((GuiNpcCheckBox) getButton(20)).setColor(CustomNpcs.MainColor.getRGB(), false);
-			y += 25;
-			GuiNpcButton button;
-            if (isCustomLayers) {
-				GuiNpcSlider slider;
-				GuiNpcTextField textField;
-				scrollIn = new GuiCustomScroll(parent, 1);
-				scrollIn.setSize(100, 102);
-
-				NBTTagCompound compound = new NBTTagCompound();
-				LayerModel lm = playerdata.getLayerModel(selectPos);
-				if (lm == null) {
-					ItemStack stack = cont.getSlot(0).getStack();
-					if (!stack.isEmpty()) {
-						selectPos = playerdata.addNewLayer();
-						lm = playerdata.getLayerModel(selectPos);
-						lm.setStack(stack);
-						stack.writeToNBT(compound);
-					} else {
-						selectPos = -1;
-						ItemStack.EMPTY.writeToNBT(compound);
-					}
-				}
-				else { lm.getStack().writeToNBT(compound); }
-				Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, compound);
-
-				scrollIn.setListNotSorted(playerdata.getLayerKeys());
-				scrollIn.setSelect(selectPos);
-
-				addLabel(new GuiNpcLabel(20, "part.layers.info.0", x0, y));
-				getLabel(20).setColor(CustomNpcs.MainColor.getRGB());
-				int y1 = y + 116;
-				addButton(button = new GuiNpcButton(21, x0, y1, 49, 20, "gui.add"));
-				button.setEnabled(playerdata.isNoEmptyLayer());
-				addButton(button = new GuiNpcButton(22, x0 + 51, y1, 49, 20, "gui.remove"));
-				button.setEnabled(selectPos != -1);
-
-				if (lm != null) {
-					int x1 = x0 + 104;
-
-					String objModel = lm.getOBJ() == null ? "" : lm.getOBJ().toString();
-					y1 = y - 21;
-					addLabel(new GuiNpcLabel(19, "OBJ Model path:", x1 + 1, y1));
-					getLabel(19).setColor(CustomNpcs.MainColor.getRGB());
-					addTextField(textField = new GuiNpcTextField(25, parent, x1, y1 += 12, 150, 16, objModel));
-					textField.setHoverText("display.hover.layer.obj");
-					addLabel(new GuiNpcLabel(22, "Tool type:", x1 + 1, (y1 += 19) + 2));
-					getLabel(22).setColor(CustomNpcs.MainColor.getRGB());
-
-					if (!lm.getStack().isEmpty() || lm.getOBJ() != null) {
-						// tool pos
-						button = new GuiNpcButton(23,x1 + 50, y1, 14, 14, "");
-						button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-						button.hasDefBack = false;
-						button.isAnim = true;
-						button.txrW = 24;
-						button.txrH = 24;
-						button.layerColor = toolType == 1 ?
-								new Color(0xFFFF4040).getRGB() :
-								new Color(0xFFFFFFFF).getRGB();
-						button.setHoverText("animation.hover.tool.0");
-						addButton(button);
-						// tool rot
-						button = new GuiNpcButton(24, x1 + 66, y1, 14, 14, "");
-						button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-						button.hasDefBack = false;
-						button.isAnim = true;
-						button.txrX = 24;
-						button.txrW = 24;
-						button.txrH = 24;
-						button.layerColor = toolType == 0 ?
-								new Color(0xFF40FF40).getRGB() :
-								new Color(0xFFFFFFFF).getRGB();
-						button.setHoverText("animation.hover.tool.1");
-						addButton(button);
-						// tool scale
-						button = new GuiNpcButton(25, x1 + 82, y1, 14, 14, "");
-						button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-						button.hasDefBack = false;
-						button.isAnim = true;
-						button.txrX = 48;
-						button.txrW = 24;
-						button.txrH = 24;
-						button.layerColor = toolType == 2 ?
-								new Color(0xFF4040FF).getRGB() :
-								new Color(0xFFFFFFFF).getRGB();
-						button.setHoverText("animation.hover.tool.2");
-						addButton(button);
-
-						int f = 11;
-						int id;
-						y1 += 16;
-						for (int i = 0; i < 3; i++) { // 26 ... 28
-							id = i + 26;
-							addLabel(new GuiNpcLabel(id, i == 0 ? "X:" : i == 1 ? "Y:" : "Z:", x1 + 1, y1 + i * f));
-							getLabel(id).setColor(CustomNpcs.MainColor.getRGB());
-
-							float v;
-							float s;
-							float max;
-							float min;
-							switch (toolType) {
-								case 0: {
-									v = lm.rotation[i];
-									s = 0.002778f * lm.rotation[i] + 0.5f;
-									min = -180.0f;
-									max = 180.0f;
-									break;
-								}
-								case 1: {
-									v = lm.offset[i];
-									s = 0.2f * lm.offset[i] + 0.5f;
-									min = -10.0f;
-									max = 10.0f;
-									break;
-								}
-								default: {
-									v = lm.scale[i];
-									s = 0.2f * lm.scale[i];
-									min = 0.0f;
-									max = 5.0f;
-									break;
-								}
-							}
-							slider = new GuiNpcSlider(parent, id, x1 + 9, y1 + i * f, 78, 8, s);
-							String hover = "animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale");
-							slider.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z");
-							addSlider(slider);
-							textField = new GuiNpcTextField(id, parent, x1 + 89, y1 + i * f, 42, 8, df.format(v));
-							textField.setMinMaxDoubleDefault(min, max, v);
-							textField.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z");
-							addTextField(textField);
-							button = new GuiNpcButton(id, x1 + 133, y1 + i * f, 8, 8, "X");
-							button.texture = GuiNPCInterface.ANIMATION_BUTTONS;
-							button.hasDefBack = false;
-							button.isAnim = true;
-							button.txrY = 96;
-							button.dropShadow = false;
-							button.setTextColor(0xFFDC0000);
-							button.setHoverText("animation.hover.reset." + toolType, i == 0 ? "X" : i == 1 ? "Y" : "Z");
-							addButton(button);
-						}  // 26 ... 28
-						y1 += f * 3 + 2;
-					}
-					int pos = 0;
-					String[] names = new String[partNames.size()];
-					for (int i : partNames.keySet()) {
-						if (partNames.get(i) == lm.part) { pos = i; }
-						names[i] = "part." + partNames.get(i).name;
-					}
-					addButton(button = new GuiButtonBiDirectional(29, x1, y1, 78, 14, names, pos));
-					button.setHoverText("display.hover.layer.type");
+			scrollIn = new GuiCustomScroll(parent, 1);
+			scrollIn.setSize(100, 127);
+			NBTTagCompound compound = new NBTTagCompound();
+			LayerModel lm = playerdata.getLayerModel(selectPos);
+			if (lm == null) {
+				ItemStack stack = cont.getSlot(0).getStack();
+				if (!stack.isEmpty()) {
+					selectPos = playerdata.addNewLayer();
+					lm = playerdata.getLayerModel(selectPos);
+					lm.setStack(stack);
+					stack.writeToNBT(compound);
+				} else {
+					selectPos = -1;
+					ItemStack.EMPTY.writeToNBT(compound);
 				}
 			}
-			else {
-				scrollIn = new GuiCustomScroll(parent, 1, true);
-				scrollIn.setSize(120, 175);
-				scrollIn.canSearch(false);
-				addLabel(new GuiNpcLabel(20, "part.layers.info.1", x0, y));
-				getLabel(20).setColor(CustomNpcs.MainColor.getRGB());
-				Render<Entity> render = mc.getRenderManager().getEntityRenderObject(npc);
-				if (render instanceof RenderCustomNpc) {
-					scrollIn.setList(((RenderCustomNpc<?>) render).getLayerRendererNames());
+			else { lm.getStack().writeToNBT(compound); }
+			Client.sendData(EnumPacketServer.ChangeItemInSlot, "ContainerLayer", 0, compound);
+			scrollIn.setUnsortedList(playerdata.getLayerKeys());
+			scrollIn.setSelect(selectPos);
+			addLabel(new GuiNpcLabel(20, "part.layers.info.0", x0, y)
+					.setColor(CustomNpcs.MainColor.getRGB()));
+			int y1 = y + 141;
+			addButton(new GuiNpcButton(21, x0, y1, 49, 20, "gui.add")
+					.setIsEnable(playerdata.isNoEmptyLayer()));
+			addButton(new GuiNpcButton(22, x0 + 51, y1, 49, 20, "gui.remove")
+					.setIsEnable(selectPos != -1));
+			if (lm != null) {
+				int x1 = x0 + 104;
+				String objModel = lm.getOBJ() == null ? "" : lm.getOBJ().toString();
+				y1 = y;
+				addLabel(new GuiNpcLabel(19, "OBJ Model path:", x1 + 1, y1));
+				getLabel(19).setColor(CustomNpcs.MainColor.getRGB());
+				addTextField(new GuiNpcTextField(25, parent, x1, y1 += 12, 150, 16, objModel)
+						.setHoverText("display.hover.layer.obj"));
+				addLabel(new GuiNpcLabel(22, "Tool type:", x1 + 1, (y1 += 19) + 2)
+						.setColor(CustomNpcs.MainColor.getRGB()));
+				if (!lm.getStack().isEmpty() || lm.getOBJ() != null) {
+					// tool pos
+					addButton(new GuiNpcButton(23,x1 + 50, y1, 14, 14, "")
+							.setTexture(GuiNPCInterface.ANIMATION_BUTTONS)
+							.setHasDefaultBack(false)
+							.setIsAnim(true)
+							.setUV(0, 0, 24, 24)
+							.setLayerColor(toolType == 1 ?  new Color(0xFFFF4040).getRGB() :  new Color(0xFFFFFFFF).getRGB())
+							.setHoverText("animation.hover.tool.0"));
+					// tool rot
+					addButton(new GuiNpcButton(24, x1 + 66, y1, 14, 14, "")
+							.setTexture(GuiNPCInterface.ANIMATION_BUTTONS)
+							.setHasDefaultBack(false)
+							.setIsAnim(true)
+							.setUV(24, 0, 24, 24)
+							.setLayerColor(toolType == 0 ?  new Color(0xFF40FF40).getRGB() :  new Color(0xFFFFFFFF).getRGB())
+							.setHoverText("animation.hover.tool.1"));
+					// tool scale
+					addButton(new GuiNpcButton(25, x1 + 82, y1, 14, 14, "")
+							.setTexture(GuiNPCInterface.ANIMATION_BUTTONS)
+							.setHasDefaultBack(false)
+							.setIsAnim(true)
+							.setUV(48, 24, 24, 24)
+							.setLayerColor(toolType == 2 ?  new Color(0xFF4040FF).getRGB() :  new Color(0xFFFFFFFF).getRGB())
+							.setHoverText("animation.hover.tool.2"));
+					int f = 11;
+					int id;
+					y1 += 16;
+					for (int i = 0; i < 3; i++) { // 26 ... 28
+						id = i + 26;
+						addLabel(new GuiNpcLabel(id, i == 0 ? "X:" : i == 1 ? "Y:" : "Z:", x1 + 1, y1 + i * f));
+						getLabel(id).setColor(CustomNpcs.MainColor.getRGB());
+						float v;
+						float s;
+						float max;
+						float min;
+						switch (toolType) {
+							case 0: {
+								v = lm.rotation[i];
+								s = 0.002778f * lm.rotation[i] + 0.5f;
+								min = -180.0f;
+								max = 180.0f;
+								break;
+							}
+							case 1: {
+								v = lm.offset[i];
+								s = 0.2f * lm.offset[i] + 0.5f;
+								min = -10.0f;
+								max = 10.0f;
+								break;
+							}
+							default: {
+								v = lm.scale[i];
+								s = 0.2f * lm.scale[i];
+								min = 0.0f;
+								max = 5.0f;
+								break;
+							}
+						}
+						String hover = "animation.hover." + (toolType == 0 ? "rotation" : toolType == 1 ? "offset" : "scale");
+						addSlider(new GuiNpcSlider(parent, id, x1 + 9, y1 + i * f, 78, 8, s)
+								.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z"));
+						addTextField(new GuiNpcTextField(id, parent, x1 + 89, y1 + i * f, 42, 8, df.format(v))
+								.setMinMaxDoubleDefault(min, max, v)
+								.setHoverText(hover, i == 0 ? "X" : i == 1 ? "Y" : "Z"));
+						addButton(new GuiNpcButton(id, x1 + 133, y1 + i * f, 8, 8, "X")
+								.setTexture(GuiNPCInterface.ANIMATION_BUTTONS)
+								.setHasDefaultBack(false)
+								.setIsAnim(true)
+								.setUV(0, 96, 0, 0)
+								.setTextColor(0xFFDC0000)
+								.setDropShadow(false)
+								.setHoverText("animation.hover.reset." + toolType, i == 0 ? "X" : i == 1 ? "Y" : "Z"));
+					}  // 26 ... 28
+					y1 += f * 3 + 2;
 				}
-				scrollIn.setSelectedList(new HashSet<>(Arrays.asList(playerdata.getDisableLayers())));
+				int pos = 0;
+				String[] names = new String[partNames.size()];
+				for (int i : partNames.keySet()) {
+					if (partNames.get(i) == lm.part) { pos = i; }
+					names[i] = "part." + partNames.get(i).name;
+				}
+				addButton(new GuiButtonBiDirectional(29, x1, y1, 78, 14, names, pos)
+						.setHoverText("display.hover.layer.type"));
 			}
 			y += 12;
 			scrollIn.guiLeft = x0;
 			scrollIn.guiTop = y;
 			addScroll(scrollIn);
-			if (showEntity instanceof EntityCustomNpc && playerdata != null){
-				((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
-			}
+			if (showEntity instanceof EntityCustomNpc && playerdata != null){ ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
 			return y;
 		}
 
@@ -804,23 +689,23 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 	public GuiCreationParts(EntityNPCInterface npc, ContainerLayer container) {
 		super(npc, container);
 		parts = new GuiPart[] {
-				new GuiPart(EnumParts.EARS).setTypes(new String[] { "gui.none", "gui.normal", "ears.bunny" }),
-				new GuiPartHorns(),
-				new GuiPartHair(),
-				new GuiPart(EnumParts.MOHAWK).setTypes(new String[] { "gui.none", "1", "2" }).noPlayerOptions(),
-				new GuiPartSnout(),
-				new GuiPartBeard(),
-				new GuiPart(EnumParts.FIN).setTypes(new String[] { "gui.none", "fin.shark", "fin.reptile" }),
-				new GuiPart(EnumParts.BREASTS).setTypes(new String[] { "gui.none", "1", "2", "3" }).noPlayerOptions(),
-				new GuiPartWings(),
-				new GuiPartClaws(),
-				new GuiPart(EnumParts.SKIRT).setTypes(new String[] { "gui.none", "gui.normal" }), new GuiPartLegs(),
-				new GuiPartTail(),
-				new GuiPartEyes(),
-				new GuiPartParticles(),
+				new GuiPart(EnumParts.EARS, this).setTypes(new String[] { "gui.none", "gui.normal", "ears.bunny" }),
+				new GuiPartHorns(this),
+				new GuiPartHair(this),
+				new GuiPart(EnumParts.MOHAWK, this).setTypes(new String[] { "gui.none", "1", "2" }).noPlayerOptions(),
+				new GuiPartSnout(this),
+				new GuiPartBeard(this),
+				new GuiPart(EnumParts.FIN, this).setTypes(new String[] { "gui.none", "fin.shark", "fin.reptile" }),
+				new GuiPart(EnumParts.BREASTS, this).setTypes(new String[] { "gui.none", "1", "2", "3" }).noPlayerOptions(),
+				new GuiPartWings(this),
+				new GuiPartClaws(this),
+				new GuiPart(EnumParts.SKIRT, this).setTypes(new String[] { "gui.none", "gui.normal" }), new GuiPartLegs(this),
+				new GuiPartTail(this),
+				new GuiPartEyes(this),
+				new GuiPartParticles(this),
 				new GuiPartLayers(this) };
-		this.active = 2;
-		this.closeOnEsc = false;
+		active = 2;
+		closeOnEsc = false;
 		Arrays.sort(parts, (o1, o2) -> {
 			String s1 = new TextComponentTranslation("part." + o1.part.name).getFormattedText();
 			String s2 = new TextComponentTranslation("part." + o2.part.name).getFormattedText();
@@ -829,20 +714,18 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 	}
 
 	@Override
-	protected void actionPerformed(@Nonnull GuiButton btn) {
-		super.actionPerformed(btn);
-		if (getPart() != null) {
-			getPart().actionPerformed(btn);
-		}
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton == 0 && getPart() != null && getPart().buttonEvent(button)) { return; }
+		super.buttonEvent(button, mouseButton);
 	}
 	
-	protected GuiPart getPart() { return this.parts[GuiCreationParts.selected]; }
+	protected GuiPart getPart() { return parts[GuiCreationParts.selected]; }
 
 	@Override
 	public void drawDefaultBackground() {
 		super.drawDefaultBackground();
 		GuiPart part = getPart();
-		if (part instanceof GuiPartLayers && ((GuiPartLayers) part).isCustomLayers) {
+		if (part instanceof GuiPartLayers) {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate( guiLeft + 121.0f, guiTop + 163.0f, 0.0f);
 			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
@@ -871,7 +754,7 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		if (!isCheck && part instanceof GuiPartLayers && getButton(21) != null) {
 			CustomNPCsScheduler.runTack(() -> {
 				isCheck = true;
-				getButton(21).setEnabled(playerdata.isNoEmptyLayer()); // add
+				getButton(21).setIsEnable(playerdata.isNoEmptyLayer()); // add
 				LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
 				GuiCustomScroll scrollIn = ((GuiPartLayers) part).scrollIn;
 				ItemStack stack = ((GuiPartLayers) part).cont.getSlot(0).getStack();
@@ -885,115 +768,27 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 				isCheck = false;
 			});
 		}
-		if (this.subgui != null || !CustomNpcs.ShowDescriptions) { return; }
-		if (this.getButton(1) != null && this.getButton(1).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.entity").getFormattedText());
-		} else if (this.getButton(2) != null && this.getButton(2).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.parts").getFormattedText());
-		} else if (this.getButton(3) != null && this.getButton(3).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.size").getFormattedText());
-		} else if (this.getButton(4) != null && this.getButton(4).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.save").getFormattedText());
-		} else if (this.getButton(5) != null && this.getButton(5).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.load").getFormattedText());
-		} else if (this.getButton(20) != null && this.getButton(20).isHovered()) {
-			if (!(getPart() instanceof GuiPartLayers)) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.type").getFormattedText());
-			}
-		} else if (this.getButton(21) != null && this.getButton(21).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.skin").getFormattedText());
-		} else if (this.getButton(22) != null && this.getButton(22).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("display.hover.part.pattern").getFormattedText());
-		} else if (this.getButton(66) != null && this.getButton(66).isHovered()) {
-			this.setHoverText(new TextComponentTranslation("hover.back").getFormattedText());
-		} else if (this.getPart() instanceof GuiPartEyes) {
-			if (this.getButton(23) != null && this.getButton(23).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(23).getLeft(), this.getButton(23).getTop(), this.getButton(23).getWidth(), this.getButton(23).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color.r").getFormattedText());
-			} else if (this.getButton(24) != null && this.getButton(24).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(24).getLeft(), this.getButton(24).getTop(), this.getButton(24).getWidth(), this.getButton(24).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color.l").getFormattedText());
-			} else if (this.getButton(25) != null && this.getButton(25).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(25).getLeft(), this.getButton(25).getTop(), this.getButton(25).getWidth(), this.getButton(25).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color.r").getFormattedText());
-			} else if (this.getButton(26) != null && this.getButton(26).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(26).getLeft(), this.getButton(26).getTop(), this.getButton(26).getWidth(), this.getButton(26).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color.l").getFormattedText());
-			} else if (this.getButton(27) != null && this.getButton(27).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(27).getLeft(), this.getButton(27).getTop(), this.getButton(27).getWidth(), this.getButton(27).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.r").getFormattedText());
-			} else if (this.getButton(28) != null && this.getButton(28).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(28).getLeft(), this.getButton(28).getTop(), this.getButton(28).getWidth(), this.getButton(28).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color.l").getFormattedText());
-			} else if (this.getButton(29) != null && this.getButton(29).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.size").getFormattedText());
-			} else if (this.getButton(30) != null && this.getButton(30).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(30).getLeft(), this.getButton(30).getTop(), this.getButton(30).getWidth(), this.getButton(30).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.skin.color").getFormattedText());
-			} else if (this.getButton(31) != null && this.getButton(31).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.closed").getFormattedText());
-			} else if (this.getButton(32) != null && this.getButton(32).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.pos").getFormattedText());
-			} else if (this.getButton(33) != null && this.getButton(33).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.glint").getFormattedText());
-			} else if (this.getButton(34) != null && this.getButton(34).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.txr.r").getFormattedText());
-			} else if (this.getButton(35) != null && this.getButton(35).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.txr.l").getFormattedText());
-			} else if (this.getButton(36) != null && this.getButton(36).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.txr.r").getFormattedText());
-			} else if (this.getButton(37) != null && this.getButton(37).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.txr.l").getFormattedText());
-			} else if (this.getButton(38) != null && this.getButton(38).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.txr.r").getFormattedText());
-			} else if (this.getButton(39) != null && this.getButton(39).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.txr.l").getFormattedText());
-			} else if (this.getButton(40) != null && this.getButton(40).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.rnd").getFormattedText());
-			} else if ((this.getButton(41) != null && this.getButton(41).isHovered()) || (this.getButton(42) != null && this.getButton(42).isHovered())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.active").getFormattedText());
-			} else if (this.getButton(43) != null && this.getButton(43).isHovered()) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.center.active").getFormattedText());
-			} else if (this.getButton(45) != null && this.getButton(45).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(45).getLeft(), this.getButton(45).getTop(), this.getButton(45).getWidth(), this.getButton(45).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.eye.color").getFormattedText());
-			} else if (this.getButton(46) != null && this.getButton(46).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(46).getLeft(), this.getButton(46).getTop(), this.getButton(46).getWidth(), this.getButton(46).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.pupil.color").getFormattedText());
-			} else if (this.getButton(47) != null && this.getButton(47).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(47).getLeft(), this.getButton(47).getTop(), this.getButton(47).getWidth(), this.getButton(47).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.brow.color").getFormattedText());
-			}
-		} else {
-			if (this.getButton(23) != null && this.getButton(23).isVisible() && isMouseHover(mouseX, mouseY, this.getButton(23).getLeft(), this.getButton(23).getTop(), this.getButton(23).getWidth(), this.getButton(23).getHeight())) {
-				this.setHoverText(new TextComponentTranslation("display.hover.part.color").getFormattedText());
-				return;
-			}
-			for (GuiButton b : this.buttonList) {
-				if (b != null && b.isMouseOver()) {
-					if (b.id == 500) {
-						this.setHoverText(new TextComponentTranslation("display.hover.part.rotate").getFormattedText());
-					}
-				}
-			}
-		}
-		drawHoverText(null);
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (this.entity != null) {
-			this.openGui(new GuiCreationExtra(npc, (ContainerLayer) inventorySlots));
-			return;
-		}
-		if (this.scroll == null) {
+		if (entity != null) { openGui(new GuiCreationExtra(npc, (ContainerLayer) inventorySlots)); return; }
+		if (scroll == null) {
 			List<String> list = new ArrayList<>();
-			for (GuiPart part : this.parts) {
-				list.add(new TextComponentTranslation("part." + part.part.name).getFormattedText());
-			}
-			(this.scroll = new GuiCustomScroll(this, 0)).setListNotSorted(list);
+			for (GuiPart part : parts) { list.add(new TextComponentTranslation("part." + part.part.name).getFormattedText()); }
+			scroll = new GuiCustomScroll(this, 0).setUnsortedList(list);
 		}
-		this.scroll.guiLeft = guiLeft;
-		this.scroll.guiTop = guiTop + 46;
-		this.scroll.setSize(121, ySize - 74);
-		this.addScroll(this.scroll);
-		if (this.getPart() != null) {
-			this.scroll.setSelected(new TextComponentTranslation("part." + this.getPart().part.name).getFormattedText());
-			this.getPart().initGui();
+		scroll.guiLeft = guiLeft;
+		scroll.guiTop = guiTop + 46;
+		scroll.setSize(121, ySize - 74);
+		addScroll(scroll);
+		if (getPart() != null) {
+			scroll.setSelected(new TextComponentTranslation("part." + getPart().part.name).getFormattedText());
+			getPart().initGui();
 		}
 		if (inventorySlots instanceof ContainerLayer) {
-			boolean bo = getPart() instanceof GuiPartLayers && ((GuiPartLayers) getPart()).isCustomLayers;
+			boolean bo = getPart() instanceof GuiPartLayers;
 			int x;
 			int y;
 			for (Slot slot : inventorySlots.inventorySlots) {
@@ -1013,143 +808,108 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getID() == 0 && scroll.getSelect() >= 0) {
 			GuiCreationParts.selected = scroll.getSelect();
 			initGui();
 		}
 		if (scroll.getID() == 1 && getPart() instanceof GuiPartLayers) {
 			GuiPartLayers part = (GuiPartLayers) getPart();
-			if (part.isCustomLayers) {
-				part.selectPos = scroll.getSelect();
-				LayerModel lm = playerdata.getLayerModel(scroll.getSelect());
-				if (lm == null) { part.cont.getSlot(0).putStack(ItemStack.EMPTY); }
-				else { part.cont.getSlot(0).putStack(lm.getStack()); }
-			} else {
-				playerdata.setDisableLayers(scroll.getSelectedList().toArray(new String[0]));
-			}
+			part.selectPos = scroll.getSelect();
+			LayerModel lm = playerdata.getLayerModel(scroll.getSelect());
+			if (lm == null) { part.cont.getSlot(0).putStack(ItemStack.EMPTY); }
+			else { part.cont.getSlot(0).putStack(lm.getStack()); }
 			part.initGui();
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 	
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (this.getPart() != null) {
-			this.getPart().subGuiClosed(subgui);
-		}
-		this.initGui();
+		if (getPart() != null) { getPart().subGuiClosed(subgui); }
+		initGui();
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
 		if (subgui == null && getPart() instanceof GuiPartLayers) {
 			// tool pos - Alt + Q
-			if (isPressAndKey(16) && toolType != 1) {
+			if (isPressAndKey(Keyboard.KEY_Q) && toolType != 1) {
 				toolType = 1;
 				playButtonClick();
 				initGui();
+				return true;
 			}
 			// tool rot - Alt + W
-			if (isPressAndKey(17) && toolType != 0) {
+			if (isPressAndKey(Keyboard.KEY_W) && toolType != 0) {
 				toolType = 0;
 				playButtonClick();
 				initGui();
+				return true;
 			}
 			// tool rot - Alt + E
-			if (isPressAndKey(18) && toolType != 2) {
+			if (isPressAndKey(Keyboard.KEY_E) && toolType != 2) {
 				toolType = 2;
 				playButtonClick();
 				initGui();
+				return true;
 			}
 		}
-		super.keyTyped(c, i);
+		return super.keyCnpcsPressed(typedChar, keyCode);
 	}
 
-	private void playButtonClick() {
-		mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-	}
+	private void playButtonClick() { mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F)); }
 
-	private boolean isPressAndKey(int id) {
-		if (waitKey > 0 && waitKeyID == id) { return false; }
-		boolean isPress = isAltKeyDown() && Keyboard.isKeyDown(id);
-		if (isPress) {
-			waitKey = 30;
-			waitKeyID = id;
-		}
+	private boolean isPressAndKey(int keyCode) {
+		if (waitKey > 0 && waitKeyID == keyCode) { return false; }
+		boolean isPress = isAltKeyDown() && Keyboard.isKeyDown(keyCode);
+		if (isPress) { waitKey = 30; waitKeyID = keyCode; }
 		return isPress;
 	}
 
 	@Override
-	public void mouseDragged(IGuiNpcSlider slider) {
+	public void mouseDragged(GuiNpcSlider slider) {
 		if (getPart() instanceof GuiPartLayers) {
 			switch (slider.getID()) {
-				case 26: {
-					sliderMoved(0, slider.getSliderValue());
-					break;
-				} // X
-				case 27: {
-					sliderMoved(1, slider.getSliderValue());
-					break;
-				} // Y
-				case 28: {
-					sliderMoved(2, slider.getSliderValue());
-					break;
-				} // Z
-				default: {
-					super.mouseDragged(slider);
-					break;
-				}
+				case 26: sliderMoved(0, slider.sliderValue); break; // X
+				case 27: sliderMoved(1, slider.sliderValue); break; // Y
+				case 28: sliderMoved(2, slider.sliderValue); break; // Z
+				default: super.mouseDragged(slider); break;
 			}
-			if (showEntity instanceof EntityCustomNpc && playerdata != null){
-				((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
-			}
+			if (showEntity instanceof EntityCustomNpc && playerdata != null){ ((EntityCustomNpc) showEntity).modelData.load(playerdata.save()); }
 			return;
 		}
 		super.mouseDragged(slider);
 	}
 
 	@Override
-	public void mousePressed(IGuiNpcSlider slider) {
-	}
+	public void mousePressed(GuiNpcSlider slider) { }
 
 	@Override
-	public void mouseReleased(IGuiNpcSlider slider) {
-	}
+	public void mouseReleased(GuiNpcSlider slider) { }
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		if (getPart() instanceof GuiPartLayers) {
 			switch (textField.getID()) {
 				case 25: {
 					LayerModel lm = playerdata.getLayerModel(((GuiPartLayers) getPart()).selectPos);
 					if (lm == null) { return; }
-					lm.setOBJ(textField.getFullText());
-					if (lm.getOBJ() != null) { textField.setFullText(lm.getOBJ().toString()); }
+					lm.setOBJ(textField.getText());
+					if (lm.getOBJ() != null) { textField.setText(lm.getOBJ().toString()); }
 					getPart().initGui();
 					break;
 				} // objModel
-				case 26: {
-					textField.setFullText(textFieldChanged(0, (float) textField.getDouble()));
-					break;
-				} // X
-				case 27: {
-					textField.setFullText(textFieldChanged(1, (float) textField.getDouble()));
-					break;
-				} // Y
-				case 28: {
-					textField.setFullText(textFieldChanged(2, (float) textField.getDouble()));
-					break;
-				} // Z
+				case 26: textField.setText(textFieldChanged(0, (float) textField.getDouble())); break; // X
+				case 27: textField.setText(textFieldChanged(1, (float) textField.getDouble())); break; // Y
+				case 28: textField.setText(textFieldChanged(2, (float) textField.getDouble())); break; // Z
 			}
 			if (showEntity instanceof EntityCustomNpc && playerdata != null){
 				((EntityCustomNpc) showEntity).modelData.load(playerdata.save());
 			}
-			return;
 		}
-		super.unFocused(textField);
 	}
 
 	private void sliderMoved(int id, float sliderValue) {
@@ -1158,17 +918,17 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		switch (toolType) {
 			case 0: {
 				lm.rotation[id] = 360.0f * sliderValue - 180.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText(df.format(lm.rotation[id])); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setText(df.format(lm.rotation[id])); }
 				break;
 			} // rotation
 			case 1: {
 				lm.offset[id] = 5.0f * sliderValue - 2.5f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText(df.format(lm.offset[id])); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setText(df.format(lm.offset[id])); }
 				break;
 			} // offset
 			default: {
 				lm.scale[id] = 5.0f * sliderValue;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText(df.format(lm.scale[id])); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setText(df.format(lm.scale[id])); }
 				break;
 			} // scale
 		}
@@ -1209,19 +969,19 @@ implements ITextfieldListener, ICustomScrollListener, ISubGuiListener, ISliderLi
 		switch (toolType) {
 			case 0: {
 				lm.rotation[id] = 0.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("0"); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setText("0"); }
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.002778f * lm.rotation[id] + 0.5f); }
 				break;
 			} // rotation
 			case 1: {
 				lm.offset[id] = 0.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("0"); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setText("0"); }
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.2f * lm.offset[id] + 0.5f); }
 				break;
 			} // offset
 			default: {
 				lm.scale[id] = 1.0f;
-				if (getTextField(26 + id) != null) { getTextField(26 + id).setFullText("1"); }
+				if (getTextField(26 + id) != null) { getTextField(26 + id).setText("1"); }
 				if (getSlider(26 + id) != null) { getSlider(26 + id).setSliderValue(0.2f * lm.scale[id]); }
 				break;
 			} // scale

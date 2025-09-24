@@ -1,188 +1,149 @@
 package noppes.npcs.controllers.data;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.NoppesUtilServer;
+import noppes.npcs.util.ValueUtil;
 
 public class DealMarkup {
 
+	protected MarkupData markupData;
 	public ItemStack main = ItemStack.EMPTY;
 	public int count = 0;
-	public final Map<ItemStack, Integer> baseItems = new LinkedHashMap<>(); // base ItemStacks
-	public Map<ItemStack, Integer> buyItems = new LinkedHashMap<>(); // ItemStacks required for
-																							// purchase
-	public Map<ItemStack, Integer> sellItems = new LinkedHashMap<>(); // ItemStacks received upon
-																							// sale
-	public final Map<ItemStack, Boolean> baseHasPlayerItems = new LinkedHashMap<>(); // base
-																											// ItemStacks
-	public Map<ItemStack, Boolean> buyHasPlayerItems = new LinkedHashMap<>(); // ItemStacks
-																									// required for
-																									// purchase
-	public Map<ItemStack, Boolean> sellHasPlayerItems = new LinkedHashMap<>(); // ItemStacks
-																										// received upon
-																										// sale
-	public long baseMoney = 0L, buyMoney = 0L, sellMoney = 0L;
-	public boolean baseOneOfEach = true, buyOneOfEach = true, sellOneOfEach = true, ignoreNBT = false,
-			ignoreDamage = false;
+	public final Map<ItemStack, Integer> baseItems = new LinkedHashMap<>();
+	public Map<ItemStack, Integer> buyItems = new LinkedHashMap<>();
+	public Map<ItemStack, Integer> sellItems = new LinkedHashMap<>();
+	public final Map<ItemStack, Boolean> baseHasPlayerItems = new LinkedHashMap<>();
+	public Map<ItemStack, Boolean> buyHasPlayerItems = new LinkedHashMap<>();
+	public Map<ItemStack, Boolean> sellHasPlayerItems = new LinkedHashMap<>();
+	public long baseMoney = 0L;
+	public long buyMoney = 0L;
+	public long sellMoney = 0L;
+	public long baseDonat = 0L;
+	public long buyDonat = 0L;
+	public boolean baseOneOfEach = true;
+	public boolean buyOneOfEach = true;
+	public boolean sellOneOfEach = true;
+	public boolean ignoreNBT = false;
+	public boolean ignoreDamage = false;
 	public Deal deal = null;
 
 	public void check(NonNullList<ItemStack> inventory) {
-		this.baseHasPlayerItems.clear();
-		this.buyHasPlayerItems.clear();
-		this.sellHasPlayerItems.clear();
-		for (ItemStack stack : this.baseItems.keySet()) {
+		baseHasPlayerItems.clear();
+		buyHasPlayerItems.clear();
+		sellHasPlayerItems.clear();
+		for (ItemStack stack : baseItems.keySet()) {
 			int count = 0;
-            for (ItemStack s : inventory) {
-                if (NoppesUtilServer.IsItemStackNull(s)) {
-                    continue;
-                }
-                if (NoppesUtilPlayer.compareItems(stack, s, this.ignoreDamage, this.ignoreNBT)) {
-                    count += s.getCount();
-                }
-            }
-			this.baseHasPlayerItems.put(stack, count >= this.baseItems.get(stack));
-			this.buyHasPlayerItems.put(stack, this.buyItems.containsKey(stack) && count >= this.buyItems.get(stack));
-			this.sellHasPlayerItems.put(stack, this.sellItems.containsKey(stack) && count >= this.sellItems.get(stack));
+			for (ItemStack s : inventory) {
+				if (NoppesUtilServer.IsItemStackNull(s)) { continue; }
+				if (NoppesUtilPlayer.compareItems(stack, s, ignoreDamage, ignoreNBT)) { count += s.getCount(); }
+			}
+			baseHasPlayerItems.put(stack, count >= baseItems.get(stack));
+			buyHasPlayerItems.put(stack, buyItems.containsKey(stack) && count >= buyItems.get(stack));
+			sellHasPlayerItems.put(stack, sellItems.containsKey(stack) && count >= sellItems.get(stack));
 		}
-		this.buyOneOfEach = true;
-		for (int count : this.buyItems.values()) {
+		buyOneOfEach = true;
+		for (int count : buyItems.values()) {
 			if (count > 1) {
-				this.buyOneOfEach = false;
+				buyOneOfEach = false;
 				break;
 			}
 		}
-		this.sellOneOfEach = true;
-		for (int count : this.sellItems.values()) {
+		sellOneOfEach = true;
+		for (int count : sellItems.values()) {
 			if (count > 1) {
-				this.sellOneOfEach = false;
+				sellOneOfEach = false;
 				break;
 			}
 		}
 	}
 
-	public void reset(boolean isBuy, float coff) {
-		if (!this.baseItems.isEmpty()) {
-			for (ItemStack stack : this.baseItems.keySet()) {
-				int count = (int) ((float) this.baseItems.get(stack) * coff);
-				if (count <= 0) {
-					count = 1;
-				}
-				if (isBuy) {
-					this.buyItems.put(stack, count);
-				} else {
-					this.sellItems.put(stack, count);
-				}
+	public void reset(boolean isBuy, float coff, float countIn) {
+		coff = ValueUtil.correctFloat(coff, 0.005f, !isBuy ? 1.0f : 5.0f);
+		if (!baseItems.isEmpty()) {
+			for (ItemStack stack : baseItems.keySet()) {
+				int count = (int) ((float) baseItems.get(stack) * coff);
+				if (count <= 0) { count = 1; }
+				if (isBuy) { buyItems.put(stack, (int) (count * countIn)); }
+				else if (!deal.isCase()) { sellItems.put(stack, (int) (count * countIn)); }
 			}
 		}
-		for (ItemStack stack : this.buyItems.keySet()) {
-			if (this.buyItems.get(stack) > 1) {
-				if (isBuy) {
-					this.buyOneOfEach = false;
-				} else {
-					this.sellOneOfEach = false;
-				}
+		for (ItemStack stack : buyItems.keySet()) {
+			if (buyItems.get(stack) > 1) {
+				if (isBuy) { buyOneOfEach = false; }
+				else { sellOneOfEach = false; }
 				break;
 			}
 		}
 		if (isBuy) {
-			this.buyMoney = (long) ((float) this.baseMoney * coff);
-		} else {
-			this.sellMoney = (long) ((float) this.baseMoney * coff);
+			buyMoney = (long) ((float) baseMoney * countIn * coff);
+			buyDonat = (long) ((float) baseDonat * countIn * coff);
 		}
-		if (this.buyMoney <= 0 && this.baseMoney > 0) {
-			this.buyMoney = 1;
-		}
-		if (this.sellMoney <= 0 && this.baseMoney > 0) {
-			this.sellMoney = 1;
-		}
+		else { sellMoney = (long) ((float) baseMoney * countIn * coff); }
+		if (buyMoney <= 0 && baseMoney > 0) { buyMoney = baseMoney; }
+		if (sellMoney <= 0 && baseMoney > 0) { sellMoney = baseMoney; }
+		if (buyDonat <= 0 && baseDonat > 0) { buyDonat = baseDonat; }
 	}
 
-	public void set(Deal deal) {
-		this.deal = deal;
-		this.main = deal.getProduct().getMCItemStack().copy();
-		this.count = deal.getProduct().getStackSize();
-		this.ignoreNBT = deal.getIgnoreNBT();
-		this.ignoreDamage = deal.getIgnoreDamage();
-		this.baseMoney = deal.getMoney();
-		this.set(deal.getMCInventoryCurrency());
+	public void set(Deal dealIn) {
+		deal = dealIn;
+		main = dealIn.getProduct().getMCItemStack().copy();
+		count = dealIn.getProduct().getStackSize();
+		ignoreNBT = dealIn.getIgnoreNBT();
+		ignoreDamage = dealIn.getIgnoreDamage();
+		baseMoney = dealIn.getMoney();
+		baseDonat = dealIn.getDonat();
+		set(dealIn.getMCInventoryCurrency());
 	}
 
-	public void set(IInventory inventory) {
-		this.baseItems.clear();
-		if (inventory == null || !inventory.isEmpty()) {
+	public void set(IInventory iContainer) {
+		baseItems.clear();
+		if (iContainer == null || !iContainer.isEmpty()) {
 			Map<ItemStack, Integer> map = new HashMap<>();
-			for (int slot = 0; slot < Objects.requireNonNull(inventory).getSizeInventory(); slot++) {
-				ItemStack stack = inventory.getStackInSlot(slot);
-				if (NoppesUtilServer.IsItemStackNull(stack)) {
-					continue;
-				}
-				boolean has = false;
-				for (ItemStack s : map.keySet()) {
-					if (NoppesUtilPlayer.compareItems(stack, s, this.ignoreDamage, this.ignoreNBT)) {
-						has = true;
-						map.put(s, map.get(s) + stack.getCount());
-						this.baseOneOfEach = false;
-						break;
+			if (iContainer != null) {
+				for (int slot = 0; slot < iContainer.getSizeInventory(); slot++) {
+					ItemStack stack = iContainer.getStackInSlot(slot);
+					if (NoppesUtilServer.IsItemStackNull(stack)) { continue; }
+					boolean has = false;
+					for (ItemStack s : map.keySet()) {
+						if (NoppesUtilPlayer.compareItems(stack, s, ignoreDamage, ignoreNBT)) {
+							has = true;
+							map.put(s, map.get(s) + stack.getCount());
+							baseOneOfEach = false;
+							break;
+						}
 					}
-				}
-				if (!has) {
-					map.put(stack, stack.getCount());
-					if (stack.getCount() > 1) {
-						this.baseOneOfEach = false;
+					if (!has) {
+						map.put(stack, stack.getCount());
+						if (stack.getCount() > 1) { baseOneOfEach = false; }
 					}
 				}
 			}
-			List<Entry<ItemStack, Integer>> list = new ArrayList<>(map.entrySet());
+			List<Map.Entry<ItemStack, Integer>> list = new ArrayList<>(map.entrySet());
 			list.sort((st_0, st_1) -> st_1.getValue().compareTo(st_0.getValue()));
-			for (Entry<ItemStack, Integer> entry : list) {
-				this.baseItems.put(entry.getKey(), entry.getValue());
-			}
+			for (Map.Entry<ItemStack, Integer> entry : list) { baseItems.put(entry.getKey(), entry.getValue()); }
 		}
 	}
 
-	public void set(MarkupData md) {
-		if (md == null) {
-			return;
-		}
-		this.buyItems.clear();
-		this.sellItems.clear();
-		this.buyMoney = this.baseMoney;
-		this.sellMoney = this.baseMoney;
-		if (md.buy != 0.0f) {
-			this.reset(true, (100.0f + md.buy * 100.0f) / 100.0f);
-		} else {
-			for (ItemStack stack : this.baseItems.keySet()) {
-				this.buyItems.put(stack, this.baseItems.get(stack));
-			}
-		}
-		if (md.sell != 0.0f) {
-			this.reset(false, (100.0f + md.sell * -100.0f) / 100.0f);
-		} else {
-			for (ItemStack stack : this.baseItems.keySet()) {
-				this.sellItems.put(stack, this.baseItems.get(stack));
-			}
-		}
-		if (!this.sellItems.isEmpty() && this.sellItems.size() <= this.baseItems.size() && this.sellMoney > 0) {
-			int bc = 0, sc = 0;
-			for (int c : this.baseItems.values()) {
-				bc += c;
-			}
-			for (int c : this.sellItems.values()) {
-				sc += c;
-			}
-			float coff = 1.0f;
-			if (md.sell != 0.0f) {
-				coff = (100.0f + md.sell * -100.0f) / 100.0f;
-			}
-			if (sc <= this.sellItems.size() || bc * coff < sc) {
-				this.sellItems.clear();
-			}
-		}
+	public void set(MarkupData md, int countIn) {
+		if (md == null) { return; }
+		markupData = md;
+		countIn = ValueUtil.correctInt(countIn, 1, 64);
+		count = deal.getProduct().getStackSize() * countIn;
+		buyItems.clear();
+		sellItems.clear();
+		buyMoney = baseMoney;
+		sellMoney = baseMoney;
+		buyDonat = baseDonat;
+		if (md.buy != 0.0f) { reset(true, (100.0f + md.buy * 100.0f) / 100.0f, countIn); }
+		else { buyItems.putAll(baseItems); }
+
+		if (md.sell != 0.0f) { reset(false, (100.0f + md.sell * 100.0f) / 100.0f, countIn); }
+		else if (!deal.isCase()) { sellItems.putAll(baseItems); }
 	}
 
 }

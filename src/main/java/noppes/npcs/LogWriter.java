@@ -16,8 +16,12 @@ public class LogWriter {
 			}
 		}
 		Logger logger = LogManager.getLogger(caller.getClassName());
-		if (caller.getClassName().equals("noppes.npcs.util.DataDebug")) { logger.log(level, "{}", msg); }
-		else { logger.log(level, "[Line #{}] {} \"{}\"", caller.getLineNumber(), methodName, msg); }
+		String clss = caller.getClassName();
+		if (clss.contains(".")) { clss = clss.substring(clss.lastIndexOf(".") + 1); }
+		String message;
+		if (caller.getClassName().contains(".DataDebug")) { message = msg.toString(); }
+		else { message = "(" + clss + ".java:" + caller.getLineNumber() + ") " + methodName + " \"" + msg + "\""; }
+		logger.log(level, message);
 	}
 
 	public static void debug(String msg) {
@@ -27,17 +31,39 @@ public class LogWriter {
 
 	public static void error(Object msg) {
 		if (msg == null || msg.toString().isEmpty()) { return; }
-		log(Level.ERROR, msg);
+		if (msg instanceof Throwable) {
+			StringBuilder message = new StringBuilder(" \"").append(msg).append("\":");
+			for (StackTraceElement traceElement : ((Throwable) msg).getStackTrace()) { message.append("\n\tat ").append(traceElement); }
+			log(Level.ERROR, message.toString());
+		}
+		else { log(Level.ERROR, msg); }
 	}
 
 	public static void error(Object msg, Throwable e) {
-		if (msg != null && !msg.toString().isEmpty()) { log(Level.ERROR, msg.toString()); }
-		if (e != null) { log(Level.ERROR, e); }
+		StringBuilder message = new StringBuilder();
+		if (msg != null && !msg.toString().isEmpty()) { message = new StringBuilder(msg.toString()); }
+		if (e != null) {
+			message.append(" \"").append(e).append("\":");
+			for (StackTraceElement traceElement : e.getStackTrace()) { message.append("\n\tat ").append(traceElement); }
+		}
+		log(Level.ERROR, message.toString());
 	}
 
 	public static void except(Throwable e) {
 		if (e == null) { return; }
-		log(Level.FATAL, e);
+		StringBuilder message = new StringBuilder(e.toString());
+		message.append(" \"").append(e).append("\":");
+		for (StackTraceElement traceElement : e.getStackTrace()) { message.append("\n\tat ").append(traceElement); }
+		log(Level.FATAL, message.toString());
+	}
+
+	@SuppressWarnings("all")
+	public static void pathInfo(Object msg, int maxLines) {
+		if (msg == null || msg.toString().isEmpty()) { return; }
+		StringBuilder message = new StringBuilder(msg + ":");
+		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+		for (int i = 2; i < stackTraces.length && (maxLines < 1 || i < maxLines + 2); i++) { message.append("\n\tat ").append(stackTraces[i]); }
+		log(Level.INFO, message.toString());
 	}
 
 	public static void info(Object msg) {
@@ -47,7 +73,10 @@ public class LogWriter {
 
 	public static void warn(Object msg) {
 		if (msg == null || msg.toString().isEmpty()) { return; }
-		log(Level.WARN, msg);
+		StringBuilder message = new StringBuilder(msg + ":");
+		StackTraceElement[] stackTraces = Thread.currentThread().getStackTrace();
+		for (int i = 2; i < stackTraces.length && i < 7; i++) { message.append("\n\tat ").append(stackTraces[i]); }
+		log(Level.WARN, message.toString());
 	}
 
 }

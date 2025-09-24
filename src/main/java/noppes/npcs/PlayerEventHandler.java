@@ -408,8 +408,7 @@ public class PlayerEventHandler {
 		if (event.getEntityLiving().world.isRemote) { return; }
 		CustomNpcs.debugData.start(event.getEntityLiving());
 		Entity source = NoppesUtilServer.GetDamageSource(event.getSource());
-		String damageType = event.getSource() != null ? event.getSource().damageType : "null";
-		Resistances.addDamageName(damageType);
+		Resistances.add(event.getSource() != null ? event.getSource().damageType : "null");
 		((IEntityLivingBaseMixin) event.getEntityLiving()).npcs$setCurrentDamageSource(event.getSource());
 		if (source instanceof EntityPlayer) {
 			PlayerData data = PlayerData.get((EntityPlayer) source);
@@ -500,9 +499,7 @@ public class PlayerEventHandler {
 
 	@SubscribeEvent
 	public void npcPlayerContainerOpenEvent(PlayerContainerEvent.Open event) {
-		if (event.getEntityPlayer().world.isRemote) {
-			return;
-		}
+		if (event.getEntityPlayer().world.isRemote) { return; }
 		CustomNpcs.debugData.start(event.getEntityPlayer());
 		PlayerScriptData handler = PlayerData.get(event.getEntityPlayer()).scriptData;
 		EventHooks.onPlayerContainerOpen(handler, event.getContainer());
@@ -998,24 +995,24 @@ public class PlayerEventHandler {
 	@SubscribeEvent
 	@SuppressWarnings("all")
 	public void npcLivingJumpEvent(net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent event) {
-		if (!(event.getEntityLiving() instanceof EntityPlayer)) {
-			return;
-		}
+		if (!(event.getEntityLiving() instanceof EntityPlayer)) { return; }
 		EntityPlayer player = (EntityPlayer) event.getEntityLiving();
 		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
 			if (player instanceof EntityPlayerMP) {
 				try {
-					/*
+					/**/
 					// Found texts
 					java.io.File dir;
-					dir = new java.io.File("D:/1.12.2/cnpcs_mixin/src/main/java"); // CustomNpcs 1.12.2
-					//dir = new java.io.File("E:/Sources/1.12.2/minecraft 1.12.2"); // CustomNpcs 1.12.2
-					System.out.println("Directory: " + dir);
+					dir = new java.io.File("D:/1.12.2/cnpcs_mixin/src/main/java");
+					//dir = new java.io.File("D:/1.20.1/customnpcs/src/main/java");
+					//dir = new java.io.File("E:/Sources/1.12.2/minecraft 1.12.2");
+					LogWriter.info("Directory: " + dir);
 
 					String br = "" + ((char) 9) + ((char) 10) + " ()[]{}.,<>:;+-*\\/\"";
 					Map<String, Map<String, List<Integer>>> found = new TreeMap<>();
 					//found.put("System.out.println", null);
 					//found.put("TEST:", null);
+					found.put("compass.png", null);
 
 					for (java.io.File file : Util.instance.getFiles(dir, "java")) {
 						try {
@@ -1027,7 +1024,7 @@ public class PlayerEventHandler {
 									if (key.contains("&&")) {
 										String k = key.substring(0, key.indexOf("&&"));
 										String s = key.substring(key.indexOf("&&") + 2);
-										if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase())) {
+										if (line.contains(k) && line.toLowerCase().contains(s.toLowerCase()) && (!file.getName().contains("PlayerEventHandler") || l < 1000)) {
 											found.computeIfAbsent(key, k1 -> new TreeMap<>());
 											String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
 											if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, new ArrayList<>()); }
@@ -1039,7 +1036,7 @@ public class PlayerEventHandler {
 										if (line.contains(k)) {
 											int s = line.indexOf(k) - 1;
 											int e = line.indexOf(k) + k.length();
-											if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e))) {
+											if (br.contains("" + line.charAt(s)) && br.contains("" + line.charAt(e)) && (!file.getName().contains("PlayerEventHandler") || l < 1000)) {
 												found.computeIfAbsent(key, k1 -> new TreeMap<>());
 												String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
 												if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, new ArrayList<>()); }
@@ -1047,12 +1044,10 @@ public class PlayerEventHandler {
 											}
 										}
 									}
-									else if (line.contains(key)) {
+									else if (line.contains(key) && (!file.getName().contains("PlayerEventHandler") || l < 1000)) {
 										found.computeIfAbsent(key, k -> new TreeMap<>());
 										String fPath = file.getAbsolutePath().replace(dir.getAbsolutePath()+"\\", "").replace("\\", ".");
-										if (!found.get(key).containsKey(fPath)) {
-											found.get(key).put(fPath, new ArrayList<>());
-										}
+										if (!found.get(key).containsKey(fPath)) { found.get(key).put(fPath, new ArrayList<>()); }
 										found.get(key).get(fPath).add(l);
 									}
 								}
@@ -1063,13 +1058,14 @@ public class PlayerEventHandler {
 					}
 					for (String key : found.keySet()) {
 						if (found.get(key) == null || found.get(key).isEmpty()) {
-							System.out.println("\"" + key + "\" not found;");
+							LogWriter.info("\"" + key + "\" not found;");
 							continue;
 						}
-						System.out.println("\"" + key + "\" found in:");
-						Map<String, List<Integer>> map = found.get(key);
+						LogWriter.info("\"" + key + "\" found in:");
+						java.util.Map<String, java.util.List<Integer>> map = found.get(key);
 						for (String fPath : map.keySet()) {
-							System.out.println(" - " + fPath + ": lines:" + map.get(fPath));
+							String javaC = fPath.substring(fPath.lastIndexOf(".", fPath.lastIndexOf("java") - 2) + 1);
+							for (Integer line : map.get(fPath)) { System.out.println(javaC + " (" + javaC + ":" + line + "),"); }
 						}
 					}
 					/**/

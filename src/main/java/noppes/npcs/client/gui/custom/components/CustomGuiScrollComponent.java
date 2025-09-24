@@ -16,124 +16,119 @@ import noppes.npcs.client.gui.custom.interfaces.IDataHolder;
 import noppes.npcs.client.gui.util.GuiCustomScroll;
 import noppes.npcs.client.gui.util.ICustomScrollListener;
 
-public class CustomGuiScrollComponent
-extends GuiCustomScroll
-implements IDataHolder, IClickListener {
+public class CustomGuiScrollComponent extends GuiCustomScroll implements IDataHolder, IClickListener {
 
 	public CustomGuiScrollWrapper component;
-	GuiCustom parent;
-	private final int[] offsets;
+	protected GuiCustom parent;
+	protected final int[] offsets;
 
-	public CustomGuiScrollComponent(Minecraft mc, ICustomScrollListener parent, int id, CustomGuiScrollWrapper component) {
-		super(parent, id, component.isMultiSelect());
-		this.mc = mc;
-		this.fontRenderer = mc.fontRenderer;
-		this.component = component;
-		this.offsets = new int[] { 0, 0 };
+	public CustomGuiScrollComponent(Minecraft mcIn, ICustomScrollListener parent, int id, CustomGuiScrollWrapper componentIn) {
+		super(parent, id, true, componentIn.isMultiSelect());
+		mc = mcIn;
+		fontRenderer = mcIn.fontRenderer;
+		component = componentIn;
+		offsets = new int[] { 0, 0 };
 	}
 
 	public void fromComponent(CustomGuiScrollWrapper component) {
 		guiLeft = GuiCustom.guiLeft + component.getPosX();
 		guiTop = GuiCustom.guiTop + component.getPosY();
 		setSize(component.getWidth(), component.getHeight());
-		setListNotSorted(Arrays.asList(component.getList()));
+		setUnsortedList(Arrays.asList(component.getList()));
 		if (component.getDefaultSelection() >= 0) {
 			int defaultSelect = component.getDefaultSelection();
-			if (defaultSelect < this.getList().size()) {
-				selected = defaultSelect;
-			}
+			if (defaultSelect < getList().size()) { selected = defaultSelect; }
 		}
 		if (component.hasHoverText()) {
-			this.component.setHoverText(component.getHoverText());
-			this.component.setHoverStack(component.getHoverStack());
+			component.setHoverText(component.getHoverText());
+			component.setHoverStack(component.getHoverStack());
 		}
 	}
 
 	@Override
-	public int getId() {
-		return this.id;
-	}
+	public int getId() { return id; }
 
 	@Override
 	public int[] getPosXY() {
-		return new int[] { this.guiLeft, this.guiTop };
+		return new int[] { guiLeft, guiTop };
 	}
 
 	@Override
 	public boolean mouseClicked(GuiCustom gui, int mouseX, int mouseY, int mouseButton) {
-		super.mouseClicked(mouseX, mouseY, mouseButton);
-		return isMouseOver(mouseX, mouseY);
+		try	{ super.mouseClicked(mouseX, mouseY, mouseButton); } catch (Exception ignored) { }
+        return isMouseOver(mouseX, mouseY);
 	}
 
 	@Override
 	public void offSet(int offsetType, double[] windowSize) {
 		switch (offsetType) {
-		case 1: { // left down
-			this.offsets[0] = 0;
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		case 2: { // right up
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = 0;
-			break;
-		}
-		case 3: { // right down
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		default: { // left up
-			this.offsets[0] = 0;
-			this.offsets[1] = 0;
-		}
+			case 1: { // left down
+				offsets[0] = 0;
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 4: { // center
+				offsets[0] = (int) (windowSize[0] / 2.0d);
+				offsets[1] = (int) (windowSize[1] / 2.0d);
+				break;
+			}
+			default: { // left up
+				offsets[0] = 0;
+				offsets[1] = 0;
+			}
 		}
 	}
 
+	@Override
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
 		GlStateManager.pushMatrix();
-		int x = this.offsets[0] == 0 ? this.guiLeft : this.offsets[0] - this.guiLeft;
-		int y = this.offsets[1] == 0 ? this.guiTop : this.offsets[1] - this.guiTop;
-		this.hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
-		GlStateManager.translate(x - this.guiLeft, y - this.guiTop, this.id);
+		int x = offsets[0] == 0 ? guiLeft : offsets[0] - guiLeft;
+		int y = offsets[1] == 0 ? guiTop : offsets[1] - guiTop;
+		mouseInList = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+		GlStateManager.translate(x - guiLeft, y - guiTop, id);
 		super.drawScreen(mouseX, mouseY, mouseWheel);
-		if (hovered && component.hasHoverText()) {
+		if (mouseInList && component.hasHoverText()) {
 			if (component.getHoverText() != null && component.getHoverText().length > 0) { parent.hoverText = component.getHoverText(); }
 			if (component.getHoverStack() != null && !component.getHoverStack().isEmpty()) { parent.hoverStack = component.getHoverStack().getMCItemStack(); }
 		}
 		GlStateManager.popMatrix();
 	}
 
-	public void setParent(GuiCustom parent) {
-		this.parent = parent;
-	}
+	@Override
+	public void setParent(GuiCustom parentIn) { parent = parentIn; }
 
 	@Override
 	public void setPosXY(int newX, int newY) {
-		this.guiLeft = newX;
-		this.guiTop = newY;
+		guiLeft = newX;
+		guiTop = newY;
 	}
 
 	public ICustomGuiComponent toComponent() {
-		List<String> list = this.getList();
-		this.component.setList(list.toArray(new String[0]));
-		return this.component;
+		List<String> list = getList();
+		component.setList(list.toArray(new String[0]));
+		return component;
 	}
 
 	public NBTTagCompound toNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setInteger("id", this.id);
-		if (!this.getSelectedList().isEmpty()) {
+		nbt.setInteger("id", id);
+		if (!getSelectedList().isEmpty()) {
 			NBTTagList tagList = new NBTTagList();
-			for (String s : this.getSelectedList()) {
-				tagList.appendTag(new NBTTagString(s));
-			}
+			for (String s : getSelectedList()) { tagList.appendTag(new NBTTagString(s)); }
 			nbt.setTag("selectedList", tagList);
-		} else if (this.getSelected() != null && !this.getSelected().isEmpty()) {
-			nbt.setString("selected", this.getSelected());
-		} else {
-			nbt.setString("selected", "Null");
 		}
+		else if (getSelected() != null && !getSelected().isEmpty()) { nbt.setString("selected", getSelected()); }
+		else { nbt.setString("selected", "Null"); }
 		return nbt;
 	}
 

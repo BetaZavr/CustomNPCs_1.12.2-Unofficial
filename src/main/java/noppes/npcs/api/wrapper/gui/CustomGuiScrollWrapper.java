@@ -9,114 +9,90 @@ import noppes.npcs.api.gui.IScroll;
 
 public class CustomGuiScrollWrapper extends CustomGuiComponentWrapper implements IScroll {
 
-	int defaultSelection;
-	int height;
-	String[] list;
-	boolean multiSelect;
-	int width;
+	protected String[] list;
+	protected boolean multiSelect = false;
+	protected int defaultSelection = -1;
+	protected int height;
+	protected int width;
 
-	public CustomGuiScrollWrapper() {
-		this.defaultSelection = -1;
-		this.multiSelect = false;
-	}
+	public CustomGuiScrollWrapper() { }
 
 	public CustomGuiScrollWrapper(int id, int x, int y, int width, int height, String[] list) {
-		this.defaultSelection = -1;
-		this.multiSelect = false;
-		this.setId(id);
-		this.setPos(x, y);
-		this.setSize(width, height);
-		this.setList(list);
+		setId(id);
+		setPos(x, y);
+		setSize(width, height);
+		setList(list);
 	}
 
 	@Override
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
-		this.setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
-		if (nbt.hasKey("default")) {
-			this.setDefaultSelection(nbt.getInteger("default"));
-		}
+		setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
+		if (nbt.hasKey("default")) { setDefaultSelection(nbt.getInteger("default")); }
 		NBTTagList tagList = nbt.getTagList("list", 8);
 		String[] list = new String[tagList.tagCount()];
-		for (int i = 0; i < tagList.tagCount(); ++i) {
-			list[i] = ((NBTTagString) tagList.get(i)).getString();
+		for (int i = 0; i < tagList.tagCount(); ++i) { list[i] = ((NBTTagString) tagList.get(i)).getString(); }
+		setList(list);
+		setMultiSelect(nbt.getBoolean("multiSelect"));
+		return this;
+	}
+
+	@Override
+	public int getDefaultSelection() { return defaultSelection; }
+
+	@Override
+	public int getHeight() { return height; }
+
+	@Override
+	public String[] getList() { return list; }
+
+	@Override
+	public int getType() { return GuiComponentType.SCROLL.get(); }
+
+	@Override
+	public int getWidth() { return width; }
+
+	@Override
+	public boolean isMultiSelect() { return multiSelect; }
+
+	@Override
+	public IScroll setDefaultSelection(int defaultSelectionIn) {
+		defaultSelection = defaultSelectionIn;
+		return this;
+	}
+
+	@Override
+	public IScroll setList(String[] listIn) {
+		list = listIn;
+		return this;
+	}
+
+	@Override
+	public IScroll setMultiSelect(boolean multiSelectIn) {
+		multiSelect = multiSelectIn;
+		return this;
+	}
+
+	@Override
+	public IScroll setSize(int widthIn, int heightIn) {
+		if (widthIn <= 0 || heightIn <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + widthIn + ", " + heightIn + "]");
 		}
-		this.setList(list);
-		this.setMultiSelect(nbt.getBoolean("multiSelect"));
-		return this;
-	}
-
-	@Override
-	public int getDefaultSelection() {
-		return this.defaultSelection;
-	}
-
-	@Override
-	public int getHeight() {
-		return this.height;
-	}
-
-	@Override
-	public String[] getList() {
-		return this.list;
-	}
-
-	@Override
-	public int getType() {
-		return GuiComponentType.SCROLL.get();
-	}
-
-	@Override
-	public int getWidth() {
-		return this.width;
-	}
-
-	@Override
-	public boolean isMultiSelect() {
-		return this.multiSelect;
-	}
-
-	@Override
-	public IScroll setDefaultSelection(int defaultSelection) {
-		this.defaultSelection = defaultSelection;
-		return this;
-	}
-
-	@Override
-	public IScroll setList(String[] list) {
-		this.list = list;
-		return this;
-	}
-
-	@Override
-	public IScroll setMultiSelect(boolean multiSelect) {
-		this.multiSelect = multiSelect;
-		return this;
-	}
-
-	@Override
-	public IScroll setSize(int width, int height) {
-		if (width <= 0 || height <= 0) {
-			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
-		}
-		this.width = width;
-		this.height = height;
+		width = widthIn;
+		height = heightIn;
 		return this;
 	}
 
 	@Override
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
 		super.toNBT(nbt);
-		nbt.setIntArray("size", new int[] { this.width, this.height });
-		if (this.defaultSelection >= 0) {
-			nbt.setInteger("default", this.defaultSelection);
-		}
-		NBTTagList list = new NBTTagList();
-		for (String s : this.list) {
-			list.appendTag(new NBTTagString(s));
-		}
-		nbt.setTag("list", list);
-		nbt.setBoolean("multiSelect", this.multiSelect);
+		nbt.setIntArray("size", new int[] { width, height });
+		if (defaultSelection >= 0) { nbt.setInteger("default", defaultSelection); }
+		NBTTagList listTag = new NBTTagList();
+		for (String s : list) { listTag.appendTag(new NBTTagString(s)); }
+		nbt.setTag("list", listTag);
+		nbt.setBoolean("multiSelect", multiSelect);
 		return nbt;
 	}
+
 }

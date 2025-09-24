@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
+import net.minecraft.client.renderer.texture.TextureMap;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
 import noppes.npcs.reflection.pathfinding.PathReflection;
@@ -22,7 +23,6 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -54,7 +54,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.gui.IItemSlot;
 import noppes.npcs.api.item.INPCToolItem;
 import noppes.npcs.client.gui.custom.GuiCustom;
@@ -135,23 +134,23 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.translate(-dx, -dy, -dz);
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR);
 
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
 
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, wallAlpha).endVertex();
 
 		tessellator.draw();
 		GlStateManager.depthMask(true);
@@ -171,28 +170,28 @@ public class ClientGuiEventHandler extends Gui {
 		GlStateManager.depthMask(false);
 		GlStateManager.translate(-dx, -dy, -dz);
 		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
 		if (maxY - minY > 1) {
 			for (double i = 1.0d; i < maxY - minY; i++) {
-				buffer.pos(p0.x + 0.5d, minY + i, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-				buffer.pos(p2.x + 0.5d, minY + i, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+				buffer.pos(p0.x + 0.5d, minY + i, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+				buffer.pos(p1.x + 0.5d, minY + i, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+				buffer.pos(p2.x + 0.5d, minY + i, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
 			}
 		}
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
-		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color((float) 0.75, (float) 0.75, (float) 0.75, (float) 1.0).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p2.x + 0.5d, minY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
+		buffer.pos(p2.x + 0.5d, maxY, p2.y + 0.5d).color(0.75f, 0.75f, 0.75f, 1.0f).endVertex();
 		tessellator.draw();
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();
@@ -230,7 +229,7 @@ public class ClientGuiEventHandler extends Gui {
 		if (entity.height > 2.4) {
 			scale = 2.0f / entity.height;
 		}
-		GlStateManager.scale(-30.0f * scale * (float) 0.75, 30.0f * scale * (float) 0.75, 30.0f * scale * (float) 0.75);
+		GlStateManager.scale(-30.0f * scale * 0.75f, 30.0f * scale * 0.75f, 30.0f * scale * 0.75f);
 		GlStateManager.rotate(180.0f, 0.0f, 0.0f, 1.0f);
 		RenderHelper.enableStandardItemLighting();
 		float f2 = entity.renderYawOffset;
@@ -638,22 +637,26 @@ public class ClientGuiEventHandler extends Gui {
 	}
 
 	private void drawRegion(Zone3D reg, int editID) {
-		if (reg == null || reg.size() == 0) {
-			return;
-		}
+		if (reg == null || reg.size() == 0) { return; }
+		long time = mc.world != null ? mc.world.getTotalWorldTime() : 0L;
+
 		float red = (float) (reg.color >> 16 & 255) / 255.0f;
 		float green = (float) (reg.color >> 8 & 255) / 255.0f;
 		float blue = (float) (reg.color & 255) / 255.0f;
 
 		// polygon texture size
-		int xm = reg.getMinX(), xs = reg.getMaxX() - reg.getMinX();
-		int zm = reg.getMinZ(), zs = reg.getMaxZ() - zm;
+		int xm = reg.getMinX();
+		int xs = reg.getMaxX() - reg.getMinX();
+		int zm = reg.getMinZ();
+		int zs = reg.getMaxZ() - zm;
 		double size = (double) (Math.max(xs, zs)) / 4.0D;
 
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
+
+		// Walls
+		GlStateManager.disableCull(); // Enable double-sided rendering
 		if (reg.size() > 1) {
-			// Walls
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
@@ -661,195 +664,115 @@ public class ClientGuiEventHandler extends Gui {
 					GlStateManager.DestFactor.ZERO);
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(-dx, -dy, -dz);
-
-			// textured
 			GlStateManager.color(red, green, blue, 1.0f);
-			mc.getTextureManager().bindTexture(BORDER[(int) (mc.world.getTotalWorldTime() % 16L)]);
-			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX); // textured
-			double startU = 0.0d;
-			double distH = reg.getHeight() + 1.0d;
+			mc.getTextureManager().bindTexture(BORDER[(int) (time % 16L)]);
+			buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+			float startU = 0.0f;
+			float distH = reg.getHeight() + 1.0f;
 			for (int pos : reg.points.keySet()) {
 				Point p0 = reg.points.get(pos);
 				boolean isEnd = pos == reg.points.size() - 1;
 				Point p1 = isEnd ? reg.points.get(0) : reg.points.get(pos + 1);
-
 				// seamless texture connection between walls
-				double distW = p0.distance(p1);
+				float distW = (float) p0.distance(p1);
 				if (isEnd) { distW = Math.round(distW + startU); }
-
-				// textured
-				buffer.pos(p0.x + 0.5d, reg.y[1] + 1.0d, p0.y + 0.5d).tex(startU, distH).endVertex();
-				buffer.pos(p1.x + 0.5d, reg.y[1] + 1.0d, p1.y + 0.5d).tex(startU + distW, distH).endVertex();
-				buffer.pos(p1.x + 0.5d, reg.y[0], p1.y + 0.5d).tex(startU + distW, 0.0D).endVertex();
-				buffer.pos(p0.x + 0.5d, reg.y[0], p0.y + 0.5d).tex(0.0D, 0.0D).endVertex();
-
-				buffer.pos(p0.x + 0.5d, reg.y[0], p0.y + 0.5d).tex(startU, 0.0D).endVertex();
-				buffer.pos(p1.x + 0.5d, reg.y[0], p1.y + 0.5d).tex(startU + distW, 0.0D).endVertex();
-				buffer.pos(p1.x + 0.5d, reg.y[1] + 1.0d, p1.y + 0.5d).tex(startU + distW, distH).endVertex();
-				buffer.pos(p0.x + 0.5d, reg.y[1] + 1.0d, p0.y + 0.5d).tex(startU, distH).endVertex();
-
-				startU += distW % 1.0d;
+				buffer.pos(p0.x + 0.5f, reg.y[0], p0.y + 0.5f).tex(startU, 0.0f).endVertex();
+				buffer.pos(p1.x + 0.5f, reg.y[0], p1.y + 0.5f).tex(startU + distW, 0.0f).endVertex();
+				buffer.pos(p1.x + 0.5f, reg.y[1] + 1.0f, p1.y + 0.5f).tex(startU + distW, distH).endVertex();
+				buffer.pos(p0.x + 0.5f, reg.y[1] + 1.0f, p0.y + 0.5f).tex(startU, distH).endVertex();
+				startU += distW % 1.0f;
 			}
 			GlStateManager.scale(1.0F, 1.0F, 1.0F);
 			tessellator.draw();
-
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.depthMask(true);
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
-
-			// Lines
-			buffer = tessellator.getBuffer();
+		}
+		// Polygons up and down
+		if (reg.size() > 2) {
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 					GlStateManager.DestFactor.ZERO);
-			GlStateManager.glLineWidth(2.0f);
-			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask(false);
 			GlStateManager.translate(-dx, -dy, -dz);
-			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-			double x = 0.0d, z = 0.0d;
-			for (Point v : reg.points.values()) {
-				x += v.x;
-				z += v.y;
-			}
-			if (!reg.points.isEmpty()) {
-				x /= reg.points.size();
-				z /= reg.points.size();
-			}
-			x += 0.5d;
-			z += 0.5d;
-			float alpha = 0.5f;
-			for (int pos : reg.points.keySet()) {
-				Point p0 = reg.points.get(pos);
-				int minY = reg.y[0], maxY = reg.y[1];
-				Point p1 = reg.points.get(0);
-				if (reg.points.containsKey(pos + 1)) {
-					p1 = reg.points.get(pos + 1);
-				}
-
-				buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-				buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-				buffer.pos(p0.x + 0.5d, maxY + 1.0D, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-				buffer.pos(p1.x + 0.5d, maxY + 1.0D, p1.y + 0.5d).color(red, green, blue, alpha).endVertex();
-
-				if (reg.getId() == editID) {
-					buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-					buffer.pos(x, minY, z).color(red, green, blue, alpha).endVertex();
-					buffer.pos(p0.x + 0.5d, 1.0d + maxY, p0.y + 0.5d).color(red, green, blue, alpha).endVertex();
-					buffer.pos(x, 1.0d + maxY, z).color(red, green, blue, alpha).endVertex();
-
-					if (maxY - minY > 1) {
-						for (int i = 1; i <= maxY - minY; i++) {
-							buffer.pos(p0.x + 0.5d, minY + (double) i, p0.y + 0.5d).color(red, green, blue, alpha)
-									.endVertex();
-							buffer.pos(p1.x + 0.5d, minY + (double) i, p1.y + 0.5d).color(red, green, blue, alpha)
-									.endVertex();
-						}
-					}
+			GlStateManager.color(red, green, blue, 1.0f);
+			mc.getTextureManager().bindTexture(BORDER[(int) (time % 16L)]);
+			buffer.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX);
+			List<float[][]> triangleList = reg.getTriangleList();
+			double texU0, texV0, texU1, texV1, texU2, texV2;
+			for (int i = 0; i < 2; i++) {
+				float y = i == 0 ? (float) reg.y[1] + 0.98f : (float) reg.y[0] + 0.02f;
+				for (float[][] tri : triangleList) {
+					texU0 = 2.0f * size * (tri[0][0] - xm) / (double) xs;
+					texV0 = 2.0f * size * (tri[0][1] - zm) / (double) zs;
+					texU1 = 2.0f * size * (tri[1][0] - xm) / (double) xs;
+					texV1 = 2.0f * size * (tri[1][1] - zm) / (double) zs;
+					texU2 = 2.0f * size * (tri[2][0] - xm) / (double) xs;
+					texV2 = 2.0f * size * (tri[2][1] - zm) / (double) zs;
+					buffer.pos(tri[0][0] + 0.5f, y, tri[0][1] + 0.5f).tex(texU0, texV0).endVertex();
+					buffer.pos(tri[1][0] + 0.5f, y, tri[1][1] + 0.5f).tex(texU1, texV1).endVertex();
+					buffer.pos(tri[2][0] + 0.5f, y, tri[2][1] + 0.5f).tex(texU2, texV2).endVertex();
 				}
 			}
 			tessellator.draw();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.depthMask(true);
-			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
 		}
-
-		if (reg.size() > 2) { // Polygons up and down
-			for (int i = 0; i < 2; i++) {
-				double y = i == 0 ? (double) reg.y[1] + 0.98d : (double) reg.y[0] + 0.02;
-				buffer = tessellator.getBuffer();
-				GlStateManager.pushMatrix();
-				GlStateManager.enableBlend();
-				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-						GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-						GlStateManager.DestFactor.ZERO);
-				GlStateManager.depthMask(false);
-				GlStateManager.translate(-dx, -dy, -dz);
-
-				// simple colored
-				// GlStateManager.disableTexture2D();
-				// buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_COLOR);
-
-				// textured
-				GlStateManager.color(red, green, blue, 1.0f);
-				mc.getTextureManager().bindTexture(BORDER[(int) (mc.world.getTotalWorldTime() % 16L)]);
-				buffer.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
-
-				for (Point p : reg.points.values()) {
-					// simple colored
-					// buffer.pos(p.x+0.5d, y, p.y+0.5d).color(red,green,blue,
-					// wallAlpha).endVertex();
-
-					// textured
-					double texU = 2.0d * size * (double) (p.x - xm) / (double) xs;
-					double texV = 2.0d * size * (double) (p.y - zm) / (double) zs;
-					buffer.pos(p.x + 0.5d, y, p.y + 0.5d).tex(texU, texV).endVertex();
-				}
-				for (int pos = reg.points.size() - 1; pos >= 0; pos--) {
-					Point p = reg.points.get(pos);
-					// simple colored
-					// buffer.pos(p.x+0.5d, y, p.y+0.5d).color(red,green,blue,
-					// wallAlpha).endVertex();
-
-					// textured
-					double texU = 2.0d * size * (double) (p.x - xm) / (double) xs;
-					double texV = 2.0d * size * (double) (p.y - zm) / (double) zs;
-					buffer.pos(p.x + 0.5d, y, p.y + 0.5d).tex(texU, texV).endVertex();
-				}
-				tessellator.draw();
-				GlStateManager.depthMask(true);
-				// GlStateManager.enableTexture2D(); // simple colored
-				GlStateManager.disableBlend();
-				GlStateManager.popMatrix();
-			}
-		}
+		GlStateManager.enableCull(); // Returning to standard rendering mode
 
 		if (reg.getId() == editID) {
+			// all vertex
 			for (int i = 0; i < reg.points.size(); i++) {
 				Point p0 = reg.points.get(i);
-				Point p1 = reg.points.get(i >= reg.points.size() - 1 ? 0 : (i + 1));
 				// vertex as * down and up
 				if (mc.player.getHeldItemMainhand().getItem() instanceof ItemBoundary) {
 					drawVertex((double) p0.x + 0.5d, reg.y[0], (double) p0.y + 0.5d, red, green, blue);
 					drawVertex((double) p0.x + 0.5d, (double) reg.y[1] + 1.0d, (double) p0.y + 0.5d, red, green, blue);
 				}
-				// Bound
-				drawSegment(p0, p1, reg.y[0], (double) reg.y[1] + 1.0d, red, green, blue);
 			}
-		}
-	}
+			// bound lines
+			List<float[]> lines = reg.getContourLines();
 
-	private void drawSegment(Point p0, Point p1, double minY, double maxY, float red, float green, float blue) {
-		if (p0 == null || p1 == null) {
-			return;
+			GlStateManager.pushMatrix();
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+					GlStateManager.DestFactor.ZERO);
+			GlStateManager.glLineWidth((float) 2.0);
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask(false);
+			GlStateManager.translate(-dx, -dy, -dz);
+			buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
+			float x = 0.5f;
+			float z = 0.5f;
+			float minY = reg.y[0];
+			float maxY = 1.0f + reg.y[1];
+			// horizontal lines
+			for (int i = 0; i < 2; i++) {
+				float y = i == 0 ? minY : maxY;
+				for (float[] cl : lines) {
+					buffer.pos(cl[0] + x, y, cl[1] + z).color(red, green, blue, 0.5f).endVertex();
+					buffer.pos(cl[2] + x, y, cl[3] + z).color(red, green, blue, 0.5f).endVertex();
+					buffer.pos(cl[0] + x, y, cl[1] + z).color(red, green, blue, 0.5f).endVertex();
+					buffer.pos(cl[2] + x, y, cl[3] + z).color(red, green, blue, 0.5f).endVertex();
+				}
+			}
+			// vertical lines
+			for (int i = 0; i < reg.points.size(); i++) {
+				Point p0 = reg.points.get(i);
+				buffer.pos(p0.x + x, minY, p0.y + z).color(red, green, blue, 0.5f).endVertex();
+				buffer.pos(p0.x + x, maxY, p0.y + z).color(red, green, blue, 0.5f).endVertex();
+				buffer.pos(p0.x + x, minY, p0.y + z).color(red, green, blue, 0.5f).endVertex();
+				buffer.pos(p0.x + x, maxY, p0.y + z).color(red, green, blue, 0.5f).endVertex();
+			}
+			tessellator.draw();
+			GlStateManager.popMatrix();
 		}
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder buffer = tessellator.getBuffer();
-		GlStateManager.pushMatrix();
-		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-				GlStateManager.DestFactor.ZERO);
-		GlStateManager.glLineWidth((float) 2.0);
-		GlStateManager.disableTexture2D();
-		GlStateManager.depthMask(false);
-		GlStateManager.translate(-dx, -dy, -dz);
-		buffer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION_COLOR);
-		buffer.pos(p0.x + 0.5d, minY, p0.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex(); // _
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex();
-		buffer.pos(p0.x + 0.5d, maxY, p0.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex(); // -
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex();
-		buffer.pos(p1.x + 0.5d, minY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex(); // |
-		buffer.pos(p1.x + 0.5d, maxY, p1.y + 0.5d).color(red, green, blue, (float) 0.5).endVertex();
-		tessellator.draw();
-		GlStateManager.depthMask(true);
-		GlStateManager.enableTexture2D();
-		GlStateManager.disableBlend();
-		GlStateManager.popMatrix();
 	}
 
 	private void drawVertex(double x, double y, double z, float red, float green, float blue) {
@@ -1446,13 +1369,10 @@ public class ClientGuiEventHandler extends Gui {
 				}
 				GlStateManager.popMatrix();
 
-				mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 				GlStateManager.translate(0.0f, -31.42857f * hud.compassData.scale + 30.71429f, 0.0f);
 				GlStateManager.scale(scale, scale, scale);
 				GlStateManager.rotate(incline, 1.0f, 0.0f, 0.0f);
-				if (hud.compassData.rot != 0.0f) {
-					GlStateManager.rotate(hud.compassData.rot, 0.0f, 1.0f, 0.0f);
-				}
+				if (hud.compassData.rot != 0.0f) { GlStateManager.rotate(hud.compassData.rot, 0.0f, 1.0f, 0.0f); }
 				GlStateManager.enableDepth();
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				GlStateManager.enableRescaleNormal();
@@ -1505,19 +1425,19 @@ public class ClientGuiEventHandler extends Gui {
                             : 0.025d - 0.05d * (t % 500.0d) / 500.0d;
                     GlStateManager.translate(0.0d, f0, 0.0d);
                 }
-                GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_1"), null));
-                GlStateManager.popMatrix();
+				GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_1"), null));
+				GlStateManager.popMatrix();
 
-                // Arrow_2
-                GlStateManager.pushMatrix();
-                if (yP > 0.25d) {
-                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_21"), null));
-                } else if (yP < -0.25d) {
-                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_22"), null));
-                } else {
-                    GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_20"), null));
-                }
-                GlStateManager.popMatrix();
+				// Arrow_2
+				GlStateManager.pushMatrix();
+				if (yP > 0.25d) {
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_21"), null));
+				} else if (yP < -0.25d) {
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_22"), null));
+				} else {
+					GlStateManager.callList(ModelBuffer.getDisplayList(ClientGuiEventHandler.RESOURCE_COMPASS, Collections.singletonList("arrow_20"), null));
+				}
+				GlStateManager.popMatrix();
 
                 if (type >= 0 && type <= EnumQuestTask.values().length) {
 					Map<String, String> m = new HashMap<>();
@@ -1671,34 +1591,21 @@ public class ClientGuiEventHandler extends Gui {
 					continue;
 				}
 				GlStateManager.pushMatrix();
+				if (cp.objList != -1) { cp.objList = ModelBuffer.getDisplayList(cp.obj, null, null); }
 				if (cp.objList != -1) {
-					Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 					GlStateManager.translate(cp.posX() - dx, cp.posY() - dy, cp.posZ() - dz);
-					if (cp.getScale() != 0.0f) {
-						GlStateManager.scale(cp.getScale(), cp.getScale(), cp.getScale());
-					}
-					if (cp.getRotationX() != 0.0f) {
-						GlStateManager.rotate(cp.getRotationX(), 1.0f, 0.0f, 0.0f);
-					}
-					if (cp.getRotationY() != 0.0f) {
-						GlStateManager.rotate(cp.getRotationY(), 0.0f, 1.0f, 0.0f);
-					}
-					if (cp.getRotationZ() != 0.0f) {
-						GlStateManager.rotate(cp.getRotationZ(), 0.0f, 0.0f, 1.0f);
-					}
-
+					if (cp.getScale() != 0.0f) { GlStateManager.scale(cp.getScale(), cp.getScale(), cp.getScale()); }
+					if (cp.getRotationX() != 0.0f) { GlStateManager.rotate(cp.getRotationX(), 1.0f, 0.0f, 0.0f); }
+					if (cp.getRotationY() != 0.0f) { GlStateManager.rotate(cp.getRotationY(), 0.0f, 1.0f, 0.0f); }
+					if (cp.getRotationZ() != 0.0f) { GlStateManager.rotate(cp.getRotationZ(), 0.0f, 0.0f, 1.0f); }
 					GlStateManager.enableDepth();
 					GlStateManager.color(cp.getRedColorF(), cp.getGreenColorF(), cp.getBlueColorF(), cp.getAlphaF());
 					GlStateManager.enableRescaleNormal();
 					GlStateManager.enableLighting();
 					RenderHelper.enableStandardItemLighting();
 					OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0f, 240.0f);
-
 					GlStateManager.callList(cp.objList);
-
 					GlStateManager.disableBlend();
-				} else {
-					cp.objList = ModelBuffer.getDisplayList(cp.obj, null, null);
 				}
 				GlStateManager.popMatrix();
 			}
@@ -1768,11 +1675,8 @@ public class ClientGuiEventHandler extends Gui {
 		else if (offStack.getItem() instanceof ItemNpcMovingPath) { nbtMP = offStack.getTagCompound(); }
 		if (nbtMP != null && nbtMP.hasKey("NPCID", 3)) {
 			Entity entity = mc.player.world.getEntityByID(nbtMP.getInteger("NPCID"));
-			if (entity instanceof EntityCustomNpc) {
-				drawNpcMovingPath((EntityCustomNpc) entity);
-			} else {
-				ClientGuiEventHandler.movingPath.clear();
-			}
+			if (entity instanceof EntityCustomNpc) { drawNpcMovingPath((EntityCustomNpc) entity); }
+			else { ClientGuiEventHandler.movingPath.clear(); }
 		}
 		int id = -1;
 		// Show rayTrace point
@@ -1784,7 +1688,7 @@ public class ClientGuiEventHandler extends Gui {
 			Vec3d vec3d2 = mc.player.getLook(1.0f);
 			Vec3d vec3d3 = vec3d.addVector(vec3d2.x * 5.0d, vec3d2.y * 5.0d, vec3d2.z * 5.0d);
 			ClientGuiEventHandler.result = mc.player.world.rayTraceBlocks(vec3d, vec3d3, false, false, false);
-			Zone3D reg = (Zone3D) bData.getRegion(id);
+			Zone3D reg = bData.getRegion(id);
 			boolean isShiftPressed = ClientProxy.playerData.hud.hasOrKeysPressed(54, 42);
 			if ((isShiftPressed || reg == null) && ClientGuiEventHandler.result != null) {
 				final BlockPos pos = getPos();
@@ -1804,13 +1708,15 @@ public class ClientGuiEventHandler extends Gui {
             }
 		}
 		// Show Regions
+		GlStateManager.enableBlend();
+		double dist = 250.0d;
 		for (Zone3D reg : bData.getRegionsInWorld(mc.player.world.provider.getDimension())) {
-			if (reg == null || reg.dimensionID != mc.player.world.provider.getDimension() || reg.distanceTo(mc.player) > 250.0d) {
-				continue;
-			}
+			if (mc.player.capabilities.isCreativeMode) { dist = Math.max(250.0d, Math.max(Math.max(reg.getMaxX(), reg.getMaxY()), reg.getMaxZ()) * 2.0d); }
+			if (reg == null || reg.dimensionID != mc.player.world.provider.getDimension() || reg.distanceTo(mc.player) > dist) { continue; }
 			if (mc.player.capabilities.isCreativeMode) { renderRegion(reg, id); }
 			else if (reg.showInClient) { drawRegion(reg, -1); }
 		}
+		GlStateManager.disableBlend();
 		CustomNpcs.debugData.end(null);
 	}
 
@@ -1860,9 +1766,7 @@ public class ClientGuiEventHandler extends Gui {
 
 	/** Regions Edit -> Draw */
 	private void renderRegion(Zone3D reg, int editID) {
-		if (reg.size() == 0) {
-			return;
-		}
+		if (reg.size() == 0) { return; }
 		double distMin = Double.MAX_VALUE;
 		boolean start = true;
 		Point playerPoint = new Point(mc.player.getPosition().getX(), mc.player.getPosition().getZ());
@@ -1870,9 +1774,8 @@ public class ClientGuiEventHandler extends Gui {
 		double[] nt = new double[] { 0.0d, 255.0d };
 		// Draw Vertex/Bound and get nearest Point
 		drawRegion(reg, editID);
-		if (reg.getId() != editID) {
-			return;
-		}
+		if (reg.getId() != editID) { return; }
+
 		for (Point p : reg.points.values()) {
 			if (start || distMin > p.distance(playerPoint)) {
 				start = false;
@@ -1886,42 +1789,23 @@ public class ClientGuiEventHandler extends Gui {
             BlockPos p = ClientGuiEventHandler.result.getBlockPos();
             double min = p.getY() < reg.y[0] ? (double) p.getY() : (double) reg.y[0];
             double max = (p.getY() > reg.y[1] ? (double) p.getY() : (double) reg.y[1]) + 1.0d;
-            Point pb = new Point(p.getX(), p.getZ());
             double px = p.getX(), x = px + 0.5d;
             double py = p.getY(), y = py + 0.5d;
             double pz = p.getZ(), z = pz + 0.5d;
             switch (ClientGuiEventHandler.result.sideHit) {
-                case UP: {
-                    y += 0.55d;
-                    break;
-                }
-                case NORTH: {
-                    z -= 0.55d;
-                    break;
-                }
-                case SOUTH: {
-                    z += 0.55d;
-                    break;
-                }
-                case WEST: {
-                    x -= 0.55d;
-                    break;
-                }
-                case EAST: {
-                    x += 0.55d;
-                    break;
-                }
-                default: {
-                    y -= 0.55d;
-                    break;
-                }
+				case UP: y += 0.55f; break;
+				case NORTH: z -= 0.55f; break;
+				case SOUTH: z += 0.55f; break;
+				case WEST: x -= 0.55f; break;
+				case EAST: x += 0.55f; break;
+				default: y -= 0.55f; break;
             }
             drawVertex(x, y, z, 1.0f, 1.0f, 0.0f);
             // Bound
-            Point[] pns = reg.getClosestPoints(pb, Objects.requireNonNull(NpcAPI.Instance()).getIPos(mc.player.posX, mc.player.posY, mc.player.posZ));
+			Point pb = new Point((int) Math.floor(x), (int) Math.floor(z));
+			Point[] pns = reg.getClosestPoints(pb, mc.player.posX, mc.player.posZ);
             drawAddSegment(pns, pb, min, max);
         }
-
 		if (nearestPoint != null) { // nearest vertex
 			GlStateManager.pushMatrix();
 			GlStateManager.enableBlend();

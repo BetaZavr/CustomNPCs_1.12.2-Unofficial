@@ -15,7 +15,6 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.Server;
 import noppes.npcs.api.handler.IQuestHandler;
-import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.api.handler.data.IQuestCategory;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
@@ -59,7 +58,7 @@ public class QuestController implements IQuestHandler {
 	}
 
 	@Override
-	public IQuest get(int id) {
+	public Quest get(int id) {
 		return quests.get(id);
 	}
 

@@ -23,22 +23,22 @@ public class LinkedNpcController {
 		public long time;
 
 		public LinkedData() {
-			this.name = "LinkedNpc";
-			this.time = 0L;
-			this.data = new NBTTagCompound();
-			this.time = System.currentTimeMillis();
+			name = "LinkedNpc";
+			time = 0L;
+			data = new NBTTagCompound();
+			time = System.currentTimeMillis();
 		}
 
 		public NBTTagCompound getNBT() {
 			NBTTagCompound compound = new NBTTagCompound();
-			compound.setString("LinkedName", this.name);
-			compound.setTag("NPCData", this.data);
+			compound.setString("LinkedName", name);
+			compound.setTag("NPCData", data);
 			return compound;
 		}
 
 		public void setNBT(NBTTagCompound compound) {
-			this.name = compound.getString("LinkedName");
-			this.data = compound.getCompoundTag("NPCData");
+			name = compound.getString("LinkedName");
+			data = compound.getCompoundTag("NPCData");
 		}
 	}
 
@@ -47,18 +47,18 @@ public class LinkedNpcController {
 	public List<LinkedData> list;
 
 	public LinkedNpcController() {
-		this.list = new ArrayList<>();
+		list = new ArrayList<>();
 		(LinkedNpcController.Instance = this).loadNpcs();
 	}
 
 	public void addData(String name) {
-		if (this.getData(name) != null || name.isEmpty()) {
+		if (getData(name) != null || name.isEmpty()) {
 			return;
 		}
 		LinkedData data = new LinkedData();
 		data.name = name;
-		this.list.add(data);
-		this.save();
+		list.add(data);
+		save();
 	}
 
 	private void cleanTags(NBTTagCompound compound) {
@@ -66,7 +66,7 @@ public class LinkedNpcController {
 	}
 
 	public LinkedData getData(String name) {
-		for (LinkedData data : this.list) {
+		for (LinkedData data : list) {
 			if (data.name.equalsIgnoreCase(name)) {
 				return data;
 			}
@@ -84,22 +84,19 @@ public class LinkedNpcController {
 	}
 
 	public void loadNpcData(EntityNPCInterface npc) {
-		if (npc.linkedName.isEmpty()) {
-			return;
-		}
-		LinkedData data = this.getData(npc.linkedName);
+		if (npc.linkedName.isEmpty()) { return; }
+		LinkedData data = getData(npc.linkedName);
 		if (data == null) {
 			npc.linkedLast = 0L;
 			npc.linkedName = "";
 			npc.linkedData = null;
-		} else {
+		}
+		else {
 			npc.linkedData = data;
-			if (npc.posX == 0.0 && npc.posY == 0.0 && npc.posZ == 0.0) {
-				return;
-			}
+			if (npc.posX == 0.0 && npc.posY == 0.0 && npc.posZ == 0.0) { return; }
 			npc.linkedLast = data.time;
 			List<int[]> points = npc.ais.getMovingPath();
-			NBTTagCompound compound = NBTTags.NBTMerge(this.readNpcData(npc), data.data);
+			NBTTagCompound compound = NBTTags.NBTMerge(readNpcData(npc), data.data);
 			npc.display.readToNBT(compound);
 			npc.stats.readToNBT(compound);
 			npc.advanced.load(compound);
@@ -109,6 +106,7 @@ public class LinkedNpcController {
 			}
 			npc.ais.readToNBT(compound);
 			npc.transform.load(compound);
+			npc.animation.load(compound);
 			npc.ais.setMovingPath(points);
 			npc.updateClient = true;
 		}
@@ -117,22 +115,22 @@ public class LinkedNpcController {
 	private void loadNpcs() {
 		CustomNpcs.debugData.start(null);
 		LogWriter.info("Loading Linked Npcs");
-		File dir = this.getDir();
+		File dir = getDir();
 		if (dir.exists()) {
-			List<LinkedData> list = new ArrayList<>();
+			List<LinkedData> listIn = new ArrayList<>();
 			for (File file : Objects.requireNonNull(dir.listFiles())) {
 				if (file.getName().endsWith(".json")) {
 					try {
 						NBTTagCompound compound = NBTJsonUtil.LoadFile(file);
 						LinkedData linked = new LinkedData();
 						linked.setNBT(compound);
-						list.add(linked);
+						listIn.add(linked);
 					} catch (Exception e) {
 						LogWriter.error("Error loading: " + file.getAbsolutePath(), e);
 					}
 				}
 			}
-			this.list = list;
+			list = listIn;
 		}
 		LogWriter.info("Done loading Linked Npcs");
 		CustomNpcs.debugData.end(null);
@@ -146,20 +144,21 @@ public class LinkedNpcController {
 		npc.ais.writeToNBT(compound);
 		npc.advanced.save(compound);
 		npc.transform.save(compound);
+		npc.animation.save(compound);
 		compound.setTag("ModelData", ((EntityCustomNpc) npc).modelData.save());
 		return compound;
 	}
 
 	public void removeData(String name) {
-        this.list.removeIf(linkedData -> linkedData.name.equalsIgnoreCase(name));
-		this.save();
+        list.removeIf(linkedData -> linkedData.name.equalsIgnoreCase(name));
+		save();
 	}
 
 	public void save() {
 		CustomNpcs.debugData.start(null);
-		for (LinkedData npc : this.list) {
+		for (LinkedData npc : list) {
 			try {
-				this.saveNpc(npc);
+				saveNpc(npc);
 			} catch (IOException e) {
 				LogWriter.except(e);
 			}
@@ -169,8 +168,8 @@ public class LinkedNpcController {
 
 	@SuppressWarnings("all")
 	private void saveNpc(LinkedData npc) throws IOException {
-		File file = new File(this.getDir(), npc.name + ".json_new");
-		File file2 = new File(this.getDir(), npc.name + ".json");
+		File file = new File(getDir(), npc.name + ".json_new");
+		File file2 = new File(getDir(), npc.name + ".json");
 		try {
 			Util.instance.saveFile(file, npc.getNBT());
 			if (file2.exists()) {
@@ -183,13 +182,12 @@ public class LinkedNpcController {
 	}
 
 	public void saveNpcData(EntityNPCInterface npc) {
-		NBTTagCompound compound = this.readNpcData(npc);
-		this.cleanTags(compound);
-		if (npc.linkedData.data.equals(compound)) {
-			return;
-		}
+		NBTTagCompound compound = readNpcData(npc);
+		cleanTags(compound);
+		if (npc.linkedData.data.equals(compound)) { return; }
 		npc.linkedData.data = compound;
 		npc.linkedData.time = System.currentTimeMillis();
-		this.save();
+		save();
 	}
+
 }

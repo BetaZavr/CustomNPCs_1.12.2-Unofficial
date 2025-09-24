@@ -167,13 +167,14 @@ public class BlockScriptedRenderer<T extends TileEntity> extends TileEntitySpeci
                     }
                 }
                 this.renderBlock(state);
-            } else if (l.objModel != null) {
-                int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
-                if (displayList >= 0) {
-                    Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-                    GlStateManager.callList(displayList);
-                }
             }
+			else if (l.objModel != null) {
+				int displayList = ModelBuffer.getDisplayList(l.objModel, null, null);
+				if (displayList >= 0) {
+					Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+					GlStateManager.callList(displayList);
+				}
+			}
             GlStateManager.popMatrix();
         }
         if (!tile.text1.text.isEmpty()) {

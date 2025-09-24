@@ -9,31 +9,31 @@ import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityPlayerName;
 import noppes.npcs.controllers.data.Availability;
 
-public class SubGuiNpcAvailabilityNames
-extends SubGuiInterface
-implements ICustomScrollListener, ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	private final Availability availability;
-	private final Map<String, EnumAvailabilityPlayerName> data = new HashMap<>();
-	private GuiCustomScroll scroll;
-	private String select = "";
+public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICustomScrollListener {
 
-	public SubGuiNpcAvailabilityNames(Availability availability) {
+	protected final Availability availability;
+	protected final Map<String, EnumAvailabilityPlayerName> data = new HashMap<>();
+	protected GuiCustomScroll scroll;
+	protected String select = "";
+
+	public SubGuiNpcAvailabilityNames(Availability availabilityIn) {
+		super(0);
 		setBackground("menubg.png");
+		closeOnEsc = true;
 		xSize = 256;
 		ySize = 217;
-		closeOnEsc = true;
 
-		this.availability = availability;
+		availability = availabilityIn;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
-				if (select.isEmpty()) {
-					return;
-				}
+				if (select.isEmpty()) { return; }
 				EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[button.getValue()];
 				availability.playerNames.put(select, eapn);
 				initGui();
@@ -56,13 +56,7 @@ implements ICustomScrollListener, ISubGuiListener {
 				initGui();
 				break;
 			}
-			case 66: {
-				close();
-				break;
-			}
-			default: {
-				break;
-			}
+			case 66: onClosed(); break;
 		}
 	}
 
@@ -70,15 +64,13 @@ implements ICustomScrollListener, ISubGuiListener {
 	public void initGui() {
 		super.initGui();
 		// title
-		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.setCenter(xSize);
-		addLabel(label);
+		addLabel(new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4)
+				.setCenter(xSize));
 		// exit
-		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done");
-		button.setHoverText("hover.back");
-		addButton(button);
+		addButton(new GuiNpcButton(66, guiLeft + 6, guiTop + 192, 70, 20, "gui.done")
+				.setHoverText("hover.back"));
 		// data
-		if (scroll == null) { (scroll = new GuiCustomScroll(this, 6)).setSize(xSize - 12, ySize - 66); }
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 6).setSize(xSize - 12, ySize - 66); }
 		data.clear();
 		for (String name : availability.playerNames.keySet()) { data.put(name, availability.playerNames.get(name)); }
 		if (!select.isEmpty() && !data.containsKey(select)) { select = ""; }
@@ -89,48 +81,39 @@ implements ICustomScrollListener, ISubGuiListener {
 		else { scroll.setSelect(-1); }
 		addScroll(scroll);
 		int p = 0;
-		if (!select.isEmpty()) {
-			p = data.get(select).ordinal();
-		}
+		if (!select.isEmpty()) { p = data.get(select).ordinal(); }
 		// type
-		button = new GuiNpcButton(0, guiLeft + 6, guiTop + ySize - 46, 50, 20, new String[] { "availability.only", "availability.except" }, p);
-		button.setHoverText("availability.hover.name." + button.getValue());
-		addButton(button);
+		addButton(new GuiNpcButton(0, guiLeft + 6, guiTop + ySize - 46, 50, 20, new String[] { "availability.only", "availability.except" }, p)
+				.setHoverText("availability.hover.name." + p));
 		// select
-		button = new GuiNpcButton(1, guiLeft + 58, guiTop + ySize - 46, 170, 20, "availability.select");
-		if (!select.isEmpty()) { button.setDisplayText(select); }
-		button.setHoverText("availability.hover.player.name");
-		addButton(button);
+		addButton(new GuiNpcButton(1, guiLeft + 58, guiTop + ySize - 46, 170, 20, !select.isEmpty() ? select : "availability.select")
+				.setHoverText("availability.hover.player.name"));
 		// del
-		button = new GuiNpcButton(2, guiLeft + 230, guiTop + ySize - 46, 20, 20, "X");
-		button.setEnabled(!select.isEmpty());
-		button.setHoverText("availability.hover.remove");
-		addButton(button);
+		addButton(new GuiNpcButton(2, guiLeft + 230, guiTop + ySize - 46, 20, 20, "X")
+				.setIsEnable(!select.isEmpty())
+				.setHoverText("availability.hover.remove"));
 		// extra
-		button = new GuiNpcButton(3, guiLeft + xSize - 76, guiTop + 192, 70, 20, "availability.more");
-		button.setEnabled(!select.isEmpty());
-		button.setHoverText("availability.hover.more");
-		addButton(button);
+		addButton(new GuiNpcButton(3, guiLeft + xSize - 76, guiTop + 192, 70, 20, "availability.more")
+				.setIsEnable(!select.isEmpty())
+				.setHoverText("availability.hover.more"));
 	}
 
 	@Override
 	public void save() {
-		if (select.isEmpty()) {
-			return;
-		}
+		if (select.isEmpty()) { return; }
 		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.values()[getButton(0).getValue()];
 		availability.playerNames.put(select, eapn);
 		select = "";
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		SubGuiEditText subGui = new SubGuiEditText(0, select);
 		subGui.hovers[0] = "availability.hover.player.name";
 		setSubGui(subGui);
@@ -139,9 +122,7 @@ implements ICustomScrollListener, ISubGuiListener {
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		SubGuiEditText selector = (SubGuiEditText) subgui;
-		if (selector.cancelled) {
-			return;
-		}
+		if (selector.cancelled) { return; }
 		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.Only;
 		if (!select.isEmpty()) {
 			eapn = data.get(select);

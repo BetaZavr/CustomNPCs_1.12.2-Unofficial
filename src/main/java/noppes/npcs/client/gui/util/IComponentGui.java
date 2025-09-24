@@ -1,6 +1,12 @@
 package noppes.npcs.client.gui.util;
 
+import java.util.List;
+
 public interface IComponentGui {
+
+	List<String> getHoversText();
+
+	boolean isHovered();
 
 	int getID();
 
@@ -8,34 +14,20 @@ public interface IComponentGui {
 
 	void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks);
 
-	void setHoverText(String srt, Object ... args);
+	boolean keyCnpcsPressed(char typedChar, int keyCode);
 
-	int getLeft();
+	boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton);
 
-	int getTop();
+	boolean mouseCnpcsReleased(int mouseX, int mouseY, int state);
 
-	void setLeft(int left);
+	IComponentGui setHoverText(String srt, Object ... args);
 
-	void setTop(int top);
+	IComponentGui setIsEnable(boolean isEnable);
 
-	int getWidth();
+	IComponentGui setIsVisible(boolean isVisible);
 
-	int getHeight();
+	void moveTo(int addX, int addY);
 
-	void customKeyTyped(char c, int id);
-
-	void customMouseClicked(int mouseX, int mouseY, int mouseButton);
-
-	void customMouseReleased(int mouseX, int mouseY, int mouseButton);
-
-	boolean isVisible();
-
-	void setIsVisible(boolean bo);
-
-	boolean isEnabled();
-
-	void setEnabled(boolean bo);
-
-	boolean isHovered();
+	void updateCnpcsScreen();
 
 }

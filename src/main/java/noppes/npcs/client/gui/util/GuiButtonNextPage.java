@@ -24,12 +24,8 @@ extends GuiNpcButton {
 			int k = 0;
 			int l = 192;
 			boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-			if (hovered) {
-				k += 23;
-			}
-			if (!isForward) {
-				l += 13;
-			}
+			if (hovered) { k += 23; }
+			if (!isForward) { l += 13; }
 			drawTexturedModalRect(x, y, k, l, 23, 13);
 		}
 	}

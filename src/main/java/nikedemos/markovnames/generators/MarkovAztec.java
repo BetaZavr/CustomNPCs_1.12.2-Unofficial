@@ -1,22 +1,14 @@
 package nikedemos.markovnames.generators;
 
-import java.util.Random;
-
 import nikedemos.markovnames.MarkovDictionary;
 
 public class MarkovAztec extends MarkovGenerator {
 
 	public MarkovAztec(int seqlen) {
-		this(seqlen, new Random());
-	}
-
-	public MarkovAztec(int seqlen, Random rng) {
-		this.rng = rng;
-		this.markov = new MarkovDictionary("aztec_given.txt", seqlen, rng);
+		markov = new MarkovDictionary("aztec_given.txt", seqlen);
 	}
 
 	@Override
-	public String fetch(int gender) {
-		return this.markov.generateWord();
-	}
+	public String fetch(int gender) { return markov.generateWord(); }
+
 }

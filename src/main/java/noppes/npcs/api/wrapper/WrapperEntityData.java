@@ -42,8 +42,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		if (entity == null || entity.world == null) {
 			return null;
 		}
-		WrapperEntityData data = (WrapperEntityData) entity
-				.getCapability(WrapperEntityData.WRAPPER_ENTITY_DATA_CAPABILITY, null);
+		WrapperEntityData data = (WrapperEntityData) entity.getCapability(WrapperEntityData.WRAPPER_ENTITY_DATA_CAPABILITY, null);
 		if (entity instanceof EntityPlayer) {
 			String k = (entity.world == null || entity.world.isRemote ? "client_" : "server_") + entity.getUniqueID();
 			if (data != null && !PlayerWrapper.map.containsKey(k)) {
@@ -131,7 +130,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 	}
 
 	public static void register(AttachCapabilitiesEvent<Entity> event) {
-		event.addCapability(WrapperEntityData.key, getData(event.getObject()));
+		if (CustomNpcs.EnableScripting) { event.addCapability(WrapperEntityData.key, getData(event.getObject())); }
 	}
 
 	private static void setTempData(WrapperEntityData oldData, WrapperEntityData newData) {
@@ -140,9 +139,7 @@ public class WrapperEntityData implements IWrapperEntityDataHandler, ICapability
 		}
         oldData.base.getTempdata().getKeys();
         for (String key : oldData.base.getTempdata().getKeys()) {
-            try {
-                newData.base.getTempdata().put(key, oldData.base.getTempdata().get(key));
-            }
+            try { newData.base.getTempdata().put(key, oldData.base.getTempdata().get(key)); }
 			catch (Exception e) { LogWriter.error(e); }
         }
     }

@@ -19,33 +19,31 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubGuiNpcAvailabilityItemStacks
-extends GuiContainerNPCInterface
-implements ICustomScrollListener {
+public class SubGuiNpcAvailabilityItemStacks extends GuiContainerNPCInterface implements ICustomScrollListener {
 
-    public static GuiScreen parent;
+    protected final Availability availability;
+    protected final ContainerAvailabilityInv cont;
+    protected GuiCustomScroll scroll;
+    protected int reset = 0;
     public static SubGuiNpcAvailability setting;
-
-    private final Availability availability;
-    private final ContainerAvailabilityInv cont;
-    private GuiCustomScroll scroll;
-    private int reset = 0;
+    public static GuiScreen parent;
 
     public SubGuiNpcAvailabilityItemStacks(ContainerAvailabilityInv container) {
         super(null, container);
         setBackground("itemsetup.png");
-        xSize = 176;
-        ySize = 202;
+        title = "Availability Stacks";
         drawDefaultBackground = true;
         closeOnEsc = true;
-        title = "Availability Stacks";
+        xSize = 176;
+        ySize = 202;
 
         availability = container.availability;
         cont = container;
     }
 
     @Override
-    public void buttonEvent(IGuiNpcButton button) {
+    public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+        if (mouseButton != 0) { return; }
         AvailabilityStackData aData = availability.stacksData.get(cont.slot.getSlotIndex());
         switch (button.getID()) {
             case 0: {
@@ -64,10 +62,7 @@ implements ICustomScrollListener {
                 initGui();
                 break;
             }
-            case 66: {
-                close();
-                break;
-            }
+            case 66: onClosed(); break;
         }
     }
 
@@ -87,9 +82,8 @@ implements ICustomScrollListener {
         int x = guiLeft + 8;
         int y = guiTop + 3;
         // exit
-        GuiNpcButton button = new GuiNpcButton(66, guiLeft + xSize / 2 - 35, guiTop + 189, 70, 20, "gui.done");
-        button.setHoverText("hover.back");
-        addButton(button);
+        addButton(new GuiNpcButton(66, guiLeft + xSize / 2 - 35, guiTop + 189, 70, 20, "gui.done")
+                .setHoverText("hover.back"));
         // data
         List<String> list = new ArrayList<>();
         List<String> suffixes = new ArrayList<>();
@@ -100,34 +94,24 @@ implements ICustomScrollListener {
             ItemStack stack = cont.inv.getStackInSlot(i);
             AvailabilityStackData aData = availability.stacksData.get(i);
             String name, suffix;
-            if (stack.isEmpty()) {
-                name = Util.instance.deleteColor(new TextComponentTranslation("info.item.cloner.empty.0").getFormattedText());
-            }
+            if (stack.isEmpty()) { name = Util.instance.deleteColor(new TextComponentTranslation("info.item.cloner.empty.0").getFormattedText()); }
             else {
                 name = stack.getDisplayName();
-                if (stack.getCount() > 1) {
-                    name += " x" + stack.getCount();
-                }
+                if (stack.getCount() > 1) { name += " x" + stack.getCount(); }
             }
-            if (aData.type == EnumAvailabilityStackData.Always) {
-                suffix = c + "aA";
-            } else if (aData.type == EnumAvailabilityStackData.Contains) {
-                suffix = c + "bC";
-            } else {
-                suffix = c + "cE";
-            }
+            if (aData.type == EnumAvailabilityStackData.Always) { suffix = c + "aA"; }
+            else if (aData.type == EnumAvailabilityStackData.Contains) { suffix = c + "bC"; }
+            else { suffix = c + "cE"; }
             String key = c + "7" + (i + 1) + ": " + c + "r" + name;
             list.add(key);
             stacks.add(stack);
             suffixes.add(suffix);
-            if (i == cont.slot.getSlotIndex()) {
-                select = key;
-            }
+            if (i == cont.slot.getSlotIndex()) { select = key; }
         }
         if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(102, 107); }
-        scroll.setList(list);
-        scroll.setStacks(stacks);
-        scroll.setSuffixes(suffixes);
+        scroll.setList(list)
+                .setStacks(stacks)
+                .setSuffixes(suffixes);
         scroll.guiLeft = guiLeft + 70;
         scroll.guiTop = guiTop + 4;
         if (!select.isEmpty()) { scroll.setSelected(select); }
@@ -135,29 +119,24 @@ implements ICustomScrollListener {
         // ignore damage
         AvailabilityStackData aData = availability.stacksData.get(cont.slot.getSlotIndex());
         addLabel(new GuiNpcLabel(0, "gui.ignoreDamage", x, y + 2));
-        button = new GuiNpcButton(0, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreDamage ? 0 : 1);
-        button.setHoverText("gui.ignoreDamage." + button.getValue());
-        addButton(button);
+        addButton(new GuiNpcButton(0, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreDamage ? 0 : 1)
+                .setHoverText("gui.ignoreDamage." + (aData == null || aData.ignoreDamage ? 0 : 1)));
         // ignore nbt
         addLabel(new GuiNpcLabel(1, "gui.ignoreNBT", x, (y += 16) + 2));
-        button = new GuiNpcButton(1, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreNBT ? 0 : 1);
-        button.setHoverText("gui.ignoreNBT." + button.getValue());
-        addButton(button);
+        addButton(new GuiNpcButton(1, x, y += 12, 50, 14, new String[] { "gui.yes", "gui.no" }, aData == null || aData.ignoreNBT ? 0 : 1)
+                .setHoverText("gui.ignoreNBT." + (aData == null || aData.ignoreNBT ? 0 : 1)));
         // type
         addLabel(new GuiNpcLabel(2, "gui.type", x, (y += 16) + 2));
-        button = new GuiNpcButton(2, x, y + 12, 50, 14, "availability." + (aData == null ? "always" : aData.type.name().toLowerCase()));
-        button.setHoverText("availability.hover.stack.type." + (aData == null ? "always" : aData.type.name().toLowerCase()));
-        addButton(button);
+        addButton(new GuiNpcButton(2, x, y + 12, 50, 14, "availability." + (aData == null ? "always" : aData.type.name().toLowerCase()))
+                .setHoverText("availability.hover.stack.type." + (aData == null ? "always" : aData.type.name().toLowerCase())));
         // id slot
         addLabel(new GuiNpcLabel(3, "ID: " + cont.slot.getSlotIndex(), x + 20, guiTop + 87));
     }
 
     @Override
-    public void close() {
-        super.close();
-        if (parent != null) {
-            displayGuiScreen(parent);
-        }
+    public void onClosed() {
+        super.onClosed();
+        if (parent != null) { displayGuiScreen(parent); }
     }
 
     @Override
@@ -172,13 +151,11 @@ implements ICustomScrollListener {
     @Override
     protected void handleMouseClick(@Nonnull Slot slotIn, int slotId, int mouseButton, @Nonnull ClickType type) {
         super.handleMouseClick(slotIn, slotId, mouseButton, type);
-        if (slotIn == cont.slot) {
-            reset = 3;
-        }
+        if (slotIn == cont.slot) { reset = 3; }
     }
 
     @Override
-    public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+    public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
         cont.slot.setSlotIndex(scroll.getSelect(), true);
         scroll.setSelect(cont.slot.getSlotIndex());
         Client.sendData(EnumPacketServer.AvailabilitySlot, cont.slot.getSlotIndex());
@@ -186,8 +163,6 @@ implements ICustomScrollListener {
     }
 
     @Override
-    public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-
-    }
+    public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 }

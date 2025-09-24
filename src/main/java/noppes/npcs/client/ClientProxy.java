@@ -109,13 +109,13 @@ import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionInv;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionStats;
 import noppes.npcs.client.gui.player.companion.GuiNpcCompanionTalents;
-import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeItem;
+import noppes.npcs.client.gui.questtypes.SubGuiNpcQuestTypeItem;
 import noppes.npcs.client.gui.roles.GuiNpcBankSetup;
 import noppes.npcs.client.gui.roles.GuiNpcFollowerSetup;
 import noppes.npcs.client.gui.roles.GuiNpcItemGiver;
 import noppes.npcs.client.gui.roles.GuiNpcTransporter;
 import noppes.npcs.client.gui.script.*;
-import noppes.npcs.client.gui.select.GuiTextureSelection;
+import noppes.npcs.client.gui.select.SubGuiTextureSelection;
 import noppes.npcs.client.model.ModelBipedAlt;
 import noppes.npcs.client.model.ModelNPCGolem;
 import noppes.npcs.client.model.ModelNpcAlt;
@@ -1352,13 +1352,13 @@ public class ClientProxy extends CommonProxy {
 				break;
 			}
 			case QuestReward: {
-				returnGui = new GuiNpcQuestReward(npc, (ContainerNpcQuestReward) container);
+				returnGui = new SubGuiNpcQuestReward(npc, (ContainerNpcQuestReward) container);
 				break;
 			}
 			case QuestTypeItem: {
 				Quest quest = NoppesUtilServer.getEditingQuest(getPlayer());
 				if (quest != null && quest.questInterface.tasks[x].getEnumType() == EnumQuestTask.ITEM || Objects.requireNonNull(quest).questInterface.tasks[x].getEnumType() == EnumQuestTask.CRAFT) {
-					returnGui = new GuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container, quest.questInterface.tasks[x]);
+					returnGui = new SubGuiNpcQuestTypeItem(npc, (ContainerNpcQuestTypeItem) container, quest.questInterface.tasks[x]);
 				}
 				break;
 			}
@@ -1427,7 +1427,7 @@ public class ClientProxy extends CommonProxy {
 				break;
 			}
 			case PlayerTrader: {
-				returnGui = new GuiNPCTrader(npc, (ContainerNPCTrader) container);
+				returnGui = new GuiNPCTrader((ContainerNPCTrader) container);
 				break;
 			}
 			case PlayerBank: {
@@ -1586,6 +1586,10 @@ public class ClientProxy extends CommonProxy {
 				returnGui = new GuiCreationParts(npc, (ContainerLayer) container);
 				break;
 			}
+			case PermissionsEdit: {
+				returnGui = new GuiPermissionsEdit();
+				break;
+			}
 			default: { break; }
 		}
 		ClientEvent.PostGetGuiCustomNpcs postEvent = new ClientEvent.PostGetGuiCustomNpcs(npc, gui, container, x, y, z, returnGui);
@@ -1643,7 +1647,7 @@ public class ClientProxy extends CommonProxy {
 			return -1;
 		}, CustomRegisters.scripted_item);
 		ClientProxy.checkLocalization();
-		new GuiTextureSelection(null, "", "png", 0);
+		new SubGuiTextureSelection(0, null, "", "png", 0);
 		Map<Integer, IParticleFactory> map = ((IParticleManagerMixin) mc.effectRenderer).npcs$getParticleTypes();
 		for (int id : CustomRegisters.customparticles.keySet()) {
 			if (map.containsKey(id)) {
@@ -1666,9 +1670,7 @@ public class ClientProxy extends CommonProxy {
 		Minecraft mc = Minecraft.getMinecraft();
 		Container container = getContainer(gui, mc.player, x, y, z, npc);
 		GuiScreen guiscreen = getGui(npc, gui, container, x, y, z);
-		if (guiscreen != null) {
-			mc.displayGuiScreen(guiscreen);
-		}
+		if (guiscreen != null) { mc.displayGuiScreen(guiscreen); }
 	}
 
 	@Override

@@ -4,36 +4,39 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.api.handler.data.IQuest;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.player.GuiMailmanWrite;
-import noppes.npcs.client.gui.select.GuiQuestSelection;
+import noppes.npcs.client.gui.select.SubGuiQuestSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerMail;
 import noppes.npcs.controllers.data.PlayerMail;
 
-public class SubGuiMailmanSendSetup
-extends SubGuiInterface
-implements ITextfieldListener, GuiSelectionListener {
+import javax.annotation.Nonnull;
 
-	private final PlayerMail mail;
+public class SubGuiMailmanSendSetup extends SubGuiInterface
+		implements ITextfieldListener, GuiSelectionListener {
 
-	public SubGuiMailmanSendSetup(PlayerMail mail) {
-		xSize = 256;
+	protected final PlayerMail mail;
+
+	public SubGuiMailmanSendSetup(PlayerMail mailIn) {
+		super(0);
 		setBackground("menubg.png");
+		xSize = 256;
 
-		this.mail = mail;
+		mail = mailIn;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
-				close();
+				onClosed();
 				break;
 			}
 			case 1: {
 				mail.questId = -1;
 				mail.message = new NBTTagCompound();
-				close();
+				onClosed();
 				break;
 			}
 			case 2: {
@@ -42,7 +45,7 @@ implements ITextfieldListener, GuiSelectionListener {
 				Client.sendData(EnumPacketServer.MailOpenSetup, mail.writeNBT());
 				break;
 			}
-			case 3: setSubGui(new GuiQuestSelection(mail.questId)); break;
+			case 3: setSubGui(new SubGuiQuestSelection(mail.questId)); break;
 			case 4: {
 				mail.questId = -1;
 				initGui();
@@ -56,19 +59,17 @@ implements ITextfieldListener, GuiSelectionListener {
 		super.initGui();
 		// title
 		addLabel(new GuiNpcLabel(1, "mailbox.subject", guiLeft + 4, guiTop + 19));
-		addTextField(new GuiNpcTextField(1, this, fontRenderer, guiLeft + 60, guiTop + 14, 180, 20, mail.title));
+		addTextField(new GuiNpcTextField(1, this, guiLeft + 60, guiTop + 14, 180, 20, mail.title));
 		// sender
 		addLabel(new GuiNpcLabel(0, "mailbox.sender", guiLeft + 4, guiTop + 41));
-		addTextField(new GuiNpcTextField(0, this, fontRenderer, guiLeft + 60, guiTop + 36, 180, 20, mail.sender));
+		addTextField(new GuiNpcTextField(0, this, guiLeft + 60, guiTop + 36, 180, 20, mail.sender));
 		// write
 		addButton(new GuiNpcButton(2, guiLeft + 29, guiTop + 100, "mailbox.write"));
 		// quest
 		addLabel(new GuiNpcLabel(3, "quest.quest", guiLeft + 13, guiTop + 135));
 		IQuest quest = mail.getQuest();
 		String title = "gui.select";
-		if (quest != null) {
-			title = quest.getName();
-		}
+		if (quest != null) { title = quest.getName(); }
 		addButton(new GuiNpcButton(3, guiLeft + 70, guiTop + 130, 100, 20, title));
 		// del
 		addButton(new GuiNpcButton(4, guiLeft + 171, guiTop + 130, 20, 20, "X"));
@@ -89,8 +90,9 @@ implements ITextfieldListener, GuiSelectionListener {
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getID() == 0) { mail.sender = textField.getFullText(); }
-		else if (textField.getID() == 1) { mail.title = textField.getFullText(); }
+	public void unFocused(GuiNpcTextField textField) {
+		if (textField.getID() == 0) { mail.sender = textField.getText(); }
+		else if (textField.getID() == 1) { mail.title = textField.getText(); }
 	}
+
 }

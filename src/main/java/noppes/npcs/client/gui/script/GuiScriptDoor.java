@@ -5,16 +5,13 @@ import net.minecraft.util.math.BlockPos;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileScriptedDoor;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.ISubGuiListener;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
-public class GuiScriptDoor
-extends GuiScriptInterface
-implements ISubGuiListener {
+public class GuiScriptDoor extends GuiScriptInterface {
 
-	private final TileScriptedDoor script;
+	protected final TileScriptedDoor script;
 
 	public GuiScriptDoor(int x, int y, int z) {
 		super();
@@ -41,7 +38,7 @@ implements ISubGuiListener {
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof GuiScriptEncrypt && ((GuiScriptEncrypt) subgui).send) {
+		if (subgui instanceof SubGuiScriptEncrypt && ((SubGuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			NBTTagCompound data = new NBTTagCompound();
 			BlockPos pos = script.getPos();
@@ -50,11 +47,11 @@ implements ISubGuiListener {
 			data.setInteger("z", pos.getZ());
 			nbt.setTag("data", data);
 			script.getNBT(nbt);
-			nbt.setString("Name", subgui.getTextField(0).getFullText() + ((GuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", subgui.getTextField(0).getText() + ((SubGuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setByte("Type", (byte) 0);
-			nbt.setBoolean("OnlyTab", ((GuiScriptEncrypt) subgui).onlyTab);
+			nbt.setBoolean("OnlyTab", ((SubGuiScriptEncrypt) subgui).onlyTab);
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.ScriptEncrypt, nbt);
 			displayGuiScreen(null);
 			mc.setIngameFocus();

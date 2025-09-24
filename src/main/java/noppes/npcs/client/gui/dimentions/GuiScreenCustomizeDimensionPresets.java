@@ -23,8 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiScreenCustomizeDimensionPresets
-extends GuiScreen {
+public class GuiScreenCustomizeDimensionPresets extends GuiScreen {
 
 	@SideOnly(Side.CLIENT)
 	static class Info {
@@ -34,9 +33,9 @@ extends GuiScreen {
 		public ChunkGeneratorSettings.Factory field_178954_c;
 
 		public Info(String p_i45523_1_, ResourceLocation p_i45523_2_, ChunkGeneratorSettings.Factory p_i45523_3_) {
-			this.field_178955_a = p_i45523_1_;
-			this.field_178953_b = p_i45523_2_;
-			this.field_178954_c = p_i45523_3_;
+			field_178955_a = p_i45523_1_;
+			field_178953_b = p_i45523_2_;
+			field_178954_c = p_i45523_3_;
 		}
 
 	}
@@ -47,36 +46,34 @@ extends GuiScreen {
 
 		public ListPreset() {
 			super(GuiScreenCustomizeDimensionPresets.this.mc, GuiScreenCustomizeDimensionPresets.this.width,
-					GuiScreenCustomizeDimensionPresets.this.height, 80,
-					GuiScreenCustomizeDimensionPresets.this.height - 32, 38);
+					GuiScreenCustomizeDimensionPresets.this.height, 80, GuiScreenCustomizeDimensionPresets.this.height - 32, 38);
 		}
 
-		protected void drawBackground() {
-		}
+		@Override
+		protected void drawBackground() { }
 
-		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn,
-				float partialTicks) {
+		@Override
+		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn, float partialTicks) {
 			GuiScreenCustomizeDimensionPresets.Info guiscreencustomizepresets$info = GuiScreenCustomizeDimensionPresets.field_175310_f.get(entryID);
-			this.func_178051_a(insideLeft, yPos, guiscreencustomizepresets$info.field_178953_b);
-			GuiScreenCustomizeDimensionPresets.this.fontRenderer.drawString(guiscreencustomizepresets$info.field_178955_a, insideLeft + 32 + 10, yPos + 14, 16777215);
+			func_178051_a(insideLeft, yPos, guiscreencustomizepresets$info.field_178953_b);
+			fontRenderer.drawString(guiscreencustomizepresets$info.field_178955_a, insideLeft + 32 + 10, yPos + 14, 16777215);
 		}
 
+		@Override
 		protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY) {
-			this.field_178053_u = slotIndex;
-			GuiScreenCustomizeDimensionPresets.this.func_175304_a();
-			GuiScreenCustomizeDimensionPresets.this.field_175317_i.setText(GuiScreenCustomizeDimensionPresets.field_175310_f.get(GuiScreenCustomizeDimensionPresets.this.field_175311_g.field_178053_u).field_178954_c.toString());
+			field_178053_u = slotIndex;
+			func_175304_a();
+			field_175317_i.setText(GuiScreenCustomizeDimensionPresets.field_175310_f.get(field_175311_g.field_178053_u).field_178954_c.toString());
 		}
 
 		private void func_178051_a(int p_178051_1_, int p_178051_2_, ResourceLocation p_178051_3_) {
 			int i = p_178051_1_ + 5;
-			GuiScreenCustomizeDimensionPresets.this.drawHorizontalLine(i - 1, i + 32, p_178051_2_ - 1, -2039584);
-			GuiScreenCustomizeDimensionPresets.this.drawHorizontalLine(i - 1, i + 32, p_178051_2_ + 32, -6250336);
-			GuiScreenCustomizeDimensionPresets.this.drawVerticalLine(i - 1, p_178051_2_ - 1, p_178051_2_ + 32,
-					-2039584);
-			GuiScreenCustomizeDimensionPresets.this.drawVerticalLine(i + 32, p_178051_2_ - 1, p_178051_2_ + 32,
-					-6250336);
+			drawHorizontalLine(i - 1, i + 32, p_178051_2_ - 1, 0xFE0E0E0);
+			drawHorizontalLine(i - 1, i + 32, p_178051_2_ + 32, 0xFFA0A0A0);
+			drawVerticalLine(i - 1, p_178051_2_ - 1, p_178051_2_ + 32, 0xFE0E0E0);
+			drawVerticalLine(i + 32, p_178051_2_ - 1, p_178051_2_ + 32, 0xFFA0A0A0);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(p_178051_3_);
+			mc.getTextureManager().bindTexture(p_178051_3_);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
@@ -87,12 +84,14 @@ extends GuiScreen {
 			tessellator.draw();
 		}
 
+		@Override
 		protected int getSize() {
 			return GuiScreenCustomizeDimensionPresets.field_175310_f.size();
 		}
 
+		@Override
 		protected boolean isSelected(int slotIndex) {
-			return slotIndex == this.field_178053_u;
+			return slotIndex == field_178053_u;
 		}
 
 	}
@@ -131,80 +130,82 @@ extends GuiScreen {
 
 	private String field_175312_t;
 
-	public GuiScreenCustomizeDimensionPresets(GuiCustomizeDimension customizeDimensionGui) {
-		this.customizeDimensionGui = customizeDimensionGui;
+	public GuiScreenCustomizeDimensionPresets(GuiCustomizeDimension customizeDimensionGuiIn) {
+		customizeDimensionGui = customizeDimensionGuiIn;
 	}
 
+	@Override
 	protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
 		switch (button.id) {
 		case 0:
-			this.customizeDimensionGui.func_175324_a(this.field_175317_i.getText());
-			this.mc.displayGuiScreen(this.customizeDimensionGui);
+			customizeDimensionGui.func_175324_a(field_175317_i.getText());
+			mc.displayGuiScreen(customizeDimensionGui);
 			break;
 		case 1:
-			this.mc.displayGuiScreen(this.customizeDimensionGui);
+			mc.displayGuiScreen(customizeDimensionGui);
 		}
 	}
 
+	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
-		this.field_175311_g.drawScreen(mouseX, mouseY, partialTicks);
-		this.drawCenteredString(this.fontRenderer, this.field_175315_a, this.width / 2, 8, 16777215);
-		this.drawString(this.fontRenderer, this.field_175313_s, 50, 30, 10526880);
-		this.drawString(this.fontRenderer, this.field_175312_t, 50, 70, 10526880);
-		this.field_175317_i.drawTextBox();
+		drawDefaultBackground();
+		field_175311_g.drawScreen(mouseX, mouseY, partialTicks);
+		drawCenteredString(fontRenderer, field_175315_a, width / 2, 8, 16777215);
+		drawString(fontRenderer, field_175313_s, 50, 30, 10526880);
+		drawString(fontRenderer, field_175312_t, 50, 70, 10526880);
+		field_175317_i.drawTextBox();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	public void func_175304_a() {
-		this.field_175316_h.enabled = this.func_175305_g();
-	}
+	public void func_175304_a() { field_175316_h.enabled = func_175305_g(); }
 
 	private boolean func_175305_g() {
-		return this.field_175311_g.field_178053_u > -1 && this.field_175311_g.field_178053_u < field_175310_f.size()
-				|| this.field_175317_i.getText().length() > 1;
+		return field_175311_g.field_178053_u > -1 && field_175311_g.field_178053_u < field_175310_f.size() || field_175317_i.getText().length() > 1;
 	}
 
+	@Override
 	public void handleMouseInput() throws IOException {
 		super.handleMouseInput();
-		this.field_175311_g.handleMouseInput();
+		field_175311_g.handleMouseInput();
 	}
 
+	@Override
 	public void initGui() {
-		this.buttonList.clear();
+		buttonList.clear();
 		Keyboard.enableRepeatEvents(true);
-		this.field_175315_a = new TextComponentTranslation("createWorld.customize.custom.presets.title")
-				.getFormattedText();
-		this.field_175313_s = new TextComponentTranslation("createWorld.customize.presets.share").getFormattedText();
-		this.field_175312_t = new TextComponentTranslation("createWorld.customize.presets.list").getFormattedText();
-		this.field_175317_i = new GuiTextField(2, this.fontRenderer, 50, 40, this.width - 100, 20);
-		this.field_175311_g = new GuiScreenCustomizeDimensionPresets.ListPreset();
-		this.field_175317_i.setMaxStringLength(2000);
-		this.field_175317_i.setText(this.customizeDimensionGui.func_175323_a());
-		this.buttonList.add(this.field_175316_h = new GuiButton(0, this.width / 2 - 102, this.height - 27, 100, 20,
-				new TextComponentTranslation("createWorld.customize.presets.select").getFormattedText()));
-		this.buttonList.add(new GuiButton(1, this.width / 2 + 3, this.height - 27, 100, 20,
-				new TextComponentTranslation("gui.cancel").getFormattedText()));
-		this.func_175304_a();
+		field_175315_a = new TextComponentTranslation("createWorld.customize.custom.presets.title").getFormattedText();
+		field_175313_s = new TextComponentTranslation("createWorld.customize.presets.share").getFormattedText();
+		field_175312_t = new TextComponentTranslation("createWorld.customize.presets.list").getFormattedText();
+		field_175317_i = new GuiTextField(2, fontRenderer, 50, 40, width - 100, 20);
+		field_175311_g = new GuiScreenCustomizeDimensionPresets.ListPreset();
+		field_175317_i.setMaxStringLength(2000);
+		field_175317_i.setText(customizeDimensionGui.func_175323_a());
+		buttonList.add(field_175316_h = new GuiButton(0, width / 2 - 102, height - 27, 100, 20, new TextComponentTranslation("createWorld.customize.presets.select").getFormattedText()));
+		buttonList.add(new GuiButton(1, width / 2 + 3, height - 27, 100, 20, new TextComponentTranslation("gui.cancel").getFormattedText()));
+		func_175304_a();
 	}
 
+	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		if (!this.field_175317_i.textboxKeyTyped(typedChar, keyCode)) {
+		if (!field_175317_i.textboxKeyTyped(typedChar, keyCode)) {
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
 
+	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		this.field_175317_i.mouseClicked(mouseX, mouseY, mouseButton);
+		field_175317_i.mouseClicked(mouseX, mouseY, mouseButton);
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 
+	@Override
 	public void onGuiClosed() {
 		Keyboard.enableRepeatEvents(false);
 	}
 
+	@Override
 	public void updateScreen() {
-		this.field_175317_i.updateCursorCounter();
+		field_175317_i.updateCursorCounter();
 		super.updateScreen();
 	}
 

@@ -23,8 +23,7 @@ import noppes.npcs.util.Util;
 
 // Displaying a recipe page in the GUI recipe window
 @SideOnly(Side.CLIENT)
-public class NpcRecipeBookPage
-extends RecipeBookPage {
+public class NpcRecipeBookPage extends RecipeBookPage {
 
     private GuiButtonToggle backButton;
     private final List<NpcGuiButtonRecipe> buttons = new ArrayList<>(20);

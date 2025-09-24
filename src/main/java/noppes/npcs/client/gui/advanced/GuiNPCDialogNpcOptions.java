@@ -11,33 +11,38 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.select.GuiDialogSelection;
+import noppes.npcs.client.gui.select.SubGuiDialogSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCDialogNpcOptions
-extends GuiNPCInterface2
-implements GuiSelectionListener, IGuiData, ICustomScrollListener {
+import javax.annotation.Nonnull;
 
-	private final HashMap<Integer, NBTTagCompound> data = new HashMap<>(); // slotID, dialogData
-	private int selectedSlot = -1;
-	private GuiCustomScroll scroll;
-	private int error = 0;
+public class GuiNPCDialogNpcOptions extends GuiNPCInterface2
+		implements GuiSelectionListener, IGuiData, ICustomScrollListener {
+
+	protected final HashMap<Integer, NBTTagCompound> data = new HashMap<>(); // slotID, dialogData
+	protected GuiCustomScroll scroll;
+	protected int selectedSlot = -1;
+	protected int error = 0;
 
 	public GuiNPCDialogNpcOptions(EntityNPCInterface npc) {
 		super(npc);
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
+
 		drawDefaultBackground = true;
 		Client.sendData(EnumPacketServer.DialogNpcGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 1: {
 				selectedSlot = -1;
-				setSubGui(new GuiDialogSelection(-1, 0));
+				setSubGui(new SubGuiDialogSelection(-1, 0));
 				break;
 			} // add
 			case 2: {
@@ -48,10 +53,8 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 				break;
 			} // del
 			case 3: {
-				if (!data.containsKey(selectedSlot)) {
-					return;
-				}
-				setSubGui(new GuiDialogSelection(data.get(selectedSlot).getInteger("Id"), 0));
+				if (!data.containsKey(selectedSlot)) { return; }
+				setSubGui(new SubGuiDialogSelection(data.get(selectedSlot).getInteger("Id"), 0));
 				break;
 			} // change
 			case 4: {
@@ -72,17 +75,17 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 	}
 
 	@Override
-	public void close() {
-		save();
-		CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-	}
-
-	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (error > 0) {
-			if (scroll != null) { scroll.colorBack = 0xC0A00000; }
+			if (scroll != null) {
+				scroll.colorBackS = 0xC0A00000;
+				scroll.colorBackE = 0xC0A00000;
+			}
 			error--;
-			if (error <= 0 && scroll != null) { scroll.colorBack = 0xC0101010; }
+			if (error <= 0 && scroll != null) {
+				scroll.colorBackS = 0xC0101010;
+				scroll.colorBackE = 0xC0101010;
+			}
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
@@ -98,89 +101,62 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 			str += ((char) 167) + "r" + nbt.getString("Title");
 			dialogs.add(str);
 		}
-		if (scroll == null) {
-			(scroll = new GuiCustomScroll(this, 0)).setSize(210, 196);
-		}
-		scroll.setListNotSorted(dialogs);
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(210, 196); }
+		scroll.setUnsortedList(dialogs);
 		scroll.guiLeft = guiLeft + 5;
 		scroll.guiTop = guiTop + 14;
-		if (selectedSlot >= 0 && data.containsKey(selectedSlot)) {
-			scroll.setSelect(selectedSlot);
-		} else {
+		if (selectedSlot >= 0 && data.containsKey(selectedSlot)) { scroll.setSelect(selectedSlot); }
+		else {
 			selectedSlot = -1;
 			scroll.setSelect(-1);
 		}
 		addScroll(scroll);
 		// add
-		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 220, guiTop + 14, 64, 20, "gui.add");
-		button.setHoverText("dialog.hover.add");
-		addButton(button);
+		addButton(new GuiNpcButton(1, guiLeft + 220, guiTop + 14, 64, 20, "gui.add")
+				.setHoverText("dialog.hover.add"));
 		// del
-		button = new GuiNpcButton(2, guiLeft + 220, guiTop + 36, 64, 20, "gui.remove");
-		button.enabled = selectedSlot >= 0;
-		button.setHoverText("dialog.hover.del");
-		addButton(button);
+		addButton(new GuiNpcButton(2, guiLeft + 220, guiTop + 36, 64, 20, "gui.remove")
+				.setIsEnable(selectedSlot >= 0)
+				.setHoverText("dialog.hover.del"));
 		// edit
-		button = new GuiNpcButton(3, guiLeft + 220, guiTop + 58, 64, 20, "advanced.editingmode");
-		button.enabled = selectedSlot >= 0;
-		button.setHoverText("dialog.hover.change");
-		addButton(button);
+		addButton(new GuiNpcButton(3, guiLeft + 220, guiTop + 58, 64, 20, "advanced.editingmode")
+				.setIsEnable(selectedSlot >= 0)
+				.setHoverText("dialog.hover.change"));
 		// up pos
-		button = new GuiNpcButton(4, guiLeft + 220, guiTop + 102, 64, 20, "type.up");
-		button.enabled = selectedSlot >= 0 && selectedSlot >= 1;
-		button.setHoverText("dialog.hover.up");
-		addButton(button);
+		addButton(new GuiNpcButton(4, guiLeft + 220, guiTop + 102, 64, 20, "type.up")
+				.setIsEnable(selectedSlot >= 0 && selectedSlot >= 1)
+				.setHoverText("dialog.hover.up"));
 		// down pos
-		button = new GuiNpcButton(5, guiLeft + 220, guiTop + 124, 64, 20, "type.down");
-		button.enabled = selectedSlot >= 0 && selectedSlot < (data.size() - 1);
-		button.setHoverText("dialog.hover.down");
-		addButton(button);
+		addButton(new GuiNpcButton(5, guiLeft + 220, guiTop + 124, 64, 20, "type.down")
+				.setIsEnable(selectedSlot >= 0 && selectedSlot < (data.size() - 1))
+				.setHoverText("dialog.hover.down"));
 		// help
-		GuiNpcLabel label = new GuiNpcLabel(6, new TextComponentTranslation("type.help").getFormattedText(), guiLeft + 230, guiTop + 150);
-		label.backColor = 0x40FF0000;
-		label.borderColor = 0x80808080;
-		label.color = 0xFF000000;
-		label.setHoverText("dialog.hover.info");
-		addLabel(label);
+		addLabel(new GuiNpcLabel(6, new TextComponentTranslation("type.help").getFormattedText(), guiLeft + 230, guiTop + 150)
+				.setBackColor(0x40FF0000)
+				.setBorderColor(0x80808080)
+				.setColor(0xFF000000)
+				.setHoverText("dialog.hover.info"));
 		addLabel(new GuiNpcLabel(7, new TextComponentTranslation("dialog.dialogs").getFormattedText() + ":", guiLeft + 5, guiTop + 4));
 	}
 
-	@Override
-	public void save() { }
-
 	// New from Unofficial BetaZavr
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && subgui == null) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-		}
-		super.keyTyped(c, i);
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		selectedSlot = scroll.getSelect();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		if (!data.containsKey(selectedSlot)) {
-			return;
-		}
-		setSubGui(new GuiDialogSelection(data.get(selectedSlot).getInteger("Id"), 0));
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+		if (!data.containsKey(selectedSlot)) { return; }
+		setSubGui(new SubGuiDialogSelection(data.get(selectedSlot).getInteger("Id"), 0));
 	}
 
 	@Override
 	public void selected(int id, String name) {
-		if (selectedSlot < 0) {
-			selectedSlot = data.size();
-		}
+		if (selectedSlot < 0) { selectedSlot = data.size(); }
 		for (int slot : data.keySet()) {
-			if (selectedSlot == slot) {
-				continue;
-			}
+			if (selectedSlot == slot) { continue; }
 			if (data.get(slot).getInteger("Id") == id) {
 				error = 60;
 				ITextComponent end = new TextComponentTranslation("trader.busy");
@@ -194,9 +170,7 @@ implements GuiSelectionListener, IGuiData, ICustomScrollListener {
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		if (compound.hasKey("Slot", 3)) {
-			data.put(compound.getInteger("Slot"), compound);
-		}
+		if (compound.hasKey("Slot", 3)) { data.put(compound.getInteger("Slot"), compound); }
 		initGui();
 	}
 

@@ -15,8 +15,7 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
-import noppes.npcs.api.entity.data.IAnimation;
-import noppes.npcs.api.entity.data.IEmotion;
+import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.handler.IAnimationHandler;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
@@ -26,19 +25,19 @@ import noppes.npcs.util.Util;
 
 public class AnimationController implements IAnimationHandler {
 
-	private static AnimationController instance;
-	public final TreeMap<Integer, AnimationConfig> animations = new TreeMap<>();
-	public final TreeMap<Integer, EmotionConfig> emotions = new TreeMap<>();
+	protected static AnimationController instance;
+	protected final TreeMap<Integer, AnimationConfig> animations = new TreeMap<>();
+	protected final TreeMap<Integer, EmotionConfig> emotions = new TreeMap<>();
+
+	protected int baseMaxAnimID = 0;
 
 	public static AnimationController getInstance() {
-		if (AnimationController.instance == null) {
-			AnimationController.instance = new AnimationController();
-		}
+		if (AnimationController.instance == null) { AnimationController.instance = new AnimationController(); }
 		return AnimationController.instance;
 	}
 
 	@Override
-	public IAnimation createNewAnim() {
+	public AnimationConfig createNewAnim() {
 		AnimationConfig ac = new AnimationConfig();
 		ac.id = getUnusedAnimId();
 		animations.put(ac.id, ac);
@@ -46,53 +45,43 @@ public class AnimationController implements IAnimationHandler {
 	}
 
 	@Override
-	public IEmotion createNewEmtn() {
+	public EmotionConfig createNewEmtn() {
 		EmotionConfig ec = new EmotionConfig();
-		ec.id = this.getUnusedEmtnId();
-		this.emotions.put(ec.id, ec);
+		ec.id = getUnusedEmtnId();
+		emotions.put(ec.id, ec);
 		return ec;
 	}
 
 	@Override
-	public IAnimation getAnimation(int animationId) {
-		if (this.animations.containsKey(animationId)) {
-			return this.animations.get(animationId);
+	public AnimationConfig getAnimation(int animationId) {
+		if (animations.containsKey(animationId)) { return animations.get(animationId); }
+		return null;
+	}
+
+	@Override
+	public AnimationConfig getAnimation(String animationName) {
+		for (AnimationConfig ac : animations.values()) {
+			if (ac.getName().equalsIgnoreCase(animationName)) { return ac; }
 		}
 		return null;
 	}
 
 	@Override
-	public IAnimation getAnimation(String animationName) {
-		for (IAnimation ac : this.animations.values()) {
-			if (ac.getName().equalsIgnoreCase(animationName)) {
-				return ac;
-			}
+	public EmotionConfig getEmotion(int emotionId) {
+		if (emotions.containsKey(emotionId)) { return emotions.get(emotionId); }
+		return null;
+	}
+
+	@Override
+	public EmotionConfig getEmotion(String emotionName) {
+		for (EmotionConfig ec : emotions.values()) {
+			if (ec.getName().equalsIgnoreCase(emotionName)) { return ec; }
 		}
 		return null;
 	}
 
 	@Override
-	public IEmotion getEmotion(int emotionId) {
-		if (this.emotions.containsKey(emotionId)) {
-			return this.emotions.get(emotionId);
-		}
-		return null;
-	}
-
-	@Override
-	public IEmotion getEmotion(String emotionName) {
-		for (IEmotion ec : this.emotions.values()) {
-			if (ec.getName().equalsIgnoreCase(emotionName)) {
-				return ec;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public IAnimation[] getAnimations() {
-		return animations.values().toArray(new IAnimation[0]);
-	}
+	public AnimationConfig[] getAnimations() { return animations.values().toArray(new AnimationConfig[0]); }
 
 	public List<AnimationConfig> getAnimations(List<Integer> ids) {
 		List<AnimationConfig> list = new ArrayList<>();
@@ -110,30 +99,24 @@ public class AnimationController implements IAnimationHandler {
 
 	public int getUnusedEmtnId() {
 		int id = 0;
-		for (int i : this.emotions.keySet()) {
-			if (i != id) {
-				break;
-			}
+		for (int i : emotions.keySet()) {
+			if (i != id) { break; }
 			id = i + 1;
 		}
 		return id;
 	}
 
 	public int getUnusedAnimId() {
-		int id = 0;
+		int id = baseMaxAnimID;
 		for (int i : animations.keySet()) {
-			if (i != id) {
-				break;
-			}
+			if (i != id) { break; }
 			id = i + 1;
 		}
 		return id;
 	}
 
-	public IAnimation loadAnimation(NBTTagCompound nbtAnimation) {
-		if (nbtAnimation == null || !nbtAnimation.hasKey("ID", 3) || nbtAnimation.getInteger("ID") < 0) {
-			return null;
-		}
+	public AnimationConfig loadAnimation(NBTTagCompound nbtAnimation) {
+		if (nbtAnimation == null || !nbtAnimation.hasKey("ID", 3) || nbtAnimation.getInteger("ID") < 0) { return null; }
 		AnimationConfig ac;
 		if (animations.containsKey(nbtAnimation.getInteger("ID"))) {
 			ac = animations.get(nbtAnimation.getInteger("ID"));
@@ -142,55 +125,67 @@ public class AnimationController implements IAnimationHandler {
 		}
 		ac = new AnimationConfig();
 		ac.load(nbtAnimation);
-		this.animations.put(ac.id, ac);
-		return this.animations.get(nbtAnimation.getInteger("ID"));
+		animations.put(ac.id, ac);
+		return animations.get(nbtAnimation.getInteger("ID"));
 	}
 
-	public IEmotion loadEmotion(NBTTagCompound nbtEmotion) {
-		if (nbtEmotion == null || !nbtEmotion.hasKey("ID", 3) || nbtEmotion.getInteger("ID") < 0) {
-			return null;
-		}
-		if (this.emotions.containsKey(nbtEmotion.getInteger("ID"))) {
-			this.emotions.get(nbtEmotion.getInteger("ID")).read(nbtEmotion);
-			return this.emotions.get(nbtEmotion.getInteger("ID"));
+	public EmotionConfig loadEmotion(NBTTagCompound nbtEmotion) {
+		if (nbtEmotion == null || !nbtEmotion.hasKey("ID", 3) || nbtEmotion.getInteger("ID") < 0) { return null; }
+		if (emotions.containsKey(nbtEmotion.getInteger("ID"))) {
+			emotions.get(nbtEmotion.getInteger("ID")).read(nbtEmotion);
+			return emotions.get(nbtEmotion.getInteger("ID"));
 		}
 		EmotionConfig ec = new EmotionConfig();
 		ec.read(nbtEmotion);
-		this.emotions.put(nbtEmotion.getInteger("ID"), ec);
-		return this.emotions.get(nbtEmotion.getInteger("ID"));
+		emotions.put(nbtEmotion.getInteger("ID"), ec);
+		return emotions.get(nbtEmotion.getInteger("ID"));
 	}
 
 	@SuppressWarnings("all")
 	public void loadAnimations() {
 		CustomNpcs.debugData.start(null);
 		LogWriter.info("Start load animations");
-
 		boolean needSave = false;
 		File animDir;
 		animations.clear();
+		loadDefaultAnimations();
 		File emtnDir;
 		emotions.clear();
+		// check old data
 		if (CustomNpcs.Dir != null) {
 			File oldFile = new File(CustomNpcs.Dir, "animations.dat");
 			if (oldFile.exists()) {
-				try { this.loadOldAnimations(CompressedStreamTools.readCompressed(Files.newInputStream(oldFile.toPath()))); } catch (Exception e) { LogWriter.error(e); }
+				try { loadOldAnimations(CompressedStreamTools.readCompressed(Files.newInputStream(oldFile.toPath()))); } catch (Exception e) { LogWriter.error(e); }
 				Util.instance.removeFile(oldFile);
 			}
 			animDir = new File (CustomNpcs.Dir,  "animations");
-			if (animDir.exists()) { try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error(e); } }
+			if (animDir.exists()) {
+				try {
+					loadAnimations(animDir);
+					Util.instance.removeFile(animDir);
+					save();
+				}
+				catch (Exception e) { LogWriter.error(e); }
+			}
 			emtnDir = new File (CustomNpcs.Dir,  "emotions");
-			if (emtnDir.exists()) { try { loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error(e); } }
+			if (emtnDir.exists()) {
+				try {
+					loadEmotions(emtnDir);
+					Util.instance.removeFile(emtnDir);
+					save();
+				}
+				catch (Exception e) { LogWriter.error(e); }
+			}
 		}
+		// normal load
 		animDir = new File (CustomNpcs.getWorldSaveDirectory(),  "animations");
 		if (animDir.exists()) {
 			try { loadAnimations(animDir); } catch (Exception e) { LogWriter.error(e); }
 		}
 		else { needSave = true; }
-
 		emtnDir = new File (CustomNpcs.getWorldSaveDirectory(),  "emotions");
 		if (emtnDir.exists()) { try { loadEmotions(emtnDir); } catch (Exception e) { LogWriter.error(e); } }
 		else { needSave = true; }
-		loadDefaultAnimations();
 		if (needSave) { save(); }
 		LogWriter.info("End load animations");
 		CustomNpcs.debugData.end(null);
@@ -201,27 +196,35 @@ public class AnimationController implements IAnimationHandler {
 		if (compound.hasKey("Animations", 9)) { listA = compound.getTagList("Animations", 10); }
 		else if (compound.hasKey("Data", 9)) { listA = compound.getTagList("Data", 10); }
         for (int i = 0; i < listA.tagCount(); ++i) {
-            AnimationConfig anim = (AnimationConfig) this.loadAnimation(listA.getCompoundTagAt(i));
+            AnimationConfig anim = loadAnimation(listA.getCompoundTagAt(i));
             if (anim.id < 43) { anim.immutable = true; }
         }
-        this.emotions.clear();
+        emotions.clear();
 		NBTTagList listE = compound.getTagList("Emotions", 10);
         for (int i = 0; i < listE.tagCount(); ++i) {
-            EmotionConfig emtn = (EmotionConfig) this.loadEmotion(listE.getCompoundTagAt(i));
+            EmotionConfig emtn = loadEmotion(listE.getCompoundTagAt(i));
             emtn.immutable = true;
         }
     }
 
 	private void loadAnimations(File file) {
+		List<NBTTagCompound> afterAnimations = new ArrayList<>();
 		for (File f : Objects.requireNonNull(file.listFiles())) {
 			try {
 				NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
 				int id = -1;
 				try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error(e); }
-				if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
-				else { nbt.setInteger("ID", id); }
-				loadAnimation(nbt);
+				if (id == -1 || animations.containsKey(id) || id < baseMaxAnimID) { afterAnimations.add(nbt); }
+				else {
+					nbt.setInteger("ID", id);
+					loadAnimation(nbt);
+				}
 			} catch (Exception e) { LogWriter.error(e); }
+		}
+		for (NBTTagCompound nbt : afterAnimations) {
+			int id = nbt.getInteger("ID");
+			if (id == -1 || animations.containsKey(id) || id < baseMaxAnimID) { nbt.setInteger("ID", getUnusedAnimId()); }
+			loadAnimation(nbt);
 		}
 	}
 
@@ -232,15 +235,16 @@ public class AnimationController implements IAnimationHandler {
 					NBTTagCompound nbt = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
 					int id = -1;
 					try { id = Integer.parseInt(f.getName().toLowerCase().replace(".dat", "")); } catch (Exception e) { LogWriter.error(e); }
-					if (id != -1 && this.animations.containsKey(id)) { nbt.setInteger("ID", this.getUnusedAnimId()); }
+					if (id != -1 && animations.containsKey(id)) { nbt.setInteger("ID", getUnusedAnimId()); }
 					else { nbt.setInteger("ID", id); }
-					this.loadEmotion(nbt);
+					loadEmotion(nbt);
 				} catch (Exception e) { LogWriter.error(e); }
 			} catch (Exception e) { LogWriter.error(e); }
 		}
 	}
 
 	private void loadDefaultAnimations() {
+		baseMaxAnimID = -1;
 		InputStream inputStream = Util.instance.getModInputStream("a_def.dat");
 		if (inputStream == null) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
@@ -260,14 +264,13 @@ public class AnimationController implements IAnimationHandler {
 								break;
 							}
 						}
-						if (!found) { id = this.getUnusedAnimId(); }
+						if (!found) { id = getUnusedAnimId(); }
 						nbt.setInteger("ID", id);
 					}
 				}
-				IAnimation iAnim = loadAnimation(nbt);
-				if (iAnim != null) {
-					((AnimationConfig) iAnim).immutable = true;
-				}
+				AnimationConfig iAnim = loadAnimation(nbt);
+				if (baseMaxAnimID < id) { baseMaxAnimID = id + 1; }
+				if (iAnim != null) { iAnim.immutable = true; }
 			}
 		}
 		NBTTagList listE = compound.getTagList("Emotions", 10);
@@ -275,21 +278,21 @@ public class AnimationController implements IAnimationHandler {
 			for (int i = 0; i < listE.tagCount(); ++i) {
 				NBTTagCompound nbt = listE.getCompoundTagAt(i);
 				int id = nbt.getInteger("ID");
-				if (this.emotions.containsKey(id)) {
-					if (!this.emotions.get(id).immutable || !this.emotions.get(id).name.equals(nbt.getString("Name"))) {
+				if (emotions.containsKey(id)) {
+					if (!emotions.get(id).immutable || !emotions.get(id).name.equals(nbt.getString("Name"))) {
 						boolean found = false;
-						for (EmotionConfig emtn : this.emotions.values()) {
+						for (EmotionConfig emtn : emotions.values()) {
 							if (emtn.name.equals(nbt.getString("Name"))) {
 								id = emtn.id;
 								found = true;
 								break;
 							}
 						}
-						if (!found) { id = this.getUnusedEmtnId(); }
+						if (!found) { id = getUnusedEmtnId(); }
 						nbt.setInteger("ID", id);
 					}
 				}
-				this.loadEmotion(nbt);
+				loadEmotion(nbt);
 			}
 		}
 	}
@@ -298,7 +301,7 @@ public class AnimationController implements IAnimationHandler {
 	public boolean removeAnimation(int animationId) {
 		if (animations.containsKey(animationId)) {
 			animations.remove(animationId);
-			this.save();
+			save();
 			return true;
 		}
 		return false;
@@ -306,10 +309,10 @@ public class AnimationController implements IAnimationHandler {
 
 	@Override
 	public boolean removeAnimation(String animationName) {
-		for (int id : this.animations.keySet()) {
-			if (this.animations.get(id).getName().equalsIgnoreCase(animationName)) {
-				this.animations.remove(id);
-				this.save();
+		for (int id : animations.keySet()) {
+			if (animations.get(id).getName().equalsIgnoreCase(animationName)) {
+				animations.remove(id);
+				save();
 				return true;
 			}
 		}
@@ -318,9 +321,9 @@ public class AnimationController implements IAnimationHandler {
 
 	@Override
 	public boolean removeEmotion(int emotionId) {
-		if (this.emotions.containsKey(emotionId)) {
-			this.emotions.remove(emotionId);
-			this.save();
+		if (emotions.containsKey(emotionId)) {
+			emotions.remove(emotionId);
+			save();
 			return true;
 		}
 		return false;
@@ -328,10 +331,10 @@ public class AnimationController implements IAnimationHandler {
 
 	@Override
 	public boolean removeEmotion(String emotionName) {
-		for (int id : this.emotions.keySet()) {
-			if (this.emotions.get(id).getName().equalsIgnoreCase(emotionName)) {
-				this.emotions.remove(id);
-				this.save();
+		for (int id : emotions.keySet()) {
+			if (emotions.get(id).getName().equalsIgnoreCase(emotionName)) {
+				emotions.remove(id);
+				save();
 				return true;
 			}
 		}
@@ -342,43 +345,53 @@ public class AnimationController implements IAnimationHandler {
 	public void save() {
 		CustomNpcs.debugData.start(null);
 		File animDir = CustomNpcs.getWorldSaveDirectory("animations");
-		if (animDir == null) {
-			CustomNpcs.debugData.end(null);
-			return;
-		}
-		if (!animDir.exists()) { animDir.mkdirs(); }
-		for (int id : animations.keySet()) {
-			if (animations.get(id).immutable) { continue; }
-			try { CompressedStreamTools.writeCompressed(animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error(e); }
-		}
-		File emtnDir = CustomNpcs.getWorldSaveDirectory("emotions");
-		if (emtnDir == null) {
-			CustomNpcs.debugData.end(null);
-			return;
-		}
-		if (!emtnDir.exists()) { emtnDir.mkdirs(); }
-		for (int id : emotions.keySet()) {
-			try { CompressedStreamTools.writeCompressed(this.emotions.get(id).save(), Files.newOutputStream(new File(emtnDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error(e); }
+		if (animDir != null) {
+			if (!animDir.exists()) { animDir.mkdirs(); }
+			for (int id : animations.keySet()) {
+				if (animations.get(id).immutable) { continue; }
+				try { CompressedStreamTools.writeCompressed(animations.get(id).save(), Files.newOutputStream(new File(animDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error(e); }
+			}
+			File emtnDir = CustomNpcs.getWorldSaveDirectory("emotions");
+			if (emtnDir == null) {
+				CustomNpcs.debugData.end(null);
+				return;
+			}
+			if (!emtnDir.exists()) { emtnDir.mkdirs(); }
+			for (int id : emotions.keySet()) {
+				try { CompressedStreamTools.writeCompressed(emotions.get(id).save(), Files.newOutputStream(new File(emtnDir, id + ".dat").toPath())); } catch (Exception e) { LogWriter.error(e); }
+			}
 		}
 		CustomNpcs.debugData.end(null);
 	}
 
 	public void sendTo(EntityPlayerMP player) {
-		if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) {
-			return;
-		}
+		if (CustomNpcs.Server != null && CustomNpcs.Server.isSinglePlayer()) { return; }
 		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, new NBTTagCompound());
-		for (AnimationConfig ac : this.animations.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, ac.save());
-		}
+		for (AnimationConfig ac : animations.values()) { Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.AnimationData, ac.save()); }
 		Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.EmotionData, new NBTTagCompound());
-		for (EmotionConfig ec : this.emotions.values()) {
-			Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.EmotionData, ec.save());
-		}
+		for (EmotionConfig ec : emotions.values()) { Server.sendData(player, EnumPacketClient.SYNC_UPDATE, EnumSync.EmotionData, ec.save()); }
 	}
 
-	public IEmotion[] getEmotions() {
-		return this.emotions.values().toArray(new IEmotion[0]);
+	@Override
+	public EmotionConfig[] getEmotions() { return emotions.values().toArray(new EmotionConfig[0]); }
+
+	public void clearAnimations() { animations.clear(); }
+
+	public void clearEmotions() { emotions.clear(); }
+
+	public AnimationConfig copy(int id, AnimationKind type) {
+		if (!animations.containsKey(id)) { return null; }
+		AnimationConfig ac = animations.get(id).copy();
+		ac.id = getUnusedAnimId();
+		ac.immutable = false;
+		if (type != null) { ac.type = type; }
+		animations.put(ac.id, ac);
+		return ac;
 	}
+
+	public boolean hasAnimation(int id) { return animations.containsKey(id); }
+
+	public boolean hasEmotion(int id) { return emotions.containsKey(id); }
+
 
 }

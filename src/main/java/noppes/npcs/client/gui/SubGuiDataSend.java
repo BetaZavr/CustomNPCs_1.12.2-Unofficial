@@ -7,9 +7,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.util.*;
 
-public class SubGuiDataSend
-extends SubGuiInterface
-implements ITextfieldListener {
+import javax.annotation.Nonnull;
+
+public class SubGuiDataSend extends SubGuiInterface implements ITextfieldListener {
 
 	public boolean cancelled = true;
 	public int day = -1;
@@ -18,19 +18,18 @@ implements ITextfieldListener {
 	public long time;
 
     public SubGuiDataSend(int id) {
+		super(id);
 		setBackground("smallbg.png");
 		closeOnEsc = true;
 		xSize = 176;
 		ySize = 71;
-
-		this.id = id;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		if (button.getID() == 0) { cancelled = false; }
-		GuiNpcTextField.unfocus();
-		close();
+		onClosed();
 	}
 
 	@Override
@@ -44,13 +43,13 @@ implements ITextfieldListener {
 		if (xSize > 256) {
 			drawTexturedModalRect(0, ySize - 1, 0, 218, 250, ySize);
 			drawTexturedModalRect(250, ySize - 1, 256 - (xSize - 250), 218, xSize - 250, ySize);
-		} else {
-			drawTexturedModalRect(0, ySize - 1, 0, 218, xSize, 4);
 		}
+		else { drawTexturedModalRect(0, ySize - 1, 0, 218, xSize, 4); }
 		GlStateManager.popMatrix();
 	}
 
 	@Override
+	@SuppressWarnings("all")
 	public void initGui() {
 		super.initGui();
 		Calendar cal = Calendar.getInstance();
@@ -75,40 +74,30 @@ implements ITextfieldListener {
 
 		addLabel(new GuiNpcLabel(0, "gui.setdata", guiLeft + 7, guiTop + 4));
 
-		GuiNpcTextField textField = new GuiNpcTextField(0, parent, guiLeft + 4, guiTop + 16, 54, 20, "" + day);
-		textField.setMinMaxDefault(year == 2011 && month == 11 ? 18 : 1, setCal.getActualMaximum(Calendar.DAY_OF_MONTH), day);
-		textField.setHoverText("hover.data.day", "" + textField.getMax());
-		addTextField(textField);
-
-		textField = new GuiNpcTextField(1, parent, guiLeft + 61, guiTop + 16, 54, 20, "" + (month + 1));
-		textField.setMinMaxDefault(year == 2011 ? 11 : 1, (year == cal.get(Calendar.YEAR) ? cal.get(Calendar.MONTH) + 1 : 12), (month + 1));
-		textField.setHoverText("hover.data.month", "" + textField.getMax(), new TextComponentTranslation("month." + month).getFormattedText());
-		addTextField(textField);
-
-		textField = new GuiNpcTextField(2, parent, guiLeft + 118, guiTop + 16, 54, 20, "" + year);
-		textField.setMinMaxDefault(2011, cal.get(Calendar.YEAR), year);
-		textField.setHoverText("hover.data.year", "" + textField.getMin(), "" + textField.getMax());
-		addTextField(textField);
+		int min = 2011;
+		int max = setCal.getActualMaximum(Calendar.DAY_OF_MONTH);
+		addTextField(new GuiNpcTextField(0, parent, guiLeft + 4, guiTop + 16, 54, 20, "" + day)
+				.setMinMaxDefault(year == min && month == 11 ? 18 : 1, max, day)
+				.setHoverText("hover.data.day", "" + max));
+		max = (year == cal.get(Calendar.YEAR) ? cal.get(Calendar.MONTH) + 1 : 12);
+		addTextField(new GuiNpcTextField(1, parent, guiLeft + 61, guiTop + 16, 54, 20, "" + (month + 1))
+				.setMinMaxDefault(year == min ? 11 : 1, max, (month + 1))
+				.setHoverText("hover.data.month", "" + max, new TextComponentTranslation("month." + month).getFormattedText()));
+		max = cal.get(Calendar.YEAR);
+		addTextField(new GuiNpcTextField(2, parent, guiLeft + 118, guiTop + 16, 54, 20, "" + year)
+				.setMinMaxDefault(min, max, year)
+				.setHoverText("hover.data.year", "" + min, "" + max));
 
 		addButton(new GuiNpcButton(0, guiLeft + 4, guiTop + 44, 80, 20, "gui.done"));
 		addButton(new GuiNpcButton(1, guiLeft + 90, guiTop + 44, 80, 20, "gui.cancel"));
 	}
 
     @Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		switch (textField.getID()) {
-			case 0: {
-				day = textField.getInteger();
-				break;
-			}
-			case 1: {
-				month = textField.getInteger() - 1;
-				break;
-			}
-			case 2: {
-				year = textField.getInteger();
-				break;
-			}
+			case 0: day = textField.getInteger(); break;
+			case 1: month = textField.getInteger() - 1; break;
+			case 2: year = textField.getInteger(); break;
 		}
 		initGui();
 	}

@@ -17,7 +17,6 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.handler.IBorderHandler;
-import noppes.npcs.api.handler.data.IBorder;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.data.Zone3D;
 
@@ -44,13 +43,13 @@ public class BorderController implements IBorderHandler {
 	}
 
 	@Override
-	public IBorder createNew(int dimensionID, IPos pos) {
+	public Zone3D createNew(int dimensionID, IPos pos) {
 		return createNew(dimensionID, pos.getMCBlockPos());
 	}
 
 	@Override
-	public IBorder[] getAllRegions() {
-		return regions.values().toArray(new IBorder[0]);
+	public Zone3D[] getAllRegions() {
+		return regions.values().toArray(new Zone3D[0]);
 	}
 
 	public NBTTagCompound getNBT() {
@@ -76,19 +75,19 @@ public class BorderController implements IBorderHandler {
 
 
 	@Override
-	public IBorder getRegion(int regionId) {
+	public Zone3D getRegion(int regionId) {
 		return regions.get(regionId);
 	}
 
 	@Override
-	public IBorder[] getRegions(int dimensionID) {
-		List<IBorder> regs = new ArrayList<>();
+	public Zone3D[] getRegions(int dimensionID) {
+		List<Zone3D> regs = new ArrayList<>();
 		for (Zone3D reg : regions.values()) {
 			if (reg.dimensionID == dimensionID) {
 				regs.add(reg);
 			}
 		}
-		return regs.toArray(new IBorder[0]);
+		return regs.toArray(new Zone3D[0]);
 	}
 
 	public List<Zone3D> getRegionsInWorld(int dimensionID) {
@@ -219,13 +218,9 @@ public class BorderController implements IBorderHandler {
 	}
 
 	public void update() {
-		if (CustomNpcs.Server == null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length == 0 || regions.isEmpty()) {
-			return;
-		}
+		if (CustomNpcs.Server == null || CustomNpcs.Server.getPlayerList().getOnlinePlayerNames().length == 0 || regions.isEmpty()) { return; }
 		for (Zone3D reg : regions.values()) {
-			for (WorldServer w : CustomNpcs.Server.worlds) {
-				reg.update(w);
-			}
+			for (WorldServer w : CustomNpcs.Server.worlds) { reg.update(w); }
 		}
 	}
 

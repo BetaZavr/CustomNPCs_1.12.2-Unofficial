@@ -467,8 +467,8 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 		int recipeW = (int) objs[0];
 		int recipeH = (int) objs[1];
 		NonNullList<Ingredient> ingredients = (NonNullList<Ingredient>) objs[2];
-
 		int ings;
+		int index;
 		for (int r = 0; r < 2; r++) {
 			for (int slotW = 0; slotW <= inv.getWidth() - recipeW; ++slotW) {
 				for (int slotH = 0; slotH <= inv.getHeight() - recipeH; ++slotH) {
@@ -479,8 +479,10 @@ public class NpcShapedRecipes extends ShapedRecipes implements INpcRecipe, IReci
 							int l = j - slotH;
 							Ingredient ingredient = Ingredient.EMPTY;
 							if (k >= 0 && l >= 0 && k < recipeW && l < recipeH) {
-								if (r == 1) { ingredient = ingredients.get(recipeWidth - k - 1 + l * recipeWidth); }
-								else { ingredient = ingredients.get(k + l * recipeWidth); }
+								if (r == 1) { index = recipeWidth - k - 1 + l * recipeWidth; }
+								else { index = k + l * recipeWidth; }
+								try { ingredient = ingredients.get(index); }
+								catch (Exception e) { LogWriter.error("Getting ingredient pos: "+index+" in recipe ID: "+id+" - "+getGroup()+":"+name); }
 							}
 							if (ingredient.apply(inv.getStackInRowAndColumn(i, j))) {
 								ItemStack stack = inv.getStackInRowAndColumn(i, j);

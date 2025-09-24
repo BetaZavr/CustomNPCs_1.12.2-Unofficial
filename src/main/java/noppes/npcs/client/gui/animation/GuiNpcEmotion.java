@@ -30,32 +30,34 @@ import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNpcEmotion
-extends GuiNPCInterface2
-implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener, ISliderListener, GuiYesNoCallback {
+import javax.annotation.Nonnull;
+
+public class GuiNpcEmotion extends GuiNPCInterface2
+		implements ICustomScrollListener, IGuiData, ITextfieldListener, ISliderListener, GuiYesNoCallback {
 
 	public static final ResourceLocation etns = new ResourceLocation(CustomNpcs.MODID, "textures/gui/emotion/buttons.png");
 
 	public EntityNPCInterface npcEmtn;
-	public EmotionFrame frame;
-	public int toolType = 0; // 0 - rotation, 1 - offset, 2 - scale
 	public int elementType = 0; // 0 - eye, 1 - pupil, 2 - brow, 3 - mouth
 	public boolean isRight = true;
 
+	protected final String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
 	protected final Map<String, EmotionConfig> dataEmtns = new TreeMap<>();
-	protected String selEmtn;
-	protected boolean onlyPart = false;
 	protected final DataAnimation animation;
-	protected GuiCustomScroll scroll;
-	protected AnimationController aData;
+	protected boolean onlyPart = false;
+	protected int toolType = 0; // 0 - rotation, 1 - offset, 2 - scale
+	protected String selEmtn;
+	protected EmotionFrame frame;
 	protected ScaledResolution sw;
 	protected ModelEyeData modelEye;
-	protected final String[] types = new String[] { "gui.small", "gui.normal", "gui.select" };
+	protected GuiCustomScroll scroll;
+	protected AnimationController aData;
 
 	public GuiNpcEmotion(EntityCustomNpc npc) {
 		super(npc, 4);
-		closeOnEsc = true;
 		setBackground("bgfilled.png");
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
 
 		animation = new DataAnimation(npc);
 		animation.setBaseEmotionId(npc.animation.getBaseEmotionId());
@@ -66,7 +68,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		EmotionConfig emtn = getEmtn();
 		switch (button.getID()) {
 			case 0: {
@@ -280,19 +283,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	@Override
 	public void confirmClicked(boolean result, int id) {
 		displayGuiScreen(this);
-		if (!result) {
-			return;
-		}
+		if (!result) { return; }
 		EmotionConfig emtn = getEmtn();
 		switch (id) {
 			case 0: { // remove frame
-				if (emtn == null || frame == null || emtn.frames.size() <= 1) {
-					return;
-				}
+				if (emtn == null || frame == null || emtn.frames.size() <= 1) { return; }
 				int f = frame.id - 1;
-				if (f < 0) {
-					f = 0;
-				}
+				if (f < 0) { f = 0; }
 				emtn.removeFrame(frame);
 				frame = emtn.frames.get(f);
 				initGui();
@@ -315,17 +312,14 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		int lId = 0;
 		int x = guiLeft + 8;
 		int y = guiTop + 14;
-		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(120, 177); }
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(120, 177); }
 		scroll.guiLeft = x;
 		scroll.guiTop = y;
-		addScroll(scroll);
-
 		addLabel(new GuiNpcLabel(lId++, "emotion.list", x + 1, y - 10));
-
 		dataEmtns.clear();
 		aData = AnimationController.getInstance();
-		for (EmotionConfig ec : aData.emotions.values()) { dataEmtns.put(ec.getSettingName(), ec); }
-		scroll.setListNotSorted(new ArrayList<>(dataEmtns.keySet()));
+		for (EmotionConfig ec : aData.getEmotions()) { dataEmtns.put(ec.getSettingName(), ec); }
+		scroll.setUnsortedList(new ArrayList<>(dataEmtns.keySet()));
 		if (!selEmtn.isEmpty()) {
 			if (scroll.getList().contains(selEmtn)) { scroll.setSelected(selEmtn); }
 			else { selEmtn = ""; }
@@ -338,11 +332,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				break;
 			}
 		}
-		addButton(new GuiNpcButton(0, x, y + scroll.height + 1, 59, 20, "markov.generate"));
-		getButton(0).setEnabled(dataEmtns.isEmpty());
-		addButton(new GuiNpcButton(1, x + 62, y + scroll.height + 1, 59, 20, "gui.remove"));
-		getButton(1).setEnabled(!selEmtn.isEmpty());
-
+		addScroll(scroll);
+		addButton(new GuiNpcButton(0, x, y + scroll.height + 1, 59, 20, "markov.generate")
+				.setIsEnable(dataEmtns.isEmpty()));
+		addButton(new GuiNpcButton(1, x + 62, y + scroll.height + 1, 59, 20, "gui.remove")
+				.setIsEnable(!selEmtn.isEmpty()));
 		EmotionConfig emtn = getEmtn();
 		if (emtn == null) { return; }
 		if (frame == null) {
@@ -353,13 +347,12 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 		int wY = guiTop + 71;
 
 		// Back color
-		GuiNpcButton button = new GuiNpcButton(2, wX, wY - 13, 8, 8, "");
-		button.layerColor = (GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrY = 96;
-		addButton(button);
+		addButton(new GuiNpcButton(2, wX, wY - 13, 8, 8, "")
+				.setLayerColor(GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080)
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(0, 96, 0, 0));
 
 		int xx = sw.getScaledWidth() / 2 - wX;
 		int yy = sw.getScaledHeight() / 2 - wY;
@@ -376,229 +369,148 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 
 
 		// Tool type
-		button = new GuiNpcButton(23, wX + 10, wY - 16, 14, 14, ""); // tool pos
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = toolType == 1 ? 0xFFFF8080 : 0xFFFFFFFF;
-		button.setHoverText("animation.hover.tool.0");
-		addButton(button);
-		button = new GuiNpcButton(24, wX + 26, wY - 16, 14, 14, ""); // tool rot
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrX = 24;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = toolType == 0 ? 0xFF80FF80 : 0xFFFFFFFF;
-		button.setHoverText("animation.hover.tool.1");
-		addButton(button);
-		button = new GuiNpcButton(25, wX + 42, wY - 16, 14, 14, ""); // tool scale
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrX = 48;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = toolType == 2 ? 0xFF8080FF : 0xFFFFFFFF;
-		button.setHoverText("animation.hover.tool.2");
-		addButton(button);
-
-		button = new GuiNpcButton(26, wX + 78, wY - 16, 14, 14, ""); // element eye
-		button.texture = etns;
-		button.hasDefBack = false;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = elementType == 0 ? 0xFFFF8080 : 0xFFFFFFFF;
-		addButton(button);
-		button = new GuiNpcButton(27, wX + 94, wY - 16, 14, 14, ""); // element pupil
-		button.texture = etns;
-		button.hasDefBack = false;
-		button.txrX = 24;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = elementType == 1 ? 0xFF80FF80 : 0xFFFFFFFF;
-		addButton(button);
-		button = new GuiNpcButton(28, wX + 110, wY - 16, 14, 14, ""); // element brow
-		button.texture = etns;
-		button.hasDefBack = false;
-		button.txrX = 48;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = elementType == 2 ? 0xFF8080FF : 0xFFFFFFFF;
-		addButton(button);
-		button = new GuiNpcButton(22, wX + 126, wY - 16, 14, 14, ""); // element mouth
-		button.texture = etns;
-		button.hasDefBack = false;
-		button.txrX = 72;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.layerColor = elementType == 3 ? 0xFFFFFF80 : 0xFFFFFFFF;
-		addButton(button);
-
-		button = new GuiButtonBiDirectional(32, wX + 58, wY - 48, 82, 14, types, (modelEye == null) ? 0 : modelEye.type);
-		addButton(button);
-
-		button = new GuiNpcButton(33, wX, y - 10, 70, 14, "gui.set");
-		button.setEnabled(animation.getBaseEmotionId() != emtn.id);
-		addButton(button);
-		button = new GuiNpcButton(34, wX + 72, y - 10, 70, 14, "gui.remove");
-		button.setEnabled(animation.getBaseEmotionId() >= 0);
-		addButton(button);
-
-		button = new GuiNpcButton(29, wX + 58, wY - 32, 82, 14, new String[] { "gui.right", "gui.left" }, isRight ? 0 : 1);
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrY = 96;
-		addButton(button);
-
+		// tool pos
+		addButton(new GuiNpcButton(23, wX + 10, wY - 16, 14, 14, "")
+				.setLayerColor(toolType == 1 ? 0xFFFF8080 : 0xFFFFFFFF)
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(0, 0, 24, 24)
+				.setHoverText("animation.hover.tool.0"));
+		// tool rot
+		addButton(new GuiNpcButton(24, wX + 26, wY - 16, 14, 14, "")
+				.setLayerColor(toolType == 0 ? 0xFF80FF80 : 0xFFFFFFFF)
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(24, 0, 24, 24)
+				.setHoverText("animation.hover.tool.1"));
+		// tool scale
+		addButton(new GuiNpcButton(25, wX + 42, wY - 16, 14, 14, "")
+				.setLayerColor(toolType == 2 ? 0xFF8080FF : 0xFFFFFFFF)
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(48, 0, 24, 24)
+				.setHoverText("animation.hover.tool.2"));
+		// element eye
+		addButton(new GuiNpcButton(26, wX + 78, wY - 16, 14, 14, "")
+				.setLayerColor(elementType == 0 ? 0xFFFF8080 : 0xFFFFFFFF)
+				.setTexture(etns)
+				.setHasDefaultBack(false)
+				.setUV(0, 0, 24, 24));
+		// element pupil
+		addButton(new GuiNpcButton(27, wX + 94, wY - 16, 14, 14, "")
+				.setLayerColor(elementType == 1 ? 0xFF80FF80 : 0xFFFFFFFF)
+				.setTexture(etns)
+				.setHasDefaultBack(false)
+				.setUV(24, 0, 24, 24));
+		// element brow
+		addButton(new GuiNpcButton(28, wX + 110, wY - 16, 14, 14, "")
+				.setLayerColor(elementType == 2 ? 0xFF8080FF : 0xFFFFFFFF)
+				.setTexture(etns)
+				.setHasDefaultBack(false)
+				.setUV(48, 0, 24, 24));
+		// element mouth
+		addButton(new GuiNpcButton(22, wX + 126, wY - 16, 14, 14, "")
+				.setLayerColor(elementType == 3 ? 0xFFFFFF80 : 0xFFFFFFFF)
+				.setTexture(etns)
+				.setHasDefaultBack(false)
+				.setUV(72, 0, 24, 24));
+		addButton(new GuiButtonBiDirectional(32, wX + 58, wY - 48, 82, 14, types, (modelEye == null) ? 0 : modelEye.type));
+		addButton(new GuiNpcButton(33, wX, y - 10, 70, 14, "gui.set")
+				.setIsEnable(animation.getBaseEmotionId() != emtn.id));
+		addButton(new GuiNpcButton(34, wX + 72, y - 10, 70, 14, "gui.remove")
+				.setIsEnable(animation.getBaseEmotionId() >= 0));
+		addButton(new GuiNpcButton(29, wX + 58, wY - 32, 82, 14, new String[] { "gui.right", "gui.left" }, isRight ? 0 : 1)
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(0, 96, 0, 0));
 		// Name
 		x += scroll.width + 2;
 		y = guiTop + 14;
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.name").getFormattedText() + ":", x + 1, y - 10));
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, x + 1, y, 135, 12, emtn.name);
-		addTextField(textField);
-
+		addTextField(new GuiNpcTextField(0, this, x + 1, y, 135, 12, emtn.name));
 		// Frame
 		addLabel(new GuiNpcLabel(lId++, "animation.frames", x, (y += 26) - 10));
 		List<String> lFrames = new ArrayList<>();
 		for (int i = 0; i < emtn.frames.size(); i++) { lFrames.add((i + 1) + "/" + emtn.frames.size()); }
-		button = new GuiButtonBiDirectional(3, x, y, 60, 14, lFrames.toArray(new String[0]), emtn.id);
-		button.setEnabled(emtn.frames.size() > 1);
-		addButton(button);
-		button = new GuiNpcButton(4, x + 62, y + 2, 10, 10, ""); // add frame
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrX = 96;
-		button.txrW = 24;
-		button.txrH = 24;
-		addButton(button);
-		button = new GuiNpcButton(5, x + 74, y + 2, 10, 10, ""); // del frame
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrX = 72;
-		button.txrW = 24;
-		button.txrH = 24;
-		button.enabled = emtn.frames.size() > 1;
-		addButton(button);
-		button = new GuiNpcButton(6, x + 126, y + 2, 10, 10, ""); // clear frame
-		button.texture = ANIMATION_BUTTONS;
-		button.hasDefBack = false;
-		button.isAnim = true;
-		button.txrX = 120;
-		button.txrW = 24;
-		button.txrH = 24;
-		addButton(button);
-
-		y += 17;
-		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.time").getFormattedText() + ":", x, y + 2));
-		textField = new GuiNpcTextField(1, this, x + 45, y, 43, 12, "" + frame.getSpeed());
-		textField.setMinMaxDefault(0, 3600, frame.getSpeed());
-		addTextField(textField);
-		textField = new GuiNpcTextField(2, this, x + 92, y, 43, 12, "" + frame.getEndDelay());
-		textField.setMinMaxDefault(0, 3600, frame.getEndDelay());
-		addTextField(textField);
-
-		y += 13;
-		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.repeat").getFormattedText() + ":", x, y + 5));
+		addButton(new GuiButtonBiDirectional(3, x, y, 60, 14, lFrames.toArray(new String[0]), emtn.id)
+				.setIsEnable(emtn.frames.size() > 1));
+		// add frame
+		addButton(new GuiNpcButton(4, x + 62, y + 2, 10, 10, "")
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(96, 0, 24, 24));
+		// del frame
+		addButton(new GuiNpcButton(5, x + 74, y + 2, 10, 10, "")
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(72, 0, 24, 24)
+				.setIsEnable(emtn.frames.size() > 1));
+		// clear frame
+		addButton(new GuiNpcButton(6, x + 126, y + 2, 10, 10, "")
+				.setTexture(ANIMATION_BUTTONS)
+				.setHasDefaultBack(false)
+				.setIsAnim(true)
+				.setUV(120, 0, 24, 24));
+		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.time").getFormattedText() + ":", x, (y += 17) + 2));
+		addTextField(new GuiNpcTextField(1, this, x + 45, y, 43, 12, "" + frame.getSpeed())
+				.setMinMaxDefault(0, 3600, frame.getSpeed()));
+		addTextField(new GuiNpcTextField(2, this, x + 92, y, 43, 12, "" + frame.getEndDelay())
+				.setMinMaxDefault(0, 3600, frame.getEndDelay()));
+		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.repeat").getFormattedText() + ":", x, (y += 13) + 5));
 		if (emtn.repeatLast < 0) { emtn.repeatLast *= -1; }
 		if (emtn.repeatLast < 0 || emtn.repeatLast > emtn.frames.size()) { emtn.repeatLast = emtn.frames.size(); }
-		textField = new GuiNpcTextField(3, this, x + 45, y + 3, 43, 12, "" + emtn.repeatLast);
-		textField.setMinMaxDefault(0, emtn.frames.size(), emtn.repeatLast);
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(3, this, x + 45, y + 3, 43, 12, "" + emtn.repeatLast)
+				.setMinMaxDefault(0, emtn.frames.size(), emtn.repeatLast));
 		addButton(new GuiNpcCheckBox(11, x + 92, y + 1, 45, 14, "gui.smooth", "gui.linearly", frame.isSmooth()));
-
-		y += 16;
-		addButton(new GuiNpcCheckBox(38, x, y, 140, 14, "emotion.part.disable", null, frame.isDisabled()));
-		addButton(button);
+		addButton(new GuiNpcCheckBox(38, x, y += 16, 140, 14, "emotion.part.disable", null, frame.isDisabled()));
 		resetEmtns();
-
+		addButton(new GuiNpcCheckBox(35, x, y += 15, 140, 14, "emotion.blink", "emotion.no.blink", frame.isBlink()));
 		y += 15;
-		addButton(new GuiNpcCheckBox(35, x, y, 140, 14, "emotion.blink", "emotion.no.blink", frame.isBlink()));
-
-		y += 15;
-		if (frame.isBlink()) {
-			addButton(new GuiNpcCheckBox(36, x, y, 140, 14, "emotion.end.blink", null, frame.isEndBlink()));
-		}
+		if (frame.isBlink()) { addButton(new GuiNpcCheckBox(36, x, y, 140, 14, "emotion.end.blink", null, frame.isEndBlink())); }
 		// Tool sliders
-		y += 19;
 		int f = 18;
 		float[] values;
 		switch(elementType) {
 			case 1: {
 				switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
-					case 1: {
-						values = new float[] { frame.offsetPupil[isRight ? 0 : 2], frame.offsetPupil[isRight ? 1 : 3] };
-						break;
-					}
-					case 2: {
-						values = new float[] { frame.scalePupil[isRight ? 0 : 2], frame.scalePupil[isRight ? 1 : 3] };
-						break;
-					}
-					default: {
-						values = new float[] { frame.rotPupil[isRight ? 0 : 1] };
-						break;
-					}
+					case 1: values = new float[] { frame.offsetPupil[isRight ? 0 : 2], frame.offsetPupil[isRight ? 1 : 3] }; break;
+					case 2: values = new float[] { frame.scalePupil[isRight ? 0 : 2], frame.scalePupil[isRight ? 1 : 3] }; break;
+					default: values = new float[] { frame.rotPupil[isRight ? 0 : 1] }; break;
 				}
 				break;
 			} // pupil
 			case 2: {
 				switch(toolType) {
-					case 1: {
-						values = new float[] { frame.offsetBrow[isRight ? 0 : 2], frame.offsetBrow[isRight ? 1 : 3] };
-						break;
-					}
-					case 2: {
-						values = new float[] { frame.scaleBrow[isRight ? 0 : 2], frame.scaleBrow[isRight ? 1 : 3] };
-						break;
-					}
-					default: {
-						values = new float[] { frame.rotBrow[isRight ? 0 : 1] };
-						break;
-					}
+					case 1: values = new float[] { frame.offsetBrow[isRight ? 0 : 2], frame.offsetBrow[isRight ? 1 : 3] }; break;
+					case 2: values = new float[] { frame.scaleBrow[isRight ? 0 : 2], frame.scaleBrow[isRight ? 1 : 3] }; break;
+					default: values = new float[] { frame.rotBrow[isRight ? 0 : 1] }; break;
 				}
 				break;
 			} // brow
 			case 3: {
 				switch(toolType) {
-					case 1: {
-						values = frame.offsetMouth;
-						break;
-					}
-					case 2: {
-						values = frame.scaleMouth;
-						break;
-					}
-					default: {
-						values = new float[] { frame.rotMouth };
-						break;
-					}
+					case 1: values = frame.offsetMouth; break;
+					case 2: values = frame.scaleMouth; break;
+					default: values = new float[] { frame.rotMouth }; break;
 				}
 				break;
 			} // mouth
 			default: {
 				switch(toolType) {
-					case 1: {
-						values = new float[] { frame.offsetEye[isRight ? 0 : 2], frame.offsetEye[isRight ? 1 : 3] };
-						break;
-					}
-					case 2: {
-						values = new float[] { frame.scaleEye[isRight ? 0 : 2], frame.scaleEye[isRight ? 1 : 3] };
-						break;
-					}
-					default: {
-						values = new float[] { frame.rotEye[isRight ? 0 : 1] };
-						break;
-					}
+					case 1: values = new float[] { frame.offsetEye[isRight ? 0 : 2], frame.offsetEye[isRight ? 1 : 3] }; break;
+					case 2: values = new float[] { frame.scaleEye[isRight ? 0 : 2], frame.scaleEye[isRight ? 1 : 3] }; break;
+					default: values = new float[] { frame.rotEye[isRight ? 0 : 1] }; break;
 				}
 				break;
 			} // eye
 		}
+		y += 19;
 		for (int i = 0; i < 2; i++) {
 			if (toolType == 0 && i == 1) { break; }
 			addLabel(new GuiNpcLabel(lId++, i == 0 ? "X:" : "Y:", x, y + i * f + 4));
@@ -618,32 +530,25 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				sliderData = values[i] * 0.0027778f + 0.5f;
 			}
 			addSlider(new GuiNpcSlider(this, i, x + 8, y + i * f, 128, 8, sliderData));
-			textField = new GuiNpcTextField(i + 5, this, x + 9, y + 9 + i * f, 56, 8, "" + values[i]);
-			textField.setMinMaxDoubleDefault(m, n, sliderData);
-			addTextField(textField);
-			button = new GuiNpcButton(30 + i, x + 67, y + 9 + i * f, 8, 8, "X");
-			button.texture = ANIMATION_BUTTONS;
-			button.hasDefBack = false;
-			button.isAnim = true;
-			button.txrY = 96;
-			button.dropShadow = false;
-			button.setTextColor(0xFFDC0000);
-			addButton(button);
+			addTextField(new GuiNpcTextField(i + 5, this, x + 9, y + 9 + i * f, 56, 8, "" + values[i])
+					.setMinMaxDoubleDefault(m, n, sliderData));
+			addButton(new GuiNpcButton(30 + i, x + 67, y + 9 + i * f, 8, 8, "X")
+					.setTexture(ANIMATION_BUTTONS)
+					.setHasDefaultBack(false)
+					.setIsAnim(true)
+					.setDropShadow(false)
+					.setTextColor(0xFFDC0000)
+					.setUV(0, 96, 0, 0));
 		}
-
-		y += 38;
-		addButton(new GuiNpcCheckBox(37, x, y, 140, 14, "emotion.can.blink", "emotion.can.no.blink", emtn.canBlink()));
+		addButton(new GuiNpcCheckBox(37, x, y += 38, 140, 14, "emotion.can.blink", "emotion.can.no.blink", emtn.canBlink()));
 		resetEmtns();
-
 		addLabel(new GuiNpcLabel(lId, new TextComponentTranslation("ai.movement").getFormattedText() + ":", x, (y += 20) + 1));
-		textField = new GuiNpcTextField(7, this, x += 45,  y, 40, 12, "" + emtn.scaleMoveX);
-		textField.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveX);
-		textField.setHoverText("emotion.hover.scale.move", "X");
-		addTextField(textField);
-		textField = new GuiNpcTextField(8, this, x + 45,  y, 40, 12, "" + emtn.scaleMoveY);
-		textField.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveY);
-		textField.setHoverText("emotion.hover.scale.move", "Y");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(7, this, x += 45,  y, 40, 12, "" + emtn.scaleMoveX)
+				.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveX)
+				.setHoverText("emotion.hover.scale.move", "X"));
+		addTextField(new GuiNpcTextField(8, this, x + 45,  y, 40, 12, "" + emtn.scaleMoveY)
+				.setMinMaxDoubleDefault(0.05d, 1.25d, emtn.scaleMoveY)
+				.setHoverText("emotion.hover.scale.move", "Y"));
 	}
 
 	@Override
@@ -683,7 +588,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void close() {
+	public void onGuiClosed() {
+		GuiNpcTextField.unfocus();
 		save();
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setBoolean("save", true);
@@ -699,7 +605,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getID() == 0) {
 			if (selEmtn.equals(scroll.getSelected())) { return; }
 			save();
@@ -709,7 +615,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { initGui(); }
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { initGui(); }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
@@ -721,7 +627,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui.getId() == 1) { // add new
 			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) { return; }
-			EmotionConfig newEmtn = (EmotionConfig) aData.createNewEmtn();
+			EmotionConfig newEmtn = aData.createNewEmtn();
 			newEmtn.name = ((SubGuiEditText) subgui).text[0];
 			selEmtn = newEmtn.getSettingName();
 			Client.sendData(EnumPacketServer.EmotionChange, newEmtn.save());
@@ -749,22 +655,22 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 	}
 
 	@Override
-	public void mouseDragged(IGuiNpcSlider slider) {
+	public void mouseDragged(GuiNpcSlider slider) {
 		float value;
 		int pos = slider.getID() + (isRight ? 0 : 2);
 		switch(elementType) {
 			case 1: { // pupil
 				switch(toolType) { // 0 - rotation, 1 - offset, 2 - scale
 					case 1: {
-						frame.offsetPupil[pos] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetPupil[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.offsetPupil[pos] = (value = slider.getSliderValue() * 2.0f);
+						frame.offsetPupil[pos] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotPupil[isRight ? 0 : 1] = (value = slider.getSliderValue() * 360.0f - 180.0f);
+						frame.rotPupil[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -773,15 +679,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 2: { // brow
 				switch(toolType) {
 					case 1: {
-						frame.offsetBrow[pos] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetBrow[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleBrow[pos] = (value = slider.getSliderValue() * 2.0f);
+						frame.scaleBrow[pos] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotBrow[isRight ? 0 : 1] = (value = slider.getSliderValue() * 360.0f - 180.0f);
+						frame.rotBrow[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -790,15 +696,15 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 			case 3: { // mouth
 				switch(toolType) {
 					case 1: {
-						frame.offsetMouth[slider.getID()] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetMouth[slider.getID()] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleMouth[slider.getID()] = (value = slider.getSliderValue() * 2.0f);
+						frame.scaleMouth[slider.getID()] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotMouth = (value = slider.getSliderValue() * 360.0f - 180.0f);
+						frame.rotMouth = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
@@ -808,38 +714,38 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				elementType = 0;
 				switch(toolType) {
 					case 1: {
-						frame.offsetEye[pos] = (value = slider.getSliderValue() * 2.5f - (isRight ? 1.0f : 1.5f));
+						frame.offsetEye[pos] = (value = slider.sliderValue * 2.5f - (isRight ? 1.0f : 1.5f));
 						break;
 					}
 					case 2: {
-						frame.scaleEye[pos] = (value = slider.getSliderValue() * 2.0f);
+						frame.scaleEye[pos] = (value = slider.sliderValue * 2.0f);
 						break;
 					}
 					default: {
-						frame.rotEye[isRight ? 0 : 1] = (value = slider.getSliderValue() * 360.0f - 180.0f);
+						frame.rotEye[isRight ? 0 : 1] = (value = slider.sliderValue * 360.0f - 180.0f);
 						break;
 					}
 				}
 				break;
 			}
 		}
-		if (getTextField(5 + slider.getID()) != null) { getTextField(5 + slider.getID()).setFullText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
+		if (getTextField(5 + slider.getID()) != null) { getTextField(5 + slider.getID()).setText("" + (Math.round(value * 1000.0f) / 1000.0f)); }
 		resetEmtns();
 	}
 
 	@Override
-	public void mousePressed(IGuiNpcSlider slider) { }
+	public void mousePressed(GuiNpcSlider slider) { }
 
 	@Override
-	public void mouseReleased(IGuiNpcSlider slider) { }
+	public void mouseReleased(GuiNpcSlider slider) { }
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		EmotionConfig emtn = getEmtn();
 		if (hasSubGui() || emtn == null) { return; }
 		switch (textField.getID()) {
 			case 0: {
-				emtn.name = textField.getFullText();
+				emtn.name = textField.getText();
 				selEmtn = emtn.getSettingName();
 				initGui();
 				break;
@@ -857,7 +763,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 				break;
 			} // delay
 			case 3: {
-
 				break;
 			} // repeat
 			case 5: {
@@ -945,7 +850,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 						break;
 					} // Mouth
 				}
-				textField.setFullText("" + (Math.round(data * 1000.0f) / 1000.0f));
+				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
 				if (getSlider(0) != null) { getSlider(0).setSliderValue(value); }
 				resetEmtns();
 				break;
@@ -995,19 +900,13 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, ITextfieldListener,
 						break;
 					} // Mouth
 				}
-				textField.setFullText("" + (Math.round(data * 1000.0f) / 1000.0f));
+				textField.setText("" + (Math.round(data * 1000.0f) / 1000.0f));
 				if (getSlider(1) != null) { getSlider(1).setSliderValue(value); }
 				resetEmtns();
 				break;
 			} // Y
-			case 7: {
-				emtn.scaleMoveX = (float) textField.getDouble();
-				break;
-			} // scale move x
-			case 8: {
-				emtn.scaleMoveY = (float) textField.getDouble();
-				break;
-			} // scale move y
+			case 7: emtn.scaleMoveX = (float) textField.getDouble(); break; // scale move x
+			case 8: emtn.scaleMoveY = (float) textField.getDouble(); break; // scale move y
 		}
 	}
 

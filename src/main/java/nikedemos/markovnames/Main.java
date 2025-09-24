@@ -12,6 +12,7 @@ import nikedemos.markovnames.generators.MarkovRoman;
 import nikedemos.markovnames.generators.MarkovSaami;
 import nikedemos.markovnames.generators.MarkovSlavic;
 import nikedemos.markovnames.generators.MarkovWelsh;
+import noppes.npcs.LogWriter;
 
 public class Main {
 
@@ -27,19 +28,14 @@ public class Main {
 		Main.GENERATORS.put("ANCIENTGREEK", new MarkovAncientGreek(3));
 		Main.GENERATORS.put("AZTEC", new MarkovAztec(3));
 		for (Map.Entry<String, MarkovGenerator> pair : Main.GENERATORS.entrySet()) {
-			System.out.println("===" + pair.getKey() + "===");
+			LogWriter.info("===" + pair.getKey() + "===");
 			for (int i = 0; i < 16; ++i) {
-				if (i == 0) {
-					System.out.println("GENTLEMEN-----------");
-				}
+				if (i == 0) { LogWriter.info("GENTLEMEN-----------"); }
 				int gender = (i < 8) ? 1 : 2;
 				String random_name = pair.getValue().fetch(gender);
-				System.out.println(random_name);
-				if (i == 15) {
-					System.out.println("\n");
-				} else if (i == 7) {
-					System.out.println("LADIES--------------");
-				}
+				LogWriter.info(random_name);
+				if (i == 15) { LogWriter.info("\n"); }
+				else if (i == 7) { LogWriter.info("LADIES--------------"); }
 			}
 		}
 	}

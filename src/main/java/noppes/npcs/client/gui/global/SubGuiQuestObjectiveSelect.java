@@ -4,100 +4,88 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeDialog;
-import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeKill;
-import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeLocation;
-import noppes.npcs.client.gui.questtypes.GuiNpcQuestTypeManual;
+import noppes.npcs.client.gui.questtypes.SubGuiNpcQuestTypeDialog;
+import noppes.npcs.client.gui.questtypes.SubGuiNpcQuestTypeKill;
+import noppes.npcs.client.gui.questtypes.SubGuiNpcQuestTypeLocation;
+import noppes.npcs.client.gui.questtypes.SubGuiNpcQuestTypeManual;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.client.gui.util.GuiNpcLabel;
-import noppes.npcs.client.gui.util.IGuiNpcButton;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.quests.QuestObjective;
 
-public class SubGuiQuestObjectiveSelect
-extends SubGuiInterface {
+import javax.annotation.Nonnull;
 
-	public Quest quest;
+public class SubGuiQuestObjectiveSelect extends SubGuiInterface {
+
+	protected Quest quest;
 
 	public SubGuiQuestObjectiveSelect(GuiScreen gui) {
+		super(0);
 		setBackground("companion_empty.png");
+		closeOnEsc = true;
 		xSize = 172;
 		ySize = 167;
-		closeOnEsc = true;
 
 		parent = gui;
 		quest = NoppesUtilServer.getEditingQuest(player);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		QuestObjective task;
 		switch (button.getID()) {
-			case 66: close(); return;
-			case 71: { // collect item
+			case 66: onClosed(); return;
+			case 71: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.ITEM);
 				Client.sendData(EnumPacketServer.QuestReset, quest.save(new NBTTagCompound()), quest.questInterface.getPos(task));
 				return;
-			}
+			} // collect item
 			case 72: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.CRAFT);
 				Client.sendData(EnumPacketServer.QuestReset, quest.save(new NBTTagCompound()), quest.questInterface.getPos(task));
 				return;
 			}
 			case 73: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.KILL);
-				setSubGui(new GuiNpcQuestTypeKill(npc, task, parent));
+				setSubGui(new SubGuiNpcQuestTypeKill(npc, task, parent));
 				return;
 			}
 			case 74: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.AREAKILL);
-				setSubGui(new GuiNpcQuestTypeKill(npc, task, parent));
+				setSubGui(new SubGuiNpcQuestTypeKill(npc, task, parent));
 				return;
 			}
 			case 75: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.DIALOG);
-				setSubGui(new GuiNpcQuestTypeDialog(npc, task, parent));
+				setSubGui(new SubGuiNpcQuestTypeDialog(npc, task, parent));
 				return;
 			}
 			case 76: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.LOCATION);
-				setSubGui(new GuiNpcQuestTypeLocation(npc, task, parent));
+				setSubGui(new SubGuiNpcQuestTypeLocation(npc, task, parent));
 				return;
 			}
 			case 77: {
 				task = (QuestObjective) quest.addTask();
-				if (task == null) {
-					return;
-				}
+				if (task == null) { return; }
 				task.setType(EnumQuestTask.MANUAL);
-				setSubGui(new GuiNpcQuestTypeManual(npc, task, parent));
+				setSubGui(new SubGuiNpcQuestTypeManual(npc, task, parent));
 			}
 		}
 	}
@@ -106,30 +94,22 @@ extends SubGuiInterface {
 	public void initGui() {
 		super.initGui();
 		addLabel(new GuiNpcLabel(80, "task.chose", guiLeft + 4, guiTop + 5));
-		GuiNpcButton button = new GuiNpcButton(71, guiLeft + 4, guiTop + 18, 80, 20, "enum.quest.item");
-		button.setHoverText("drop.hover.task.0");
-		addButton(button);
-		button = new GuiNpcButton(72, guiLeft + 87, guiTop + 18, 80, 20, "enum.quest.craft");
-		button.setHoverText("drop.hover.task.1");
-		addButton(button);
-		button = new GuiNpcButton(73, guiLeft + 4, guiTop + 40, 80, 20, "enum.quest.kill");
-		button.setHoverText("drop.hover.task.2");
-		addButton(button);
-		button = new GuiNpcButton(74, guiLeft + 87, guiTop + 40, 80, 20, "enum.quest.area_kill");
-		button.setHoverText("drop.hover.task.3");
-		addButton(button);
-		button = new GuiNpcButton(75, guiLeft + 4, guiTop + 62, 80, 20, "enum.quest.dialog");
-		button.setHoverText("drop.hover.task.4");
-		addButton(button);
-		button = new GuiNpcButton(76, guiLeft + 87, guiTop + 62, 80, 20, "enum.quest.location");
-		button.setHoverText("drop.hover.task.5");
-		addButton(button);
-		button = new GuiNpcButton(77, guiLeft + 4, guiTop + 84, 80, 20, "enum.quest.manual");
-		button.setHoverText("drop.hover.task.6");
-		addButton(button);
-		button = new GuiNpcButton(66, guiLeft + 4, guiTop + 142, 80, 20, "gui.back");
-		button.setHoverText("hover.back");
-		addButton(button);
+		addButton(new GuiNpcButton(71, guiLeft + 4, guiTop + 18, 80, 20, "enum.quest.item")
+				.setHoverText("drop.hover.task.0"));
+		addButton( new GuiNpcButton(72, guiLeft + 87, guiTop + 18, 80, 20, "enum.quest.craft")
+				.setHoverText("drop.hover.task.1"));
+		addButton(new GuiNpcButton(73, guiLeft + 4, guiTop + 40, 80, 20, "enum.quest.kill")
+				.setHoverText("drop.hover.task.2"));
+		addButton(new GuiNpcButton(74, guiLeft + 87, guiTop + 40, 80, 20, "enum.quest.area_kill")
+				.setHoverText("drop.hover.task.3"));
+		addButton(new GuiNpcButton(75, guiLeft + 4, guiTop + 62, 80, 20, "enum.quest.dialog")
+				.setHoverText("drop.hover.task.4"));
+		addButton(new GuiNpcButton(76, guiLeft + 87, guiTop + 62, 80, 20, "enum.quest.location")
+				.setHoverText("drop.hover.task.5"));
+		addButton(new GuiNpcButton(77, guiLeft + 4, guiTop + 84, 80, 20, "enum.quest.manual")
+				.setHoverText("drop.hover.task.6"));
+		addButton(new GuiNpcButton(66, guiLeft + 4, guiTop + 142, 80, 20, "gui.back")
+				.setHoverText("hover.back"));
 	}
 
 }

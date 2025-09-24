@@ -1,8 +1,11 @@
 package noppes.npcs.api.handler.data;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.entity.data.DropSet;
 
 public interface IDeal {
 
@@ -30,7 +33,9 @@ public interface IDeal {
 
 	int getMoney();
 
-	String getName();
+    int getDonat();
+
+    String getName();
 
 	IItemStack getProduct();
 
@@ -50,9 +55,59 @@ public interface IDeal {
 
 	void setMoney(int money);
 
+	void setDonat(int moneyIn);
+
 	void setProduct(IItemStack product);
 
 	void setType(int type);
+
+	int getRarityColor();
+
+	void setRarityColor(int color);
+
+	boolean isCase();
+
+	void setIsCase(boolean isCaseIn);
+
+	int getCaseCount();
+
+	void setCaseCount(int count);
+
+	String getCaseName();
+
+	void setCaseName(String newName);
+
+	String getCaseCommand();
+
+	void setCaseCommand(String command);
+
+	ResourceLocation getCaseObjModel();
+
+	void setCaseObjModel(ResourceLocation objModel);
+
+	ResourceLocation getCaseSound();
+
+	void setCaseSound(ResourceLocation sound);
+
+	ResourceLocation getCaseTexture();
+
+	void setCaseTexture(ResourceLocation texture);
+
+	boolean showInCase();
+
+	void setShowInCase(boolean show);
+
+	DropSet addCaseItem(IItemStack item, double chance);
+
+	ICustomDrop getCase(int slot);
+
+	IItemStack getCaseItem(int slot);
+
+	DropSet[] getCaseItems();
+
+	boolean removeCaseItem(ICustomDrop drop);
+
+	boolean removeCaseItem(int slot);
 
 	void updateNew();
 

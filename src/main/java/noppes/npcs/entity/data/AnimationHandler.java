@@ -84,7 +84,7 @@ public class AnimationHandler {
         if (!data.containsKey(type) || data.get(type) == null || data.get(type).isEmpty()) { return false; }
         AnimationController aData = AnimationController.getInstance();
         for (int id : data.get(type)) {
-            if (aData.animations.containsKey(id)) {return true; }
+            if (aData.hasAnimation(id)) {return true; }
         }
         return false;
     }
@@ -301,7 +301,7 @@ public class AnimationHandler {
                         if (entity.world.getEntityByID(entity.getEntityId()) != null && anim == null || !anim.getName().equals(name)) {
                             boolean found = false;
                             if (anim != null) {
-                                for (AnimationConfig ac : aData.animations.values()) {
+                                for (AnimationConfig ac : aData.getAnimations()) {
                                     if (ac.name.equals(anim.name)) {
                                         found = true;
                                         anim = ac;
@@ -404,7 +404,7 @@ public class AnimationHandler {
             timeTicks = -1;
             return;
         }
-        if (!AnimationController.getInstance().animations.containsKey(activeAnimation.id) && stage != EnumAnimationStages.Ending && stage != EnumAnimationStages.Waiting) {
+        if (!AnimationController.getInstance().hasAnimation(activeAnimation.id) && stage != EnumAnimationStages.Ending && stage != EnumAnimationStages.Waiting) {
             stage = EnumAnimationStages.Ending;
             startAnimationTime = entity.world.getTotalWorldTime() + 1;
             return;
@@ -637,7 +637,7 @@ public class AnimationHandler {
         movementAnimation.clear();
         for (Object key : map.keySet()) {
             if (!(key instanceof Integer) || !(map.get(key) instanceof Integer)) { continue; }
-            AnimationConfig anim = aData.animations.get((int) map.get(key));
+            AnimationConfig anim = aData.getAnimation((int) map.get(key));
             if (anim != null) { movementAnimation.put(AnimationKind.get((int) key), anim.id); }
         }
     }

@@ -22,18 +22,20 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.schematics.ISchematic;
 import noppes.npcs.schematics.SchematicWrapper;
 
-public class GuiBlockBuilder
-extends GuiNPCInterface
-implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
+import javax.annotation.Nonnull;
 
-	private GuiCustomScroll scroll;
-	private ISchematic selected;
-	private final TileBuilder tile;
-	private final int x;
-	private final int y;
-	private final int z;
+public class GuiBlockBuilder extends GuiNPCInterface
+		implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
+
+	protected GuiCustomScroll scroll;
+	protected ISchematic selected;
+	protected final TileBuilder tile;
+	protected final int x;
+	protected final int y;
+	protected final int z;
 
 	public GuiBlockBuilder(int xPos, int yPos, int zPos) {
+		super();
 		setBackground("menubg.png");
 		xSize = 256;
 		ySize = 216;
@@ -47,7 +49,8 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 3: {
 				if (((GuiNpcButtonYesNo) button).getBoolean()) {
@@ -59,27 +62,15 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 				}
 				break;
 			}
-			case 4: {
-				tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean();
-				break;
-			}
-			case 5: {
-				tile.rotation = button.getValue();
-				break;
-			}
-			case 6: {
-				setSubGui(new SubGuiNpcAvailability(tile.availability, this));
-				break;
-			}
+			case 4: tile.enabled = ((GuiNpcButtonYesNo) button).getBoolean(); break;
+			case 5: tile.rotation = button.getValue(); break;
+			case 6: setSubGui(new SubGuiNpcAvailability(tile.availability, this)); break;
 			case 7: {
 				tile.finished = ((GuiNpcButtonYesNo) button).getBoolean();
 				Client.sendData(EnumPacketServer.SchematicsSet, x, y, z, scroll.getSelected());
 				break;
 			}
-			case 8: {
-				tile.started = ((GuiNpcButtonYesNo) button).getBoolean();
-				break;
-			}
+			case 8: tile.started = ((GuiNpcButtonYesNo) button).getBoolean(); break;
 			case 10: {
 				save();
 				GuiYesNo guiyesno = new GuiYesNo(this, "", new TextComponentTranslation("schematic.instantBuildText").getFormattedText(), 0);
@@ -89,14 +80,14 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 		}
 	}
 
-	public void confirmClicked(boolean flag, int i) {
-		if (flag) {
+	@Override
+	public void confirmClicked(boolean result, int id) {
+		if (result) {
 			Client.sendData(EnumPacketServer.SchematicsBuild, x, y, z);
-			close();
+			onClosed();
 			selected = null;
-		} else {
-			NoppesUtil.openGUI(player, this);
 		}
+		else { NoppesUtil.openGUI(player, this); }
 	}
 
 	@Override
@@ -129,9 +120,8 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 			addLabel(new GuiNpcLabel(8, new TextComponentTranslation("gui.started").getFormattedText(), xL, y + 5));
 			y += 22;
 			addLabel(new GuiNpcLabel(9, new TextComponentTranslation("gui.yoffset").getFormattedText(), xL, y + 5));
-			GuiNpcTextField textField = new GuiNpcTextField(9, this, xB, y, 50, 20, tile.yOffset + "");
-			textField.setMinMaxDefault(-10, 10, 0);
-			addTextField(textField);
+			addTextField(new GuiNpcTextField(9, this, xB, y, 50, 20, tile.yOffset + "")
+					.setMinMaxDefault(-10, 10, 0));
 			y += 22;
 			addLabel(new GuiNpcLabel(5, new TextComponentTranslation("movement.rotation").getFormattedText(), xL, y + 5));
 			addButton(new GuiNpcButton(5, xB, y, 50, 20, new String[] { "0", "90", "180", "270" }, tile.rotation));
@@ -143,9 +133,7 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void initPacket() {
-		Client.sendData(EnumPacketServer.SchematicsTile, x, y, z);
-	}
+	public void initPacket() { Client.sendData(EnumPacketServer.SchematicsTile, x, y, z); }
 
 	@Override
 	public void save() {
@@ -154,7 +142,7 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) { return; }
 		if (selected != null) { getButton(3).setDisplay(0); }
 		TileBuilder.SetDrawPos(null);
@@ -163,11 +151,11 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		scroll.setList(list);
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
+		scroll.setList(dataList);
 		if (selected != null) { scroll.setSelected(selected.getName()); }
 		initGui();
 	}
@@ -177,9 +165,7 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 		if (compound.hasKey("Width")) {
 			List<IBlockState> states = new ArrayList<>();
 			NBTTagList list = compound.getTagList("Data", 10);
-			for (int i = 0; i < list.tagCount(); ++i) {
-				states.add(NBTUtil.readBlockState(list.getCompoundTagAt(i)));
-			}
+			for (int i = 0; i < list.tagCount(); ++i) { states.add(NBTUtil.readBlockState(list.getCompoundTagAt(i))); }
 			selected = new ISchematic() {
 				@Override
 				public IBlockState getBlockState(int i) {
@@ -187,9 +173,7 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 				}
 
 				@Override
-				public IBlockState getBlockState(int x, int y, int z) {
-					return getBlockState((y * getLength() + z) * getWidth() + x);
-				}
+				public IBlockState getBlockState(int x, int y, int z) { return getBlockState((y * getLength() + z) * getWidth() + x); }
 
 				@Override
 				public NBTTagList getEntitys() {
@@ -237,9 +221,8 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 				}
 
 				@Override
-				public boolean hasEntitys() {
-					return false;
-				}
+				public boolean hasEntitys() { return false; }
+
 			};
 			if (TileBuilder.has(tile.getPos())) {
 				SchematicWrapper wrapper = new SchematicWrapper(selected);
@@ -248,9 +231,8 @@ implements IGuiData, ICustomScrollListener, IScrollData, GuiYesNoCallback {
 			}
 			scroll.setSelected(selected.getName());
 			scroll.scrollTo(selected.getName());
-		} else {
-			tile.readPartNBT(compound);
 		}
+		else { tile.readPartNBT(compound); }
 		initGui();
 	}
 

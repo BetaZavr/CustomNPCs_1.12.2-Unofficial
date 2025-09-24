@@ -3,12 +3,15 @@ package noppes.npcs.mixin.entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.MathHelper;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.entity.IEntityLivingBaseMixin;
 import noppes.npcs.entity.EntityNPCInterface;
+import noppes.npcs.util.Util;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -64,9 +67,10 @@ public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
     @Inject(method = "knockBack", at = @At("HEAD"), cancellable = true)
     private void npcs$knockBack(Entity entityIn, float strength, double xRatio, double zRatio, CallbackInfo ci) {
         EntityLivingBase parent = (EntityLivingBase) (Object) this;
-        if (npcs$currentDamageSource != null && !npcs$currentDamageSource.isExplosion() && npcs$currentDamageSource.isProjectile()) { strength *= 0.375f; }
-        else { strength *= 0.5f; }
-        strength *= ((float) CustomNpcs.KnockBackBasePower / 100.0f);
+        if (npcs$currentDamageSource != null && !npcs$currentDamageSource.isExplosion() && npcs$currentDamageSource.isProjectile()) {
+            strength *= 0.375f * ((float) CustomNpcs.KnockBackBasePowerRanged / 100.0f);
+        }
+        else { strength *= 0.5f * ((float) CustomNpcs.KnockBackBasePower / 100.0f); }
         net.minecraftforge.event.entity.living.LivingKnockBackEvent event = net.minecraftforge.common.ForgeHooks.onLivingKnockBack(parent, entityIn, strength, xRatio, zRatio);
         if (event.isCanceled()) { return; }
         strength = event.getStrength();
@@ -106,16 +110,9 @@ public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
                 f0 = 0.2f;
                 f1 = 0.2f  * (float) npc.stats.melee.getKnockback();
             }
-            if (f1 == 0.0f) { strength = 0.0f; } else { strength = f0 + f1; }
+            if (f1 == 0.0f) { strength = f0 + f1; }
         }
         if (strength != 0) { ((EntityLivingBase) (Object)this).knockBack(entity, strength, xRatio, zRatio); }
-    }
-
-
-
-    @Inject(method = "canEntityBeSeen", at = @At("HEAD"))
-    public void npcs$canEntityBeSeen(Entity entityIn, CallbackInfoReturnable<Boolean> cir) {
-
     }
 
     @Override
@@ -136,12 +133,6 @@ public class EntityLivingBaseMixin implements IEntityLivingBaseMixin {
         if (newRecentlyHit < 0) { newRecentlyHit *= -1; }
         recentlyHit = newRecentlyHit;
     }
-
-    @Override
-    public void npcs$setInterpTargetYaw(double newInterpTargetYaw) { interpTargetYaw = newInterpTargetYaw; }
-
-    @Override
-    public void npcs$setInterpTargetPitch(double newInterpTargetPitch) { interpTargetPitch = newInterpTargetPitch; }
 
     @Override
     public void npcs$setCurrentDamageSource(DamageSource source) { npcs$currentDamageSource = source; }

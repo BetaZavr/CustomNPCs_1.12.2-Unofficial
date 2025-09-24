@@ -8,6 +8,7 @@ import java.util.Objects;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
@@ -97,61 +98,77 @@ extends BaseScriptData {
 
 	@SuppressWarnings("all")
 	public void loadDefaultScripts() {
-		if (this.loadDefault) { return; }
-		File saveDir = new File(CustomNpcs.Dir, "client_default");
-		if (!saveDir.exists()) { saveDir.mkdirs(); }
-		// Stored Data
-		ScriptController.Instance.compound = new NBTTagCompound();
-		File sData = new File(saveDir, "world_data.json");
-		try {
-			if (!sData.exists()) {
-				Util.instance.saveFile(sData, new NBTTagCompound());
-			} else {
-				ScriptController.Instance.compound = NBTJsonUtil.LoadFile(sData);
-			}
-			LogWriter.debug("Load default client stored data - done");
-		} catch (Exception e) {
-			LogWriter.error("Error Default loading: " + sData.getName(), e);
-		}
-		this.storedData.setNbt(ScriptController.Instance.compound);
-		// Modules
-		String language = this.getLanguage().toLowerCase();
-		saveDir = new File(saveDir, language);
-		if (!saveDir.exists()) { saveDir.mkdirs(); }
-		ScriptController.Instance.clients.clear();
-		ScriptController.Instance.clientSizes.clear();
-		ScriptController.Instance.loadDir(saveDir, "", ScriptController.Instance.languages.get(Util.instance.deleteColor(this.getLanguage())), false, true);
-		LogWriter.debug("Load default client modules - "+ScriptController.Instance.clients.size());
-		// Main tab
-		saveDir = new File(CustomNpcs.Dir, "client_default");
-		File file = new File(saveDir, "client_scripts.json");
-		try {
-			if (!file.exists()) {
-				if (this.script == null) {
-					this.enabled = true;
-					this.script = new ScriptContainer(this, true);
-				}
-				Util.instance.saveFile(file, writeToNBT(new NBTTagCompound()));
-				LogWriter.debug("Create default client scripts - done");
-			} else {
-				NBTTagCompound nbt = NBTJsonUtil.LoadFile(file);
-				if (nbt.hasKey("Constants", 10) || nbt.hasKey("Functions", 9)) {
-					NBTTagCompound constants = new NBTTagCompound();
-					constants.setTag("Constants", nbt.getCompoundTag("Constants"));
-					constants.setTag("Functions", nbt.getTagList("Functions", 8));
-					ScriptController.Instance.constants = constants;
-				}
-				ScriptContainer.reloadConstants();
-				this.script = new ScriptContainer(this, true);
-				this.readFromNBT(nbt);
-				LogWriter.debug("Load default client scripts - done: " + nbt.getCompoundTag("Scripts").toString().length() + " size.");
-			}
-			EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.INIT, new PlayerEvent.InitEvent(null));
-		} catch (Exception e) {
-			LogWriter.error("Error Default loading: " + file.getName(), e);
-		}
-		this.loadDefault = true;
-	}
+        if (this.loadDefault) {
+            return;
+        }
+        File saveDir = new File(CustomNpcs.Dir, "client_default");
+        if (!saveDir.exists()) { saveDir.mkdirs(); }
+        // Stored Data
+        NBTTagCompound compound = new NBTTagCompound();
+        File sData = new File(saveDir, "world_data.json");
+        try {
+            if (!sData.exists()) { Util.instance.saveFile(sData, new NBTTagCompound()); }
+			else { compound = NBTJsonUtil.LoadFile(sData); }
+            LogWriter.debug("Load default client stored data - done");
+        } catch (Exception e) {
+            LogWriter.error("Error Default loading: " + sData.getName(), e);
+        }
+        if (!compound.getKeySet().isEmpty() && !compound.hasKey("IsMap", 3)) {
+            NBTTagCompound oldData = compound.copy();
+            compound = new NBTTagCompound();
+            compound.setInteger("IsMap", 1);
+            NBTTagCompound content = new NBTTagCompound();
+            int i = 0;
+            for (String key : oldData.getKeySet()) {
+                NBTTagCompound nbt = new NBTTagCompound();
+                nbt.setTag("K", new NBTTagString(key));
+                nbt.setTag("V", oldData.getTag(key));
+                content.setTag("Slot_" + i, nbt);
+                i++;
+            }
+            compound.setTag("Content", content);
+        }
+        storedData.setNbt(compound);
+        // Modules
+        String language = this.getLanguage().toLowerCase();
+        saveDir = new File(saveDir, language);
+        if (!saveDir.exists()) {
+            saveDir.mkdirs();
+        }
+        ScriptController.Instance.clients.clear();
+        ScriptController.Instance.clientSizes.clear();
+        ScriptController.Instance.loadDir(saveDir, "", ScriptController.Instance.languages.get(Util.instance.deleteColor(this.getLanguage())), false, true);
+        LogWriter.debug("Load default client modules - " + ScriptController.Instance.clients.size());
+        // Main tab
+        saveDir = new File(CustomNpcs.Dir, "client_default");
+        File file = new File(saveDir, "client_scripts.json");
+        try {
+            if (!file.exists()) {
+                if (this.script == null) {
+                    this.enabled = true;
+                    this.script = new ScriptContainer(this, true);
+                }
+                Util.instance.saveFile(file, writeToNBT(new NBTTagCompound()));
+                LogWriter.debug("Create default client scripts - done");
+            } else {
+                NBTTagCompound nbt = NBTJsonUtil.LoadFile(file);
+                if (nbt.hasKey("Constants", 10) || nbt.hasKey("Functions", 9)) {
+                    NBTTagCompound constants = new NBTTagCompound();
+                    constants.setTag("Constants", nbt.getCompoundTag("Constants"));
+                    constants.setTag("Functions", nbt.getTagList("Functions", 8));
+                    ScriptController.Instance.constants = constants;
+                }
+                ScriptContainer.reloadConstants();
+                this.script = new ScriptContainer(this, true);
+                this.readFromNBT(nbt);
+                LogWriter.debug("Load default client scripts - done: " + nbt.getCompoundTag("Scripts").toString().length() + " size.");
+            }
+            EventHooks.onEvent(ScriptController.Instance.clientScripts, EnumScriptType.INIT, new PlayerEvent.InitEvent(null));
+        } catch (Exception e) {
+            LogWriter.error("Error Default loading: " + file.getName(), e);
+        }
+        this.loadDefault = true;
+    }
 
 	@SuppressWarnings("all")
 	public void saveDefaultScripts() {

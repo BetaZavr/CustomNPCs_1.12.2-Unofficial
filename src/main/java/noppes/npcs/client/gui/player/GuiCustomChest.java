@@ -8,38 +8,41 @@ import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerCustomChest;
 
-public class GuiCustomChest
-extends GuiContainer {
+public class GuiCustomChest extends GuiContainer {
 
-	private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
-	private final int inventoryRows;
+	protected static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
+	protected final int inventoryRows;
 	public String title;
 
 	public GuiCustomChest(ContainerCustomChest container) {
 		super(container);
-		this.title = null;
-		this.inventoryRows = container.rows;
+		title = null;
+
+		inventoryRows = container.rows;
 	}
 
+	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		this.mc.getTextureManager().bindTexture(GuiCustomChest.CHEST_GUI_TEXTURE);
-		int i = (this.width - this.xSize) / 2;
-		int j = (this.height - this.ySize) / 2;
-		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.inventoryRows * 18 + 17);
-		this.drawTexturedModalRect(i, j + this.inventoryRows * 18 + 17, 0, 126, this.xSize, 96);
+		mc.getTextureManager().bindTexture(GuiCustomChest.CHEST_GUI_TEXTURE);
+		int i = (width - xSize) / 2;
+		int j = (height - ySize) / 2;
+		drawTexturedModalRect(i, j, 0, 0, xSize, inventoryRows * 18 + 17);
+		drawTexturedModalRect(i, j + inventoryRows * 18 + 17, 0, 126, xSize, 96);
 	}
 
+	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
+		drawDefaultBackground();
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (this.title != null && !this.title.isEmpty()) {
-			this.fontRenderer.drawString(this.title, (this.width - this.fontRenderer.getStringWidth(this.title)) / 2,
-					(this.height - this.ySize) / 2 + 5, CustomNpcResourceListener.DefaultTextColor);
+		if (title != null && !title.isEmpty()) {
+			fontRenderer.drawString(title, (width - fontRenderer.getStringWidth(title)) / 2,
+					(height - ySize) / 2 + 5, CustomNpcResourceListener.DefaultTextColor);
 		}
-		this.renderHoveredToolTip(mouseX, mouseY);
+		renderHoveredToolTip(mouseX, mouseY);
 	}
 
+	@Override
 	public void onGuiClosed() {
 		super.onGuiClosed();
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CloseGui);

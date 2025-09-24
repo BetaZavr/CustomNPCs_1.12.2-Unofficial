@@ -10,7 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketAnimation;
@@ -39,7 +38,6 @@ import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.mixin.entity.IEntityMixin;
 import noppes.npcs.api.wrapper.data.Data;
 import noppes.npcs.controllers.ServerCloneController;
-import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.util.Util;
 
 @SuppressWarnings("rawtypes")
@@ -58,23 +56,18 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 		result.sort((o1, o2) -> {
 			double d1 = entity.getDistance(o1);
 			double d2 = entity.getDistance(o2);
-			if (d1 == d2) {
-				return 0;
-			} else {
-				return (d1 > d2) ? 1 : -1;
-			}
+			if (d1 == d2) { return 0; }
+			else { return (d1 > d2) ? 1 : -1; }
 		});
 		return result;
 	}
 
 	public static IEntity[] findIEntityOnPath(Entity entity, double distance, Vec3d vec3d, Vec3d vec3d1) {
 		List<IEntity<?>> result = new ArrayList<>();
-		for (Entity e : findEntityOnPath(entity, distance, vec3d, vec3d1)) {
-			result.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e));
-		}
+		for (Entity e : findEntityOnPath(entity, distance, vec3d, vec3d1)) { result.add(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e)); }
 		return result.toArray(new IEntity[0]);
 	}
-	
+
 	protected T entity;
 	protected final Data storeddata;
 	protected final Data tempdata = new Data();
@@ -83,496 +76,353 @@ public class EntityWrapper<T extends Entity> implements IEntity {
 
 	public EntityWrapper(T entityIn) {
 		entity = entityIn;
-		if (entityIn instanceof EntityPlayer) { storeddata = PlayerData.get((EntityPlayer) entityIn).scriptStoreddata; }
-		else { storeddata = ((IEntityMixin) entityIn).npcs$getStoredData(); }
+		storeddata = ((IEntityMixin) entityIn).npcs$getStoredData();
 		resetWorld();
 	}
 
 	@SuppressWarnings("all")
 	private void resetWorld() {
 		if (entity.world instanceof WorldServer) {
-			this.worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(entity.world);
-		} else if (entity.world != null) {
+			worldWrapper = Objects.requireNonNull(NpcAPI.Instance()).getIWorld(entity.world);
+		}
+		else if (entity.world != null) {
 			WorldWrapper w = WrapperNpcAPI.worldCache.get(entity.world.provider.getDimension());
 			if (w != null) {
-				if (w.world == null) {
-					w.world = entity.world;
-				}
-			} else {
-				WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(), w = WorldWrapper.createNew(entity.world));
+				if (w.world == null) { w.world = entity.world; }
 			}
-			this.worldWrapper = w;
+			else { WrapperNpcAPI.worldCache.put(entity.world.provider.getDimension(), w = WorldWrapper.createNew(entity.world)); }
+			worldWrapper = w;
 		}
 	}
 
 	@Override
-	public void addRider(IEntity entity) {
-		if (entity != null) {
-			entity.getMCEntity().startRiding(this.entity, true);
-		}
+	public void addRider(IEntity entityIn) {
+		if (entityIn != null) { entityIn.getMCEntity().startRiding(entity, true); }
 	}
 
 	@Override
-	public void addTag(String tag) {
-		this.entity.addTag(tag);
-	}
+	public void addTag(String tag) { entity.addTag(tag); }
 
 	@Override
-	public void clearRiders() {
-		this.entity.removePassengers();
-	}
+	public void clearRiders() { entity.removePassengers(); }
 
 	@Override
-	public void damage(float amount) {
-		this.entity.attackEntityFrom(DamageSource.GENERIC, amount);
-	}
+	public void damage(float amount) { entity.attackEntityFrom(DamageSource.GENERIC, amount); }
 
 	@Override
 	public void damage(float amount, IEntityDamageSource source) {
-		if (!(this.entity instanceof EntityLivingBase)) {
-			return;
-		}
+		if (!(entity instanceof EntityLivingBase)) { return; }
 		if (source instanceof EntityDamageSource) {
-			this.entity.attackEntityFrom((DamageSource) source, amount);
+			entity.attackEntityFrom((DamageSource) source, amount);
 			if (((EntityDamageSource) source).getTrueSource() instanceof EntityLivingBase) {
-				if (this.entity instanceof EntityLiving) {
-					((EntityLiving) this.entity)
-							.setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+				if (entity instanceof EntityLiving) {
+					((EntityLiving) entity).setAttackTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
 				}
-				if (this.entity instanceof EntityLivingBase) {
-					((EntityLivingBase) this.entity)
-							.setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
+				if (entity instanceof EntityLivingBase) {
+					((EntityLivingBase) entity).setRevengeTarget((EntityLivingBase) ((EntityDamageSource) source).getTrueSource());
 				}
 			}
-		} else {
-			this.damage(amount);
 		}
+		else { damage(amount); }
 	}
 
 	@Override
-	public void despawn() {
-		this.entity.isDead = true;
-	}
+	public void despawn() { entity.isDead = true; }
 
 	@Override
-	public IEntityItem dropItem(IItemStack item) {
-		return (IEntityItem) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.entityDropItem(item.getMCItemStack(), 0.0f));
-	}
+	public IEntityItem dropItem(IItemStack item) { return (IEntityItem) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity.entityDropItem(item.getMCItemStack(), 0.0f)); }
 
 	@Override
-	public void extinguish() {
-		this.entity.extinguish();
-	}
+	public void extinguish() { entity.extinguish(); }
 
 	@Override
 	public String generateNewUUID() {
 		UUID id = UUID.randomUUID();
-		this.entity.setUniqueId(id);
+		entity.setUniqueId(id);
 		return id.toString();
 	}
 
 	@Override
-	public long getAge() {
-		return this.entity.ticksExisted;
-	}
+	public long getAge() { return entity.ticksExisted; }
 
 	@Override
 	public IEntity[] getAllRiders() {
-		List<Entity> list = new ArrayList<>(this.entity.getRecursivePassengers());
+		List<Entity> list = new ArrayList<>(entity.getRecursivePassengers());
 		IEntity[] riders = new IEntity[list.size()];
-		for (int i = 0; i < list.size(); ++i) {
-			riders[i] = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i));
-		}
+		for (int i = 0; i < list.size(); ++i) { riders[i] = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i)); }
 		return riders;
 	}
 
 	@Override
-	public int getBlockX() {
-		return MathHelper.floor(this.entity.posX);
-	}
+	public int getBlockX() { return MathHelper.floor(entity.posX); }
 
 	@Override
-	public int getBlockY() {
-		return MathHelper.floor(this.entity.posY);
-	}
+	public int getBlockY() { return MathHelper.floor(entity.posY); }
 
 	@Override
-	public int getBlockZ() {
-		return MathHelper.floor(this.entity.posZ);
-	}
+	public int getBlockZ() { return MathHelper.floor(entity.posZ); }
 
 	@Override
 	public String getEntityName() {
-		String s = EntityList.getEntityString(this.entity);
-		if (s == null) {
-			s = "generic";
-		}
+		String s = EntityList.getEntityString(entity);
+		if (s == null) { s = "generic"; }
 		return new TextComponentTranslation("entity." + s + ".name").getFormattedText();
 	}
 
 	@Override
 	public INbt getEntityNbt() {
 		NBTTagCompound compound = new NBTTagCompound();
-		this.entity.writeToNBT(compound);
-		ResourceLocation resourcelocation = EntityList.getKey(this.entity);
-		if (this.getType() == 1) {
-			resourcelocation = new ResourceLocation("player");
-		}
-		if (resourcelocation != null) {
-			compound.setString("id", resourcelocation.toString());
-		}
+		entity.writeToNBT(compound);
+		ResourceLocation resourcelocation = EntityList.getKey(entity);
+		if (getType() == 1) { resourcelocation = new ResourceLocation("player"); }
+		if (resourcelocation != null) { compound.setString("id", resourcelocation.toString()); }
 		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(compound);
 	}
 
 	@Override
-	public float getEyeHeight() {
-		return this.entity.getEyeHeight();
-	}
+	public float getEyeHeight() { return entity.getEyeHeight(); }
 
 	@Override
-	public float getHeight() {
-		return this.entity.height;
-	}
+	public float getHeight() { return entity.height; }
 
 	@Override
-	public T getMCEntity() {
-		return this.entity;
-	}
+	public T getMCEntity() { return entity; }
 
 	@Override
-	public double getMotionX() {
-		return this.entity.motionX;
-	}
+	public double getMotionX() { return entity.motionX; }
 
 	@Override
-	public double getMotionY() {
-		return this.entity.motionY;
-	}
+	public double getMotionY() { return entity.motionY; }
 
 	@Override
-	public double getMotionZ() {
-		return this.entity.motionZ;
-	}
+	public double getMotionZ() { return entity.motionZ; }
 
 	@Override
-	public IEntity getMount() {
-		return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(this.entity.getRidingEntity());
-	}
+	public IEntity getMount() { return Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity.getRidingEntity()); }
 
 	@Override
-	public String getName() {
-		return this.entity.getName();
-	}
+	public String getName() { return entity.getName(); }
 
 	@Override
-	public INbt getNbt() {
-		return Objects.requireNonNull(NpcAPI.Instance()).getINbt(this.entity.getEntityData());
-	}
+	public INbt getNbt() { return Objects.requireNonNull(NpcAPI.Instance()).getINbt(entity.getEntityData()); }
 
 	@Override
-	public float getPitch() {
-		return this.entity.rotationPitch;
-	}
+	public float getPitch() { return entity.rotationPitch; }
 
 	@Override
-	public IPos getPos() {
-		return new BlockPosWrapper(entity.posX, entity.posY, entity.posZ);
-	}
+	public IPos getPos() { return new BlockPosWrapper(entity.posX, entity.posY, entity.posZ); }
 
 	@Override
 	public IEntity[] getRiders() {
-		List<Entity> list = this.entity.getPassengers();
+		List<Entity> list = entity.getPassengers();
 		IEntity[] riders = new IEntity[list.size()];
-		for (int i = 0; i < list.size(); ++i) {
-			riders[i] = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i));
-		}
+		for (int i = 0; i < list.size(); ++i) { riders[i] = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(list.get(i)); }
 		return riders;
 	}
 
 	@Override
-	public float getRotation() {
-		return this.entity.rotationYaw;
-	}
+	public float getRotation() { return entity.rotationYaw; }
 
 	@Override
-	public IData getStoreddata() {
-		return this.storeddata;
-	}
+	public IData getStoreddata() { return storeddata; }
 
 	@Override
-	public String[] getTags() {
-		return this.entity.getTags().toArray(new String[0]);
-	}
+	public String[] getTags() { return entity.getTags().toArray(new String[0]); }
 
 	@Override
-	public IData getTempdata() {
-		return this.tempdata;
-	}
+	public IData getTempdata() { return tempdata; }
 
 	@Override
-	public int getType() {
-		return EntityType.UNKNOWN.get();
-	}
+	public int getType() { return EntityType.UNKNOWN.get(); }
 
 	@Override
-	public String getTypeName() {
-		return EntityList.getEntityString(this.entity);
-	}
+	public String getTypeName() { return EntityList.getEntityString(entity); }
 
 	@Override
 	public String getUUID() {
-		return this.entity.getUniqueID().toString();
+		return entity.getUniqueID().toString();
 	}
 
 	@Override
-	public float getWidth() {
-		return this.entity.width;
-	}
+	public float getWidth() { return entity.width; }
 
 	@Override
 	public IWorld getWorld() {
 		if (worldWrapper == null || entity.world != worldWrapper.getMCWorld()) { resetWorld(); }
-		return this.worldWrapper;
+		return worldWrapper;
 	}
 
 	@Override
-	public double getX() {
-		return this.entity.posX;
-	}
+	public double getX() { return entity.posX; }
 
 	@Override
-	public double getY() {
-		return this.entity.posY;
-	}
+	public double getY() { return entity.posY; }
 
 	@Override
-	public double getZ() {
-		return this.entity.posZ;
-	}
+	public double getZ() {return entity.posZ; }
 
 	@Override
-	public boolean hasCustomName() {
-		return this.entity.hasCustomName();
-	}
+	public boolean hasCustomName() { return entity.hasCustomName(); }
 
 	@Override
-	public boolean hasTag(String tag) {
-		return this.entity.getTags().contains(tag);
-	}
+	public boolean hasTag(String tag) { return entity.getTags().contains(tag); }
 
 	@Override
-	public boolean inFire() {
-		return this.entity.isInsideOfMaterial(Material.FIRE);
-	}
+	public boolean inFire() { return entity.isInsideOfMaterial(Material.FIRE); }
 
 	@Override
-	public boolean inLava() {
-		return this.entity.isInsideOfMaterial(Material.LAVA);
-	}
+	public boolean inLava() { return entity.isInsideOfMaterial(Material.LAVA); }
 
 	@Override
-	public boolean inWater() {
-		return this.entity.isInsideOfMaterial(Material.WATER);
-	}
+	public boolean inWater() { return entity.isInsideOfMaterial(Material.WATER); }
 
 	@Override
-	public boolean isAlive() {
-		return this.entity.isEntityAlive();
-	}
+	public boolean isAlive() { return entity.isEntityAlive(); }
 
 	@Override
-	public boolean isBurning() {
-		return this.entity.isBurning();
-	}
+	public boolean isBurning() { return entity.isBurning(); }
 
 	@Override
-	public boolean isSneaking() {
-		return this.entity.isSneaking();
-	}
+	public boolean isSneaking() { return entity.isSneaking(); }
 
 	@Override
-	public boolean isSprinting() {
-		return this.entity.isSprinting();
-	}
+	public boolean isSprinting() { return entity.isSprinting(); }
 
 	@Override
-	public void kill() {
-		this.entity.setDead();
-	}
+	public void kill() { entity.setDead(); }
 
 	@Override
 	public void knockback(int power, float direction) {
 		float v = direction * 3.1415927f / 180.0f;
-		this.entity.addVelocity((-MathHelper.sin(v) * power), 0.1 + power * 0.04f, (MathHelper.cos(v) * power));
-		Entity entity = this.entity;
+		entity.addVelocity((-MathHelper.sin(v) * power), 0.1 + power * 0.04f, (MathHelper.cos(v) * power));
 		entity.motionX *= 0.6;
-		Entity entity2 = this.entity;
-		entity2.motionZ *= 0.6;
-		this.entity.velocityChanged = true;
+		entity.motionZ *= 0.6;
+		entity.velocityChanged = true;
 	}
 
 	@Override
 	public void playAnimation(int type) {
-		if (!(this.worldWrapper.getMCWorld() instanceof WorldServer)) {
-			return;
-		}
-		((WorldServer) this.worldWrapper.getMCWorld()).getEntityTracker().sendToTrackingAndSelf(this.entity,
-				new SPacketAnimation(this.entity, type));
+		if (!(worldWrapper.getMCWorld() instanceof WorldServer)) { return; }
+		((WorldServer) worldWrapper.getMCWorld()).getEntityTracker().sendToTrackingAndSelf(entity, new SPacketAnimation(entity, type));
 	}
 
 	@Override
 	public IRayTrace rayTraceBlock(double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox) {
-		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
-		Vec3d vec3d2 = this.entity.getLook(1.0f);
+		Vec3d vec3d = entity.getPositionEyes(1.0f);
+		Vec3d vec3d2 = entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, true);
-		if (result == null) {
-			return null;
-		}
-		return new RayTraceWrapper(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(this.entity.world, result.getBlockPos()), result.sideHit.getIndex());
+		RayTraceResult result = entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, true);
+		if (result == null) { return null; }
+		return new RayTraceWrapper(Objects.requireNonNull(NpcAPI.Instance()).getIBlock(entity.world, result.getBlockPos()), result.sideHit.getIndex());
 	}
 
 	@Override
 	public IEntity[] rayTraceEntities(double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox) {
-		Vec3d vec3d = this.entity.getPositionEyes(1.0f);
-		Vec3d vec3d2 = this.entity.getLook(1.0f);
+		Vec3d vec3d = entity.getPositionEyes(1.0f);
+		Vec3d vec3d2 = entity.getLook(1.0f);
 		Vec3d vec3d3 = vec3d.addVector(vec3d2.x * distance, vec3d2.y * distance, vec3d2.z * distance);
-		RayTraceResult result = this.entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, false);
+		RayTraceResult result = entity.world.rayTraceBlocks(vec3d, vec3d3, stopOnLiquid, ignoreBlockWithoutBoundingBox, false);
 		if (result != null) { vec3d3 = new Vec3d(result.hitVec.x, result.hitVec.y, result.hitVec.z); }
-		return EntityWrapper.findIEntityOnPath(this.entity, distance, vec3d, vec3d3);
+		return EntityWrapper.findIEntityOnPath(entity, distance, vec3d, vec3d3);
 	}
 
 	@Override
-	public void removeTag(String tag) {
-		this.entity.removeTag(tag);
-	}
+	public void removeTag(String tag) { entity.removeTag(tag); }
 
 	@Override
-	public void setBurning(int ticks) {
-		this.entity.setFire(ticks);
-	}
+	public void setBurning(int ticks) { entity.setFire(ticks); }
 
 	@Override
-	public void setEntityNbt(INbt nbt) {
-		this.entity.readFromNBT(nbt.getMCNBT());
-	}
+	public void setEntityNbt(INbt nbt) { entity.readFromNBT(nbt.getMCNBT()); }
 
 	@Override
 	public void setMotionX(double motion) {
-		if (this.entity.motionX == motion) { return; }
-		this.entity.motionX = motion;
-		this.entity.velocityChanged = true;
+		if (entity.motionX == motion) { return; }
+		entity.motionX = motion;
+		entity.velocityChanged = true;
 	}
 
 	@Override
 	public void setMotionY(double motion) {
-		if (this.entity.motionY == motion) {
-			return;
-		}
-		this.entity.motionY = motion;
-		this.entity.velocityChanged = true;
+		if (entity.motionY == motion) { return; }
+		entity.motionY = motion;
+		entity.velocityChanged = true;
 	}
 
 	@Override
 	public void setMotionZ(double motion) {
-		if (this.entity.motionZ == motion) {
-			return;
-		}
-		this.entity.motionZ = motion;
-		this.entity.velocityChanged = true;
+		if (entity.motionZ == motion) { return; }
+		entity.motionZ = motion;
+		entity.velocityChanged = true;
 	}
 
 	@Override
-	public void setMount(IEntity entity) {
-		if (entity == null) {
-			this.entity.dismountRidingEntity();
-		} else {
-			this.entity.startRiding(entity.getMCEntity(), true);
-		}
+	public void setMount(IEntity entityIn) {
+		if (entityIn == null) { entity.dismountRidingEntity(); }
+		else { entity.startRiding(entityIn.getMCEntity(), true); }
 	}
 
 	@Override
-	public void setName(String name) {
-		this.entity.setCustomNameTag(name);
-	}
+	public void setName(String name) { entity.setCustomNameTag(name); }
 
 	@Override
-	public void setPitch(float rotation) {
-		this.entity.rotationPitch = rotation;
-	}
+	public void setPitch(float rotation) { entity.rotationPitch = rotation; }
 
 	@Override
-	public void setPos(IPos pos) {
-		this.entity.setPosition((pos.getX() + 0.5f), pos.getY(), (pos.getZ() + 0.5f));
-	}
+	public void setPos(IPos pos) { entity.setPosition((pos.getX() + 0.5f), pos.getY(), (pos.getZ() + 0.5f)); }
 
 	@Override
 	public void setPosition(double x, double y, double z) {
-		if (this.entity instanceof EntityPlayerMP) {
-			this.entity.setPositionAndRotation(x, y, z, this.entity.rotationYaw, this.entity.rotationPitch);
-		} else {
-			this.entity.setPosition(x, y, z);
-		}
+		if (entity instanceof EntityPlayerMP) { entity.setPositionAndRotation(x, y, z, entity.rotationYaw, entity.rotationPitch); }
+		else { entity.setPosition(x, y, z); }
 	}
 
 	@Override
-	public void setRotation(float rotation) {
-		this.entity.rotationYaw = rotation % 360.0f;
-	}
+	public void setRotation(float rotation) { entity.rotationYaw = rotation % 360.0f; }
 
 	@Override
-	public void setX(double x) {
-		this.entity.posX = x;
-	}
+	public void setX(double x) { entity.posX = x; }
 
 	@Override
-	public void setY(double y) {
-		this.entity.posY = y;
-	}
+	public void setY(double y) { entity.posY = y; }
 
 	@Override
-	public void setZ(double z) {
-		this.entity.posZ = z;
-	}
+	public void setZ(double z) { entity.posZ = z; }
 
 	@Override
 	public void spawn() {
-		if (this.worldWrapper.getMCWorld().isRemote) {
-			return;
-		}
-		LogWriter.debug("Try summoning 0: " + this.entity.getName() + "; UUID: " + this.entity.getUniqueID());
+		if (worldWrapper.getMCWorld().isRemote) { return; }
+		LogWriter.debug("Try summoning 0: " + entity.getName() + "; UUID: " + entity.getUniqueID());
 		Entity el = null;
 		try {
-			for (Entity e : this.worldWrapper.getMCWorld().loadedEntityList) {
-				if (e.getUniqueID().equals(this.entity.getUniqueID())) {
+			for (Entity e : worldWrapper.getMCWorld().loadedEntityList) {
+				if (e.getUniqueID().equals(entity.getUniqueID())) {
 					el = e;
 					break;
 				}
 			}
 		} catch (Exception e) { LogWriter.error(e); }
 		if (el != null) {
-			LogWriter.debug("Error summoning: " + this.entity.getName());
+			LogWriter.debug("Error summoning: " + entity.getName());
 			throw new CustomNPCsException("Entity is already spawned");
 		}
-		this.entity.isDead = false;
-		LogWriter.debug("Try summoning 1: " + this.entity.getName());
+		entity.isDead = false;
+		LogWriter.debug("Try summoning 1: " + entity.getName());
 		try {
-			boolean bo = this.worldWrapper.getMCWorld().spawnEntity(this.entity);
-			LogWriter.debug("Is summoning: " + bo + "; World: " + this.entity.world.getClass().getSimpleName());
-		} catch (Exception e) { LogWriter.error(e); }
+			boolean bo = worldWrapper.getMCWorld().spawnEntity(entity);
+			LogWriter.debug("Is summoning: " + bo + "; World: " + entity.world.getClass().getSimpleName());
+		}
+		catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override
 	public void storeAsClone(int tab, String name) {
 		NBTTagCompound compound = new NBTTagCompound();
-		if (!this.entity.writeToNBTAtomically(compound)) {
-			throw new CustomNPCsException("Cannot store dead entities");
-		}
+		if (!entity.writeToNBTAtomically(compound)) { throw new CustomNPCsException("Cannot store dead entities"); }
 		ServerCloneController.Instance.addClone(compound, name, tab);
 	}
 
 	@Override
-	public boolean typeOf(int type) {
-		return type == this.getType();
-	}
+	public boolean typeOf(int type) { return type == getType(); }
+
 }

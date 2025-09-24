@@ -12,9 +12,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.GuiNpcMobSpawnerSelector;
+import noppes.npcs.client.gui.SubGuiNpcMobSpawnerSelector;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
@@ -22,138 +21,105 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobSpawner;
 import noppes.npcs.roles.data.SpawnNPCData;
 
-public class GuiNpcSpawner
-extends GuiNPCInterface2
-implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	private final JobSpawner job;
-	private int slot = -1;
-	private GuiCustomScroll deadScroll, aliveScroll;
-	public EntityLivingBase selectNpc;
-	private boolean isDead = false;
+public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustomScrollListener, ITextfieldListener {
+
+	protected GuiCustomScroll deadScroll;
+	protected GuiCustomScroll aliveScroll;
+	protected EntityLivingBase selectNpc;
+	protected final JobSpawner job;
+	protected int slot = -1;
+	protected boolean isDead = false;
 
 	public GuiNpcSpawner(EntityNPCInterface npc) {
 		super(npc);
+		parentGui = EnumGuiType.MainMenuAdvanced;
+
 		job = (JobSpawner) npc.advanced.jobInterface;
 		Client.sendData(EnumPacketServer.JobGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
-			case 1: { // add alive
+			case 1: {
 				isDead = false;
 				slot = -1;
 				setSubGui(getSelector());
 				break;
-			}
-			case 2: { // del alive
+			} // add alive
+			case 2: {
 				if (isDead) { return; }
 				Client.sendData(EnumPacketServer.JobSpawnerRemove, slot, false);
 				initGui();
 				break;
-			}
-			case 3: { // change alive
-				if (isDead) {
-					return;
-				}
+			} // del alive
+			case 3: {
+				if (isDead) { return; }
 				setSubGui(getSelector());
 				break;
-			}
-			case 4: { // up alive
+			} // change alive
+			case 4: {
 				if (isDead || slot < 1) { return; }
 				Client.sendData(EnumPacketServer.SpawnerNpcMove, slot, true, false);
 				slot--;
 				initGui();
 				break;
-			}
-			case 5: { // down alive
+			} // up alive
+			case 5: {
 				if (isDead || slot >= job.size(false)) { return; }
 				Client.sendData(EnumPacketServer.SpawnerNpcMove, slot, false, isDead);
 				slot++;
 				initGui();
 				break;
-			}
-			case 6: { // clear alive
-				Client.sendData(EnumPacketServer.JobClear, false);
-				break;
-			}
-			case 7: { // targetLost alive
-				job.setDespawnOnTargetLost(false, ((GuiNpcCheckBox) button).isSelected());
-				break;
-			}
-			case 8: { // type alive
-				job.setSpawnType(false, button.getValue());
-				break;
-			}
-			case 9: { // add Dead
+			} // down alive
+			case 6: Client.sendData(EnumPacketServer.JobClear, false); break; // clear alive
+			case 7: job.setDespawnOnTargetLost(false, ((GuiNpcCheckBox) button).isSelected()); break; // targetLost alive
+			case 8: job.setSpawnType(false, button.getValue()); break; // type alive
+			case 9: {
 				isDead = true;
 				slot = -1;
 				setSubGui(getSelector());
 				break;
-			}
-			case 10: { // del Dead
-				if (!isDead) {
-					return;
-				}
+			} // add Dead
+			case 10: {
+				if (!isDead) { return; }
 				Client.sendData(EnumPacketServer.JobSpawnerRemove, slot, true);
 				initGui();
 				break;
-			}
-			case 11: { // change Dead
-				if (!isDead) {
-					return;
-				}
+			} // del Dead
+			case 11: {
+				if (!isDead) { return; }
 				setSubGui(getSelector());
 				break;
-			}
-			case 12: { // up Dead
-				if (!isDead || slot < 1) {
-					return;
-				}
+			} // change Dead
+			case 12: {
+				if (!isDead || slot < 1) { return; }
 				Client.sendData(EnumPacketServer.SpawnerNpcMove, slot, true, true);
 				slot--;
 				initGui();
 				break;
-			}
-			case 13: { // down Dead
-				if (!isDead || slot >= job.size(true)) {
-					return;
-				}
+			} // up Dead
+			case 13: {
+				if (!isDead || slot >= job.size(true)) { return; }
 				Client.sendData(EnumPacketServer.SpawnerNpcMove, slot, false, isDead);
 				slot++;
 				initGui();
 				break;
-			}
-			case 14: { // clear Dead
-				Client.sendData(EnumPacketServer.JobClear, true);
-				break;
-			}
-			case 15: { // targetLost Dead
-				job.setDespawnOnTargetLost(true, ((GuiNpcCheckBox) button).isSelected());
-				break;
-			}
-			case 16: { // type Dead
-				job.setSpawnType(true, button.getValue());
-				break;
-			}
-			case 17: { // exact
-				job.exact = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 18: { // resetUpdate
-				job.resetUpdate = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			default: {
-
-			}
+			} // down Dead
+			case 14: Client.sendData(EnumPacketServer.JobClear, true); break; // clear Dead
+			case 15: job.setDespawnOnTargetLost(true, ((GuiNpcCheckBox) button).isSelected()); break; // targetLost Dead
+			case 16: job.setSpawnType(true, button.getValue()); break; // type Dead
+			case 17: job.exact = ((GuiNpcCheckBox) button).isSelected(); break; // exact
+			case 18: job.resetUpdate = ((GuiNpcCheckBox) button).isSelected(); break; // resetUpdate
 		}
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface gui) {
-		GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
+		SubGuiNpcMobSpawnerSelector selector = (SubGuiNpcMobSpawnerSelector) gui;
 		if (slot < 0) { slot = (isDead ? deadScroll : aliveScroll).getList().size(); }
 		if (selector.showingClones == 2) {
 			String selected = selector.getSelected();
@@ -161,11 +127,10 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 				Client.sendData(EnumPacketServer.JobSpawnerAdd, true, isDead, slot, selected, selector.activeTab);
 				Client.sendData(EnumPacketServer.GetClone, true, slot, isDead);
 			}
-		} else {
+		}
+		else {
 			NBTTagCompound nbtNpc = selector.getCompound();
-			if (nbtNpc == null) {
-				return;
-			}
+			if (nbtNpc == null) { return; }
 			SpawnNPCData sd = selector.spawnData;
 			if (slot < 0) { slot = job.size(isDead); }
 			sd.compound = nbtNpc;
@@ -192,13 +157,10 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	@Override
-	public void elementClicked() { }
-
-	private GuiNpcMobSpawnerSelector getSelector() {
-		GuiNpcMobSpawnerSelector guiMSS = new GuiNpcMobSpawnerSelector();
+	private SubGuiNpcMobSpawnerSelector getSelector() {
+		SubGuiNpcMobSpawnerSelector guiMSS = new SubGuiNpcMobSpawnerSelector();
 		SpawnNPCData sd = job.get(slot, isDead);
-		if (sd == null) { sd = new SpawnNPCData(); }
+		if (sd == null) { sd = new SpawnNPCData(npc.world); }
 		guiMSS.spawnData = sd;
 		guiMSS.showingClones = sd.typeClones;
 		if ((sd.typeClones == 0 || sd.typeClones == 2) && sd.compound != null && sd.compound.hasKey("ClonedTab", 3)) { guiMSS.activeTab = sd.compound.getInteger("ClonedTab"); }
@@ -208,72 +170,62 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (aliveScroll == null) { (aliveScroll = new GuiCustomScroll(this, 1)).setSize(172, 101); }
+		if (aliveScroll == null) { aliveScroll = new GuiCustomScroll(this, 1).setSize(172, 101); }
 		aliveScroll.guiLeft = guiLeft + 5;
 		aliveScroll.guiTop = guiTop + 14;
 		if (!isDead) {
-			if (slot >= 0 && slot < aliveScroll.getList().size()) {
-				aliveScroll.setSelect(slot);
-			} else {
+			if (slot >= 0 && slot < aliveScroll.getList().size()) { aliveScroll.setSelect(slot); }
+			else {
 				slot = -1;
 				aliveScroll.setSelect(-1);
 				selectNpc = null;
 			}
-		} else { aliveScroll.setSelect(-1); }
+		}
+		else { aliveScroll.setSelect(-1); }
 		addScroll(aliveScroll);
-
-		if (deadScroll == null) { (deadScroll = new GuiCustomScroll(this, 0)).setSize(172, 101); }
+		if (deadScroll == null) { deadScroll = new GuiCustomScroll(this, 0).setSize(172, 101); }
 		deadScroll.guiLeft = guiLeft + 180;
 		deadScroll.guiTop = guiTop + 14;
 		if (isDead) {
-			if (slot >= 0 && slot < deadScroll.getList().size()) {
-				deadScroll.setSelect(slot);
-			} else {
+			if (slot >= 0 && slot < deadScroll.getList().size()) { deadScroll.setSelect(slot); }
+			else {
 				slot = -1;
 				deadScroll.setSelect(-1);
 				selectNpc = null;
 			}
 		} else { deadScroll.setSelect(-1); }
 		addScroll(deadScroll);
-
-		GuiNpcLabel label = new GuiNpcLabel(1, "spawner.list.0", guiLeft + 6, guiTop + 4);
-		label.setHoverText(new TextComponentTranslation("spawner.hover.list.0").appendSibling(new TextComponentTranslation("spawner.hover.list.2")).getFormattedText());
-		addLabel(label);
-		label = new GuiNpcLabel(2, "spawner.list.1", guiLeft + 182, guiTop + 4);
-		label.setHoverText(new TextComponentTranslation("spawner.hover.list.1").appendSibling(new TextComponentTranslation("spawner.hover.list.2")).getFormattedText());
-		addLabel(label);
+		addLabel(new GuiNpcLabel(1, "spawner.list.0", guiLeft + 6, guiTop + 4)
+				.setHoverText(new TextComponentTranslation("spawner.hover.list.0")
+						.appendSibling(new TextComponentTranslation("spawner.hover.list.2")).getFormattedText()));
+		addLabel(new GuiNpcLabel(2, "spawner.list.1", guiLeft + 182, guiTop + 4)
+				.setHoverText(new TextComponentTranslation("spawner.hover.list.1")
+						.appendSibling(new TextComponentTranslation("spawner.hover.list.2")).getFormattedText()));
 			// Alive
 		ITextComponent strAlive = new TextComponentTranslation("spawner.hover.sp.0");
 		// add
-		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 5, guiTop + 116, 56, 20, "gui.add");
-		button.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(strAlive).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(1, guiLeft + 5, guiTop + 116, 56, 20, "gui.add")
+				.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(strAlive).getFormattedText()));
 		// del
-		button = new GuiNpcButton(2, guiLeft + 63, guiTop + 116, 56, 20, "gui.remove");
-		button.setEnabled(!isDead && slot >= 0);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.del").appendSibling(strAlive).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(2, guiLeft + 63, guiTop + 116, 56, 20, "gui.remove")
+				.setIsEnable(!isDead && slot >= 0)
+				.setHoverText(new TextComponentTranslation("spawner.hover.del").appendSibling(strAlive).getFormattedText()));
 		// edit mode
-		button = new GuiNpcButton(3, guiLeft + 121, guiTop + 116, 56, 20, "advanced.editingmode");
-		button.setEnabled(!isDead && slot >= 0);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.change").appendSibling(strAlive).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(3, guiLeft + 121, guiTop + 116, 56, 20, "advanced.editingmode")
+				.setIsEnable(!isDead && slot >= 0)
+				.setHoverText(new TextComponentTranslation("spawner.hover.change").appendSibling(strAlive).getFormattedText()));
 		// up
-		button = new GuiNpcButton(4, guiLeft + 5, guiTop + 138, 56, 20, "type.up");
-		button.setEnabled(!isDead && slot >= 0 && slot >= 1);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.up").appendSibling(strAlive).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(4, guiLeft + 5, guiTop + 138, 56, 20, "type.up")
+				.setIsEnable(!isDead && slot >= 0 && slot >= 1)
+				.setHoverText(new TextComponentTranslation("spawner.hover.up").appendSibling(strAlive).getFormattedText()));
 		// down
-		button = new GuiNpcButton(5, guiLeft + 63, guiTop + 138, 56, 20, "type.down");
-		button.setEnabled(!isDead && slot >= 0 && slot < (aliveScroll.getList().size() - 1));
-		button.setHoverText(new TextComponentTranslation("spawner.hover.down").appendSibling(strAlive).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(5, guiLeft + 63, guiTop + 138, 56, 20, "type.down")
+				.setIsEnable(!isDead && slot >= 0 && slot < (aliveScroll.getList().size() - 1))
+				.setHoverText(new TextComponentTranslation("spawner.hover.down").appendSibling(strAlive).getFormattedText()));
 		// clear
-		button = new GuiNpcButton(6, guiLeft + 121, guiTop + 138, 56, 20, "gui.clear");
-		button.setEnabled(!aliveScroll.getList().isEmpty());
-		button.setHoverText(new TextComponentTranslation("spawner.hover.clear").appendSibling(strAlive).getFormattedText());
-		addButton(button);
-
+		addButton(new GuiNpcButton(6, guiLeft + 121, guiTop + 138, 56, 20, "gui.clear")
+				.setIsEnable(!aliveScroll.getList().isEmpty())
+				.setHoverText(new TextComponentTranslation("spawner.hover.clear").appendSibling(strAlive).getFormattedText()));
 		addLabel(new GuiNpcLabel(4, "type.offset", guiLeft + 6, guiTop + 166));
 		addLabel(new GuiNpcLabel(5, "X:", guiLeft + 44, guiTop + 166));
 		int[] set = job.getOffset(false);
@@ -283,64 +235,47 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
             System.arraycopy(set, 0, ns, 0, set.length);
 			set = ns;
 		}
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, guiLeft + 52, guiTop + 161, 35, 15, "" + set[0]);
-		textField.setMinMaxDefault(0, 5, set[0]);
-		textField.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "X").appendSibling(strAlive).getFormattedText());
-		addTextField(textField);
-
+		addTextField(new GuiNpcTextField(0, this, guiLeft + 52, guiTop + 161, 35, 15, "" + set[0])
+				.setMinMaxDefault(0, 5, set[0])
+				.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "X").appendSibling(strAlive).getFormattedText()));
 		addLabel(new GuiNpcLabel(6, "Y:", guiLeft + 89, guiTop + 166));
-		textField = new GuiNpcTextField(1, this, guiLeft + 97, guiTop + 161, 35, 15, "" + set[1]);
-		textField.setMinMaxDefault(0, 5, set[1]);
-		textField.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Y").appendSibling(strAlive).getFormattedText());
-		addTextField(textField);
-
+		addTextField(new GuiNpcTextField(1, this, guiLeft + 97, guiTop + 161, 35, 15, "" + set[1])
+				.setMinMaxDefault(0, 5, set[1])
+				.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Y").appendSibling(strAlive).getFormattedText()));
 		addLabel(new GuiNpcLabel(7, "Z:", guiLeft + 134, guiTop + 166));
-		textField = new GuiNpcTextField(2, this, guiLeft + 142, guiTop + 161, 35, 15, "" + set[2]);
-		textField.setMinMaxDefault(0, 5, set[2]);
-		textField.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Z").appendSibling(strAlive).getFormattedText());
-		addTextField(textField);
-
-		button = new GuiNpcCheckBox(7, guiLeft + 5, guiTop + 176, 170, 14, "spawner.despawn", null, job.getDespawnOnTargetLost(false));
-		button.setHoverText(new TextComponentTranslation("spawner.hover.des.tr.lost").appendSibling(strAlive).getFormattedText());
-		addButton(button);
-
+		addTextField(new GuiNpcTextField(2, this, guiLeft + 142, guiTop + 161, 35, 15, "" + set[2])
+				.setMinMaxDefault(0, 5, set[2])
+				.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Z").appendSibling(strAlive).getFormattedText()));
+		addButton(new GuiNpcCheckBox(7, guiLeft + 5, guiTop + 176, 170, 14, "spawner.despawn", null, job.getDespawnOnTargetLost(false))
+				.setHoverText(new TextComponentTranslation("spawner.hover.des.tr.lost").appendSibling(strAlive).getFormattedText()));
 		addLabel(new GuiNpcLabel(8, "spawner.type", guiLeft + 5, guiTop + 195));
-		button = new GuiNpcButton(8, guiLeft + 63, guiTop + 190, 55, 20, new String[] { "spawner.one", "spawner.all", "spawner.random" }, job.getSpawnType(false));
-		button.setHoverText(new TextComponentTranslation("spawner.hover.type.0."+job.getSpawnType(false)).appendSibling(strAlive).getFormattedText());
-		addButton(button);
-
+		addButton(new GuiNpcButton(8, guiLeft + 63, guiTop + 190, 55, 20, new String[] { "spawner.one", "spawner.all", "spawner.random" }, job.getSpawnType(false))
+				.setHoverText(new TextComponentTranslation("spawner.hover.type.0."+job.getSpawnType(false)).appendSibling(strAlive).getFormattedText()));
 			// Dead
 		ITextComponent strDead = new TextComponentTranslation("spawner.hover.sp.1");
 		// add
-		button = new GuiNpcButton(9, guiLeft + 180, guiTop + 116, 56, 20, "gui.add");
-		button.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(strDead).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(9, guiLeft + 180, guiTop + 116, 56, 20, "gui.add")
+				.setHoverText(new TextComponentTranslation("spawner.hover.add").appendSibling(strDead).getFormattedText()));
 		// del
-		button = new GuiNpcButton(10, guiLeft + 238, guiTop + 116, 56, 20, "gui.remove");
-		button.setEnabled(slot >= 0);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.del").appendSibling(strDead).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(10, guiLeft + 238, guiTop + 116, 56, 20, "gui.remove")
+				.setIsEnable(slot >= 0)
+				.setHoverText(new TextComponentTranslation("spawner.hover.del").appendSibling(strDead).getFormattedText()));
 		// edit mode
-		button = new GuiNpcButton(11, guiLeft + 296, guiTop + 116, 56, 20, "advanced.editingmode");
-		button.setEnabled(isDead && slot >= 0);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.change").appendSibling(strDead).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(11, guiLeft + 296, guiTop + 116, 56, 20, "advanced.editingmode")
+				.setIsEnable(isDead && slot >= 0)
+				.setHoverText(new TextComponentTranslation("spawner.hover.change").appendSibling(strDead).getFormattedText()));
 		// up
-		button = new GuiNpcButton(12, guiLeft + 180, guiTop + 138, 56, 20, "type.up");
-		button.setEnabled(isDead && slot >= 0 && slot >= 1);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.up").appendSibling(strDead).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(12, guiLeft + 180, guiTop + 138, 56, 20, "type.up")
+				.setIsEnable(isDead && slot >= 0 && slot >= 1)
+				.setHoverText(new TextComponentTranslation("spawner.hover.up").appendSibling(strDead).getFormattedText()));
 		// down
-		button = new GuiNpcButton(13, guiLeft + 238, guiTop + 138, 56, 20, "type.down");
-		button.setEnabled(isDead && slot >= 0 && slot < (deadScroll.getList().size() - 1));
-		button.setHoverText(new TextComponentTranslation("spawner.hover.down").appendSibling(strDead).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(13, guiLeft + 238, guiTop + 138, 56, 20, "type.down")
+				.setIsEnable(isDead && slot >= 0 && slot < (deadScroll.getList().size() - 1))
+				.setHoverText(new TextComponentTranslation("spawner.hover.down").appendSibling(strDead).getFormattedText()));
 		// clear
-		button = new GuiNpcButton(14, guiLeft + 296, guiTop + 138, 56, 20, "gui.clear");
-		button.setEnabled(!deadScroll.getList().isEmpty());
-		button.setHoverText(new TextComponentTranslation("spawner.hover.clear").appendSibling(strDead).getFormattedText());
-		addButton(button);
-
+		addButton(new GuiNpcButton(14, guiLeft + 296, guiTop + 138, 56, 20, "gui.clear")
+				.setIsEnable(!deadScroll.getList().isEmpty())
+				.setHoverText(new TextComponentTranslation("spawner.hover.clear").appendSibling(strDead).getFormattedText()));
 		addLabel(new GuiNpcLabel(9, "type.offset", guiLeft + 181, guiTop + 166));
 		addLabel(new GuiNpcLabel(10, "X:", guiLeft + 219, guiTop + 166));
 		set = job.getOffset(true);
@@ -352,63 +287,47 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
             System.arraycopy(set, 0, ns, 0, set.length);
 			set = ns;
 		}
-		textField = new GuiNpcTextField(3, this, guiLeft + 227, guiTop + 161, 35, 15, "" + set[0]);
-		textField.setMinMaxDefault(0, 5, set[0]);
-		textField.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "X").appendSibling(strDead).getFormattedText());
-		addTextField(textField);
-
+		addTextField(new GuiNpcTextField(3, this, guiLeft + 227, guiTop + 161, 35, 15, "" + set[0])
+				.setMinMaxDefault(0, 5, set[0])
+				.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "X").appendSibling(strDead).getFormattedText()));
 		addLabel(new GuiNpcLabel(11, "Y:", guiLeft + 264, guiTop + 166));
-		textField = new GuiNpcTextField(4, this, guiLeft + 272, guiTop + 161, 35, 15, "" + set[1]);
-		textField.setMinMaxDefault(0, 5, set[1]);
-		textField.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Y").appendSibling(strDead).getFormattedText());
-		addTextField(textField);
-
+		addTextField(new GuiNpcTextField(4, this, guiLeft + 272, guiTop + 161, 35, 15, "" + set[1])
+				.setMinMaxDefault(0, 5, set[1])
+				.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Y").appendSibling(strDead).getFormattedText()));
 		addLabel(new GuiNpcLabel(12, "Z:", guiLeft + 309, guiTop + 166));
-		textField = new GuiNpcTextField(5, this, guiLeft + 317, guiTop + 161, 35, 15, "" + set[2]);
-		textField.setMinMaxDefault(0, 5, set[2]);
-		textField.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Z").appendSibling(strDead).getFormattedText());
-		addTextField(textField);
-
-		button = new GuiNpcCheckBox(15, guiLeft + 180, guiTop + 176, 170, 14, "spawner.despawn", null, job.getDespawnOnTargetLost(true));
-		button.setHoverText(new TextComponentTranslation("spawner.hover.des.tr.lost").appendSibling(strAlive).getFormattedText());
-		addButton(button);
-
+		addTextField(new GuiNpcTextField(5, this, guiLeft + 317, guiTop + 161, 35, 15, "" + set[2])
+				.setMinMaxDefault(0, 5, set[2])
+				.setHoverText(new TextComponentTranslation("spawner.hover.axis.offset", "Z").appendSibling(strDead).getFormattedText()));
+		addButton(new GuiNpcCheckBox(15, guiLeft + 180, guiTop + 176, 170, 14, "spawner.despawn", null, job.getDespawnOnTargetLost(true))
+				.setHoverText(new TextComponentTranslation("spawner.hover.des.tr.lost").appendSibling(strAlive).getFormattedText()));
 		addLabel(new GuiNpcLabel(13, "spawner.type", guiLeft + 180, guiTop + 195));
-		button = new GuiNpcButton(16, guiLeft + 238, guiTop + 190, 55, 20, new String[] { "spawner.one", "spawner.all", "spawner.random" }, job.getSpawnType(true));
-		button.setHoverText(new TextComponentTranslation("spawner.hover.type.1."+job.getSpawnType(true)).appendSibling(strAlive).getFormattedText());
-		addButton(button);
-
+		addButton(new GuiNpcButton(16, guiLeft + 238, guiTop + 190, 55, 20, new String[] { "spawner.one", "spawner.all", "spawner.random" }, job.getSpawnType(true))
+				.setHoverText(new TextComponentTranslation("spawner.hover.type.1."+job.getSpawnType(true)).appendSibling(strAlive).getFormattedText()));
 			// Both
 		ITextComponent strBoth = new TextComponentTranslation("spawner.hover.sp.2");
-		button = new GuiNpcCheckBox(17, guiLeft + 357, guiTop + 161, 98, 14, "type.exact", null, job.exact);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.exact").appendSibling(strBoth).getFormattedText());
-		addButton(button);
-
-		button = new GuiNpcCheckBox(18, guiLeft + 357, guiTop + 176, 98, 14, "script.update", null, job.resetUpdate);
-		button.setHoverText(new TextComponentTranslation("spawner.hover.reset").appendSibling(strBoth).getFormattedText());
-		addButton(button);
-
+		addButton(new GuiNpcCheckBox(17, guiLeft + 357, guiTop + 161, 98, 14, "type.exact", null, job.exact)
+				.setHoverText(new TextComponentTranslation("spawner.hover.exact").appendSibling(strBoth).getFormattedText()));
+		addButton(new GuiNpcCheckBox(18, guiLeft + 357, guiTop + 176, 98, 14, "script.update", null, job.resetUpdate)
+				.setHoverText(new TextComponentTranslation("spawner.hover.reset").appendSibling(strBoth).getFormattedText()));
 		// cooldown
-		label = new GuiNpcLabel(14, "spawner.cooldown", guiLeft + 358, guiTop + 132);
-		label.enabled = !aliveScroll.getList().isEmpty();
-		addLabel(label);
-		textField = new GuiNpcTextField(6, this, guiLeft + 357, guiTop + 144, 55, 15, "" + job.getCooldown() / 50L);
-		textField.setMinMaxDefault(0, 6000, (int) (job.getCooldown() / 50L));
-		textField.setVisible(!aliveScroll.getList().isEmpty());
-		textField.setHoverText("spawner.hover.cooldown");
-		addTextField(textField);
+		addLabel(new GuiNpcLabel(14, "spawner.cooldown", guiLeft + 358, guiTop + 132)
+				.setIsEnable(!aliveScroll.getList().isEmpty()));
+		addTextField(new GuiNpcTextField(6, this, guiLeft + 357, guiTop + 144, 55, 15, "" + job.getCooldown() / 50L)
+				.setMinMaxDefault(0, 6000, (int) (job.getCooldown() / 50L))
+				.setIsVisible(!aliveScroll.getList().isEmpty())
+				.setHoverText("spawner.hover.cooldown"));
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && subgui == null) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-		}
-		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == mc.gameSettings.keyBindBack.getKeyCode()) {
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		boolean bo = super.keyCnpcsPressed(typedChar, keyCode);
+		if (keyCode == 200 ||
+				keyCode == 208 ||
+				keyCode == mc.gameSettings.keyBindForward.getKeyCode() ||
+				keyCode == mc.gameSettings.keyBindBack.getKeyCode()) {
 			resetEntity();
 		}
+		return bo;
 	}
 
 	private void resetEntity() {
@@ -422,9 +341,8 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 			selectNpc = null;
 			return;
 		}
-		if (sd.typeClones == 2) {
-			Client.sendData(EnumPacketServer.GetClone, false, sel, sd.compound.getInteger("Tab"));
-		} else {
+		if (sd.typeClones == 2) { Client.sendData(EnumPacketServer.GetClone, false, sel, sd.compound.getInteger("Tab")); }
+		else {
 			Entity entity = EntityList.createEntityFromNBT(sd.compound, Minecraft.getMinecraft().world);
 			if (entity instanceof EntityLivingBase) {
 				selectNpc = (EntityLivingBase) entity;
@@ -440,7 +358,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		slot = scroll.getSelect();
 		isDead = scroll.getID() == 0;
 		(isDead ? aliveScroll : deadScroll).setSelect(-1);
@@ -450,9 +368,7 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		setSubGui(getSelector());
-	}
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { setSubGui(getSelector()); }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
@@ -460,9 +376,10 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 			selectNpc = (EntityLivingBase) EntityList.createEntityFromNBT(compound.getCompoundTag("NPCData"), player.world);
 			return;
 		}
+		// job data
+		if (compound.hasKey("SpawnerWhenAlive", 3)) { job.load(compound); }
 		// Setts
 		char chr = ((char) 167);
-		job.load(compound);
 		for (int j = 0; j < 2; j++) {
 			boolean type = j == 0;
 			List<String> list = new ArrayList<>();
@@ -470,57 +387,30 @@ implements IGuiData, ICustomScrollListener, ITextfieldListener, ISubGuiListener 
 				SpawnNPCData sd = job.get(i, type);
 				list.add(chr + "7" + (i + 1) + ": " + chr + "r" + sd.getTitle() + chr + (sd.typeClones == 0 ? "a (Client)" : sd.typeClones == 1 ? "c (Mob)" : "b (Server)"));
 			}
-			(type ? deadScroll : aliveScroll).setListNotSorted(list);
+			(type ? deadScroll : aliveScroll).setUnsortedList(list);
 		}
 		// Data
-		if (compound.hasKey("SetPos", 3)) {
-			slot = compound.getInteger("SetPos");
-		}
+		if (compound.hasKey("SetPos", 3)) { slot = compound.getInteger("SetPos"); }
 		if (compound.hasKey("SetDead", 1)) {
 			isDead = compound.getBoolean("SetDead");
 			(isDead ? deadScroll : aliveScroll).setSelect(-1);
 		}
 		SpawnNPCData sd = job.get(slot, isDead);
-		if (sd != null && sd.compound != null) {
-			Client.sendData(EnumPacketServer.GetClone, true, slot, isDead);
-		}
+		if (sd != null && sd.compound != null) { Client.sendData(EnumPacketServer.GetClone, true, slot, isDead); }
 		initGui();
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		switch (textField.getID()) {
-			case 0: { // X alive
-				job.getOffset(false)[0] = textField.getInteger();
-				break;
-			}
-			case 1: { // Y alive
-				job.getOffset(false)[1] = textField.getInteger();
-				break;
-			}
-			case 2: { // Z alive
-				job.getOffset(false)[2] = textField.getInteger();
-				break;
-			}
-			case 3: { // X dead
-				job.getOffset(true)[0] = textField.getInteger();
-				break;
-			}
-			case 4: { // Y dead
-				job.getOffset(true)[1] = textField.getInteger();
-				break;
-			}
-			case 5: { // Z dead
-				job.getOffset(true)[2] = textField.getInteger();
-				break;
-			}
-			case 6: { // cooldown
-				job.setCooldown(textField.getInteger());
-				break;
-			}
-			default: {
-
-			}
+			case 0: job.getOffset(false)[0] = textField.getInteger(); break; // X alive
+			case 1: job.getOffset(false)[1] = textField.getInteger(); break; // Y alive
+			case 2: job.getOffset(false)[2] = textField.getInteger(); break; // Z alive
+			case 3: job.getOffset(true)[0] = textField.getInteger(); break; // X dead
+			case 4: job.getOffset(true)[1] = textField.getInteger(); break; // Y dead
+			case 5: job.getOffset(true)[2] = textField.getInteger(); break; // Z dead
+			case 6: job.setCooldown(textField.getInteger()); break; // cooldown
 		}
 	}
+
 }

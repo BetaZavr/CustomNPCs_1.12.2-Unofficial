@@ -12,9 +12,7 @@ import noppes.npcs.client.gui.custom.interfaces.IGuiComponent;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.util.Util;
 
-public class CustomGuiTimer
-extends GuiLabel
-implements IGuiComponent {
+public class CustomGuiTimer extends GuiLabel implements IGuiComponent {
 
 	public static CustomGuiTimer fromComponent(CustomGuiTimerWrapper component) {
 		CustomGuiTimer timer = new CustomGuiTimer(component.start, component.end, component.reverse, component.getId(),
@@ -27,126 +25,107 @@ implements IGuiComponent {
 		return timer;
 	}
 
-	int colour;
-	String[] hoverText;
-	GuiCustom parent;
-	float scale;
-	private final long start;
-    private final long now;
-    private final long end;
-	private final boolean reverse;
-	private final FontRenderer fontRenderer;
-	private int offsetType;
-	private final int textColor;
-	private final int[] offsets;
+	protected int colour;
+	protected String[] hoverText;
+	protected GuiCustom parent;
+	protected float scale;
+	protected final long start;
+	protected final long now;
+	protected final long end;
+	protected final boolean reverse;
+	protected final FontRenderer fontRenderer;
+	protected int offsetType;
+	protected final int textColor;
+	protected final int[] offsets;
 
-	public CustomGuiTimer(long start, long end, boolean reverse, int id, int x, int y, int width, int height,
-			int colour) {
-		super(Minecraft.getMinecraft().fontRenderer, id, GuiCustom.guiLeft + x, GuiCustom.guiTop + y, width, height,
-				colour);
-		this.fontRenderer = Minecraft.getMinecraft().fontRenderer;
-		this.textColor = colour;
-		this.offsetType = 0;
-		this.scale = 1.0f;
-		this.colour = colour;
-		this.start = start;
-		this.end = end;
-		this.now = System.currentTimeMillis();
-		this.reverse = reverse;
-		this.offsets = new int[] { 0, 0 };
+	public CustomGuiTimer(long startIn, long endIn, boolean reverseIn, int id, int x, int y, int width, int height, int colourIn) {
+		super(Minecraft.getMinecraft().fontRenderer, id, GuiCustom.guiLeft + x, GuiCustom.guiTop + y, width, height, colourIn);
+		fontRenderer = Minecraft.getMinecraft().fontRenderer;
+		textColor = colour;
+		offsetType = 0;
+		scale = 1.0f;
+		colour = colourIn;
+		start = startIn;
+		end = endIn;
+		now = System.currentTimeMillis();
+		reverse = reverseIn;
+		offsets = new int[] { 0, 0 };
 	}
 
-	public int getId() {
-		return this.id;
-	}
+	public int getId() { return id; }
 
 	@Override
-	public int[] getPosXY() {
-		return new int[] { this.x, this.y };
-	}
+	public int[] getPosXY() { return new int[] { x, y }; }
 
 	public String getText() {
-		long time = System.currentTimeMillis() - this.now;
+		long time = System.currentTimeMillis() - now;
 		time /= 50L;
-		if (this.reverse) {
-			time = this.start - time;
-		}
-		if (time < 0 || (!this.reverse && time > this.end)) {
-			NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.HudTimerEnd, this, 250, this.id, this.offsetType);
-		}
-		if (this.reverse) {
-			time += 20;
-		}
+		if (reverse) { time = start - time; }
+		if (time < 0 || (!reverse && time > end)) { NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.HudTimerEnd, this, 250, id, offsetType); }
+		if (reverse) { time += 20; }
 		return Util.instance.ticksToElapsedTime(time, false, false, false);
 	}
 
 	@Override
-	public void offSet(int offsetType, double[] windowSize) {
-		this.offsetType = offsetType;
-		switch (offsetType) {
-		case 1: { // left down
-			this.offsets[0] = 0;
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		case 2: { // right up
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = 0;
-			break;
-		}
-		case 3: { // right down
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		default: { // left up
-			this.offsets[0] = 0;
-			this.offsets[1] = 0;
-		}
+	public void offSet(int offsetTypeIn, double[] windowSize) {
+		offsetType = offsetTypeIn;
+		switch (offsetTypeIn) {
+			case 1: { // left down
+				offsets[0] = 0;
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			default: { // left up
+				offsets[0] = 0;
+				offsets[1] = 0;
+			}
 		}
 	}
 
+	@Override
 	public void onRender(Minecraft mc, int mouseX, int mouseY, int mouseWheel, float partialTicks) {
-		if (!this.visible) {
-			return;
-		}
-		int x = this.offsets[0] == 0 ? this.x : this.offsets[0] - this.x - this.width;
-		int y = this.offsets[1] == 0 ? this.y : this.offsets[1] - this.y - this.height;
-		boolean hovered = mouseX >= x && mouseY >= y && mouseX < x + this.width && mouseY < y + this.height;
+		if (!visible) { return; }
+		int xIn = offsets[0] == 0 ? x : offsets[0] - x - width;
+		int yIn = offsets[1] == 0 ? y : offsets[1] - y - height;
+		boolean hovered = mouseX >= xIn && mouseY >= yIn && mouseX < xIn + width && mouseY < yIn + height;
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y, Math.min(this.id, 1000));
-		GlStateManager.scale(this.scale, this.scale, 0.0f);
+		GlStateManager.translate(xIn, yIn, Math.min(id, 1000));
+		GlStateManager.scale(scale, scale, 0.0f);
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
 				GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
 				GlStateManager.DestFactor.ZERO);
-		this.drawString(this.fontRenderer, this.getText(), 0, 0, this.textColor);
-		if (hovered && this.hoverText != null && this.hoverText.length > 0) {
-			this.parent.hoverText = this.hoverText;
-		}
+		drawString(fontRenderer, getText(), 0, 0, textColor);
+		if (hovered && hoverText != null && hoverText.length > 0) { parent.hoverText = hoverText; }
 		GlStateManager.popMatrix();
 
 	}
 
 	@Override
-	public void setParent(GuiCustom parent) {
-		this.parent = parent;
-	}
+	public void setParent(GuiCustom parentIn) { parent = parentIn; }
 
 	@Override
 	public void setPosXY(int newX, int newY) {
-		this.x = newX;
-		this.y = newY;
+		x = newX;
+		y = newY;
 	}
 
-	public void setScale(float scale) {
-		this.scale = scale;
-	}
+	public void setScale(float scaleIn) { scale = scaleIn; }
 
+	@Override
 	public ICustomGuiComponent toComponent() {
-		CustomGuiTimerWrapper component = new CustomGuiTimerWrapper(this.id, this.start, this.end, this.x, this.y,
-				this.width, this.height, this.colour);
-		component.setHoverText(this.hoverText);
+		CustomGuiTimerWrapper component = new CustomGuiTimerWrapper(id, start, end, x, y, width, height, colour);
+		component.setHoverText(hoverText);
 		return component;
 	}
 

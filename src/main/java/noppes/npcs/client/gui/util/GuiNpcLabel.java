@@ -12,47 +12,40 @@ import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.util.Util;
 
-public class GuiNpcLabel
-implements IComponentGui, IGuiNpcLabel {
+public class GuiNpcLabel implements IComponentGui {
 
+	protected final List<String> hoverText = new ArrayList<>();
+	protected List<String> label;
+	protected boolean hovered;
+	protected int backColor = 0;
+	protected int borderColor = 0;
+	protected int color;
 	public boolean enabled = true;
-	public boolean hovered;
-	public int backColor = 0;
-	public int borderColor = 0;
 	public int height = 9;
 	public int width = 0;
-	public int color;
 	public int id;
 	public int x;
 	public int y;
-	public List<String> label;
-	private final List<String> hoverText = new ArrayList<>();
 
 	public GuiNpcLabel(int id, Object label, int x, int y) {
 		this(id, label, x, y, CustomNpcResourceListener.DefaultTextColor);
 	}
 
-	public GuiNpcLabel(int id, Object label, int x, int y, int color) {
-		this.id = id;
-		this.x = x;
-		this.y = y;
-		this.color = color;
+	public GuiNpcLabel(int idIn, Object label, int xIn, int yIn, int colorIn) {
+		id = idIn;
+		x = xIn;
+		y = yIn;
+		color = colorIn;
 		setLabel(label.toString());
 	}
 
-	@Override
-	public void setCenter(int width) {
-		x += (width - this.width) / 2;
-	}
-
-	@Override
-	public List<String> getLabels() { return label; }
+	public GuiNpcLabel setCenter(int widthIn) { x += (widthIn - width) / 2; return this; }
 
 	@Override
 	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
 		if (!enabled) { return; }
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-		if (hovered && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
+		if (hovered && !hoverText.isEmpty()) { gui.putHoverText(hoverText); }
 		if (label == null || label.isEmpty()) { return; }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (borderColor != 0) {
@@ -69,14 +62,64 @@ implements IComponentGui, IGuiNpcLabel {
 	}
 
 	@Override
-	public void setLabel(Object labels) {
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) { return false; }
+
+	@Override
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) { return enabled && hovered; }
+
+	@Override
+	public boolean mouseCnpcsReleased(int mouseX, int mouseY, int state) { return false; }
+
+	@Override
+	public int getID() { return id; }
+
+	@Override
+	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
+
+	@Override
+	public GuiNpcLabel setHoverText(String text, Object ... args) {
+		hoverText.clear();
+		if (text == null || text.isEmpty()) { return this; }
+		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
+		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+		while (text.contains("<br>")) {
+			hoverText.add(text.substring(0, text.indexOf("<br>")));
+			text = text.substring(text.indexOf("<br>") + 4);
+		}
+		hoverText.add(text);
+		return this;
+	}
+
+	@Override
+	public GuiNpcLabel setIsVisible(boolean isVisible) { enabled = isVisible; return this; }
+
+	@Override
+	public void moveTo(int addX, int addY) {
+		x += addX;
+		y += addY;
+	}
+
+	@Override
+	public void updateCnpcsScreen() { }
+
+	@Override
+	public GuiNpcLabel setIsEnable(boolean isEnable) { enabled = isEnable; return this; }
+
+	@Override
+	public List<String> getHoversText() { return hoverText; }
+
+	@Override
+	public boolean isHovered() { return hovered; }
+
+	public GuiNpcLabel setColor(int colorIn) { color = colorIn; return this; }
+
+	public GuiNpcLabel setLabel(Object labels) {
 		if (labels == null) {
 			label = null;
 			height = 10;
 			width = 0;
-			return;
+			return this;
 		}
-
 		if (labels.toString().contains("\n")) {
 			List<String> list = new ArrayList<>();
 			String text = labels.toString();
@@ -87,17 +130,14 @@ implements IComponentGui, IGuiNpcLabel {
 			list.add(text);
 			labels = list;
 		}
-
-		if (labels instanceof String[]) {
-			labels = new ArrayList<>(Arrays.asList((String[]) labels));
-		}
+		if (labels instanceof String[]) { labels = new ArrayList<>(Arrays.asList((String[]) labels)); }
 		if (labels instanceof List) {
 			if (((List<?>) labels).size() == 1) {
 				String str = ((List<?>) labels).get(0) == null ? "" : new TextComponentTranslation(labels.toString()).getFormattedText();
 				label = Collections.singletonList(str);
 				height = 10;
 				width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
-				return;
+				return this;
 			}
 			label = new ArrayList<>();
 			height = 10 * ((List<?>) labels).size();
@@ -108,92 +148,21 @@ implements IComponentGui, IGuiNpcLabel {
 				int w = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 				if (width < w) { width = w; }
 			}
-		} else {
+		}
+		else {
 			String str = labels.toString();
 			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception ignored) { }
 			label = Collections.singletonList(str);
 			height = 10;
 			width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
 		}
+		return this;
 	}
 
-	@Override
-	public void setBackColor(int color) { backColor = color; }
+	public GuiNpcLabel setBackColor(int color) { backColor = color; return this; }
 
-	@Override
-	public int getBorderColor() { return borderColor; }
+	public GuiNpcLabel setBorderColor(int color) { borderColor = color; return this; }
 
-	@Override
-	public void setBorderColor(int color) { borderColor = color; }
-
-	@Override
-	public int getColor() { return color; }
-
-	@Override
-	public int getBackColor() { return backColor; }
-
-	@Override
-	public int getID() { return id; }
-
-	@Override
-	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
-
-	@Override
-	public void setHoverText(String text, Object ... args) {
-		hoverText.clear();
-		if (text == null || text.isEmpty()) { return; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
-	}
-
-	@Override
-	public int getLeft() { return x; }
-
-	@Override
-	public int getTop() { return y; }
-
-	@Override
-	public void setLeft(int left) { x = left; }
-
-	@Override
-	public void setTop(int top) { y = top; }
-
-	@Override
-	public int getWidth() { return width; }
-
-	@Override
-	public int getHeight() { return height; }
-
-	@Override
-	public void customKeyTyped(char c, int id) { }
-
-	@Override
-	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { }
-
-	@Override
-	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
-
-	@Override
-	public boolean isVisible() { return enabled; }
-
-	@Override
-	public void setIsVisible(boolean bo) { enabled = bo; }
-
-	@Override
-	public boolean isEnabled() { return enabled; }
-
-	@Override
-	public void setEnabled(boolean bo) { enabled = bo; }
-
-	@Override
-	public boolean isHovered() { return hovered; }
-
-	@Override
-	public void setColor(int color) { this.color = color; }
+	public List<String> getLabels() { return new ArrayList<>(label); }
 
 }

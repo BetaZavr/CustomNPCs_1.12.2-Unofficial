@@ -17,7 +17,6 @@ import javax.script.ScriptEngineManager;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -155,8 +154,6 @@ public class ScriptController {
 		// ECMAScript Nashorn
 		try {
 			LogWriter.debug("Try create Nashorn Script Engine");
-			Launch.classLoader.addClassLoaderExclusion("jdk.nashorn.");
-			Launch.classLoader.addClassLoaderExclusion("jdk.internal.dynalink");
 			Class<?> c = Class.forName("jdk.nashorn.api.scripting.NashornScriptEngineFactory");
 			ScriptEngineFactory factory = (ScriptEngineFactory) c.newInstance();
 			factory.getScriptEngine();
@@ -181,6 +178,7 @@ public class ScriptController {
 					isNotRegister = !ext.equals(".js");
 				}
 			}
+			LogWriter.info("Added script Library: \"" + factory.getLanguageName() + "\"; type: \"" + factory.getClass().getSimpleName() + "\"; files index: \".js\"");
 			languages.put(name, ".js");
 			factories.put(name.toLowerCase(), factory);
 			manager.registerEngineName(name.toLowerCase(), factory);
@@ -193,35 +191,21 @@ public class ScriptController {
 
 	public File clientScriptsFile() {
 		boolean isClient = Thread.currentThread().getName().toLowerCase().contains("client");
-		if (isClient && clientDir == null) {
-			return new File(CustomNpcs.Dir, "client_default/client_scripts.json");
-		}
+		if (isClient && clientDir == null) { return new File(CustomNpcs.Dir, "client_default/client_scripts.json"); }
 		return new File(dir, "client_scripts.json");
 	}
 
-	public File constantScriptsFile() {
-		return new File(dir, "constant_scripts.json");
-	}
+	public File constantScriptsFile() { return new File(dir, "constant_scripts.json"); }
 
-	private File npcsScriptsFile() {
-		return new File(dir, "npc_scripts.json");
-	}
+	private File npcsScriptsFile() { return new File(dir, "npc_scripts.json"); }
 	
-	private File forgeScriptsFile() {
-		return new File(dir, "forge_scripts.json");
-	}
+	private File forgeScriptsFile() { return new File(dir, "forge_scripts.json"); }
 
-	private File playerScriptsFile() {
-		return new File(dir, "player_scripts.json");
-	}
+	private File playerScriptsFile() { return new File(dir, "player_scripts.json"); }
 
-	private File potionScriptsFile() {
-		return new File(dir, "potion_scripts.json");
-	}
+	private File potionScriptsFile() { return new File(dir, "potion_scripts.json"); }
 
-	private File worldDataFile() {
-		return new File(dir, "world_data.json");
-	}
+	private File worldDataFile() { return new File(dir, "world_data.json"); }
 	
 	public ScriptEngine getEngineByName(String language) {
 		ScriptEngineFactory factory = factories.get(Util.instance.deleteColor(language).toLowerCase());
@@ -731,6 +715,22 @@ public class ScriptController {
 		try {
 			if (file.exists()) {
 				compound = NBTJsonUtil.LoadFile(file);
+				if (!compound.getKeySet().isEmpty() && !compound.hasKey("IsMap", 3)) {
+					NBTTagCompound oldData = compound.copy();
+					NBTTagCompound compound = new NBTTagCompound();
+					compound.setInteger("IsMap", 1);
+					NBTTagCompound content = new NBTTagCompound();
+					int i = 0;
+					for (String key : oldData.getKeySet()) {
+						NBTTagCompound nbt = new NBTTagCompound();
+						nbt.setTag("K", new NBTTagString(key));
+						nbt.setTag("V", oldData.getTag(key));
+						content.setTag("Slot_"+i, nbt);
+						i++;
+					}
+					compound.setTag("Content", content);
+					ScriptController.Instance.compound = compound;
+				}
 				WrapperNpcAPI.resetScriptControllerData(compound);
 				shouldSave = false;
 			} else {

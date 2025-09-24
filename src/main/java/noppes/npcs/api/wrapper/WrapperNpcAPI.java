@@ -48,7 +48,6 @@ import noppes.npcs.api.handler.*;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
-import noppes.npcs.client.gui.util.IResourceData;
 import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.containers.ContainerNpcInterface;
 import noppes.npcs.controllers.AnimationController;
@@ -442,7 +441,7 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height) {
+	public ResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height) {
 		return new ResourceData(texture, u, v, width, height);
 	}
 

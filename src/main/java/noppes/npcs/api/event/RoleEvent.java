@@ -19,18 +19,18 @@ public class RoleEvent extends CustomNPCsEvent {
 	public static class BankUnlockedEvent extends RoleEvent {
 		public int slot;
 
-		public BankUnlockedEvent(EntityPlayer player, ICustomNpc<?> npc, int slot) {
+		public BankUnlockedEvent(EntityPlayer player, ICustomNpc<?> npc, int slotIn) {
 			super(player, npc);
-			this.slot = slot;
+			slot = slotIn;
 		}
 	}
 
 	public static class BankUpgradedEvent extends RoleEvent {
 		public int slot;
 
-		public BankUpgradedEvent(EntityPlayer player, ICustomNpc<?> npc, int slot) {
+		public BankUpgradedEvent(EntityPlayer player, ICustomNpc<?> npc, int slotIn) {
 			super(player, npc);
-			this.slot = slot;
+			slot = slotIn;
 		}
 	}
 
@@ -44,9 +44,9 @@ public class RoleEvent extends CustomNPCsEvent {
 	public static class FollowerHireEvent extends RoleEvent {
 		public int days;
 
-		public FollowerHireEvent(EntityPlayer player, ICustomNpc<?> npc, int days) {
+		public FollowerHireEvent(EntityPlayer player, ICustomNpc<?> npc, int daysIn) {
 			super(player, npc);
-			this.days = days;
+			days = daysIn;
 		}
 	}
 
@@ -54,9 +54,9 @@ public class RoleEvent extends CustomNPCsEvent {
 	public static class MailmanEvent extends RoleEvent {
 		public IPlayerMail mail;
 
-		public MailmanEvent(EntityPlayer player, ICustomNpc<?> npc, IPlayerMail mail) {
+		public MailmanEvent(EntityPlayer player, ICustomNpc<?> npc, IPlayerMail mailIn) {
 			super(player, npc);
-			this.mail = mail;
+			mail = mailIn;
 		}
 	}
 
@@ -65,16 +65,14 @@ public class RoleEvent extends CustomNPCsEvent {
 		public Map<IItemStack, Integer> currency;
 		public IItemStack sold;
 
-		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
+		public TradeFailedEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack soldIn, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			this.currency = new LinkedHashMap<>();
+			currency = new LinkedHashMap<>();
 			for (ItemStack stack : items.keySet()) {
-				if (stack == null || stack.isEmpty()) {
-					continue;
-				}
-				this.currency.put(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack), items.get(stack));
+				if (stack == null || stack.isEmpty()) { continue; }
+				currency.put(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack), items.get(stack));
 			}
-			this.sold = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(sold.copy());
+			sold = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(soldIn.copy());
 		}
 	}
 
@@ -84,16 +82,14 @@ public class RoleEvent extends CustomNPCsEvent {
 		public Map<IItemStack, Integer> currency;
 		public IItemStack sold;
 
-		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack sold, Map<ItemStack, Integer> items) {
+		public TraderEvent(EntityPlayer player, ICustomNpc<?> npc, ItemStack soldIn, Map<ItemStack, Integer> items) {
 			super(player, npc);
-			this.currency = new LinkedHashMap<>();
+			currency = new LinkedHashMap<>();
 			for (ItemStack stack : items.keySet()) {
-				if (stack == null || stack.isEmpty()) {
-					continue;
-				}
-				this.currency.put(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack), items.get(stack));
+				if (stack == null || stack.isEmpty()) { continue; }
+				currency.put(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack), items.get(stack));
 			}
-			this.sold = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(sold);
+			sold = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(soldIn);
 		}
 	}
 
@@ -108,19 +104,18 @@ public class RoleEvent extends CustomNPCsEvent {
 	public static class TransporterUseEvent extends RoleEvent {
 		public ITransportLocation location;
 
-		public TransporterUseEvent(EntityPlayer player, ICustomNpc<?> npc, ITransportLocation location) {
+		public TransporterUseEvent(EntityPlayer player, ICustomNpc<?> npc, ITransportLocation locationIn) {
 			super(player, npc);
-			this.location = location;
+			location = locationIn;
 		}
 	}
 
 	public ICustomNpc<?> npc;
-
 	public IPlayer<?> player;
 
-	public RoleEvent(EntityPlayer player, ICustomNpc<?> npc) {
-		this.npc = npc;
-		this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
+	public RoleEvent(EntityPlayer playerIn, ICustomNpc<?> npcIn) {
+		npc = npcIn;
+		player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(playerIn);
 	}
 
 }

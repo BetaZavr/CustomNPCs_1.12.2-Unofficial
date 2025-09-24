@@ -102,9 +102,7 @@ public class NpcMiscInventory implements IInventory {
 
 	public ItemStack getMergableItem(ItemStack item) {
 		for (ItemStack is : items) {
-			if (NoppesUtilPlayer.compareItems(item, is, false, false) && is.getCount() < is.getMaxStackSize()) {
-				return is;
-			}
+			if (NoppesUtilPlayer.compareItems(item, is, false, false) && is.getCount() < is.getMaxStackSize()) { return is; }
 		}
 		return ItemStack.EMPTY;
 	}
@@ -170,11 +168,6 @@ public class NpcMiscInventory implements IInventory {
 
 	public void load(NBTTagCompound compound) { NBTTags.getItemStackList(compound.getTagList("NpcMiscInv", 10), items); }
 
-	public void setInventorySlotContents(int slotId, @Nonnull ItemStack stack) {
-		if (slotId >= getSizeInventory()) { return; }
-		items.set(slotId, stack);
-	}
-
 	public void setSize(int size) {
 		if (items.size() == size) { return; }
 		NonNullList<ItemStack> newItems = NonNullList.withSize(size, ItemStack.EMPTY);
@@ -194,6 +187,12 @@ public class NpcMiscInventory implements IInventory {
 		}
 		items = newItems;
 		return true;
+	}
+
+	// New from Unofficial (BetaZavr)
+	public void setInventorySlotContents(int slotId, @Nonnull ItemStack stack) {
+		if (slotId >= getSizeInventory()) { return; }
+		items.set(slotId, stack);
 	}
 
 }

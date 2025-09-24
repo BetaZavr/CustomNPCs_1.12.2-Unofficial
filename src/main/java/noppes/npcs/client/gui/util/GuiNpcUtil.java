@@ -31,9 +31,7 @@ public class GuiNpcUtil {
         int addV = 0;
         int drawHeight = textureHeight;
         if (!notAnimated.contains(textureLocation)) {
-            if (!itemsMap.containsKey(textureLocation)) {
-                load(textureLocation, true);
-            }
+            if (!itemsMap.containsKey(textureLocation)) { load(textureLocation, true); }
             if (itemsMap.containsKey(textureLocation)) {
                 float wight = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
                 float height = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
@@ -88,14 +86,9 @@ public class GuiNpcUtil {
 
     public static void bindEntityTexture(TextureManager renderEngine, ResourceLocation textureLocation) {
         renderEngine.bindTexture(textureLocation);
-        //notAnimated.clear();
         if (!notAnimated.contains(textureLocation)) {
-            if (!entitysMap.containsKey(textureLocation)) {
-                load(textureLocation, false);
-            }
-            if (entitysMap.containsKey(textureLocation)) {
-                GlStateManager.bindTexture(entitysMap.get(textureLocation).getFrameEntityId());
-            }
+            if (!entitysMap.containsKey(textureLocation)) { load(textureLocation, false); }
+            if (entitysMap.containsKey(textureLocation)) { GlStateManager.bindTexture(entitysMap.get(textureLocation).getFrameEntityId()); }
         }
     }
 

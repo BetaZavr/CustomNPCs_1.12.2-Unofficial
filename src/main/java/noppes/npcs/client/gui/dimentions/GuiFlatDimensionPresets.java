@@ -31,8 +31,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiFlatDimensionPresets
-extends GuiScreen {
+public class GuiFlatDimensionPresets extends GuiScreen {
 
 	@SideOnly(Side.CLIENT)
 	static class LayerItem {
@@ -43,10 +42,10 @@ extends GuiScreen {
 		public String generatorInfo;
 
 		public LayerItem(Item iconIn, int iconMetadataIn, String nameIn, String generatorInfoIn) {
-			this.icon = iconIn;
-			this.iconMetadata = iconMetadataIn;
-			this.name = nameIn;
-			this.generatorInfo = generatorInfoIn;
+			icon = iconIn;
+			iconMetadata = iconMetadataIn;
+			name = nameIn;
+			generatorInfo = generatorInfoIn;
 		}
 
 	}
@@ -60,52 +59,51 @@ extends GuiScreen {
 					GuiFlatDimensionPresets.this.height, 80, GuiFlatDimensionPresets.this.height - 37, 24);
 		}
 
-		protected void drawBackground() {
-		}
+		@Override
+		protected void drawBackground() { }
 
-		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn,
-				float partialTicks) {
+		@Override
+		protected void drawSlot(int entryID, int insideLeft, int yPos, int insideSlotHeight, int mouseXIn, int mouseYIn, float partialTicks) {
 			GuiFlatDimensionPresets.LayerItem guiflatpresets$layeritem = GuiFlatDimensionPresets.FLAT_WORLD_PRESETS.get(entryID);
-			this.renderIcon(insideLeft, yPos, guiflatpresets$layeritem.icon, guiflatpresets$layeritem.iconMetadata);
-			GuiFlatDimensionPresets.this.fontRenderer.drawString(guiflatpresets$layeritem.name, insideLeft + 18 + 5, yPos + 6, 16777215);
+			renderIcon(insideLeft, yPos, guiflatpresets$layeritem.icon, guiflatpresets$layeritem.iconMetadata);
+			fontRenderer.drawString(guiflatpresets$layeritem.name, insideLeft + 18 + 5, yPos + 6, 16777215);
 		}
 
+		@Override
 		protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY) {
-			this.field_148175_k = slotIndex;
-			GuiFlatDimensionPresets.this.func_146426_g();
-			GuiFlatDimensionPresets.this.field_146433_u.setText(GuiFlatDimensionPresets.FLAT_WORLD_PRESETS.get(GuiFlatDimensionPresets.this.field_146435_s.field_148175_k).generatorInfo);
+			field_148175_k = slotIndex;
+			func_146426_g();
+			field_146433_u.setText(GuiFlatDimensionPresets.FLAT_WORLD_PRESETS.get(field_146435_s.field_148175_k).generatorInfo);
 		}
 
 		private void func_148171_c(int p_148171_1_, int p_148171_2_) {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			this.mc.getTextureManager().bindTexture(Gui.STAT_ICONS);
+			mc.getTextureManager().bindTexture(Gui.STAT_ICONS);
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder vertexbuffer = tessellator.getBuffer();
 			vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-			vertexbuffer.pos(p_148171_1_, p_148171_2_ + 18.0F, GuiFlatDimensionPresets.this.zLevel).tex(0, 18.0F * 0.0078125F).endVertex();
-			vertexbuffer.pos(p_148171_1_ + 18.0F, p_148171_2_ + 18.0F, GuiFlatDimensionPresets.this.zLevel).tex(0.140625F, 0.140625F).endVertex();
-			vertexbuffer.pos(p_148171_1_ + 18.0F, p_148171_2_, GuiFlatDimensionPresets.this.zLevel).tex(0.140625F, 0.0F).endVertex();
-			vertexbuffer.pos(p_148171_1_, p_148171_2_, GuiFlatDimensionPresets.this.zLevel).tex(0.0F, 0.0F).endVertex();
+			vertexbuffer.pos(p_148171_1_, p_148171_2_ + 18.0F, zLevel).tex(0, 18.0F * 0.0078125F).endVertex();
+			vertexbuffer.pos(p_148171_1_ + 18.0F, p_148171_2_ + 18.0F, zLevel).tex(0.140625F, 0.140625F).endVertex();
+			vertexbuffer.pos(p_148171_1_ + 18.0F, p_148171_2_, zLevel).tex(0.140625F, 0.0F).endVertex();
+			vertexbuffer.pos(p_148171_1_, p_148171_2_, zLevel).tex(0.0F, 0.0F).endVertex();
 			tessellator.draw();
 		}
 
-		private void func_148173_e(int p_148173_1_, int p_148173_2_) {
-			this.func_148171_c(p_148173_1_, p_148173_2_);
-		}
+		private void func_148173_e(int p_148173_1_, int p_148173_2_) { func_148171_c(p_148173_1_, p_148173_2_); }
 
+		@Override
 		protected int getSize() {
 			return GuiFlatDimensionPresets.FLAT_WORLD_PRESETS.size();
 		}
 
-		protected boolean isSelected(int slotIndex) {
-			return slotIndex == this.field_148175_k;
-		}
+		@Override
+		protected boolean isSelected(int slotIndex) { return slotIndex == field_148175_k; }
 
 		private void renderIcon(int p_178054_1_, int p_178054_2_, Item icon, int iconMetadata) {
-			this.func_148173_e(p_178054_1_ + 1, p_178054_2_ + 1);
+			func_148173_e(p_178054_1_ + 1, p_178054_2_ + 1);
 			GlStateManager.enableRescaleNormal();
 			RenderHelper.enableGUIStandardItemLighting();
-			GuiFlatDimensionPresets.this.itemRender.renderItemIntoGUI(new ItemStack(icon, 1, iconMetadata), p_178054_1_ + 2, p_178054_2_ + 2);
+			itemRender.renderItemIntoGUI(new ItemStack(icon, 1, iconMetadata), p_178054_1_ + 2, p_178054_2_ + 2);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.disableRescaleNormal();
 		}
@@ -185,77 +183,79 @@ extends GuiScreen {
 
 	private GuiTextField field_146433_u;
 
-	public GuiFlatDimensionPresets(GuiCreateFlatDimension p_i46318_1_) {
-		this.parentScreen = p_i46318_1_;
-	}
+	public GuiFlatDimensionPresets(GuiCreateFlatDimension p_i46318_1_) { parentScreen = p_i46318_1_; }
 
+	@Override
 	protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
-		if (button.id == 0 && this.func_146430_p()) {
-			this.parentScreen.setPreset(this.field_146433_u.getText());
-			this.mc.displayGuiScreen(this.parentScreen);
-		} else if (button.id == 1) {
-			this.mc.displayGuiScreen(this.parentScreen);
+		if (button.id == 0 && func_146430_p()) {
+			parentScreen.setPreset(field_146433_u.getText());
+			mc.displayGuiScreen(parentScreen);
 		}
+		else if (button.id == 1) { mc.displayGuiScreen(parentScreen); }
 	}
 
+	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
-		this.field_146435_s.drawScreen(mouseX, mouseY, partialTicks);
-		this.drawCenteredString(this.fontRenderer, this.presetsTitle, this.width / 2, 8, 16777215);
-		this.drawString(this.fontRenderer, this.presetsShare, 50, 30, 10526880);
-		this.drawString(this.fontRenderer, this.field_146436_r, 50, 70, 10526880);
-		this.field_146433_u.drawTextBox();
+		drawDefaultBackground();
+		field_146435_s.drawScreen(mouseX, mouseY, partialTicks);
+		drawCenteredString(fontRenderer, presetsTitle, width / 2, 8, 0xFFFFFF);
+		drawString(fontRenderer, presetsShare, 50, 30, 0xA0A0A0);
+		drawString(fontRenderer, field_146436_r, 50, 70, 0xA0A0A0);
+		field_146433_u.drawTextBox();
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
-	public void func_146426_g() {
-        this.field_146434_t.enabled = this.func_146430_p();
-	}
+	public void func_146426_g() { field_146434_t.enabled = func_146430_p(); }
 
 	private boolean func_146430_p() {
-		return this.field_146435_s.field_148175_k > -1 && this.field_146435_s.field_148175_k < FLAT_WORLD_PRESETS.size()
-				|| this.field_146433_u.getText().length() > 1;
+		return field_146435_s.field_148175_k > -1 && field_146435_s.field_148175_k < FLAT_WORLD_PRESETS.size() || field_146433_u.getText().length() > 1;
 	}
 
+	@Override
 	public void handleMouseInput() throws IOException {
 		super.handleMouseInput();
-		this.field_146435_s.handleMouseInput();
+		field_146435_s.handleMouseInput();
 	}
 
+	@Override
 	public void initGui() {
-		this.buttonList.clear();
+		buttonList.clear();
 		Keyboard.enableRepeatEvents(true);
-		this.presetsTitle = new TextComponentTranslation("createWorld.customize.presets.title").getFormattedText();
-		this.presetsShare = new TextComponentTranslation("createWorld.customize.presets.share").getFormattedText();
-		this.field_146436_r = new TextComponentTranslation("createWorld.customize.presets.list").getFormattedText();
-		this.field_146433_u = new GuiTextField(2, this.fontRenderer, 50, 40, this.width - 100, 20);
-		this.field_146435_s = new GuiFlatDimensionPresets.ListSlot();
-		this.field_146433_u.setMaxStringLength(1230);
-		this.field_146433_u.setText(this.parentScreen.getPreset());
-		this.buttonList.add(this.field_146434_t = new GuiButton(0, this.width / 2 - 155, this.height - 28, 150, 20,
+		presetsTitle = new TextComponentTranslation("createWorld.customize.presets.title").getFormattedText();
+		presetsShare = new TextComponentTranslation("createWorld.customize.presets.share").getFormattedText();
+		field_146436_r = new TextComponentTranslation("createWorld.customize.presets.list").getFormattedText();
+		field_146433_u = new GuiTextField(2, fontRenderer, 50, 40, width - 100, 20);
+		field_146435_s = new GuiFlatDimensionPresets.ListSlot();
+		field_146433_u.setMaxStringLength(1230);
+		field_146433_u.setText(parentScreen.getPreset());
+		buttonList.add(field_146434_t = new GuiButton(0, width / 2 - 155, height - 28, 150, 20,
 				new TextComponentTranslation("createWorld.customize.presets.select").getFormattedText()));
-		this.buttonList.add(new GuiButton(1, this.width / 2 + 5, this.height - 28, 150, 20,
+		buttonList.add(new GuiButton(1, width / 2 + 5, height - 28, 150, 20,
 				new TextComponentTranslation("gui.cancel").getFormattedText()));
-		this.func_146426_g();
+		func_146426_g();
 	}
 
+	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
-		if (!this.field_146433_u.textboxKeyTyped(typedChar, keyCode)) {
+		if (!field_146433_u.textboxKeyTyped(typedChar, keyCode)) {
 			super.keyTyped(typedChar, keyCode);
 		}
 	}
 
+	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-		this.field_146433_u.mouseClicked(mouseX, mouseY, mouseButton);
+		field_146433_u.mouseClicked(mouseX, mouseY, mouseButton);
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 	}
 
+	@Override
 	public void onGuiClosed() {
 		Keyboard.enableRepeatEvents(false);
 	}
 
+	@Override
 	public void updateScreen() {
-		this.field_146433_u.updateCursorCounter();
+		field_146433_u.updateCursorCounter();
 		super.updateScreen();
 	}
 

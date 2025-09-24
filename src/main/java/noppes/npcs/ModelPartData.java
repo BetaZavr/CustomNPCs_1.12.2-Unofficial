@@ -10,22 +10,14 @@ public class ModelPartData {
 
 	private static final Map<String, ResourceLocation> resources = new HashMap<>();
 
-	public int color;
-	public int colorPattern;
+	public int color = 0xFFFFFFFF;
 	private ResourceLocation location;
 	public String name;
-	public byte pattern;
-	public boolean playerTexture;
-	public byte type;
+	public byte pattern = 0;
+	public boolean playerTexture = false;
+	public byte type = 0;
 
-	public ModelPartData(String nameIn) {
-		color = 0xFFFFFFFF;
-		colorPattern = 0xFFFFFFFF;
-		type = 0;
-		pattern = 0;
-		playerTexture = false;
-		name = nameIn;
-	}
+	public ModelPartData(String nameIn) { name = nameIn; }
 
 	public String getColor() {
 		StringBuilder str = new StringBuilder(Integer.toHexString(color));

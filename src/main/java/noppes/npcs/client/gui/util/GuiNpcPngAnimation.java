@@ -73,14 +73,10 @@ public class GuiNpcPngAnimation {
         if (mcmetaFrameTime != 0 && mcmetaTotalTime != 0) {
             double time = (double) mcmetaCurrentTime;
             Minecraft mc = Minecraft.getMinecraft();
-            if (mc.world != null) {
-                time = (double) mc.world.getTotalWorldTime() % mcmetaTotalTime;
-            }
+            if (mc.world != null) { time = (double) mc.world.getTotalWorldTime() % mcmetaTotalTime;}
             else {
                 mcmetaCurrentTime++;
-                if (mcmetaCurrentTime >= mcmetaTotalTime) {
-                    mcmetaCurrentTime = 0L;
-                }
+                if (mcmetaCurrentTime >= mcmetaTotalTime) { mcmetaCurrentTime = 0L; }
             }
             return (int) Math.floor(time / (double) mcmetaFrameTime);
         }
@@ -88,16 +84,12 @@ public class GuiNpcPngAnimation {
     }
 
     public int getFrameId() {
-        if (mcmetaFrames.length != 0) {
-            return mcmetaFrames[getFrame()];
-        }
+        if (mcmetaFrames.length != 0) { return mcmetaFrames[getFrame()]; }
         return 0;
     }
 
     public int getFrameEntityId() {
-        if (mcmetaTexturesFrames.length != 0) {
-            return mcmetaTexturesFrames[getFrame()];
-        }
+        if (mcmetaTexturesFrames.length != 0) { return mcmetaTexturesFrames[getFrame()]; }
         return 0;
     }
 

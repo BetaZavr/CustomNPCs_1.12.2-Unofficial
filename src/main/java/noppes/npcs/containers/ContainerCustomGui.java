@@ -72,9 +72,7 @@ public class ContainerCustomGui extends Container {
 		this.inventorySlots.clear();
 		for (IItemSlot slot : this.customGui.getSlots()) {
 			int index = this.slotCount++;
-			((CustomGuiItemSlotWrapper) slot).slot = new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx,
-					this.cy);
-			((CustomGuiItemSlotWrapper) slot).player = player;
+			((CustomGuiItemSlotWrapper) slot).setPlayerAndSlot(new CustomGuiSlot(this.guiInventory, index, slot, player, this.cx, this.cy), player);
 			this.addSlotToContainer(slot.getMCSlot());
 			this.guiInventory.setInventorySlotContents(index, slot.getStack().getMCItemStack());
 		}

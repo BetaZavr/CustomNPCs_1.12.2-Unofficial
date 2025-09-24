@@ -34,9 +34,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.api.mixin.client.network.INetHandlerPlayClientMixin;
 import noppes.npcs.util.Util;
 
-public class CustomGuiEntity
-extends Gui
-implements IGuiComponent {
+public class CustomGuiEntity extends Gui implements IGuiComponent {
 
 	public static CustomGuiEntity fromComponent(CustomGuiEntityWrapper component) {
 		CustomGuiEntity entt = new CustomGuiEntity(component.getId(), component.getPosX(), component.getPosY(), component.getScale(), component.hasBorder(), component.isShowArmorAndItems(), component.entityNbt, component.rotType, component.rotYaw, component.rotPitch);
@@ -47,29 +45,36 @@ implements IGuiComponent {
 		return entt;
 	}
 
-	int id, x, y, width = 53, height = 70, rotType, rotYaw, rotPitch;
-	long initTime = System.currentTimeMillis();
-	boolean hasBorder, showArmor;
-	String[] hoverText;
-	IItemStack hoverStack;
-	GuiCustom parent;
-	float scale;
-	final int[] offsets;
-	NBTTagCompound entityNbt;
-	public Entity entity;
+	protected int id;
+	protected int x;
+	protected int y;
+	protected int width = 53;
+	protected int height = 70;
+	protected int rotType;
+	protected int rotYaw;
+	protected int rotPitch;
+	protected long initTime = System.currentTimeMillis();
+	protected float scale;
+	protected boolean hasBorder;
+	protected boolean showArmor;
+	protected final int[] offsets = new int[] { 0, 0 };
+	protected String[] hoverText;
+	protected IItemStack hoverStack;
+	protected GuiCustom parent;
+	protected NBTTagCompound entityNbt;
+	protected Entity entity;
 
-	public CustomGuiEntity(int id, int x, int y, float scale, boolean hasBorder, boolean showArmor, NBTTagCompound entityNbt, int rotType, int rotYaw, int rotPitch) {
-		this.id = id;
-		this.x = GuiCustom.guiLeft + x;
-		this.y = GuiCustom.guiTop + y;
-		this.scale = scale;
-		this.hasBorder = hasBorder;
-		this.showArmor = showArmor;
-		offsets = new int[] { 0, 0 };
-		this.entityNbt = entityNbt;
-		this.rotType = rotType;
-		this.rotYaw = rotYaw;
-		this.rotPitch = rotPitch;
+	public CustomGuiEntity(int idIn, int xIn, int yIn, float scaleIn, boolean hasBorderIn, boolean showArmorIn, NBTTagCompound entityNbtIn, int rotTypeIn, int rotYawIn, int rotPitchIn) {
+		id = idIn;
+		x = GuiCustom.guiLeft + xIn;
+		y = GuiCustom.guiTop + yIn;
+		scale = scaleIn;
+		hasBorder = hasBorderIn;
+		showArmor = showArmorIn;
+		entityNbt = entityNbtIn;
+		rotType = rotTypeIn;
+		rotYaw = rotYawIn;
+		rotPitch = rotPitchIn;
 	}
 
 	private void createEntity(Minecraft mc) {
@@ -167,9 +172,7 @@ implements IGuiComponent {
 
 	private void drawEntity(Minecraft mc, int mouseX, int mouseY) {
 		EntityNPCInterface npc = null;
-		if (entity instanceof EntityNPCInterface) {
-			npc = (EntityNPCInterface) entity;
-		}
+		if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.enableColorMaterial();
 
@@ -183,28 +186,28 @@ implements IGuiComponent {
 		float f3 = entity.rotationYaw;
 		float f4 = entity.rotationPitch;
 		float f5 = entity instanceof EntityLivingBase ? ((EntityLivingBase) entity).rotationYawHead : entity.rotationYaw;
-		float f6 = this.rotType == 0 ? 0 : this.rotType == 1 ? x + (26.5f * scale) - mouseX : this.rotYaw;
-		float f7 = this.rotType == 0 ? 0 : this.rotType == 1 ? y + (15.0f + scale) - mouseY : this.rotPitch;
+		float f6 = rotType == 0 ? 0 : rotType == 1 ? x + (26.5f * scale) - mouseX : rotYaw;
+		float f7 = rotType == 0 ? 0 : rotType == 1 ? y + (15.0f + scale) - mouseY : rotPitch;
 		
 		int orientation = 0;
 		if (npc != null) {
 			orientation = npc.ais.orientation;
 			npc.ais.orientation = 0;
 		}
-		if (this.rotType == 1) {
+		if (rotType == 1) {
 			GlStateManager.rotate((float) (-Math.atan(f6 / 400.0f) * 20.0f), 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate((float) (-Math.atan(f7 / 40.0f) * 20.0f), 1.0f, 0.0f, 0.0f);
 			entity.rotationYaw = (float) (Math.atan(f6 / 80.0f) * 40.0f + 0);
 			entity.rotationPitch = (float) (-Math.atan(f7 / 40.0f) * 20.0f);
 		}
-		else if (this.rotType == 2) {
+		else if (rotType == 2) {
 			GlStateManager.rotate(f6, 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate(f7, 1.0f, 0.0f, 0.0f);
 			entity.rotationYaw = f6;
 			entity.rotationPitch = f7;
 		}
 		if (entity instanceof EntityLivingBase) {
-			((EntityLivingBase) entity).renderYawOffset = this.rotType == 2 ? f6 : 0;
+			((EntityLivingBase) entity).renderYawOffset = rotType == 2 ? f6 : 0;
 			((EntityLivingBase) entity).rotationYawHead = entity.rotationYaw;
 		}
 		mc.getRenderManager().playerViewY = 180.0f;
@@ -234,37 +237,38 @@ implements IGuiComponent {
 	}
 
 	@Override
-	public int getId() {
-		return id;
-	}
+	public int getId() { return id; }
 
 	@Override
-	public int[] getPosXY() {
-		return new int[] { this.x, this.y };
-	}
+	public int[] getPosXY() { return new int[] { x, y }; }
 
 	@Override
 	public void offSet(int offsetType, double[] windowSize) {
 		switch (offsetType) {
-		case 1: { // left down
-			this.offsets[0] = 0;
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		case 2: { // right up
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = 0;
-			break;
-		}
-		case 3: { // right down
-			this.offsets[0] = (int) windowSize[0];
-			this.offsets[1] = (int) windowSize[1];
-			break;
-		}
-		default: { // left up
-			this.offsets[0] = 0;
-			this.offsets[1] = 0;
-		}
+			case 1: { // left down
+				offsets[0] = 0;
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 2: { // right up
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = 0;
+				break;
+			}
+			case 3: { // right down
+				offsets[0] = (int) windowSize[0];
+				offsets[1] = (int) windowSize[1];
+				break;
+			}
+			case 4: { // center
+				offsets[0] = (int) (windowSize[0] / 2.0d);
+				offsets[1] = (int) (windowSize[1] / 2.0d);
+				break;
+			}
+			default: { // left up
+				offsets[0] = 0;
+				offsets[1] = 0;
+			}
 		}
 	}
 
@@ -278,8 +282,8 @@ implements IGuiComponent {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x, y, 0.0f);
 			GlStateManager.scale(scale, scale, 0.0f);
-			this.drawGradientRect(-1, -1, width + 1, height + 1, 0xFF808080, 0xFF808080);
-			this.drawGradientRect(0, 0, width, height, 0xFF000000, 0xFF000000);
+			drawGradientRect(-1, -1, width + 1, height + 1, 0xFF808080, 0xFF808080);
+			drawGradientRect(0, 0, width, height, 0xFF000000, 0xFF000000);
 			GlStateManager.popMatrix();
 		}
 		if (entity == null) {
@@ -305,15 +309,15 @@ implements IGuiComponent {
 
 	@Override
 	public void setPosXY(int newX, int newY) {
-		this.x = newX;
-		this.y = newY;
+		x = newX;
+		y = newY;
 	}
 
 	@Override
 	public ICustomGuiComponent toComponent() {
 		CustomGuiEntityWrapper component = new CustomGuiEntityWrapper(id, x, y, Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity));
-		component.entityNbt = this.entityNbt;
-		component.setHoverText(this.hoverText);
+		component.entityNbt = entityNbt;
+		component.setHoverText(hoverText);
 		return component;
 	}
 

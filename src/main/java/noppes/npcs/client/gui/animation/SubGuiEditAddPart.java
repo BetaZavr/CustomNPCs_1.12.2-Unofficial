@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.gui.select.GuiTextureSelection;
+import noppes.npcs.client.gui.select.SubGuiTextureSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.client.model.ModelNpcAlt;
 import noppes.npcs.client.model.ModelRendererAlt;
@@ -22,15 +22,14 @@ import noppes.npcs.util.Util;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class SubGuiEditAddPart
-extends SubGuiInterface
-implements ITextfieldListener {
+public class SubGuiEditAddPart extends SubGuiInterface implements ITextfieldListener {
 
     protected static final ResourceLocation backResource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
 
@@ -49,29 +48,29 @@ implements ITextfieldListener {
     protected int typePart = 0;
 
     // display
-    private int workU;
-    private int workV;
-    private final int workS = 144;
-    private double w = -1.0d;
-    private double h = -1.0d;
-    private int mousePressId = -1;
-    private int mousePressX = 0;
-    private int mousePressY = 0;
-    private boolean hovered = false;
-    private final float[] dispRot = new float[] { 45.0f, 345.0f, 345.0f };
-    private final float[] dispPos = new float[] { 0.0f, 0.0f, 0.0f };
-    private float dispScale = 1.0f;
+    protected int workU;
+    protected int workV;
+    protected final int workS = 144;
+    protected double w = -1.0d;
+    protected double h = -1.0d;
+    protected int mousePressId = -1;
+    protected int mousePressX = 0;
+    protected int mousePressY = 0;
+    protected boolean hovered = false;
+    protected final float[] dispRot = new float[] { 45.0f, 345.0f, 345.0f };
+    protected final float[] dispPos = new float[] { 0.0f, 0.0f, 0.0f };
+    protected float dispScale = 1.0f;
 
     @SuppressWarnings("rawtypes")
-    public SubGuiEditAddPart(SubGuiEditAnimation gui, EntityNPCInterface npc, EntityNPCInterface npcPart, AddedPartConfig parentAddPart, PartConfig parentPart) {
-        super(npc);
+    public SubGuiEditAddPart(SubGuiEditAnimation gui, EntityNPCInterface npc, EntityNPCInterface npcPartIn, AddedPartConfig parentAddPart, PartConfig parentPart) {
+        super(0, npc);
         xSize = 427;
         ySize = 240;
         widthTexture = 256;
         heightTexture = 256;
         translateZ = 975.0f;
 
-        this.npcPart = npcPart;
+        npcPart = npcPartIn;
         animation = npcPart.animation.getAnimation();
         parent = gui;
         if (parentAddPart == null || parentPart == null) {
@@ -109,7 +108,8 @@ implements ITextfieldListener {
     }
 
     @Override
-    public void buttonEvent(IGuiNpcButton button) {
+    public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+        if (mouseButton != 0) { return; }
         switch (button.getID()) {
             case 0: {
                 String value = Util.instance.deleteColor(button.getDisplayString());
@@ -118,7 +118,7 @@ implements ITextfieldListener {
                 String hover = "info.item.cloner.empty.0";
                 if (parent.frame.parts.containsKey(addPart.parentPart)) { hover = parent.frame.parts.get(addPart.parentPart).name; }
                 if (getTextField(1) != null) {
-                    getTextField(1).setFullText("" + addPart.parentPart);
+                    getTextField(1).setText("" + addPart.parentPart);
                     getTextField(1).setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText());
                 }
                 button.setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText());
@@ -140,25 +140,16 @@ implements ITextfieldListener {
                 button.setLayerColor(GuiNpcAnimation.backColor == 0xFF000000 ? 0xFF00FFFF : 0xFF008080);
                 break;
             } // back color
-            case 3: {
-                typeModel = button.getValue();
-                initGui();
-                break;
-            } // model type
+            case 3: typeModel = button.getValue(); initGui(); break; // model type
             case 4: {
                 typePart = button.getValue();
                 addPart.isNormal = typePart == 0;
                 initGui();
                 break;
             } // part type
-            case 18: {
-                dispScale = 1.0f;
-                break;
-            } // display reset scale
+            case 18: dispScale = 1.0f; break; // display reset scale
             case 19: {
-                for (int i = 0; i < 3; i++) {
-                    dispPos[i] = 0.0f;
-                }
+                for (int i = 0; i < 3; i++) { dispPos[i] = 0.0f; }
                 break;
             } // display reset pos
             case 20: {
@@ -167,15 +158,8 @@ implements ITextfieldListener {
                 dispRot[2] = 345.0f;
                 break;
             } // display reset rot
-            case 65: {
-                isSave = true;
-                close();
-                break;
-            } // done
-            case 66: {
-                close();
-                break;
-            } // back
+            case 65: isSave = true; onClosed(); break; // done
+            case 66: onClosed(); break; // back
         }
     }
 
@@ -183,11 +167,8 @@ implements ITextfieldListener {
         for (int i = 0; i < 2; i++) {
             dispPos[i] += (i == 0 ? x : y);
             int wS = (i == 1 ? 144 : 108);
-            if (dispPos[i] > wS * dispScale) {
-                dispPos[i] = wS * dispScale;
-            } else if (dispPos[i] < -wS * dispScale) {
-                dispPos[i] = -wS * dispScale;
-            }
+            if (dispPos[i] > wS * dispScale) { dispPos[i] = wS * dispScale; }
+            else if (dispPos[i] < -wS * dispScale) { dispPos[i] = -wS * dispScale; }
         }
     }
 
@@ -196,11 +177,8 @@ implements ITextfieldListener {
         dispRot[1] += (float) (Math.cos(dispRot[0] * Math.PI / 180.0f) * (float) y);
         dispRot[2] += (float) (Math.sin(dispRot[0] * Math.PI / 180.0f) * (float) y);
         for (int i = 0; i < 3; i++) {
-            if (dispRot[i] > 360.0f) {
-                dispRot[i] -= 360.0f;
-            } else if (dispRot[i] < 0.0f) {
-                dispRot[i] += 360.0f;
-            }
+            if (dispRot[i] > 360.0f) { dispRot[i] -= 360.0f; }
+            else if (dispRot[i] < 0.0f) { dispRot[i] += 360.0f; }
         }
     }
 
@@ -228,33 +206,22 @@ implements ITextfieldListener {
             int x = mouseX - mousePressX;
             int y = mouseY - mousePressY;
             if (x != 0 || y != 0) {
-                if (mousePressId == 0) {
-                    displayOffset(x, y);
-                } // LMB
-                else if (mousePressId == 1) {
-                    displayRotate(x, -y);
-                } // RMB
+                if (mousePressId == 0) { displayOffset(x, y); } // LMB
+                else if (mousePressId == 1) { displayRotate(x, -y); } // RMB
                 mousePressX = mouseX;
                 mousePressY = mouseY;
             }
         }
-        else {
-            mousePressId = -1;
-        }
+        else { mousePressId = -1; }
         hovered = isMouseHover(mouseX, mouseY, workU + 1, workV + 1, workS - 2, workS - 2);
         if (hovered) {
             int dWheel = Mouse.getDWheel();
             if (dWheel != 0) {
                 dispScale += dispScale * (dWheel < 0 ? 0.1f : -0.1f);
-                if (dispScale < 0.5f) {
-                    dispScale = 0.5f;
-                } else if (dispScale > 10.0f) {
-                    dispScale = 10.0f;
-                }
+                if (dispScale < 0.5f) { dispScale = 0.5f; }
+                else if (dispScale > 10.0f) { dispScale = 10.0f; }
                 dispScale = (float) (Math.round(dispScale * 20.0d) / 20.0d);
-                if (dispScale == 0.95f || dispScale == 1.05f) {
-                    dispScale = 1.0f;
-                }
+                if (dispScale == 0.95f || dispScale == 1.05f) { dispScale = 1.0f; }
             }
         }
         // work place
@@ -299,17 +266,17 @@ implements ITextfieldListener {
         // texture
         GlStateManager.pushMatrix();
             GlStateManager.translate(guiLeft + 22.0f, guiTop + 140.0f, 0.0f);
-            Gui.drawRect(-1, -1, 85, 85, GuiTextureSelection.dark ?
+            Gui.drawRect(-1, -1, 85, 85, SubGuiTextureSelection.dark ?
                     new Color(0xFFE0E0E0).getRGB() :
                     new Color(0xFF202020).getRGB());
-            Gui.drawRect(0, 0, 84, 84, GuiTextureSelection.dark ?
+            Gui.drawRect(0, 0, 84, 84, SubGuiTextureSelection.dark ?
                     new Color(0xFF000000).getRGB() :
                     new Color(0xFFFFFFFF).getRGB());
             int g = 6;
             for (int u = 0; u < 84 / g; u++) {
                 for (int v = 0; v < 84 / g; v++) {
                     if (u % 2 == (v % 2 == 0 ? 1 : 0)) {
-                        Gui.drawRect(u * g, v * g, u * g + g,  v * g + g, GuiTextureSelection.dark ?
+                        Gui.drawRect(u * g, v * g, u * g + g,  v * g + g, SubGuiTextureSelection.dark ?
                                 new Color(0xFF343434).getRGB() :
                                 new Color(0xFFCCCCCC).getRGB());
                     }
@@ -329,19 +296,15 @@ implements ITextfieldListener {
                     float scaleH = 256.0f / (float) GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
                     int u0 = (int) (addPart.textureU * scaleW);
                     int v0 = (int) (addPart.textureV * scaleH);
-
                     int u1 = (int) ((addPart.textureU + addPart.size[4]) * scaleW);
                     int u2 = (int) ((addPart.textureU + addPart.size[0] + addPart.size[4]) * scaleW);
                     int u3 = (int) ((addPart.textureU + addPart.size[0] + 2.0f * addPart.size[4]) * scaleW);
                     int u4 = (int) ((addPart.textureU + 2.0f * (addPart.size[0] + addPart.size[4])) * scaleW);
-
                     int v1 = (int) ((addPart.textureV + addPart.size[4]) * scaleW);
                     int v2 = (int) ((addPart.textureV + addPart.size[1] + addPart.size[2] + addPart.size[3] + addPart.size[4]) * scaleW);
-
                     long ms = System.currentTimeMillis() % 1500L;
-                    if (ms >= 750) {
-                        ms -= 750;
-                    } else {
+                    if (ms >= 750) { ms -= 750; }
+                    else {
                         ms -= 750;
                         ms *= -1;
                     }
@@ -423,14 +386,11 @@ implements ITextfieldListener {
             else { // npc
                 GlStateManager.translate(0.5f, 12.0f, -0.5f);
                 mc.getRenderManager().playerViewY = 180.0f;
-
                 ModelNpcAlt.editAnimDataSelect.displayNpc = npcPart;
                 ModelNpcAlt.editAnimDataSelect.isNPC = true;
                 ModelNpcAlt.editAnimDataSelect.part = part.id;
-
                 GlStateManager.scale(40.0f, -40.0f, 40.0f);
                 mc.getRenderManager().renderEntity(npcPart, 0.0, 0.0, 0.0, 0.0f, npcPart.rotationYaw != 0.0f ? 1.0f : 0.0f, false);
-
             }
             GlStateManager.disableRescaleNormal();
             GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
@@ -459,15 +419,13 @@ implements ITextfieldListener {
         h = sw.getScaledHeight();
         workU = guiLeft + xSize - workS - 4;
         workV = guiTop + 4;
-
         int lId = 0;
         int x = guiLeft + 5;
         int y = guiTop + 14;
         // name
         addLabel(new GuiNpcLabel(lId++, "gui.name", x + 1, y - 10));
-        GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y, 120, 12, part.name);
-        textField.setHoverText("animation.add.part.hover.name", new TextComponentTranslation(part.name).getFormattedText());
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(0, this, x, y, 120, 12, part.name)
+                .setHoverText("animation.add.part.hover.name", new TextComponentTranslation(part.name).getFormattedText()));
         // parent part ID
         dataPartIDs.clear();
         dataPartIDs.put("-1", -1);
@@ -504,7 +462,6 @@ implements ITextfieldListener {
                     if (animation.addParts.get(id).isEmpty()) {  animation.addParts.remove(id); }
                 }
             }
-
             if (!animation.addParts.containsKey(addPart.parentPart)) { animation.addParts.put(addPart.parentPart, new ArrayList<>()); }
             animation.addParts.get(addPart.parentPart).add(addPart);
             for (AnimationFrameConfig frame : animation.frames.values()) {
@@ -513,51 +470,43 @@ implements ITextfieldListener {
             }
         }
         addLabel(new GuiNpcLabel(lId++, "animation.add.part.ids", x + 1, (y += 24) - 10));
-        GuiNpcButton button = new GuiButtonBiDirectional(0, x, y, 83, 12, dataPartIDs.keySet().toArray(new String[0]), p);
         String hover = "info.item.cloner.empty.0";
         if (parent.frame.parts.containsKey(addPart.parentPart)) { hover = parent.frame.parts.get(addPart.parentPart).name; }
-        button.setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText());
-        addButton(button);
-        textField = new GuiNpcTextField(1, this, x + button.width + 2, y, 35, 12, "" + addPart.parentPart);
-        textField.setMinMaxDefault(-1, Integer.MAX_VALUE, addPart.parentPart);
-        textField.setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText());
-        addTextField(textField);
+        addButton(new GuiButtonBiDirectional(0, x, y, 83, 12, dataPartIDs.keySet().toArray(new String[0]), p)
+                .setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText()));
+        addTextField(new GuiNpcTextField(1, this, x + 83 + 2, y, 35, 12, "" + addPart.parentPart)
+                .setMinMaxDefault(-1, Integer.MAX_VALUE, addPart.parentPart)
+                .setHoverText("animation.add.part.hover.part.ids", new TextComponentTranslation(hover).getFormattedText()));
         // model type
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.model", ":").getFormattedText(), x + 1, (y += 24) - 10));
-        button = new GuiNpcButton(3, x, y, 50, 10, new String[] { "gui.normal", "gui.obj"}, typeModel);
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.add.part.hover.type.model");
-        addButton(button);
+        addButton(new GuiNpcButton(3, x, y, 50, 10, new String[] { "gui.normal", "gui.obj"}, typeModel)
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.add.part.hover.type.model"));
         // part type
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.type").getFormattedText() + ":", x + 56, y - 10));
-        button = new GuiNpcButton(4, x + 55, y, 50, 10, new String[] { "gui.normal", "gui.joint"}, typePart);
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.add.part.hover.type.part");
-        addButton(button);
+        addButton(new GuiNpcButton(4, x + 55, y, 50, 10, new String[] { "gui.normal", "gui.joint"}, typePart)
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.add.part.hover.type.part"));
         // obj path's
         if (typeModel == 1) {
             addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.path", ":").getFormattedText(), x, (y += 24) - 10));
-            textField = new GuiNpcTextField(2, this, x, y, 120, 12, addPart.objUp == null ? "" : addPart.objUp.toString());
-            textField.setHoverText("animation.add.part.hover.obj.up");
-            addTextField(textField);
+            addTextField(new GuiNpcTextField(2, this, x, y, 120, 12, addPart.objUp == null ? "" : addPart.objUp.toString())
+                    .setHoverText("animation.add.part.hover.obj.up"));
             if (typePart == 1) {
-                textField = new GuiNpcTextField(3, this, x, (y += 14), 120, 12, addPart.objDown == null ? "" : addPart.objDown.toString());
-                textField.setHoverText("animation.add.part.hover.obj.down");
-                addTextField(textField);
+                addTextField(new GuiNpcTextField(3, this, x, (y += 14), 120, 12, addPart.objDown == null ? "" : addPart.objDown.toString())
+                        .setHoverText("animation.add.part.hover.obj.down"));
             }
         }
         // texture
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("display.texture").getFormattedText() + ":", x, (y += 24) - 10));
-        textField = new GuiNpcTextField(4, this, x, y, 120, 12, addPart.location.toString());
-        textField.setHoverText("animation.add.part.hover.location");
-        addTextField(textField);
-
+        addTextField(new GuiNpcTextField(4, this, x, y, 120, 12, addPart.location.toString())
+                .setHoverText("animation.add.part.hover.location"));
         // settings
         x += 125;
         y = guiTop + 4;
@@ -565,153 +514,130 @@ implements ITextfieldListener {
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.settings").getFormattedText() + ":", x, y));
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.scale").getFormattedText() + ":", x, y += 12));
         addLabel(new GuiNpcLabel(lId++, "X:", x, (y += 10) + 2));
-        textField = new GuiNpcTextField(5, this, x + 12, y, 59, 12, "" + addPart.size[0]);
-        textField.setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[0]);
-        textField.setHoverText("animation.add.part.hover.size.x");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(5, this, x + 12, y, 59, 12, "" + addPart.size[0])
+                .setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[0])
+                .setHoverText("animation.add.part.hover.size.x"));
         // Z size
         addLabel(new GuiNpcLabel(lId++, "Z:", x + 74, y + 2));
-        textField = new GuiNpcTextField(9, this, x + 86, y, 59, 12, "" + addPart.size[4]);
-        textField.setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[4]);
-        textField.setHoverText("animation.add.part.hover.size.z");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(9, this, x + 86, y, 59, 12, "" + addPart.size[4])
+                .setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[4])
+                .setHoverText("animation.add.part.hover.size.z"));
         // Y / Y0 size
         float h = addPart.size[1] + addPart.size[2] + addPart.size[3];
         float value = typePart == 1 ? addPart.size[1] : h;
         addLabel(new GuiNpcLabel(lId++, "Y" + (typePart == 1 ? "0:" : ":"), x, (y += 14) + 2));
-        textField = new GuiNpcTextField(6, this, x + 12, y, 59, 12, "" + value);
-        textField.setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, value);
-        textField.setHoverText("animation.add.part.hover.size.y"+(typePart == 1 ? "0" : ""), ((char) 167) + "6" + h);
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(6, this, x + 12, y, 59, 12, "" + value)
+                .setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, value)
+                .setHoverText("animation.add.part.hover.size.y"+(typePart == 1 ? "0" : ""), ((char) 167) + "6" + h));
         if (typePart == 1) {
             // Y1 size
             addLabel(new GuiNpcLabel(lId++, "Y1:", x, (y += 14) + 2));
-            textField = new GuiNpcTextField(7, this, x + 12, y, 59, 12, "" + addPart.size[2]);
-            textField.setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[2]);
-            textField.setHoverText("animation.add.part.hover.size.y1", ((char) 167) + "6" + h);
-            addTextField(textField);
+            addTextField(new GuiNpcTextField(7, this, x + 12, y, 59, 12, "" + addPart.size[2])
+                    .setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[2])
+                    .setHoverText("animation.add.part.hover.size.y1", ((char) 167) + "6" + h));
             // Y2 size
             addLabel(new GuiNpcLabel(lId++, "Y2:", x, (y += 14) + 2));
-            textField = new GuiNpcTextField(8, this, x + 12, y, 59, 12, "" + addPart.size[3]);
-            textField.setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[3]);
-            textField.setHoverText("animation.add.part.hover.size.y2", ((char) 167) + "6" + h);
-            addTextField(textField);
+            addTextField(new GuiNpcTextField(8, this, x + 12, y, 59, 12, "" + addPart.size[3])
+                    .setMinMaxDoubleDefault(0.1d, Float.MAX_VALUE, addPart.size[3])
+                    .setHoverText("animation.add.part.hover.size.y2", ((char) 167) + "6" + h));
         }
         // uv texture
         addLabel(new GuiNpcLabel(lId++, "UV " + new TextComponentTranslation("display.texture").getFormattedText() + ":", x, (y += 24) - 10));
         // texture u
         addLabel(new GuiNpcLabel(lId++, "U:", x, y + 2));
-        textField = new GuiNpcTextField(10, this, x + 12, y, 59, 12, "" + addPart.textureU);
-        textField.setMinMaxDefault(0, 4098, addPart.textureU);
-        textField.setHoverText("animation.add.part.hover.texture.u", ((char) 167) + "6" + textField.max);
-        addTextField(textField);
+        int max = 4098;
+        addTextField(new GuiNpcTextField(10, this, x + 12, y, 59, 12, "" + addPart.textureU)
+                .setMinMaxDefault(0, max, addPart.textureU)
+                .setHoverText("animation.add.part.hover.texture.u", ((char) 167) + "6" + max));
         // texture v
         addLabel(new GuiNpcLabel(lId++, "V:", x + 74, y + 2));
-        textField = new GuiNpcTextField(11, this, x + 86, y, 59, 12, "" + addPart.textureV);
-        textField.setMinMaxDefault(0, 4098, addPart.textureV);
-        textField.setHoverText("animation.add.part.hover.texture.v", ((char) 167) + "6" + textField.max);
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(11, this, x + 86, y, 59, 12, "" + addPart.textureV)
+                .setMinMaxDefault(0, max, addPart.textureV)
+                .setHoverText("animation.add.part.hover.texture.v", ((char) 167) + "6" + max));
         // pos offset
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("type.offset").getFormattedText() + ":", x, y += 14));
         // X
         addLabel(new GuiNpcLabel(lId++, "X:", x, (y += 10) + 2));
-        textField = new GuiNpcTextField(12, this, x + 12, y, 59, 12, "" + addPart.pos[0]);
-        textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.pos[0]);
-        textField.setHoverText("animation.add.part.hover.pos", "X");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(12, this, x + 12, y, 59, 12, "" + addPart.pos[0])
+                .setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.pos[0])
+                .setHoverText("animation.add.part.hover.pos", "X"));
         // Y
         addLabel(new GuiNpcLabel(lId++, "Y:", x, (y += 14) + 2));
-        textField = new GuiNpcTextField(13, this, x + 12, y, 59, 12, "" + addPart.pos[1]);
-        textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.pos[1]);
-        textField.setHoverText("animation.add.part.hover.pos", "Y");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(13, this, x + 12, y, 59, 12, "" + addPart.pos[1])
+                .setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.pos[1])
+                .setHoverText("animation.add.part.hover.pos", "Y"));
         // Z
         addLabel(new GuiNpcLabel(lId++, "Z:", x, (y += 14) + 2));
-        textField = new GuiNpcTextField(14, this, x + 12, y, 59, 12, "" + addPart.pos[2]);
-        textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.pos[2]);
-        textField.setHoverText("animation.add.part.hover.pos", "Z");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(14, this, x + 12, y, 59, 12, "" + addPart.pos[2])
+                .setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.pos[2])
+                .setHoverText("animation.add.part.hover.pos", "Z"));
         // rot offset
         addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("movement.rotation").getFormattedText() + ":", x, y += 14));
         // X
         addLabel(new GuiNpcLabel(lId++, "X:", x, (y += 10) + 2));
-        textField = new GuiNpcTextField(15, this, x + 12, y, 59, 12, "" + addPart.rot[0]);
-        textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[0]);
-        textField.setHoverText("animation.add.part.hover.rot", "X");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(15, this, x + 12, y, 59, 12, "" + addPart.rot[0])
+                .setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[0])
+                .setHoverText("animation.add.part.hover.rot", "X"));
         // Y
         addLabel(new GuiNpcLabel(lId++, "Y:", x, (y += 14) + 2));
-        textField = new GuiNpcTextField(16, this, x + 12, y, 59, 12, "" + addPart.rot[1]);
-        textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[1]);
-        textField.setHoverText("animation.add.part.hover.rot", "Y");
-        addTextField(textField);
+        addTextField(new GuiNpcTextField(16, this, x + 12, y, 59, 12, "" + addPart.rot[1])
+                .setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[1])
+                .setHoverText("animation.add.part.hover.rot", "Y"));
         // Z
         addLabel(new GuiNpcLabel(lId, "Z:", x, (y += 14) + 2));
-        textField = new GuiNpcTextField(17, this, x + 12, y, 59, 12, "" + addPart.rot[2]);
-        textField.setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[2]);
-        textField.setHoverText("animation.add.part.hover.rot", "Z");
-        addTextField(textField);
-
+        addTextField(new GuiNpcTextField(17, this, x + 12, y, 59, 12, "" + addPart.rot[2])
+                .setMinMaxDoubleDefault(Float.MIN_VALUE, Float.MAX_VALUE, addPart.rot[2])
+                .setHoverText("animation.add.part.hover.rot", "Z"));
         // only
-        button = new GuiNpcButton(1, workU + workS / 2 - 25, workV + workS + 1, 50, 10, new String[] { "gui.normal", "gui.only"}, onlyPart ? 1 : 0);
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.add.part.hover.only");
-        addButton(button);
+        addButton(new GuiNpcButton(1, workU + workS / 2 - 25, workV + workS + 1, 50, 10, new String[] { "gui.normal", "gui.only"}, onlyPart ? 1 : 0)
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.add.part.hover.only"));
         // back color
-        button = new GuiNpcButton(2, workU + 2, workV + 2, 8, 8, "");
-        button.layerColor = GuiNpcAnimation.backColor == 0xFF000000 ?
-                new Color(0xFF00FFFF).getRGB() :
-                new Color(0xFF008080).getRGB();
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.hover.color");
-        addButton(button);
+        addButton(new GuiNpcButton(2, workU + 2, workV + 2, 8, 8, "")
+                .setLayerColor(GuiNpcAnimation.backColor == 0xFF000000 ?  new Color(0xFF00FFFF).getRGB() :  new Color(0xFF008080).getRGB())
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.hover.color"));
         // reset scale
-        button = new GuiNpcButton(18, workU + workS - 10, workV + 2, 8, 8, "");
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.hover.reset.scale");
-        addButton(button);
+        addButton(new GuiNpcButton(18, workU + workS - 10, workV + 2, 8, 8, "")
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.hover.reset.scale"));
         // reset pos
-        button = new GuiNpcButton(19, workU + 2, workV + workS - 10, 8, 8, "");
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.hover.reset.pos");
-        addButton(button);
+        addButton(new GuiNpcButton(19, workU + 2, workV + workS - 10, 8, 8, "")
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.hover.reset.pos"));
         // reset rot
-        button = new GuiNpcButton(20, workU + workS - 10, workV + workS - 10, 8, 8, "");
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("animation.hover.reset.rot");
-        addButton(button);
+        addButton(new GuiNpcButton(20, workU + workS - 10, workV + workS - 10, 8, 8, "")
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("animation.hover.reset.rot"));
         // exit
-        button = new GuiNpcButton(66, guiLeft + 5, guiTop + ySize - 15, 50, 10, "gui.back");
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("hover.back");
-        addButton(button);
+        addButton(new GuiNpcButton(66, guiLeft + 5, guiTop + ySize - 15, 50, 10, "gui.back")
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("hover.back"));
         // done
-        button = new GuiNpcButton(65, guiLeft + xSize - 54, guiTop + ySize - 15, 50, 10, "gui.done");
-        button.texture = ANIMATION_BUTTONS;
-        button.hasDefBack = false;
-        button.isAnim = true;
-        button.txrY = 96;
-        button.setHoverText("hover.save");
-        addButton(button);
-
+        addButton(new GuiNpcButton(65, guiLeft + xSize - 54, guiTop + ySize - 15, 50, 10, "gui.done")
+                .setTexture(ANIMATION_BUTTONS)
+                .setHasDefaultBack(false)
+                .setIsAnim(true)
+                .setUV(0, 96, 0, 0)
+                .setHoverText("hover.save"));
         // reset model render
         if (model != null) {
             partRender = new ModelRendererAlt(model, addPart);
@@ -724,30 +650,24 @@ implements ITextfieldListener {
     }
 
     @Override
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        if (subgui != null) {
-            subgui.mouseClicked(mouseX, mouseY, mouseButton);
-            return;
-        }
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        if ((mouseButton == 0 || mouseButton == 1) && hovered) {
+    public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+        boolean bo = super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
+        if (subgui == null && (mouseButton == 0 || mouseButton == 1) && hovered) {
             mousePressId = mouseButton;
             mousePressX = mouseX;
             mousePressY = mouseY;
         }
+        return bo;
     }
 
     @Override
-    public void unFocused(IGuiNpcTextField textField) {
+    public void unFocused(GuiNpcTextField textField) {
         switch (textField.getID()) {
-            case 0: {
-                part.name = textField.getFullText();
-                break;
-            } // name
+            case 0: part.name = textField.getText(); break; // name
             case 1: {
                 String value = "" + textField.getInteger();
                 if (!dataPartIDs.containsKey(value)) {
-                    textField.setFullText("" + textField.getDefault());
+                    textField.setText("" + textField.def);
                     return;
                 }
                 addPart.parentPart = dataPartIDs.get(value);
@@ -768,24 +688,24 @@ implements ITextfieldListener {
                 break;
             } // parent part ID
             case 2: {
-                String text = textField.getFullText();
+                String text = textField.getText();
                 if (text.isEmpty()) { addPart.objUp = null; }
                 else { addPart.objUp = new ResourceLocation(text); }
                 initGui();
                 break;
             } // obj up
             case 3: {
-                String text = textField.getFullText();
+                String text = textField.getText();
                 if (text.isEmpty()) { addPart.objDown = null; }
                 else { addPart.objDown = new ResourceLocation(text); }
                 initGui();
                 break;
             } // obj up
             case 4: {
-                String text = textField.getFullText();
+                String text = textField.getText();
                 if (text.isEmpty()) {
                     addPart.location = new ResourceLocation(CustomNpcs.MODID, "textures/entity/humanmale/steve.png");
-                    textField.setFullText(addPart.location.toString());
+                    textField.setText(addPart.location.toString());
                 }
                 else { addPart.location = new ResourceLocation(text); }
                 initGui();

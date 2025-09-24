@@ -13,10 +13,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
-import noppes.npcs.Server;
+import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.CommandNoppesBase;
 import noppes.npcs.constants.EnumGuiType;
-import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.PlayerDataController;
 import noppes.npcs.controllers.data.Marcet;
@@ -112,12 +111,12 @@ public class CmdPlayers extends CommandNoppesBase {
 		} catch (NumberFormatException ex) {
 			throw new CommandException("Must be an integer: " + args[1]);
 		}
-		Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(marcetId);
+		Marcet marcet = MarcetController.getInstance().getMarcet(marcetId);
 		if (marcet == null || !marcet.isValid()) {
 			sender.sendMessage(new TextComponentTranslation("command.player.openmarcet.error", "" + marcetId));
 			return;
 		}
-		Server.sendDataChecked(player, EnumPacketClient.GUI, EnumGuiType.PlayerTrader.ordinal(), marcetId, 0, 0);
+		NoppesUtilServer.sendOpenGui(player, EnumGuiType.PlayerTrader, null, marcetId, 0, -1);
 	}
 
 }

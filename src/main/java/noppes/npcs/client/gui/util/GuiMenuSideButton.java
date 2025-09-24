@@ -7,11 +7,9 @@ import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
 
-public class GuiMenuSideButton
-extends GuiNpcButton
-implements IGuiMenuSideButton {
+public class GuiMenuSideButton extends GuiNpcButton {
 
-	private boolean left = false;
+	protected boolean left = false;
 	public boolean active = false;
 	public int data;
 	public int offsetText = 0;
@@ -29,13 +27,15 @@ implements IGuiMenuSideButton {
 		setIsLeft(true);
 	}
 
-	public void setIsLeft(boolean isLeft) {
+	public GuiMenuSideButton setIsLeft(boolean isLeft) {
 		if (left != isLeft) {
 			if (isLeft) { x -= width; } else { x += width; }
 		}
 		left = isLeft;
+		return this;
 	}
 
+	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) { return; }
 		GlStateManager.pushMatrix();
@@ -79,11 +79,10 @@ implements IGuiMenuSideButton {
 		GlStateManager.popMatrix();
 	}
 
+	@Override
 	public int getHoverState(boolean hovered) {
 		if (isSimple) { return super.getHoverState(hovered); }
-		if (!enabled) {
-			return Mouse.isButtonDown(0) ? 6 : 7;
-		}
+		if (!enabled) { return Mouse.isButtonDown(0) ? 6 : 7; }
 		if (hovered) {
 			if (Mouse.isButtonDown(0)) { return active ? 2 : 5; }
 			return active ? 1 : 4;
@@ -92,8 +91,8 @@ implements IGuiMenuSideButton {
 	}
 
 	@Override
-	public boolean mousePressed(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
-		return !active && visible && hovered;
-	}
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) { return !active && visible && hovered; }
+
+	public GuiMenuSideButton setIsActive(boolean isActive) { active = isActive; return this; }
 
 }

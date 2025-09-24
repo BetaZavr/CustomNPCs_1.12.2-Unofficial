@@ -20,7 +20,7 @@ public class EntityAIMovingPath extends EntityAIBase {
 	}
 
 	public boolean shouldContinueExecuting() {
-		if ((this.npc.isAttacking() && this.npc.ais.getRetaliateType() != 3) || this.npc.isInteracting()) {
+		if ((this.npc.isAttacking() && this.npc.ais.onAttack != 3) || this.npc.isInteracting()) {
 			this.npc.ais.decreaseMovingPath();
 			return false;
 		}
@@ -40,7 +40,7 @@ public class EntityAIMovingPath extends EntityAIBase {
 
 	public boolean shouldExecute() {
 		CustomNpcs.debugData.start(npc);
-		if ((this.npc.isAttacking() && this.npc.ais.getRetaliateType() != 3) || this.npc.isInteracting()
+		if ((this.npc.isAttacking() && this.npc.ais.onAttack != 3) || this.npc.isInteracting()
 				|| (this.npc.getRNG().nextInt(40) != 0 && this.npc.ais.movingPause)
 				|| !this.npc.getNavigator().noPath()) {
 			CustomNpcs.debugData.end(npc);

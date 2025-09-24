@@ -8,121 +8,99 @@ import noppes.npcs.api.gui.ILabel;
 
 public class CustomGuiLabelWrapper extends CustomGuiComponentWrapper implements ILabel {
 
-	int color;
-	int height;
-	String label;
-	float scale;
-	int width;
-	boolean showShadow;
+	protected String label;
+	protected boolean showShadow = false;
+	protected float scale = 1.0f;
+	protected int height;
+	protected int width;
+	protected int color = CustomNpcs.LableColor.getRGB();
 
-	public CustomGuiLabelWrapper() {
-		this.color = CustomNpcs.LableColor.getRGB();
-		this.scale = 1.0f;
-		this.showShadow = false;
-	}
+	public CustomGuiLabelWrapper() { }
 
 	public CustomGuiLabelWrapper(int id, String label, int x, int y, int width, int height) {
-		this.color = CustomNpcs.LableColor.getRGB();
-		this.scale = 1.0f;
-		this.showShadow = false;
-		this.setId(id);
-		this.setText(label);
-		this.setPos(x, y);
-		this.setSize(width, height);
+		setId(id);
+		setText(label);
+		setPos(x, y);
+		setSize(width, height);
 	}
 
 	public CustomGuiLabelWrapper(int id, String label, int x, int y, int width, int height, int color) {
 		this(id, label, x, y, width, height);
-		this.setColor(color);
+		setColor(color);
 	}
 
 	@Override
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
-		this.setText(nbt.getString("label"));
-		this.setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
-		this.setColor(nbt.getInteger("color"));
-		this.setScale(nbt.getFloat("scale"));
-		this.showShadow = nbt.getBoolean("shadow");
+		setText(nbt.getString("label"));
+		setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
+		setColor(nbt.getInteger("color"));
+		setScale(nbt.getFloat("scale"));
+		showShadow = nbt.getBoolean("shadow");
 		return this;
 	}
 
 	@Override
-	public int getColor() {
-		return this.color;
-	}
+	public int getColor() { return color; }
 
 	@Override
-	public int getHeight() {
-		return this.height;
-	}
+	public int getHeight() { return height; }
 
 	@Override
-	public float getScale() {
-		return this.scale;
-	}
+	public float getScale() { return scale; }
 
 	@Override
-	public String getText() {
-		return this.label;
-	}
+	public String getText() { return label; }
 
 	@Override
-	public int getType() {
-		return GuiComponentType.LABEL.get();
-	}
+	public int getType() { return GuiComponentType.LABEL.get(); }
 
 	@Override
-	public int getWidth() {
-		return this.width;
-	}
+	public int getWidth() { return width; }
 
 	@Override
-	public boolean isShadow() {
-		return this.showShadow;
-	}
+	public boolean isShadow() { return showShadow; }
 
 	@Override
-	public ILabel setColor(int color) {
-		this.color = color;
+	public ILabel setColor(int colorIn) {
+		color = colorIn;
 		return this;
 	}
 
 	@Override
-	public ILabel setScale(float scale) {
-		this.scale = scale;
+	public ILabel setScale(float scaleIn) {
+		scale = scaleIn;
 		return this;
 	}
 
 	@Override
-	public void setShadow(boolean showShadow) {
-		this.showShadow = showShadow;
-	}
+	public void setShadow(boolean showShadowIn) { showShadow = showShadowIn; }
 
 	@Override
-	public ILabel setSize(int width, int height) {
-		if (width <= 0 || height <= 0) {
-			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+	public ILabel setSize(int widthIn, int heightIn) {
+		if (widthIn <= 0 || heightIn <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + widthIn + ", " + heightIn + "]");
 		}
-		this.width = width;
-		this.height = height;
+		width = widthIn;
+		height = heightIn;
 		return this;
 	}
 
 	@Override
-	public ILabel setText(String label) {
-		this.label = label;
+	public ILabel setText(String labelIn) {
+		label = labelIn;
 		return this;
 	}
 
 	@Override
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
 		super.toNBT(nbt);
-		nbt.setString("label", this.label);
-		nbt.setIntArray("size", new int[] { this.width, this.height });
-		nbt.setInteger("color", this.color);
-		nbt.setFloat("scale", this.scale);
-		nbt.setBoolean("shadow", this.showShadow);
+		nbt.setString("label", label);
+		nbt.setIntArray("size", new int[] { width, height });
+		nbt.setInteger("color", color);
+		nbt.setFloat("scale", scale);
+		nbt.setBoolean("shadow", showShadow);
 		return nbt;
 	}
+
 }

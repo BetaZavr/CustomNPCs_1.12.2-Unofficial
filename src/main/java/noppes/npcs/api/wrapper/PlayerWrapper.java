@@ -452,7 +452,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 
 	@Override
 	public boolean hasPermission(String permission) {
-		return CustomNpcsPermissions.hasPermissionString(this.entity, permission);
+		return entity instanceof EntityPlayerMP && CustomNpcsPermissions.hasPermission((EntityPlayerMP) entity, permission);
 	}
 
 	@Override
@@ -813,7 +813,7 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	public void showMarket(int marcetID) {
 		IMarcet market = MarcetController.getInstance().getMarcet(marcetID);
 		if (market != null) {
-			Server.sendDataChecked((EntityPlayerMP) entity, EnumPacketClient.GUI, EnumGuiType.PlayerTrader.ordinal(), marcetID, 0, 0);
+			NoppesUtilServer.sendOpenGui(entity, EnumGuiType.PlayerTrader, null, marcetID, 0, -1);
 		}
 	}
 

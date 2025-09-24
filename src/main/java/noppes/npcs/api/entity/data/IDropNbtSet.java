@@ -6,7 +6,7 @@ public interface IDropNbtSet {
 
 	double getChance();
 
-	INbt getConstructoredTag(INbt nbt);
+	INbt getConstructorTag(INbt nbt);
 
 	String getPath();
 

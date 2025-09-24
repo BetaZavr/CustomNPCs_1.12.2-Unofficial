@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,9 +14,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.CustomNpcsPermissions;
 import noppes.npcs.NBTTags;
 import noppes.npcs.Server;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.gui.global.GuiPermissionsEdit;
 import noppes.npcs.config.ConfigLoader;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumSync;
@@ -134,6 +137,14 @@ public class SyncController {
 					}
 				}
 				catch (Exception ignored) { }
+				break;
+			}
+			case MoneyChars: {
+				CustomNpcs.resetChars(compound.getString("CharCurrencies"), compound.getString("CharDonation"));
+				break;
+			}
+			case PermissionsData: {
+				CustomNpcsPermissions.set(compound);
 				break;
 			}
 			default: break;
@@ -441,6 +452,13 @@ public class SyncController {
 		BorderController.getInstance().sendTo(player);
 		MarcetController.getInstance().sendTo(player, -1);
 		ScriptController.Instance.sendClientTo(player);
+
+		// money chars
+		compound = new NBTTagCompound();
+		compound.setString("CharCurrencies", CustomNpcs.CharCurrencies);
+		compound.setString("CharDonation", CustomNpcs.CharDonation);
+		Server.sendData(player, EnumPacketClient.SYNC_END, EnumSync.MoneyChars, compound);
+
 		CustomNpcs.debugData.end(player);
 	}
 

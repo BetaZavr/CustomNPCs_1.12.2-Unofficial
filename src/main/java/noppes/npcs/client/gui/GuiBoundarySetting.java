@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.select.SubGuiColorSelector;
+import noppes.npcs.client.gui.select.SubGuiQuestSelection;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.controllers.QuestController;
+import noppes.npcs.controllers.data.Quest;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.gui.Gui;
@@ -22,84 +26,59 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.BorderController;
 import noppes.npcs.controllers.data.Zone3D;
 
-public class GuiBoundarySetting
-extends GuiNPCInterface
-implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	private final int regID;
-	private final TreeMap<Integer, String> dataRegions = new TreeMap<>();
-	private final TreeMap<Integer, String> dataPoints = new TreeMap<>();
-	private GuiCustomScroll regions, points;
-	private Point point;
-	private Zone3D region;
+public class GuiBoundarySetting extends GuiNPCInterface
+		implements ICustomScrollListener, ITextfieldListener, GuiSelectionListener {
+
+	protected final TreeMap<Integer, String> dataRegions = new TreeMap<>();
+	protected final TreeMap<Integer, String> dataPoints = new TreeMap<>();
+	protected GuiCustomScroll regions, points;
+	protected Point point;
+	protected Zone3D region;
+	protected int regID;
 
 	public GuiBoundarySetting(int idReg, int idPoint) {
+		super();
 		setBackground("bgfilled.png");
 		xSize = 405;
 		ySize = 216;
 		closeOnEsc = true;
 
 		regID = idReg;
-		region = (Zone3D) BorderController.getInstance().getRegion(idReg);
-		if (region != null && region.points.containsKey(idPoint)) {
-			point = region.points.get(idPoint);
-		}
+		region = BorderController.getInstance().getRegion(idReg);
+		if (region != null && region.points.containsKey(idPoint)) { point = region.points.get(idPoint); }
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
-			case 0: { // color
-				if (region == null) {
-					return;
-				}
+			case 0: {
+				if (region == null) { return; }
 				setSubGui(new SubGuiColorSelector(region.color));
 				return;
-			}
-			case 1: { // availability
-				if (region == null) {
-					return;
-				}
+			} // color
+			case 1: {
+				if (region == null) { return; }
 				setSubGui(new SubGuiNpcAvailability(region.availability, this));
 				return;
-			}
-			case 2: { // del
-				if (region == null) {
-					return;
-				}
+			} // availability
+			case 2: {
+				if (region == null) { return; }
 				Client.sendData(EnumPacketServer.RegionData, 1, region.getId());
 				region = null;
 				point = null;
 				break;
-			}
-			case 3: { // -X
-				region.offset(-1, 0, 0);
-				break;
-			}
-			case 4: { // +X
-				region.offset(1, 0, 0);
-				break;
-			}
-			case 5: { // -Z
-				region.offset(0, 0, -1);
-				break;
-			}
-			case 6: { // +Z
-				region.offset(0, 0, 1);
-				break;
-			}
-			case 7: { // -Y
-				region.offset(0, -1, 0);
-				break;
-			}
-			case 8: { // +Y
-				region.offset(0, 1, 0);
-				break;
-			}
-			case 10: { // Up Point Pos
-				if (region == null || point == null) {
-					return;
-				}
+			} // del
+			case 3: region.offset(-1, 0, 0); break;
+			case 4: region.offset(1, 0, 0); break;
+			case 5: region.offset(0, 0, -1); break;
+			case 6: region.offset(0, 0, 1); break;
+			case 7: region.offset(0, -1, 0); break;
+			case 8: region.offset(0, 1, 0); break;
+			case 10: {
+				if (region == null || point == null) { return; }
 				TreeMap<Integer, Point> map = new TreeMap<>();
 				int i = 0;
 				for (int pos : region.points.keySet()) {
@@ -111,23 +90,17 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				}
 				int j = 0;
 				for (int pos : region.points.keySet()) {
-					if (pos == i) {
-						continue;
-					}
-					if (pos + 1 == i) {
-						map.put(j++, point);
-					}
+					if (pos == i) { continue; }
+					if (pos + 1 == i) { map.put(j++, point); }
 					Point p = region.points.get(pos);
 					map.put(j++, p);
 				}
 				region.points.clear();
 				region.points.putAll(map);
 				break;
-			}
-			case 11: { // Down Point Pos
-				if (region == null || point == null) {
-					return;
-				}
+			} // Up Point Pos
+			case 11: {
+				if (region == null || point == null) { return; }
 				TreeMap<Integer, Point> map = new TreeMap<>();
 				int i = 0;
 				for (int pos : region.points.keySet()) {
@@ -139,79 +112,57 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				}
 				int j = 0;
 				for (int pos : region.points.keySet()) {
-					if (pos == i) {
-						continue;
-					}
+					if (pos == i) { continue; }
 					Point p = region.points.get(pos);
 					map.put(j++, p);
-					if (pos - 1 == i) {
-						map.put(j++, point);
-					}
+					if (pos - 1 == i) { map.put(j++, point); }
 				}
 				region.points.clear();
 				region.points.putAll(map);
 				break;
-			}
-			case 12: { // OffSet Point -X
-				if (point == null) {
-					return;
-				}
+			} // Down Point Pos
+			case 12: {
+				if (point == null) { return; }
 				point.x--;
 				break;
-			}
-			case 13: { // OffSet Point +X
-				if (point == null) {
-					return;
-				}
+			} // OffSet Point -X
+			case 13: {
+				if (point == null) { return; }
 				point.x++;
 				break;
-			}
-			case 14: { // OffSet Point -Z
-				if (point == null) {
-					return;
-				}
+			} // OffSet Point +X
+			case 14: {
+				if (point == null) { return; }
 				point.y--;
 				break;
-			}
-			case 15: { // OffSet Point +Z
-				if (point == null) {
-					return;
-				}
+			} // OffSet Point -Z
+			case 15: {
+				if (point == null) { return; }
 				point.y++;
 				break;
-			}
-			case 18: { // Max Y Up +
-				if (region == null) {
-					return;
-				}
+			} // OffSet Point +Z
+			case 18: {
+				if (region == null) { return; }
 				region.y[1]++;
 				break;
-			}
-			case 19: { // Max Y Up -
-				if (region == null) {
-					return;
-				}
+			} // Max Y Up +
+			case 19: {
+				if (region == null) { return; }
 				region.y[1]--;
 				break;
-			}
-			case 20: { // Max Y Down +
-				if (region == null) {
-					return;
-				}
+			} // Max Y Up -
+			case 20: {
+				if (region == null) { return; }
 				region.y[0]++;
 				break;
-			}
-			case 21: { // Max Y Down -
-				if (region == null) {
-					return;
-				}
+			} // Max Y Down +
+			case 21: {
+				if (region == null) { return; }
 				region.y[0]--;
 				break;
-			}
-			case 24: { // Teleport to Center
-				if (region == null) {
-					return;
-				}
+			} // Max Y Down -
+			case 24: {
+				if (region == null) { return; }
 				if (point != null) {
 					Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, point.x, region.y[0] + (region.y[1] - region.y[0]) / 2, point.y);
 					return;
@@ -219,21 +170,39 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				IPos pos = region.getCenter();
 				Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, pos.getX(), pos.getY(), pos.getZ());
 				return;
-			}
-			case 25: { // Keep Out Type
-				if (region == null) {
-					return;
-				}
+			} // Teleport to Center
+			case 25: {
+				if (region == null) { return; }
 				region.keepOut = ((GuiNpcCheckBox) button).isSelected();
 				break;
-			}
-			case 26: { // Show In Client
-				if (region == null) {
-					return;
-				}
+			} // Keep Out Type
+			case 26: {
+				if (region == null) { return; }
 				region.showInClient = ((GuiNpcCheckBox) button).isSelected();
 				break;
-			}
+			} // Show In Client
+			case 27: {
+				if (region == null) { return; }
+				setSubGui(new SubGuiQuestSelection(region.questID));
+				break;
+			} // select quest
+			case 28: {
+				if (region == null) { return; }
+				region.questID = 0;
+				initGui();
+				break;
+			} // remove quest
+			case 29: {
+				if (region == null) { return; }
+				region.questWhenEnter = ((GuiNpcCheckBox) button).isSelected();
+				break;
+			} // quest when enter
+			case 30: {
+				if (region == null) { return; }
+				setSubGui(new SubGuiEditText(0, region.message)
+						.setHoverTexts(new TextComponentTranslation("region.hover.enter.message")));
+				break;
+			} // message
 		}
 		initGui();
 	}
@@ -261,21 +230,14 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	private void drawRegion(int work, double mu, double mv, double su, double sv, double sy) {
-		if (region == null) {
-			return;
-		}
+		if (region == null) { return; }
 		double u0, u1, v0, v1;
 		for (int i = -1; i < region.points.size() - 1; i++) {
 			Point p0;
-			if (i == -1) {
-				p0 = region.points.get(region.points.size() - 1);
-			} else {
-				p0 = region.points.get(i);
-			}
+			if (i == -1) { p0 = region.points.get(region.points.size() - 1); }
+			else { p0 = region.points.get(i); }
 			Point p1 = region.points.get(i + 1);
-			if (p0 == null || p1 == null) {
-				continue;
-			}
+			if (p0 == null || p1 == null) { continue; }
 			u0 = (p0.x - mu) * su;
 			v0 = (p0.y - mv) * sv;
 			u1 = (p1.x - mu) * su;
@@ -418,9 +380,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 		}
 		if (region != null && point != null && !region.contains(point.x, point.y)) {
 			point = null;
-			if (!region.points.isEmpty()) {
-				point = region.points.get(0);
-			}
+			if (!region.points.isEmpty()) { point = region.points.get(0); }
 		}
 		for (Zone3D reg : bData.regions.values()) {
 			dataRegions.put(reg.getId(), reg.toString());
@@ -436,24 +396,23 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			}
 		}
 		if (regions == null) { (regions = new GuiCustomScroll(this, 0)).setSize(110, 130); }
-		regions.setListNotSorted(new ArrayList<>(dataRegions.values()));
+		regions.setUnsortedList(new ArrayList<>(dataRegions.values()));
 		regions.guiLeft = guiLeft + 5;
 		regions.guiTop = guiTop + 14;
 		if (!selectReg.isEmpty()) { regions.setSelected(selectReg); }
 		addScroll(regions);
 		// regions
-		int gray = new Color(0xFF202020).getRGB();
-		GuiNpcLabel label = new GuiNpcLabel(103, "gui.regions", guiLeft + 5, guiTop + 4, gray);
+		GuiNpcLabel label = new GuiNpcLabel(103, "gui.regions", guiLeft + 5, guiTop + 4);
 		label.setHoverText("region.hover.regions.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText());
 		addLabel(label);
 		if (points == null) { (points = new GuiCustomScroll(this, 1)).setSize(xSize - side - 124, side / 2); }
-		points.setListNotSorted(new ArrayList<>(dataPoints.values()));
+		points.setUnsortedList(new ArrayList<>(dataPoints.values()));
 		points.guiLeft = r1;
 		points.guiTop = guiTop + 14;
 		if (!selectP.isEmpty()) { points.setSelected(selectP); }
 		addScroll(points);
  		// points
-		label = new GuiNpcLabel(104, "gui.points", r1, guiTop + 4, gray);
+		label = new GuiNpcLabel(104, "gui.points", r1, guiTop + 4);
 		label.setHoverText("region.hover.points.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText());
 		addLabel(label);
 		// ID 0 - color
@@ -463,174 +422,187 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 			while (c.length() < 6) { c.insert(0, "0"); }
 			color = c.toString();
 		}
-		GuiNpcButton button = new GuiNpcButton(0, guiLeft + 5, guiTop + 162, 60, 13, color);
-		button.setEnabled(region != null);
-		if (region != null) { button.setTextColor(region.color); }
-		button.setHoverText("region.hover.color");
-		addButton(button);
+		addButton( new GuiNpcButton(0, guiLeft + 5, guiTop + 162, 60, 13, color)
+				.setIsEnable(region != null)
+				.setTextColor(region != null ? region.color : 0)
+				.setHoverText("region.hover.color"));
 		// ID 1 - Available
-		button = new GuiNpcButton(1, guiLeft + 5, guiTop + 147, 110, 13, "availability.available");
-		button.setEnabled(region != null);
-		button.setHoverText("availability.hover");
-		addButton(button);
-		button = new GuiNpcButton(2, guiLeft + 67, guiTop + 162, 48, 13, "gui.remove");
-		button.setEnabled(region != null);
-		button.setHoverText("hover.delete");
-		addButton(button);
+		addButton(new GuiNpcButton(1, guiLeft + 5, guiTop + 147, 110, 13, "availability.available")
+				.setIsEnable(region != null)
+				.setHoverText("availability.hover"));
+		addButton(new GuiNpcButton(2, guiLeft + 67, guiTop + 162, 48, 13, "gui.remove")
+				.setIsEnable(region != null)
+				.setHoverText("hover.delete"));
 		// ID 3 - OffSet -X
 		String trRegion = new TextComponentTranslation("gui.region").getFormattedText();
-		button = new GuiNpcButton(3, r0 + 13, guiTop + 3, 13, 13, String.valueOf(((char) 0x25C4)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.-x", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(3, r0 + 13, guiTop + 3, 13, 13, "←")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.-x", trRegion));
 		// ID 4 - OffSet +X
-		button = new GuiNpcButton(4, r0 + 27, guiTop + 3, 13, 13, String.valueOf(((char) 0x25BA)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.+x", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(4, r0 + 27, guiTop + 3, 13, 13, "→")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.+x", trRegion));
 		// ID 5 - OffSet -Z
-		button = new GuiNpcButton(5, r0 - 1, guiTop + 18, 13, 13, String.valueOf(((char) 0x25B2)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.-z", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(5, r0 - 1, guiTop + 18, 13, 13, "↑")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.-z", trRegion));
 		// ID 6 - OffSet +Z
-		button = new GuiNpcButton(6, r0 - 1, guiTop + 32, 13, 13, String.valueOf(((char) 0x25BC)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.+z", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(6, r0 - 1, guiTop + 32, 13, 13, "↓")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.+z", trRegion));
 		// ID 7 - OffSet -Y
-		button = new GuiNpcButton(7, r0 - 1, guiTop + side - 21, 13, 13, String.valueOf(((char) 0x25BC)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.-y", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(7, r0 - 1, guiTop + side - 21, 13, 13, "↓")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.-y", trRegion));
 		// ID 8 - OffSet +Y
-		button = new GuiNpcButton(8, r0 - 1, guiTop + side - 35, 13, 13, String.valueOf(((char) 0x25B2)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.+y", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(8, r0 - 1, guiTop + side - 35, 13, 13, "↑")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.+y", trRegion));
+
 		// ID 10 - Up Point Pos
-		button = new GuiNpcButton(10, r1, h0, 39, 13, String.valueOf(((char) 0x02C4)));
-		button.setEnabled(region != null);
-		button.setHoverText("region.hover.offSet.up", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(10, r1, h0, 39, 13, "˄")
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.offSet.up", trRegion));
 		// ID 11 - Down Point Pos
-		button = new GuiNpcButton(11, r1 + 42, h0, 39, 13, String.valueOf(((char) 0x02C5)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.point.offSet.down", trRegion);
-		addButton(button);
+		addButton(new GuiNpcButton(11, r1 + 41, h0, 39, 13, "˅")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.point.offSet.down", trRegion));
+		// ID 9 - remove point
+		addButton(new GuiNpcButton(9, r1 + 82, h0, 13, 13, "X")
+				.setIsEnable(region != null && point != null && dataPoints.size() > 1 && points.hasSelected())
+				.setHoverText("region.hover.point.remove", trRegion));
+
 		// ID 12 - OffSet Point -X
 		String trPoint = new TextComponentTranslation("gui.point").getFormattedText();
-		button = new GuiNpcButton(12, r1, h0 + 27, 13, 13, String.valueOf(((char) 0x25C4)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.-x", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(12, r1, h0 + 25, 12, 12, "←")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.-x", trPoint));
 		// ID 13 - OffSet Point +X
-		button = new GuiNpcButton(13, r1 + 24, h0 + 27, 13, 13, String.valueOf(((char) 0x25BA)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.+x", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(13, r1 + 22, h0 + 25, 12, 12, "→")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.+x", trPoint));
 		// ID 14 - OffSet Point -Z
-		button = new GuiNpcButton(14, r1 + 12, h0 + 14, 13, 13, String.valueOf(((char) 0x25B2)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.-z", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(14, r1 + 11, h0 + 14, 12, 12, "↑")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.-z", trPoint));
 		// ID 15 - OffSet Point +Z
-		button = new GuiNpcButton(15, r1 + 12, h0 + 40, 13, 13, String.valueOf(((char) 0x25BC)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.+z", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(15, r1 + 11, h0 + 36, 12, 12, "↓")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.+z", trPoint));
+
 		// ID 18 - Max Y Up -
-		button = new GuiNpcButton(18, r1, h0 + 55, 13, 13, String.valueOf(((char) 0x25B2)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.up.-y", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(18, r1, h0 + 50, 12, 12, "↑")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.up.-y", trPoint));
 		// ID 19 - Max Y Up +
-		button = new GuiNpcButton(19, r1, h0 + 72, 13, 13, String.valueOf(((char) 0x25BC)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.up.+y", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(19, r1, h0 + 62, 12, 12, "↓")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.up.+y", trPoint));
 		// ID 20 - Max Y Down -
-		button = new GuiNpcButton(20, r1 + 47, h0 + 55, 13, 13, String.valueOf(((char) 0x25B2)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.down.-y", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(20, r1 + 49, h0 + 50, 12, 12, "↑")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.down.-y", trPoint));
 		// ID 21 - Max Y Down +
-		button = new GuiNpcButton(21, r1 + 47, h0 + 72, 13, 13, String.valueOf(((char) 0x25BC)));
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("region.hover.offSet.down.+y", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(21, r1 + 49, h0 + 62, 12, 12, "↓")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.offSet.down.+y", trPoint));
+
 		// ID 24 - Teleport to Center
-		button = new GuiNpcButton(24, r1 + 74, h0 + 23, 20, 20, "TP");
-		button.setEnabled(region != null && point != null);
-		button.setHoverText("hover.teleport", trPoint);
-		addButton(button);
+		addButton(new GuiNpcButton(24, r1 + 74, h0 + 23, 16, 16, "TP")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("hover.teleport", trPoint));
 		// ID 25 - Keep Out Type
-		GuiNpcCheckBox checkBox = new GuiNpcCheckBox(25, guiLeft + 5, guiTop + side + 9, 110, 12, "region.keepout.true", "region.keepout.false" , region != null && region.keepOut);
-		checkBox.setSelected(region != null && region.keepOut);
-		checkBox.setHoverText("region.hover.keepout");
-		addButton(checkBox);
+		addButton(new GuiNpcCheckBox(25, guiLeft + 5, guiTop + side + 5, 110, 10, "region.keepout.true", "region.keepout.false" , region != null && region.keepOut)
+				.setHoverText("region.hover.keepout"));
 		// ID 26 - Keep Out Type
-		checkBox = new GuiNpcCheckBox(26, guiLeft + 275, guiTop + side + 9, 110, 12, "region.show.in.client.true", "region.show.in.client.false", region != null && region.showInClient);
-		checkBox.setSelected(region != null && region.showInClient);
-		checkBox.setHoverText("region.hover.show.in.client");
-		addButton(checkBox);
+		addButton(new GuiNpcCheckBox(26, guiLeft + 5, guiTop + side + 16, 110, 10, "region.show.in.client.true", "region.show.in.client.false", region != null && region.showInClient)
+				.setHoverText("region.hover.show.in.client"));
+		// ID 27 - quest id
+		String q = new TextComponentTranslation("quest.next").getFormattedText();
+		if (region != null && region.questID > 0) {
+			Quest quest = QuestController.instance.quests.get(region.questID);
+			q = new TextComponentTranslation("gui.quest", ": " + (quest != null ? new TextComponentTranslation(quest.getName()).getFormattedText() : "")).getFormattedText();
+		}
+		addButton(new GuiNpcButton(27, r1, guiTop + side - 1, 79, 14, q)
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.quest.id"));
+		// ID 28 - remove quest
+		addButton(new GuiNpcButton(28, r1 + 81, guiTop + side - 1, 14, 14, "X")
+				.setIsEnable(region != null && region.questID > 0)
+				.setHoverText("region.hover.quest.remove", trRegion));
+		// ID 29 - quest when enter
+		addButton(new GuiNpcCheckBox(29, r1, guiTop + side + 16, 95, 10, "region.quest.when.enter.true", "region.quest.when.enter.false", region != null && region.questWhenEnter)
+				.setIsEnable(region != null)
+				.setHoverText("region.hover.quest.when.enter"));
+		// ID 30 - message
+		addButton(new GuiNpcButton(30, r0 + 139, guiTop + side + 11, 46, 13, "gui.message")
+				.setIsEnable(region != null)
+				.setHoverText(new TextComponentTranslation("region.hover.enter.message").getFormattedText() + "<br>" +
+						(region != null ? "\"" + region.message + "\":" : "") + "<br>" +
+						(region != null ? new TextComponentTranslation(region.message).getFormattedText() : "")));
+		// ID 30 - message
+		addButton(new GuiNpcButton(30, r0 + 139, guiTop + side + 11, 46, 13, "gui.message")
+				.setIsEnable(region != null)
+				.setHoverText(new TextComponentTranslation("region.hover.enter.message").getFormattedText() + "<br>" +
+						(region != null ? "\"" + region.message + "\":" : null) + "<br>" +
+						(region != null ? new TextComponentTranslation(region.message).getFormattedText() : null)));
 		// TextFields
 		// X Point pos
-		GuiNpcTextField textField = new GuiNpcTextField(16, this, r1 + 39, h0 + 17, 31, 15, "" + (point != null ? point.x : 0));
-		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, point != null ? point.x : 0);
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("X pos");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(16, this, r1 + 38, h0 + 16, 31, 12, "" + (point != null ? point.x : 0))
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, point != null ? point.x : 0)
+				.setIsEnable(region != null && point != null)
+				.setHoverText("X pos"));
 		// ID 17 - Z Point pos
-		textField = new GuiNpcTextField(17, this, r1 + 39, h0 + 33, 31, 15, "" + (point != null ? point.y : 0));
-		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, point != null ? point.y : 0);
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("Z pos");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(17, this, r1 + 38, h0 + 34, 31, 12, "" + (point != null ? point.y : 0))
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, point != null ? point.y : 0)
+				.setIsEnable(region != null && point != null)
+				.setHoverText("Z pos"));
 		// ID 22 - Max Y
-		textField = new GuiNpcTextField(22, this, r1 + 14, h0 + 63, 31, 15, "" + (region != null ? region.y[1] : 0));
-		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, region != null ? region.y[1] : 0);
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("max Y");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(22, this, r1 + 14, h0 + 56, 31, 12, "" + (region != null ? region.y[1] : 0))
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, region != null ? region.y[1] : 0)
+				.setIsEnable(region != null && point != null)
+				.setHoverText("max Y"));
 		// ID 23 - Min Y
-		textField = new GuiNpcTextField(23, this, r1 + 61, h0 + 63, 31, 15, "" + (region != null ? region.y[0] : 0));
-		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, region != null ? region.y[0] : 0);
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("min Y");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(23, this, r1 + 63, h0 + 56, 31, 12, "" + (region != null ? region.y[0] : 0))
+				.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, region != null ? region.y[0] : 0)
+				.setIsEnable(region != null && point != null)
+				.setHoverText("min Y"));
 		// ID 24 - Name
-		textField = new GuiNpcTextField(24, this, guiLeft + 5, guiTop + 178, 110, 15, region != null ? region.name : "");
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("region.hover.name");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(24, this, guiLeft + 5, guiTop + 177, 110, 13, region != null ? region.name : "")
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.name"));
 		// ID 25 - Home X
-		textField = new GuiNpcTextField(25, this, r0 + 39, guiTop + side + 11, 35, 13, "" + (region != null ? region.homePos.getX() : ""));
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("region.hover.home.axis", "X");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(25, this, r0 + 30, guiTop + side + 11, 35, 13, "" + (region != null ? region.homePos.getX() : ""))
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.home.axis", "X"));
 		// ID 26 - Home Y
-		textField = new GuiNpcTextField(26, this, r0 + 77, guiTop + side + 11, 35, 13, "" + (region != null ? region.homePos.getY() : ""));
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("region.hover.home.axis", "Y");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(26, this, r0 + 66, guiTop + side + 11, 35, 13, "" + (region != null ? region.homePos.getY() : ""))
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.home.axis", "Y"));
 		// ID 27 - Home Z
-		textField = new GuiNpcTextField(27, this, r0 + 115, guiTop + side + 11, 35, 13, "" + (region != null ? region.homePos.getZ() : ""));
-		textField.setEnabled(region != null && point != null);
-		textField.setHoverText("region.hover.home.axis", "Z");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(27, this, r0 + 102, guiTop + side + 11, 35, 13, "" + (region != null ? region.homePos.getZ() : ""))
+				.setIsEnable(region != null && point != null)
+				.setHoverText("region.hover.home.axis", "Z"));
 		// Labels
 		// ID 99 - Home Pos
-		addLabel(new GuiNpcLabel(99, "Home POS:", r0, guiTop + side + 13, gray));
+		addLabel(new GuiNpcLabel(99, "Home:", r0, guiTop + side + 12));
+		getLabel(99).width = 28;
+		getLabel(99).height = 12;
 		// ID 100 - Min XZ Pos
-		addLabel(new GuiNpcLabel(100, "MinXZ: [" + (region == null ? "0, 0" : region.getMinX() + "," + region.getMinZ()) + "]", r0 + 47, guiTop + 6, gray));
+		addLabel(new GuiNpcLabel(100, "MinXZ: [" + (region == null ? "0, 0" : region.getMinX() + "," + region.getMinZ()) + "]", r0 + 42, guiTop + 6));
+		getLabel(100).width = 70;
+		getLabel(100).height = 12;
 		// ID 101 - Max XZ Pos
-		addLabel(new GuiNpcLabel(101, "MaxXZ: [" + (region == null ? "0, 0" : region.getMaxX() + "," + region.getMaxZ()) + "]", r0, guiTop + side - 3, gray));
+		addLabel(new GuiNpcLabel(101, "MaxXZ: [" + (region == null ? "0, 0" : region.getMaxX() + "," + region.getMaxZ()) + "]", r0, guiTop + side - 3));
+		getLabel(101).width = 92;
+		getLabel(101).height = 12;
 		// ID 102 - Min/Max Y Pos
-		String text = "Min/Max Y: [" + (region == null ? "0, 0" : region.y[0] + "," + region.y[1]) + "]";
-		addLabel(new GuiNpcLabel(102, text, r0 + side - mc.fontRenderer.getStringWidth(text) - 1, guiTop + side - 3, gray));
-		text = "(worldID: " + (region == null ? "N/A" : region.dimensionID) + ")";
-		addLabel(new GuiNpcLabel(105, text, r0 + side - mc.fontRenderer.getStringWidth(text) - 5, guiTop + 4, gray));
+		addLabel(new GuiNpcLabel(102, "Min/Max Y: [" + (region == null ? "0, 0" : region.y[0] + "," + region.y[1]) + "]", r0 + 92, guiTop + side - 3));
+		getLabel(102).width = 92;
+		getLabel(101).height = 12;
+		addLabel(new GuiNpcLabel(105, "(worldID: " + (region == null ? "N/A" : region.dimensionID) + ")", r0 + 115, guiTop + 6, guiTop + 4));
+		getLabel(105).width = 70;
+		getLabel(105).height = 12;
 	}
 
 	@Override
@@ -643,23 +615,18 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		switch (scroll.getID()) {
 			case 0: { // Region List
-				if (!dataRegions.containsValue(scroll.getSelected())) {
-					return;
-				}
+				if (!dataRegions.containsValue(scroll.getSelected())) { return; }
 				BorderController bData = BorderController.getInstance();
 				for (int id : dataRegions.keySet()) {
-					if (region != null && region.getId() == id) {
-						continue;
-					}
+					if (region != null && region.getId() == id) { continue; }
 					if (dataRegions.get(id).equals(scroll.getSelected()) && bData.regions.containsKey(id)) {
-						region = (Zone3D) bData.getRegion(id);
+						region = bData.getRegion(id);
+						regID = id;
 						point = null;
-						if (!region.points.isEmpty()) {
-							point = region.points.get(0);
-						}
+						if (!region.points.isEmpty()) { point = region.points.get(0); }
 						Client.sendData(EnumPacketServer.RegionData, 0, id);
 						initGui();
 						break;
@@ -668,9 +635,7 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 				break;
 			}
 			case 1: { // Point List
-				if (region == null || !dataPoints.containsValue(scroll.getSelected())) {
-					return;
-				}
+				if (region == null || !dataPoints.containsValue(scroll.getSelected())) { return; }
 				for (int id : dataPoints.keySet()) {
 					if (dataPoints.get(id).equals(scroll.getSelected()) && region.points.containsKey(id)) {
 						point = region.points.get(id);
@@ -684,25 +649,21 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		switch (scroll.getID()) {
 			case 0: { // Region List
-				if (region == null) {
-					return;
-				}
+				if (region == null) { return; }
 				IPos pos = region.getCenter();
 				Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, pos.getX(), pos.getY(), pos.getZ());
 				Client.sendData(EnumPacketServer.RegionData, 0, region.getId());
-				close();
+				onClosed();
 				break;
 			}
 			case 1: { // Point List
-				if (region == null || point == null) {
-					return;
-				}
+				if (region == null || point == null) { return; }
 				Client.sendData(EnumPacketServer.TeleportTo, region.dimensionID, point.x, region.y[0] + (region.y[1] - region.y[0]) / 2, point.y);
 				Client.sendData(EnumPacketServer.RegionData, 0, region.getId());
-				close();
+				onClosed();
 				break;
 			}
 		}
@@ -710,82 +671,70 @@ implements ICustomScrollListener, ITextfieldListener, ISubGuiListener {
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiColorSelector && region != null) {
-			region.color = ((SubGuiColorSelector) subgui).color;
-			initGui();
+		if (region != null) {
+			if (subgui instanceof SubGuiColorSelector) { region.color = ((SubGuiColorSelector) subgui).color; }
+			if (subgui instanceof SubGuiEditText) { region.message = ((SubGuiEditText) subgui).text[0]; }
 		}
-
+		initGui();
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
-		if (textField.getFullText().isEmpty()) {
-			return;
-		}
+	public void selected(int id, String name) {
+		region.questID = id;
+		initGui();
+	}
+
+	@Override
+	public void unFocused(GuiNpcTextField textField) {
+		if (textField.getText().isEmpty()) { return; }
 		switch (textField.getID()) {
-			case 16: { // X Point pos
-				if (point == null || !textField.isInteger()) {
-					return;
-				}
+			case 16: {
+				if (point == null || !textField.isInteger()) { return; }
 				point.x = textField.getInteger();
 				initGui();
 				break;
-			}
-			case 17: { // Z Point pos
-				if (point == null || !textField.isInteger()) {
-					return;
-				}
+			} // X Point pos
+			case 17: {
+				if (point == null || !textField.isInteger()) { return; }
 				point.y = textField.getInteger();
 				initGui();
 				break;
-			}
-			case 22: { // Y max
-				if (region == null || !textField.isInteger()) {
-					return;
-				}
+			} // Z Point pos
+			case 22: {
+				if (region == null || !textField.isInteger()) { return; }
 				region.y[1] = textField.getInteger();
 				initGui();
 				break;
-			}
-			case 23: { // Y min
-				if (region == null || !textField.isInteger()) {
-					return;
-				}
+			} // Y max
+			case 23: {
+				if (region == null || !textField.isInteger()) { return; }
 				region.y[0] = textField.getInteger();
 				initGui();
 				break;
-			}
-			case 24: { // Name
-				if (region == null) {
-					return;
-				}
-				region.name = textField.getFullText();
+			} // Y min
+			case 24: {
+				if (region == null) { return; }
+				region.name = textField.getText();
 				break;
-			}
-			case 25: { // Home X
-				if (region == null || !textField.isInteger()) {
-					return;
-				}
+			} // Name
+			case 25: {
+				if (region == null || !textField.isInteger()) { return; }
 				IPos pos = region.homePos;
 				region.setHomePos(textField.getInteger(), (int) pos.getY(), (int) pos.getZ());
 				break;
-			}
-			case 26: { // Home Y
-				if (region == null || !textField.isInteger()) {
-					return;
-				}
+			} // Home X
+			case 26: {
+				if (region == null || !textField.isInteger()) { return; }
 				IPos pos = region.homePos;
 				region.setHomePos((int) pos.getX(), textField.getInteger(), (int) pos.getZ());
 				break;
-			}
-			case 27: { // Home Z
-				if (region == null || !textField.isInteger()) {
-					return;
-				}
+			} // Home Y
+			case 27: {
+				if (region == null || !textField.isInteger()) { return; }
 				IPos pos = region.homePos;
 				region.setHomePos((int) pos.getX(), (int) pos.getY(), textField.getInteger());
 				break;
-			}
+			} // Home Z
 		}
 	}
 

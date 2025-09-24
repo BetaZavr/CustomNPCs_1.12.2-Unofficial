@@ -1,137 +1,90 @@
 package noppes.npcs.client.gui.roles;
 
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.roles.data.HealerSettings;
 
-public class SubGuiNpcJobHealerSettings
-extends SubGuiInterface
-implements ITextfieldListener {
+import javax.annotation.Nonnull;
 
-	public HealerSettings hs;
+public class SubGuiNpcJobHealerSettings extends SubGuiInterface implements ITextfieldListener {
+
+	public HealerSettings healerSettings;
 
 	public SubGuiNpcJobHealerSettings(int id, HealerSettings settings) {
-		background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
+		super(id);
+		setBackground("menubg.png");
+		closeOnEsc = true;
 		xSize = 171;
 		ySize = 217;
-		closeOnEsc = true;
 
-		this.id = id;
-		hs = settings;
+		healerSettings = settings;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
-			case 1: {
-				hs.type = (byte) button.getValue();
-				break;
-			}
-			case 2: {
-				hs.isMassive = button.getValue() == 0;
-				break;
-			}
-			case 3: {
-				hs.onHimself = ((IGuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 4: {
-				hs.possibleOnMobs = ((IGuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 66: {
-				close();
-				break;
-			}
+			case 1: healerSettings.type = (byte) button.getValue(); break;
+			case 2: healerSettings.isMassive = button.getValue() == 0; break;
+			case 3: healerSettings.onHimself = ((GuiNpcCheckBox) button).isSelected(); break;
+			case 4: healerSettings.possibleOnMobs = ((GuiNpcCheckBox) button).isSelected(); break;
+			case 66: onClosed(); break;
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		int y = 5;
-		addLabel(new GuiNpcLabel(1, "beacon.range", guiLeft + 10, guiTop + y + 5));
-		GuiNpcTextField textField = new GuiNpcTextField(1, this, fontRenderer, guiLeft + 123, guiTop + y, 45, 20, hs.range + "");
-		textField.setMinMaxDefault(1, 64, 16);
-		textField.setHoverText("beacon.hover.dist");
-		addTextField(textField);
-		y += 24;
-		addLabel(new GuiNpcLabel(2, "stats.speed", guiLeft + 10, guiTop + y + 5));
-		textField = new GuiNpcTextField(2, this, fontRenderer, guiLeft + 123, guiTop + y, 45, 20, hs.speed + "");
-		textField.setMinMaxDefault(10, 72000, 20);
-		textField.setHoverText("beacon.hover.speed");
-		addTextField(textField);
-		y += 24;
-		addLabel(new GuiNpcLabel(3, "beacon.amplifier", guiLeft + 10, guiTop + y + 5));
-		textField = new GuiNpcTextField(3, this, fontRenderer, guiLeft + 123, guiTop + y, 45, 20, (hs.amplifier + 1) + "");
-		textField.setMinMaxDefault(1, 4, 1);
-		String lv = "enchantment.level." + hs.amplifier;
+		int x0 = guiLeft + 10;
+		int x1 = guiLeft + 123;
+		int y = guiTop + 5;
+		addLabel(new GuiNpcLabel(1, "beacon.range", x0, y + 5));
+		addTextField(new GuiNpcTextField(1, this, x1, y, 45, 20, healerSettings.range + "")
+				.setMinMaxDefault(1, 64, 16)
+				.setHoverText("beacon.hover.dist"));
+		addLabel(new GuiNpcLabel(2, "stats.speed", x0, (y += 24) + 5));
+		addTextField(new GuiNpcTextField(2, this, x1, y, 45, 20, healerSettings.speed + "")
+				.setMinMaxDefault(10, 72000, 20)
+				.setHoverText("beacon.hover.speed"));
+		addLabel(new GuiNpcLabel(3, "beacon.amplifier", x0, (y += 24) + 5));
+		String lv = "enchantment.level." + healerSettings.amplifier;
 		if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
-		else { lv = "" + (hs.amplifier + 1); }
-		textField.setHoverText("beacon.hover.power", lv);
-		addTextField(textField);
-		y += 24;
-		addLabel(new GuiNpcLabel(4, "gui.time", guiLeft + 10, guiTop + y + 5));
-		textField = new GuiNpcTextField(4, this, fontRenderer, guiLeft + 123, guiTop + y, 45, 20, hs.time + "");
-		textField.setMinMaxDefault(1, 72000, 1);
-		textField.setHoverText("beacon.hover.time");
-		addTextField(textField);
-		y += 24;
-		addLabel(new GuiNpcLabel(5, "beacon.affect", guiLeft + 10, guiTop + y + 5));
-		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 88, guiTop + y, 80, 20, new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, hs.type);
-		button.setHoverText("beacon.hover.type");
-		addButton(button);
-		y += 24;
-		addLabel(new GuiNpcLabel(6, "beacon.applicability", guiLeft + 10, guiTop + y + 5));
-		button = new GuiNpcButton(2, guiLeft + 88, guiTop + y, 80, 20, new String[] { "beacon.massive", "beacon.not.massive" }, hs.isMassive ? 0 : 1);
-		button.setHoverText("beacon.hover.massive");
-		addButton(button);
-		y += 24;
-		button = new GuiNpcCheckBox(3, guiLeft + 10, guiTop + y, 168, 20, "beacon.on.him.self", null, hs.onHimself);
-		button.setHoverText("beacon.hover.on.him.self");
-		addButton(button);
-		y += 17;
-		button = new GuiNpcCheckBox(4, guiLeft + 10, guiTop + y, 168, 20, "beacon.on.mobs", null, hs.possibleOnMobs);
-		button.setHoverText("beacon.hover.on.mobs");
-		addButton(button);
-		button = new GuiNpcButton(66, guiLeft + 61, guiTop + ySize - 24, 45, 20, "gui.done");
-		button.setHoverText("hover.back");
-		addButton(button);
+		else { lv = "" + (healerSettings.amplifier + 1); }
+		addTextField(new GuiNpcTextField(3, this, x1, y, 45, 20, (healerSettings.amplifier + 1) + "")
+				.setMinMaxDefault(1, 4, 1)
+				.setHoverText("beacon.hover.power", lv));
+		addLabel(new GuiNpcLabel(4, "gui.time", x0, (y += 24) + 5));
+		addTextField(new GuiNpcTextField(4, this, x1, y, 45, 20, healerSettings.time + "")
+				.setMinMaxDefault(1, 72000, 1)
+				.setHoverText("beacon.hover.time"));
+		addLabel(new GuiNpcLabel(5, "beacon.affect", x0, (y += 24) + 5));
+		addButton(new GuiNpcButton(1, guiLeft + 88, y, 80, 20, new String[] { "faction.friendly", "faction.unfriendly", "spawner.all" }, healerSettings.type)
+				.setHoverText("beacon.hover.type"));
+		addLabel(new GuiNpcLabel(6, "beacon.applicability", x0, (y += 24) + 5));
+		addButton(new GuiNpcButton(2, guiLeft + 88, y, 80, 20, new String[] { "beacon.massive", "beacon.not.massive" }, healerSettings.isMassive ? 0 : 1)
+				.setHoverText("beacon.hover.massive"));
+		addButton(new GuiNpcCheckBox(3, x0, y += 24, 168, 20, "beacon.on.him.self", null, healerSettings.onHimself)
+				.setHoverText("beacon.hover.on.him.self"));
+		addButton(new GuiNpcCheckBox(4, x0, y + 17, 168, 20, "beacon.on.mobs", null, healerSettings.possibleOnMobs)
+				.setHoverText("beacon.hover.on.mobs"));
+		addButton(new GuiNpcButton(66, guiLeft + 61, guiTop + ySize - 24, 45, 20, "gui.done")
+				.setHoverText("hover.back"));
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			close();
-		}
-	}
-
-	@Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		switch (textField.getID()) {
-			case 1: {
-				hs.range = textField.getInteger();
-				break;
-			}
-			case 2: {
-				hs.speed = textField.getInteger();
-				break;
-			}
+			case 1: healerSettings.range = textField.getInteger(); break;
+			case 2: healerSettings.speed = textField.getInteger(); break;
 			case 3: {
-				hs.amplifier = textField.getInteger() - 1;
-				String lv = "enchantment.level." + hs.amplifier;
+				healerSettings.amplifier = textField.getInteger() - 1;
+				String lv = "enchantment.level." + healerSettings.amplifier;
 				if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
-				else { lv = "" + (hs.amplifier + 1); }
+				else { lv = "" + (healerSettings.amplifier + 1); }
 				textField.setHoverText("beacon.hover.power", lv);
 				break;
 			}
-			case 4: {
-				hs.time = textField.getInteger();
-				break;
-			}
+			case 4: healerSettings.time = textField.getInteger(); break;
 		}
 	}
 

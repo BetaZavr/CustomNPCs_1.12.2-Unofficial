@@ -39,6 +39,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.constants.RoleType;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IQuestObjective;
 import noppes.npcs.constants.EnumGuiType;
@@ -477,8 +478,15 @@ public class NoppesUtilServer {
 	}
 
 	private static void sendExtraData(EntityPlayer player, EntityNPCInterface npc, EnumGuiType gui) {
-		if (gui == EnumGuiType.PlayerFollower || gui == EnumGuiType.PlayerFollowerHire || gui == EnumGuiType.PlayerTrader || gui == EnumGuiType.PlayerTransporter) {
-			sendRoleData(player, npc);
+		if (gui == EnumGuiType.PlayerFollower ||
+				gui == EnumGuiType.PlayerFollowerHire ||
+				gui == EnumGuiType.PlayerTrader ||
+				gui == EnumGuiType.PlayerTransporter) {
+			if (npc != null && npc.advanced.roleInterface.getEnumType() != RoleType.DEFAULT) {
+				NBTTagCompound comp = new NBTTagCompound();
+				npc.advanced.roleInterface.save(comp);
+				Server.sendData((EntityPlayerMP) player, EnumPacketClient.ROLE, npc.getEntityId(), comp);
+			}
 		}
 	}
 
@@ -561,9 +569,7 @@ public class NoppesUtilServer {
 	}
 
 	public static void sendOpenGui(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc, int x, int y, int z) {
-		if (!(player instanceof EntityPlayerMP)) {
-			return;
-		}
+		if (!(player instanceof EntityPlayerMP)) { return; }
 		setEditingNpc(player, npc);
 		sendExtraData(player, npc, gui);
 		CustomNPCsScheduler.runTack(() -> {
@@ -646,16 +652,6 @@ public class NoppesUtilServer {
 			}
 		}
 		sendScrollData(player, map);
-	}
-
-	public static void sendRoleData(EntityPlayer player, EntityNPCInterface npc) {
-		if (npc == null) {
-			return;
-		}
-		NBTTagCompound comp = new NBTTagCompound();
-		npc.advanced.roleInterface.save(comp);
-		comp.setInteger("EntityId", npc.getEntityId());
-		Server.sendData((EntityPlayerMP) player, EnumPacketClient.ROLE, comp);
 	}
 
 	public static void sendScrollData(EntityPlayerMP player, Map<String, Integer> map) {

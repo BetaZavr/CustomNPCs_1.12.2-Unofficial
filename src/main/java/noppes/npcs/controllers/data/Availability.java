@@ -1140,7 +1140,7 @@ implements ICompatibilty, IAvailability {
 				if (!isNumber) {
 					if ((dataP.has(sd.key) && type == EnumAvailabilityStoredData.EXCEPT) || (!dataP.has(sd.key) && type == EnumAvailabilityStoredData.ONLY)) { bo = false; }
 				}
-				if (data.toString().isEmpty()) { data.append("; "); }
+				if (!data.toString().isEmpty()) { data.append("; "); }
 				data.append(new TextComponentTranslation("gui.name").getFormattedText()).append(": ").append(sd.key);
 				data.append(new TextComponentTranslation("quest.task.item."+(bo ? "0" : "1")).getFormattedText());
 			}

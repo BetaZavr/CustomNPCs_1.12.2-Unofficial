@@ -18,9 +18,8 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.GuiNpcMobSpawnerSelector;
+import noppes.npcs.client.gui.SubGuiNpcMobSpawnerSelector;
 import noppes.npcs.client.gui.SubGuiNpcBiomes;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
@@ -29,9 +28,10 @@ import noppes.npcs.controllers.data.SpawnData;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.ValueUtil;
 
-public class GuiNpcNaturalSpawns
-extends GuiNPCInterface2
-implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener, ISubGuiListener, GuiYesNoCallback {
+import javax.annotation.Nonnull;
+
+public class GuiNpcNaturalSpawns extends GuiNPCInterface2
+		implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISliderListener, GuiYesNoCallback {
 
 	protected final HashMap<String, Integer> data = new HashMap<>();
 	protected GuiCustomScroll scroll;
@@ -42,13 +42,17 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 
 	public GuiNpcNaturalSpawns(EntityNPCInterface npc) {
 		super(npc);
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuGlobal;
+
 		Client.sendData(EnumPacketServer.NaturalSpawnGetAll);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch(button.getID()) {
-			case 1: { // add
+			case 1: {
 				if (!accept) {
 					GuiYesNo guiyesno = new GuiYesNo(this,
 							new TextComponentTranslation("gui.acceptMessage").getFormattedText(),
@@ -57,49 +61,37 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 					displayGuiScreen(guiyesno);
 					return;
 				}
-				this.save();
+				save();
 				String name = new TextComponentTranslation("gui.new").getFormattedText();
-				while (this.data.containsKey(name)) { name += "_"; }
+				while (data.containsKey(name)) { name += "_"; }
 				SpawnData spawn = new SpawnData();
 				spawn.name = name;
 				Client.sendData(EnumPacketServer.NaturalSpawnSave, spawn.writeNBT(new NBTTagCompound()));
 				break;
-			}
-			case 2: { // remove
-				if (!this.data.containsKey(this.scroll.getSelected())) { return; }
-				Client.sendData(EnumPacketServer.NaturalSpawnRemove, this.spawn.id);
-				this.spawn = new SpawnData();
-				this.scroll.clear();
+			} // add
+			case 2: {
+				if (!data.containsKey(scroll.getSelected())) { return; }
+				Client.sendData(EnumPacketServer.NaturalSpawnRemove, spawn.id);
+				spawn = new SpawnData();
+				scroll.clear();
 				displayNpc = null;
 				break;
-			}
-			case 3: { // set biome
-				this.setSubGui(new SubGuiNpcBiomes(this.spawn));
-				break;
-			}
-			case 4: { // set liquid
+			} // remove
+			case 3: setSubGui(new SubGuiNpcBiomes(spawn)); break; // set biome
+			case 4: {
 				spawn.liquid = button.getValue() == 0;
 				button.setHoverText("spawning.hover.liquid." + button.getValue());
 				break;
-			}
-			case 5: { // select npc
-				this.setSubGui(new GuiNpcMobSpawnerSelector());
-				break;
-			}
-			case 6: { // select npc
-				spawn.canSeeSummon = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 25: { // nbt
-				this.spawn.compoundEntity = new NBTTagCompound();
+			} // set liquid
+			case 5: setSubGui(new SubGuiNpcMobSpawnerSelector()); break; // select npc
+			case 6: spawn.canSeeSummon = ((GuiNpcCheckBox) button).isSelected(); break; // select npc
+			case 25: {
+				spawn.compoundEntity = new NBTTagCompound();
 				displayNpc = null;
-				this.initGui();
+				initGui();
 				break;
-			}
-			case 27: { // type
-				this.spawn.type = button.getValue();
-				break;
-			}
+			} // nbt
+			case 27: spawn.type = button.getValue(); break; // type
 		}
 	}
 
@@ -108,16 +100,16 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		displayGuiScreen(this);
 		if (!result) { return; }
 		accept = true;
-		buttonEvent(getButton(1));
+		buttonEvent(getButton(1), 1);
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface gui) {
-		if (gui instanceof GuiNpcMobSpawnerSelector) {
-			GuiNpcMobSpawnerSelector selector = (GuiNpcMobSpawnerSelector) gui;
+		if (gui instanceof SubGuiNpcMobSpawnerSelector) {
+			SubGuiNpcMobSpawnerSelector selector = (SubGuiNpcMobSpawnerSelector) gui;
 			NBTTagCompound compound = selector.getCompound();
 			if (compound != null) {
-				this.spawn.compoundEntity = compound;
+				spawn.compoundEntity = compound;
 				if (compound.hasKey("SpawnCycle", 3)) { compound.setInteger("SpawnCycle", 4); }
 			}
 		}
@@ -147,9 +139,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 						p = 30;
 						y += 10;
 					}
-					if (displayNpc instanceof EntityItemFrame) {
-						x += 16;
-					}
+					if (displayNpc instanceof EntityItemFrame) { x += 16; }
 				}
 				GlStateManager.pushMatrix();
 				drawNpc(displayNpc, x, y, 1.0f, r, p, 0);
@@ -159,7 +149,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	}
 	
 	private String getTitle(NBTTagCompound compound) {
-		displayNpc = EntityList.createEntityFromNBT(compound, this.mc.world);
+		displayNpc = EntityList.createEntityFromNBT(compound, mc.world);
 		if (displayNpc != null) { return displayNpc.getName(); }
 		return "gui.selectnpc";
 	}
@@ -167,16 +157,14 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (scroll == null) { (scroll = new GuiCustomScroll(this, 0)).setSize(143, 208); }
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(143, 208); }
 		scroll.guiLeft = guiLeft + 214;
 		scroll.guiTop = guiTop + 4;
 		addScroll(scroll);
-		GuiNpcButton button = new GuiNpcButton(1, guiLeft + 358, guiTop + 38, 58, 20, "gui.add");
-		button.setHoverText("spawning.hover.add");
-		addButton(button);
-		button = new GuiNpcButton(2, guiLeft + 358, guiTop + 61, 58, 20, "gui.remove");
-		button.setHoverText("spawning.hover.del");
-		addButton(button);
+		addButton(new GuiNpcButton(1, guiLeft + 358, guiTop + 38, 58, 20, "gui.add")
+				.setHoverText("spawning.hover.add"));
+		addButton(new GuiNpcButton(2, guiLeft + 358, guiTop + 61, 58, 20, "gui.remove")
+				.setHoverText("spawning.hover.del"));
 		if (spawn.id < 0) { return; }
 		// entity max size
 		Entity entity = null;
@@ -190,174 +178,146 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 		int x = guiLeft + 5;
 		int y = guiTop + 5;
 		addLabel(new GuiNpcLabel(lId++, "gui.title", x, y + 3));
-		GuiNpcTextField textField = new GuiNpcTextField(1, this, fontRenderer, x + 56, y, 150, 14, spawn.name);
-		textField.setHoverText("spawning.hover.name");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(1, this, x + 56, y, 150, 14, spawn.name)
+				.setHoverText("spawning.hover.name"));
 		// Biomes
 		addLabel(new GuiNpcLabel(lId++, "spawning.biomes", x, (y += 17) + 3));
-		button = new GuiNpcButton(3, x + 56, y, 74, 16, "selectServer.edit");
-		if (spawn.biomes.isEmpty()) { button.layerColor = new Color(0xFFF02020).getRGB(); }
-		button.setHoverText("spawning.hover.biomes");
-		addButton(button);
+		addButton(new GuiNpcButton(3, x + 56, y, 74, 16, "selectServer.edit")
+				.setLayerColor(spawn.biomes.isEmpty() ? new Color(0xFFF02020).getRGB() : 0)
+				.setHoverText("spawning.hover.biomes"));
 		// spawner type
 		addLabel(new GuiNpcLabel(lId++, "gui.type", x, (y += 18) + 3));
-		button = new GuiNpcButton(27, x + 56, y, 74, 16, new String[] { "spawner.any", "spawner.dark", "spawner.light" }, spawn.type);
-		button.setHoverText("spawning.hover.type");
-		addButton(button);
-		button = new GuiNpcButton(4, x + 132, y, 74, 16, new String[] { "spawning.liquid.0", "spawning.liquid.1" }, spawn.liquid ? 0 : 1);
-		button.setHoverText("spawning.hover.liquid." + button.getValue());
-		addButton(button);
+		addButton(new GuiNpcButton(27, x + 56, y, 74, 16, new String[] { "spawner.any", "spawner.dark", "spawner.light" }, spawn.type)
+				.setHoverText("spawning.hover.type"));
+		addButton(new GuiNpcButton(4, x + 132, y, 74, 16, new String[] { "spawning.liquid.0", "spawning.liquid.1" }, spawn.liquid ? 0 : 1)
+				.setHoverText("spawning.hover.liquid." + (spawn.liquid ? 0 : 1)));
 		// select entity
-		button = new GuiNpcButton(5, x, y += 18, 184, 16, getTitle(spawn.compoundEntity));
-		button.setHoverText("spawning.hover.sel.npc");
-		addButton(button);
-		button = new GuiNpcButton(25, x + 186, y, 20, 16, "X");
-		button.setHoverText("spawning.hover.del.npc");
-		addButton(button);
+		addButton(new GuiNpcButton(5, x, y += 18, 184, 16, getTitle(spawn.compoundEntity))
+				.setHoverText("spawning.hover.sel.npc"));
+		addButton(new GuiNpcButton(25, x + 186, y, 20, 16, "X")
+				.setHoverText("spawning.hover.del.npc"));
 		// chance
 		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ":", x, (y += 29) - 10));
-		GuiNpcSlider slider = new GuiNpcSlider(this, 2, x, y, 160, 12, (float) spawn.itemWeight / 100.0f);
-		slider.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText());
-		addSlider(slider);
-		textField = new GuiNpcTextField(2, this, fontRenderer, x + 163, y, 43, 12, "" + spawn.itemWeight);
-		textField.setMinMaxDefault(1, 100, spawn.itemWeight);
-		textField.setHoverText("spawning.hover.chance");
-		addTextField(textField);
+		addSlider(new GuiNpcSlider(this, 2, x, y, 160, 12, (float) spawn.itemWeight / 100.0f)
+				.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText()));
+		addTextField(new GuiNpcTextField(2, this, x + 163, y, 43, 12, "" + spawn.itemWeight)
+				.setMinMaxDefault(1, 100, spawn.itemWeight)
+				.setHoverText("spawning.hover.chance"));
 		// group size
 		addLabel(new GuiNpcLabel(lId++, "spawning.group", x, (y += 25) - 10));
-		slider = new GuiNpcSlider(this, 3, x, y, 160, 12, (float) spawn.group / 8.0f);
-		slider.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText());
-		addSlider(slider);
-		textField = new GuiNpcTextField(3, this, fontRenderer, x + 163, y, 43, 12, "" + spawn.group);
-		textField.setMinMaxDefault(1, 8, spawn.group);
-		textField.setHoverText("spawning.hover.group");
-		addTextField(textField);
+		addSlider(new GuiNpcSlider(this, 3, x, y, 160, 12, (float) spawn.group / 8.0f)
+				.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText()));
+		addTextField(new GuiNpcTextField(3, this, x + 163, y, 43, 12, "" + spawn.group)
+				.setMinMaxDefault(1, 8, spawn.group)
+				.setHoverText("spawning.hover.group"));
 		// distance
 		addLabel(new GuiNpcLabel(lId, "spawning.range", x, (y += 25) - 10));
-		slider = new GuiNpcSlider(this, 4, x, y, 160, 12, (float) spawn.range / 16.0f);
-		slider.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText());
-		addSlider(slider);
-		textField = new GuiNpcTextField(4, this, fontRenderer, x + 163, y, 43, 12, "" + spawn.range);
-		textField.setMinMaxDefault(1, 16, spawn.range);
-		textField.setHoverText("spawning.hover.range");
-		addTextField(textField);
+		addSlider(new GuiNpcSlider(this, 4, x, y, 160, 12, (float) spawn.range / 16.0f)
+				.setHoverText(new TextComponentTranslation("spawning.hover.chance").getFormattedText()));
+		addTextField(new GuiNpcTextField(4, this, x + 163, y, 43, 12, "" + spawn.range)
+				.setMinMaxDefault(1, 16, spawn.range)
+				.setHoverText("spawning.hover.range"));
 		// maximum in player
 		addLabel(new GuiNpcLabel(lId, "spawning.maximum.in", x, (y += 25) - 10));
-		slider = new GuiNpcSlider(this, 5, x, y, 160, 12, (float) spawn.maxNearPlayer / (float) maxSize);
-		slider.setHoverText(new TextComponentTranslation("spawning.hover.maximum.in", TextFormatting.GOLD + "" + maxSize).getFormattedText());
-		addSlider(slider);
-		textField = new GuiNpcTextField(5, this, fontRenderer, x + 163, y, 43, 12, "" + spawn.maxNearPlayer);
-		textField.setMinMaxDefault(1, maxSize, spawn.maxNearPlayer);
-		textField.setHoverText("spawning.hover.maximum.in", TextFormatting.GOLD + "" + maxSize);
-		addTextField(textField);
+		addSlider(new GuiNpcSlider(this, 5, x, y, 160, 12, (float) spawn.maxNearPlayer / (float) maxSize)
+				.setHoverText(new TextComponentTranslation("spawning.hover.maximum.in", TextFormatting.GOLD + "" + maxSize).getFormattedText()));
+		addTextField(new GuiNpcTextField(5, this, x + 163, y, 43, 12, "" + spawn.maxNearPlayer)
+				.setMinMaxDefault(1, maxSize, spawn.maxNearPlayer)
+				.setHoverText("spawning.hover.maximum.in", TextFormatting.GOLD + "" + maxSize));
 		// player can see
-		button = new GuiNpcCheckBox(6, x, y + 14, 184, 14, "spawning.can.see", "spawning.not.see", spawn.canSeeSummon);
-		button.setHoverText("spawning.hover.can.see");
-		addButton(button);
+		addButton(new GuiNpcCheckBox(6, x, y + 14, 184, 14, "spawning.can.see", "spawning.not.see", spawn.canSeeSummon)
+				.setHoverText("spawning.hover.can.see"));
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
-	}
-
-	@Override
-	public void mouseDragged(IGuiNpcSlider guiNpcSlider) {
-		int id = guiNpcSlider.getID();
+	public void mouseDragged(GuiNpcSlider guiNpcSlider) {
 		String value;
-		switch (id) {
+		switch (guiNpcSlider.getID()) {
 			case 2: {
-				spawn.itemWeight = ValueUtil.correctInt((int) (guiNpcSlider.getSliderValue() * 100.0f), 1, 100);
+				spawn.itemWeight = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * 100.0f), 1, 100);
 				value = "" + spawn.itemWeight;
-				guiNpcSlider.setDisplayString(value + "%");
+				guiNpcSlider.displayString = value + "%";
 				break;
 			}
 			case 3: {
-				spawn.group = ValueUtil.correctInt((int) (guiNpcSlider.getSliderValue() * 8.0f), 1, 8);
+				spawn.group = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * 8.0f), 1, 8);
 				value = "" + spawn.group;
-				guiNpcSlider.setDisplayString(value);
+				guiNpcSlider.displayString = value;
 				break;
 			}
 			case 4: {
-				spawn.range = ValueUtil.correctInt((int) (guiNpcSlider.getSliderValue() * 16.0f), 1, 16);
+				spawn.range = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * 16.0f), 1, 16);
 				value = "" + spawn.range;
-				guiNpcSlider.setDisplayString(value);
+				guiNpcSlider.displayString = value;
 				break;
 			}
 			case 5: {
-				spawn.maxNearPlayer = ValueUtil.correctInt((int) (guiNpcSlider.getSliderValue() * (float) maxSize), 1, maxSize);
+				spawn.maxNearPlayer = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * (float) maxSize), 1, maxSize);
 				value = "" + spawn.maxNearPlayer;
-				guiNpcSlider.setDisplayString(value);
+				guiNpcSlider.displayString = value;
 				break;
 			}
 			default: return;
 		}
-		if (getTextField(id) != null) { getTextField(id).setFullText(value); }
+		if (getTextField(guiNpcSlider.getID()) != null) { getTextField(guiNpcSlider.getID()).setText(value); }
 	}
 
 	@Override
-	public void mousePressed(IGuiNpcSlider guiNpcSlider) {
-	}
+	public void mousePressed(GuiNpcSlider guiNpcSlider) { }
 
 	@Override
-	public void mouseReleased(IGuiNpcSlider guiNpcSlider) {
-		this.spawn.itemWeight = (int) (guiNpcSlider.getSliderValue() * 100.0f);
+	public void mouseReleased(GuiNpcSlider guiNpcSlider) {
+		if (guiNpcSlider.getID() == 2) {
+			spawn.itemWeight = ValueUtil.correctInt((int) (guiNpcSlider.sliderValue * 100.0f), 1, 100);
+		}
 	}
 
 	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		if (this.spawn.id >= 0) {
-			Client.sendData(EnumPacketServer.NaturalSpawnSave, this.spawn.writeNBT(new NBTTagCompound()));
-		}
+		if (spawn.id >= 0) { Client.sendData(EnumPacketServer.NaturalSpawnSave, spawn.writeNBT(new NBTTagCompound())); }
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getID() == 0) {
-			this.save();
-			String selected = this.scroll.getSelected();
-			this.spawn = new SpawnData();
-			Client.sendData(EnumPacketServer.NaturalSpawnGet, this.data.get(selected));
+			save();
+			String selected = scroll.getSelected();
+			spawn = new SpawnData();
+			Client.sendData(EnumPacketServer.NaturalSpawnGet, data.get(selected));
 		}
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		String name = this.scroll.getSelected();
-		this.data.clear();
-		this.data.putAll(data);
-		this.scroll.setList(list);
-		if (name != null) { this.scroll.setSelected(name); }
-		this.initGui();
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
+		String name = scroll.getSelected();
+		data.clear();
+		data.putAll(dataMap);
+		scroll.setList(dataList);
+		if (name != null) { scroll.setSelected(name); }
+		initGui();
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		this.spawn.readNBT(compound);
-		this.setSelected(this.spawn.name);
-		this.initGui();
+		spawn.readNBT(compound);
+		setSelected(spawn.name);
+		initGui();
 	}
 
 	@Override
 	public void setSelected(String selected) { }
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		switch (textField.getID()) {
 			case 1: {
-				String name = textField.getFullText();
-				if (name.isEmpty() || data.containsKey(name)) {
-					textField.setFullText(spawn.name);
-				} else {
+				String name = textField.getText();
+				if (name.isEmpty() || data.containsKey(name)) { textField.setText(spawn.name); }
+				else {
 					String old = spawn.name;
 					data.remove(old);
 					spawn.name = name;
@@ -368,7 +328,7 @@ implements IGuiData, IScrollData, ITextfieldListener, ICustomScrollListener, ISl
 			}
 			case 2: {
 				spawn.itemWeight = textField.getInteger();
-				if (getSlider(4) != null) { getSlider(4).setDisplayString(new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + spawn.itemWeight); }
+				if (getSlider(4) != null) { getSlider(4).displayString = new TextComponentTranslation("spawning.weightedChance").getFormattedText() + ": " + spawn.itemWeight; }
 				break;
 			}
 			case 3: spawn.group = textField.getInteger(); break;

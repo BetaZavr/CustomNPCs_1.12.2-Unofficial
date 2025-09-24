@@ -22,9 +22,7 @@ public class ModelData extends ModelDataShared {
 	}
 
 	public EntityLivingBase getEntity(EntityNPCInterface npc) {
-		if (this.entityClass == null) {
-			return null;
-		}
+		if (this.entityClass == null) { return null; }
 		if (this.entity == null) {
 			try {
 				this.entity = this.entityClass.getConstructor(World.class).newInstance(npc.world);

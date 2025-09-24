@@ -21,18 +21,18 @@ import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleFollower;
 import noppes.npcs.util.Util;
 
-public class GuiNpcFollower
-extends GuiContainerNPCInterface
-implements IGuiData {
+import javax.annotation.Nonnull;
 
-	private final RoleFollower role;
-	private EntityNPCInterface displayNPC;
+public class GuiNpcFollower extends GuiContainerNPCInterface implements IGuiData {
+
+	protected final RoleFollower role;
+	protected EntityNPCInterface displayNPC;
 
 	public GuiNpcFollower(EntityNPCInterface npc, ContainerNPCFollowerHire container) {
 		super(npc, container);
-		ySize = 224;
-		closeOnEsc = true;
 		setBackground("follower.png");
+		closeOnEsc = true;
+		ySize = 224;
 
 		role = (RoleFollower) npc.advanced.roleInterface;
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.RoleGet);
@@ -57,12 +57,12 @@ implements IGuiData {
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() < 4) {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.getID());
-		} else {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		if (button.getID() < 4) { NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerExtend, button.getID()); }
+		else {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.FollowerState, button.getID() - 5);
-			if (button.getID() == 6) { close(); }
+			if (button.getID() == 6) { onClosed(); }
 		}
 	}
 
@@ -111,7 +111,6 @@ implements IGuiData {
 			drawTexturedModalRect(0, 3, 115, 3, 61, 82);
 			drawTexturedModalRect(0, 85, 115, 220, 61, 4);
 			GlStateManager.popMatrix();
-
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(guiLeft + 173, guiTop + 141, 0.0f);
 			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
@@ -147,12 +146,10 @@ implements IGuiData {
 			if (getButton(i) == null) {
 				continue;
 			}
-			getButton(i).setEnabled(mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(
-					mc.player.inventory.mainInventory, role.rentalItems.getStackInSlot(i), false, false));
+			getButton(i).setIsEnable(mc.player.capabilities.isCreativeMode || Util.instance.canRemoveItems(mc.player.inventory.mainInventory, role.rentalItems.getStackInSlot(i), false, false));
 		}
 		if (getButton(3) != null) {
-			getButton(3).setEnabled(mc.player.capabilities.isCreativeMode
-					|| ClientProxy.playerData.game.getMoney() >= role.rentalMoney);
+			getButton(3).setIsEnable(mc.player.capabilities.isCreativeMode || ClientProxy.playerData.game.getMoney() >= role.rentalMoney);
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
@@ -191,4 +188,5 @@ implements IGuiData {
 		npc.advanced.roleInterface.load(compound);
 		initGui();
 	}
+
 }

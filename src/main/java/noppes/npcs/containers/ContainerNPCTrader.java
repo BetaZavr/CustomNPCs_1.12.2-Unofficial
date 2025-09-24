@@ -2,8 +2,8 @@ package noppes.npcs.containers;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemStack;
 import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -13,47 +13,50 @@ import javax.annotation.Nonnull;
 
 public class ContainerNPCTrader extends ContainerNpcInterface {
 
+	protected final IInventory inv;
 	public Marcet marcet;
 
-	public ContainerNPCTrader(EntityNPCInterface npc, EntityPlayer player) {
+	public ContainerNPCTrader(EntityPlayer player, EntityNPCInterface npc, int marcetId) {
 		super(player);
-		this.marcet = (Marcet) ((RoleTrader) npc.advanced.roleInterface).getMarket();
+		inv = player.inventory;
+		if (npc.advanced.roleInterface instanceof RoleTrader) { marcet = (Marcet) ((RoleTrader) npc.advanced.roleInterface).getMarket(); }
+		else if (marcetId > -1) { marcet = MarcetController.getInstance().getMarcet(marcetId); }
 		for (int i2 = 0; i2 < 3; ++i2) {
 			for (int l1 = 0; l1 < 9; ++l1) {
-				this.addSlotToContainer(new Slot(player.inventory, l1 + i2 * 9 + 9, 32 + l1 * 18, 140 + i2 * 18));
+				addSlotToContainer(new Slot(inv, l1 + i2 * 9 + 9, 32 + l1 * 18, 140 + i2 * 18));
 			}
 		}
 		for (int j1 = 0; j1 < 9; ++j1) {
-			this.addSlotToContainer(new Slot(player.inventory, j1, 32 + j1 * 18, 198));
+			addSlotToContainer(new Slot(inv, j1, 32 + j1 * 18, 198));
 		}
 	}
 
-	public ContainerNPCTrader(int marcetId, EntityPlayer player) {
-		super(player);
-		this.marcet = (Marcet) MarcetController.getInstance().getMarcet(marcetId);
-		for (int i2 = 0; i2 < 3; ++i2) {
-			for (int l1 = 0; l1 < 9; ++l1) {
-				this.addSlotToContainer(new Slot(player.inventory, l1 + i2 * 9 + 9, 32 + l1 * 18, 140 + i2 * 18));
-			}
-		}
-		for (int j1 = 0; j1 < 9; ++j1) {
-			this.addSlotToContainer(new Slot(player.inventory, j1, 32 + j1 * 18, 198));
-		}
-	}
-
-	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) {
-		return true;
-	}
+	@Override
+	public boolean canInteractWith(@Nonnull EntityPlayer entityplayer) { return true; }
 
 	@Override
 	public void onContainerClosed(@Nonnull EntityPlayer playerIn) {
 		super.onContainerClosed(playerIn);
-		if (playerIn instanceof EntityPlayerMP) {
-			this.marcet.removeListener(playerIn, true);
+		if (playerIn instanceof EntityPlayerMP) { marcet.removeListener(playerIn, true); }
+	}
+
+	private void reAddSlot(Slot slot) {
+		slot.slotNumber = inventorySlots.size();
+		inventorySlots.add(slot);
+	}
+
+	public void reset(int width, int height) {
+		inventorySlots.clear();
+		int offsetX = width - 169;
+		int offsetY = height - 79;
+		for (int i2 = 0; i2 < 3; ++i2) {
+			for (int l1 = 0; l1 < 9; ++l1) {
+				reAddSlot(new Slot(inv, l1 + i2 * 9 + 9, offsetX + l1 * 18, offsetY + i2 * 18 - 4));
+			}
+		}
+		for (int j1 = 0; j1 < 9; ++j1) {
+			reAddSlot(new Slot(inv, j1, offsetX + j1 * 18, offsetY + 54));
 		}
 	}
 
-	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
-		return ItemStack.EMPTY;
-	}
 }

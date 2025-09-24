@@ -14,6 +14,7 @@ import noppes.npcs.controllers.DialogController;
 import noppes.npcs.controllers.PlayerSkinController;
 import noppes.npcs.controllers.data.DialogGuiSettings;
 import noppes.npcs.entity.EntityCustomNpc;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -44,9 +45,7 @@ import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 import org.lwjgl.opengl.GL11;
 
-public class GuiDialogInteract
-extends GuiNPCInterface
-implements IGuiClose {
+public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 
 	protected Dialog dialog;
 	protected int selected = 0;
@@ -59,8 +58,11 @@ implements IGuiClose {
 	public static class DialogTexture {
 
 		public ResourceLocation res;
-		public int left, uS, vS, height;
 		public TextBlockClient line;
+		public int left;
+		public int  uS;
+		public int  vS;
+		public int  height;
 
 		protected DialogTexture(ResourceLocation r, int[] uv, TextBlockClient tb) {
 			res = r;
@@ -72,6 +74,7 @@ implements IGuiClose {
 		}
 
 	}
+
 	public static Map<Integer, ResourceLocation> icons;
 	static {
 		icons = new LinkedHashMap<>();
@@ -84,6 +87,7 @@ implements IGuiClose {
 		icons.put(7, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/hexagon.png"));
 		icons.put(8, new ResourceLocation(CustomNpcs.MODID, "textures/gui/dialog_option_icons/dice.png"));
 	}
+
 	protected final ResourceLocation npcSkin;
 	protected final ResourceLocation playerSkin;
 	protected final Map<Integer, List<String>> options = new TreeMap<>(); // [slotID, text]
@@ -93,10 +97,10 @@ implements IGuiClose {
 	protected int lineVisibleSize;
 	protected int[] scrollD = null;
 	// option place
+	protected final Map<Integer, Integer> selectedTotal = new HashMap<>();
 	protected int selectedStart = 0;
 	protected int selectedSize = 0;
 	protected int selectedVisibleSize;
-	protected final Map<Integer, Integer> selectedTotal = new HashMap<>();
 	protected int[] scrollO = null;
 	// wheel option
 	protected int wheelList = 0;
@@ -104,19 +108,18 @@ implements IGuiClose {
 	protected int selectedY = 0;
 	protected int selectedWheel = 0;
     // textures
-	protected long waitToAnswer;
 	protected final Map<Integer, DialogTexture> textures = new HashMap<>();
+	protected long waitToAnswer;
 	// Display
 	protected final EntityNPCInterface dialogNpc;
 	protected int fontHeight;
 	protected int startLine;
 	protected long startTime;
 	protected final float corr;
-	private final DialogGuiSettings guiSettings;
-	ScaledResolution sw = new ScaledResolution(mc);
-
+	protected final DialogGuiSettings guiSettings;
 	protected boolean showOptions;
 	protected boolean newDialogSet;
+	protected ScaledResolution sw = new ScaledResolution(mc);
 
 	public GuiDialogInteract(EntityNPCInterface npc, Dialog dialogIn) {
 		super(npc);
@@ -190,7 +193,7 @@ implements IGuiClose {
 		// Dialog texts
 		startTime = System.currentTimeMillis();
 		setStartLine();
-		StringBuilder dText = new StringBuilder(new TextComponentTranslation(d.text).getFormattedText());
+		StringBuilder dText = new StringBuilder(!d.text.contains("%") ? new TextComponentTranslation(d.text).getFormattedText() : d.text);
 		while (dText.toString().contains("<br>")) { dText = new StringBuilder(dText.toString().replace("<br>", "" + ((char) 10))); }
 		while (dText.toString().contains("\\n")) { dText = new StringBuilder(dText.toString().replace("\\n", "" + ((char) 10))); }
 		ResourceLocation txtr = null;
@@ -264,15 +267,13 @@ implements IGuiClose {
 	}
 
 	@Override
-	public void close() {
+	public void onGuiClosed() {
 		grabMouse(false);
 		if (dialog.sound != null && !dialog.sound.isEmpty() && dialog.stopSound) {
-			if (MusicController.Instance.isPlaying(dialog.sound)) {
-				MusicController.Instance.stopSound(dialog.sound, SoundCategory.VOICE);
-			}
+			if (MusicController.Instance.isPlaying(dialog.sound)) { MusicController.Instance.stopSound(dialog.sound, SoundCategory.VOICE); }
 		}
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CheckQuestCompletion, 0);
-		super.close();
+		super.onGuiClosed();
 	}
 
 	@Override
@@ -877,24 +878,34 @@ implements IGuiClose {
 		}
 	}
 
-	protected void handleDialogSelection() {
+	protected boolean handleDialogSelection() {
 		int optionId = getSelected();
 		if (!options.containsKey(optionId)) {
-			if (options.isEmpty() && closeOnEsc) { close(); }
-			return;
+			if (options.isEmpty() && closeOnEsc) {
+				onClosed();
+				return true;
+			}
+			return false;
 		}
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, dialog.id, optionId);
 		if (dialog == null || dialog.notHasOtherOptions() || options.isEmpty()) {
-			if (closeOnEsc) { close(); }
-			return;
+			if (closeOnEsc) {
+				onClosed();
+				return true;
+			}
+			return false;
 		}
 		DialogOption option = dialog.options.get(optionId);
 		if (option == null || !(option.optionType == OptionType.DIALOG_OPTION || option.optionType == OptionType.ROLE_OPTION)) {
-			if (closeOnEsc) { close(); }
-			return;
+			if (closeOnEsc) {
+				onClosed();
+				return true;
+			}
+			return false;
 		}
 		lines.add(new TextBlockClient(player.getDisplayNameString(), option.title, guiSettings.dialogWidth, option.optionColor, dialogNpc, player, dialogNpc));
 		NoppesUtil.clickSound();
+		return true;
 	}
 
 	@Override
@@ -957,7 +968,7 @@ implements IGuiClose {
 		if (lineStart < 0) { lineStart = 0; }
 		// Dialog texture
 		if (!textures.isEmpty()) {
-			Map<Integer, DialogTexture> newTxts = new HashMap<>();
+			Map<Integer, DialogTexture> newTextures = new HashMap<>();
 			for (int pos : textures.keySet()) {
 				DialogTexture dt = textures.get(pos);
 				int lt = 0;
@@ -965,111 +976,106 @@ implements IGuiClose {
 				for (TextBlockClient textBlock : lines) {
 					lt += 1 + textBlock.lines.size();
 					if (textBlock.equals(dt.line)) {
-						newTxts.put(lt - 1 - dt.height, dt);
+						newTextures.put(lt - 1 - dt.height, dt);
 						found = true;
 						break;
 					}
 				}
-				if (!found) {
-					newTxts.put(pos, dt);
-				}
+				if (!found) { newTextures.put(pos, dt); }
 			}
 			textures.clear();
-			textures.putAll(newTxts);
+			textures.putAll(newTextures);
 		}
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (showOptions) {
-			if (i == mc.gameSettings.keyBindForward.getKeyCode() || i == 200) {
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (subgui == null && showOptions) {
+			if (keyCode == Keyboard.KEY_UP || keyCode == mc.gameSettings.keyBindForward.getKeyCode()) {
 				--selected;
 				--selectedStart;
-				if (selected < 0) {
-					selected = 0;
-				}
+				if (selected < 0) { selected = 0; }
 				checkSelected();
+				return true;
 			}
-			if (i == mc.gameSettings.keyBindBack.getKeyCode() || i == 208) {
+			if (keyCode == Keyboard.KEY_DOWN || keyCode == mc.gameSettings.keyBindBack.getKeyCode()) {
 				++selected;
 				++selectedStart;
-				if (selected >= options.size()) {
-					selected = options.size() - 1;
-				}
+				if (selected >= options.size()) { selected = options.size() - 1; }
 				checkSelected();
+				return true;
 			}
-			if (i == 28) {
+			if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
 				handleDialogSelection();
+				return true;
 			}
 		}
-		if (closeOnEsc && (i == 1 || isInventoryKey(i))) {
+		if (closeOnEsc && (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode))) {
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Dialog, dialog.id, -1);
-			close();
+			onClosed();
+			return true;
 		}
-		super.keyTyped(c, i);
+		return super.keyCnpcsPressed(typedChar, keyCode);
 	}
 
 	@Override
-	public void mouseClicked(int mouseX, int mouseY, int mouseBottom) {
-		if (!showOptions) {
-			if (newDialogSet) {
-				dialog.showFits = false;
-				lineStart = lineTotal - lineVisibleSize;
-				if (lineStart < 0) {
-					lineStart = 0;
-				} else if (lineStart > lineTotal - lineVisibleSize) {
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+		if (subgui == null) {
+			if (!showOptions) {
+				if (newDialogSet) {
+					dialog.showFits = false;
 					lineStart = lineTotal - lineVisibleSize;
+					if (lineStart < 0) { lineStart = 0; }
+					else if (lineStart > lineTotal - lineVisibleSize) { lineStart = lineTotal - lineVisibleSize; }
 				}
+				return true;
 			}
-			return;
-		}
-		if (scrollD != null) {
-			scrollD[7] = -1;
-			if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[4], scrollD[2] - scrollD[0], scrollD[5])) {
-				if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[1], scrollD[2] - scrollD[0], scrollD[3] - scrollD[1])) {
-					scrollD[7] = mouseY;
-					scrollD[8] = lineStart;
-				}
-				return;
-			}
-		}
-		if (scrollO != null) {
-			scrollO[7] = -1;
-			if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[4], scrollO[2] - scrollO[0], scrollO[5])) {
-				if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[1], scrollO[2] - scrollO[0], scrollO[3] - scrollO[1])) {
-					scrollO[7] = mouseY;
-					scrollO[8] = selectedStart;
-				}
-				return;
-			}
-		}
-		if (dialog.showWheel) {
-			if (selectedWheel != 0) {
-				if (selectedWheel == 1) {
-					wheelList--;
-					if (wheelList < 0) {
-						wheelList = 0;
+			if (scrollD != null) {
+				scrollD[7] = -1;
+				if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[4], scrollD[2] - scrollD[0], scrollD[5])) {
+					if (isMouseHover(mouseX, mouseY, scrollD[0], scrollD[1], scrollD[2] - scrollD[0], scrollD[3] - scrollD[1])) {
+						scrollD[7] = mouseY;
+						scrollD[8] = lineStart;
 					}
-				} else {
-					wheelList++;
-					int max = (int) Math.ceil(options.size() / 6.0d);
-					if (wheelList >= max) {
-						wheelList = max - 1;
-					}
+					return true;
 				}
-				mc.getSoundHandler()
-						.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
-				return;
 			}
-			else if (selected < 0) { return; }
+			if (scrollO != null) {
+				scrollO[7] = -1;
+				if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[4], scrollO[2] - scrollO[0], scrollO[5])) {
+					if (isMouseHover(mouseX, mouseY, scrollO[0], scrollO[1], scrollO[2] - scrollO[0], scrollO[3] - scrollO[1])) {
+						scrollO[7] = mouseY;
+						scrollO[8] = selectedStart;
+					}
+					return true;
+				}
+			}
+			if (dialog.showWheel) {
+				if (selectedWheel != 0) {
+					if (selectedWheel == 1) {
+						wheelList--;
+						if (wheelList < 0) { wheelList = 0; }
+					}
+					else {
+						wheelList++;
+						int max = (int) Math.ceil(options.size() / 6.0d);
+						if (wheelList >= max) {
+							wheelList = max - 1;
+						}
+					}
+					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+					return true;
+				}
+				else if (selected < 0) { return false; }
+			}
+			else if (!isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, width - guiLeft, height - dialogHeight)) { return false; }
+			if (mouseButton == 0 && handleDialogSelection()) { return true; }
 		}
-		else if (!isMouseHover(mouseX, mouseY, guiLeft, dialogHeight, width - guiLeft, height - dialogHeight)) { return; }
-		if (mouseBottom == 0) { handleDialogSelection(); }
+		return super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
 	}
 
 	@Override
 	protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
-		LogWriter.debug("TEST: ");
 		if (scrollD != null && scrollD[7] > -1) {
 			int offsetLine = (int) (((float) scrollD[7] - (float) mouseY) / (float) scrollD[6]);
 			if (offsetLine == 0) { return; }
@@ -1099,9 +1105,7 @@ implements IGuiClose {
 		options.clear();
 		for (int slot : dialog.options.keySet()) {
 			DialogOption option = dialog.options.get(slot);
-			if (option == null || option.optionType == OptionType.DISABLED || !option.isAvailable(player)) {
-				continue;
-			}
+			if (option == null || option.optionType == OptionType.DISABLED || !option.isAvailable(player)) { continue; }
 			String optionText = NoppesStringUtils.formatText(option.title, player, dialogNpc);
 			List<String> lines = new ArrayList<>();
 			if (fontRenderer.getStringWidth(optionText) * corr > max) {
@@ -1111,18 +1115,13 @@ implements IGuiClose {
 						lines.add(total.toString());
 						total = new StringBuilder(sct);
 					} else {
-						if (total.length() > 0) {
-							total.append(" ");
-						}
+						if (total.length() > 0) { total.append(" "); }
 						total.append(sct);
 					}
 				}
-				if (total.length() > 0) {
-					lines.add(total.toString());
-				}
-			} else {
-				lines.add(optionText);
+				if (total.length() > 0) { lines.add(total.toString()); }
 			}
+			else { lines.add(optionText); }
 			options.put(slot, lines);
 		}
 		if (!closeOnEsc && options.isEmpty()) { closeOnEsc = true; }
@@ -1131,14 +1130,10 @@ implements IGuiClose {
     @Override
 	public void setClose(NBTTagCompound nbt) { grabMouse(false); }
 
-	@SuppressWarnings("unused")
 	protected void setStartLine() {
 		startLine = 0;
 		for (TextBlockClient textBlock : lines) {
-			startLine++;
-			for (ITextComponent line : textBlock.lines) {
-				startLine++;
-			}
+			startLine += textBlock.lines.size() + 1;
 		}
 	}
 

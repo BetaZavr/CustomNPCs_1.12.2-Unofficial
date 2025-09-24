@@ -9,8 +9,7 @@ import org.lwjgl.input.Mouse;
 import javax.annotation.Nonnull;
 
 public class GuiMenuTopButton
-extends GuiNpcButton
-implements IGuiMenuTopButton {
+		extends GuiNpcButton {
 
 	public boolean active = false;
 	protected int height = 20;
@@ -25,10 +24,9 @@ implements IGuiMenuTopButton {
 		width = Minecraft.getMinecraft().fontRenderer.getStringWidth(displayString) + 10;
 	}
 
+	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!isVisible()) {
-			return;
-		}
+		if (!visible) { return; }
 		int w = offsetW + width;
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + height;
 		GlStateManager.pushMatrix();
@@ -43,22 +41,17 @@ implements IGuiMenuTopButton {
 		mouseDragged(mc, mouseX, mouseY);
 		// label
 		int color = CustomNpcs.MainColor.getRGB();
-		if (packedFGColour != 0) {
-			color = packedFGColour;
-		} else if (!enabled) {
-			color = CustomNpcs.NotEnableColor.getRGB();
-		} else if (hovered) {
-			color = CustomNpcs.HoverColor.getRGB();
-		}
+		if (packedFGColour != 0) { color = packedFGColour; }
+		else if (!enabled) { color = CustomNpcs.NotEnableColor.getRGB(); }
+		else if (hovered) { color = CustomNpcs.HoverColor.getRGB(); }
 		mc.fontRenderer.drawString(displayString, x + 5.0f + offsetW, y + ((float) height - 8.0f) / 2.0f, color, dropShadow);
 		GlStateManager.popMatrix();
 	}
 
+	@Override
 	public int getHoverState(boolean hovered) {
 		if (isSimple) { return super.getHoverState(hovered); }
-		if (!enabled) {
-			return Mouse.isButtonDown(0) ? 6 : 7;
-		}
+		if (!enabled) { return Mouse.isButtonDown(0) ? 6 : 7; }
 		if (hovered) {
 			if (Mouse.isButtonDown(0)) { return active ? 2 : 5; }
 			return active ? 1 : 4;
@@ -66,29 +59,9 @@ implements IGuiMenuTopButton {
 		return active ? 0 : 3;
 	}
 
-	protected void mouseDragged(@Nonnull Minecraft minecraft, int i, int j) {
-	}
-
 	@Override
-	public boolean mousePressed(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
-		return !active && visible && hovered;
-	}
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) { return !active && visible && hovered; }
 
-	@Override
-	public int getLeft() { return 0; }
+	public GuiMenuTopButton setIsActive(boolean isActive) { active = isActive; return this; }
 
-	@Override
-	public int getTop() {
-		return 0;
-	}
-
-	@Override
-	public void setLeft(int left) {
-
-	}
-
-	@Override
-	public void setTop(int top) {
-
-	}
 }

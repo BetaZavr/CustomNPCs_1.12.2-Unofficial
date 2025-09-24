@@ -207,12 +207,12 @@ public class DataAdvanced implements INPCAdvanced {
 
 	public void load(NBTTagCompound compound) {
 		if (!compound.hasKey("Role")) { return; }
-		worldLines.readNBT(compound.getCompoundTag("NpcLines")); // 0
-		attackLines.readNBT(compound.getCompoundTag("NpcAttackLines")); // 1
-		interactLines.readNBT(compound.getCompoundTag("NpcInteractLines")); // 2
-		killedLines.readNBT(compound.getCompoundTag("NpcKilledLines")); // 3
-		killLines.readNBT(compound.getCompoundTag("NpcKillLines")); // 4
-		npcInteractLines.readNBT(compound.getCompoundTag("NpcInteractNPCLines")); // 5
+		worldLines.load(compound.getCompoundTag("NpcLines")); // 0
+		attackLines.load(compound.getCompoundTag("NpcAttackLines")); // 1
+		interactLines.load(compound.getCompoundTag("NpcInteractLines")); // 2
+		killedLines.load(compound.getCompoundTag("NpcKilledLines")); // 3
+		killLines.load(compound.getCompoundTag("NpcKillLines")); // 4
+		npcInteractLines.load(compound.getCompoundTag("NpcInteractNPCLines")); // 5
 		orderedLines = compound.getBoolean("OrderedLines");
 		idleSound = compound.getString("NpcIdleSound");
 		angrySound = compound.getString("NpcAngrySound");
@@ -227,11 +227,8 @@ public class DataAdvanced implements INPCAdvanced {
 		factions.load(compound.getCompoundTag("FactionPoints"));
 		scenes.readFromNBT(compound.getCompoundTag("NpcScenes"));
 
-		if (!compound.hasKey("ThroughWalls", 1)) {
-			throughWalls = true;
-		} else {
-			throughWalls = compound.getBoolean("ThroughWalls");
-		}
+		if (!compound.hasKey("ThroughWalls", 1)) { throughWalls = true; }
+		else { throughWalls = compound.getBoolean("ThroughWalls"); }
 
 		if (compound.hasKey("Role", 3) && compound.hasKey("NpcJob", 3)) {
 			setRole(compound.getInteger("Role"));
@@ -263,11 +260,9 @@ public class DataAdvanced implements INPCAdvanced {
 		friendFactions = NBTTags.getIntegerSet(compound.getTagList("FrendFactions", 10));
 	}
 
-	public void setJob(int i) {
-		JobType.get(i).setToNpc(npc);
-		if (!npc.world.isRemote) {
-			jobInterface.reset();
-		}
+	public void setJob(int id) {
+		JobType.get(id).setToNpc(npc);
+		if (!npc.world.isRemote) { jobInterface.reset(); }
 	}
 
 	@Override
@@ -284,9 +279,7 @@ public class DataAdvanced implements INPCAdvanced {
 		}
 	}
 
-	public void setRole(int i) {
-		RoleType.get(i).setToNpc(npc);
-	}
+	public void setRole(int id) { RoleType.get(id).setToNpc(npc); }
 
 	@Override
 	public void setSound(int type, String sound) {
@@ -328,12 +321,12 @@ public class DataAdvanced implements INPCAdvanced {
 	}
 
 	public NBTTagCompound save(NBTTagCompound compound) {
-		compound.setTag("NpcLines", worldLines.writeToNBT()); // 0
-		compound.setTag("NpcAttackLines", attackLines.writeToNBT()); // 1
-		compound.setTag("NpcInteractLines", interactLines.writeToNBT()); // 2
-		compound.setTag("NpcKilledLines", killedLines.writeToNBT()); // 3
-		compound.setTag("NpcKillLines", killLines.writeToNBT()); // 4
-		compound.setTag("NpcInteractNPCLines", npcInteractLines.writeToNBT()); // 5
+		compound.setTag("NpcLines", worldLines.save()); // 0
+		compound.setTag("NpcAttackLines", attackLines.save()); // 1
+		compound.setTag("NpcInteractLines", interactLines.save()); // 2
+		compound.setTag("NpcKilledLines", killedLines.save()); // 3
+		compound.setTag("NpcKillLines", killLines.save()); // 4
+		compound.setTag("NpcInteractNPCLines", npcInteractLines.save()); // 5
 		compound.setBoolean("OrderedLines", orderedLines);
 		compound.setString("NpcIdleSound", idleSound);
 		compound.setString("NpcAngrySound", angrySound);

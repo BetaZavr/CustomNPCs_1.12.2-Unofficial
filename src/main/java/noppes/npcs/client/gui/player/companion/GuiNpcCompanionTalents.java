@@ -8,7 +8,6 @@ import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
@@ -28,173 +27,147 @@ import noppes.npcs.roles.RoleCompanion;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcCompanionTalents
-extends GuiNPCInterface {
+public class GuiNpcCompanionTalents extends GuiNPCInterface {
 
 	public static class GuiTalent extends GuiScreen {
 
-		private static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/talent.png");
-		private final RoleCompanion role;
-		private final EnumCompanionTalent talent;
-		private final int x;
-		private final int y;
+		protected static final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/talent.png");
+		protected final RoleCompanion role;
+		protected final EnumCompanionTalent talent;
+		protected final int x;
+		protected final int y;
 
-		public GuiTalent(RoleCompanion role, EnumCompanionTalent talent, int x, int y) {
-			this.talent = talent;
-			this.x = x;
-			this.y = y;
-			this.role = role;
+		public GuiTalent(RoleCompanion roleIn, EnumCompanionTalent talentIn, int xIn, int yIn) {
+			talent = talentIn;
+			role = roleIn;
+			x = xIn;
+			y = yIn;
 		}
 
 		public void drawScreen(int i, int j, float f) {
 			Minecraft mc = Minecraft.getMinecraft();
 			mc.getTextureManager().bindTexture(GuiTalent.resource);
-			ItemStack item = this.talent.item;
+			ItemStack item = talent.item;
             item.getItem();
             GlStateManager.pushMatrix();
 			GlStateManager.color(1.0f, 1.0f, 1.0f);
 			GlStateManager.enableBlend();
-			boolean hover = this.x < i && this.x + 24 > i && this.y < j && this.y + 24 > j;
-			this.drawTexturedModalRect(this.x, this.y, 0, hover ? 24 : 0, 24, 24);
-			this.zLevel = 100.0f;
-			this.itemRender.zLevel = 100.0f;
+			boolean hover = x < i && x + 24 > i && y < j && y + 24 > j;
+			drawTexturedModalRect(x, y, 0, hover ? 24 : 0, 24, 24);
+			zLevel = 100.0f;
+			itemRender.zLevel = 100.0f;
 			GlStateManager.enableLighting();
 			GlStateManager.enableRescaleNormal();
 			RenderHelper.enableGUIStandardItemLighting();
-			this.itemRender.renderItemAndEffectIntoGUI(item, this.x + 4, this.y + 4);
-			this.itemRender.renderItemOverlays(mc.fontRenderer, item, this.x + 4, this.y + 4);
+			itemRender.renderItemAndEffectIntoGUI(item, x + 4, y + 4);
+			itemRender.renderItemOverlays(mc.fontRenderer, item, x + 4, y + 4);
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.disableLighting();
 			GlStateManager.translate(0.0f, 0.0f, 200.0f);
-			this.drawCenteredString(mc.fontRenderer, this.role.getTalentLevel(this.talent) + "", this.x + 20,
-					this.y + 16, 16777215);
-			this.itemRender.zLevel = 0.0f;
-			this.zLevel = 0.0f;
+			drawCenteredString(mc.fontRenderer, role.getTalentLevel(talent) + "", x + 20, y + 16, 16777215);
+			itemRender.zLevel = 0.0f;
+			zLevel = 0.0f;
 			GlStateManager.popMatrix();
 		}
 
 	}
 
-	private long lastPressedTime;
-	private final RoleCompanion role;
-	private GuiNpcButton selected;
-	private long startPressedTime;
-
-	private Map<Integer, GuiTalent> talents;
+	protected Map<Integer, GuiTalent> talents = new HashMap<>();
+	protected long lastPressedTime = 0L;
+	protected long startPressedTime = 0L;
+	protected final RoleCompanion role;
+	protected GuiNpcButton selected;
 
 	public GuiNpcCompanionTalents(EntityNPCInterface npc) {
 		super(npc);
-		this.talents = new HashMap<>();
-		this.lastPressedTime = 0L;
-		this.startPressedTime = 0L;
-		this.role = (RoleCompanion) npc.advanced.roleInterface;
-		this.closeOnEsc = true;
-		this.setBackground("companion_empty.png");
-		this.xSize = 171;
-		this.ySize = 166;
+		setBackground("companion_empty.png");
+		closeOnEsc = true;
+		xSize = 171;
+		ySize = 166;
+
+		role = (RoleCompanion) npc.advanced.roleInterface;
 	}
 
-	public void actionPerformed(@Nonnull GuiButton guibutton) {
-		super.actionPerformed(guibutton);
-		int id = guibutton.id;
-		if (id == 1) {
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.Companion);
-		}
-		if (id == 3) {
-			NoppesUtilPlayer.sendData(EnumPlayerPacket.CompanionOpenInv);
-		}
-		if (id >= 10) {
-			this.selected = (GuiNpcButton) guibutton;
-			long getWorldTime = this.mc.world.getWorldTime();
-			this.startPressedTime = getWorldTime;
-			this.lastPressedTime = getWorldTime;
-			this.addExperience(1);
+	@Override
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		switch (button.getID()) {
+			case 1: CustomNpcs.proxy.openGui(npc, EnumGuiType.Companion); break;
+			case 3: NoppesUtilPlayer.sendData(EnumPlayerPacket.CompanionOpenInv); break;
+			default: {
+				if (button.getID() >= 10) {
+					selected = button;
+					long getWorldTime = mc.world.getWorldTime();
+					startPressedTime = getWorldTime;
+					lastPressedTime = getWorldTime;
+					addExperience(1);
+				}
+				break;
+			}
 		}
 	}
 
 	private void addExperience(int exp) {
-		EnumCompanionTalent talent = this.talents.get(this.selected.id - 10).talent;
-		if (!this.role.canAddExp(-exp) && this.role.currentExp <= 0) {
-			return;
-		}
-		if (exp > this.role.currentExp) {
-			exp = this.role.currentExp;
-		}
+		EnumCompanionTalent talent = talents.get(selected.id - 10).talent;
+		if (!role.canAddExp(-exp) && role.currentExp <= 0) { return; }
+		if (exp > role.currentExp) { exp = role.currentExp; }
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.CompanionTalentExp, talent.ordinal(), exp);
-		this.role.talents.put(talent, this.role.talents.get(talent) + exp);
-		this.role.addExp(-exp);
-		this.getLabel(this.selected.id - 10)
-				.setLabel(this.role.talents.get(talent) + "/" + this.role.getNextLevel(talent));
+		role.talents.put(talent, role.talents.get(talent) + exp);
+		role.addExp(-exp);
+		getLabel(selected.id - 10).setLabel(role.talents.get(talent) + "/" + role.getNextLevel(talent));
 	}
 
 	private void addTalent(int i, EnumCompanionTalent talent) {
-		int y = this.guiTop + 28 + i / 2 * 26;
-		int x = this.guiLeft + 4 + i % 2 * 84;
-		GuiTalent gui = new GuiTalent(this.role, talent, x, y);
-		gui.setWorldAndResolution(this.mc, this.width, this.height);
-		this.talents.put(i, gui);
-		if (this.role.getTalentLevel(talent) < 5) {
-			this.addButton(new GuiNpcButton(i + 10, x + 26, y, 14, 14, "+"));
+		int y = guiTop + 28 + i / 2 * 26;
+		int x = guiLeft + 4 + i % 2 * 84;
+		GuiTalent gui = new GuiTalent(role, talent, x, y);
+		gui.setWorldAndResolution(mc, width, height);
+		talents.put(i, gui);
+		if (role.getTalentLevel(talent) < 5) {
+			addButton(new GuiNpcButton(i + 10, x + 26, y, 14, 14, "+"));
 			y += 8;
 		}
-		this.addLabel(new GuiNpcLabel(i, this.role.talents.get(talent) + "/" + this.role.getNextLevel(talent), x + 26,
-				y + 8));
+		addLabel(new GuiNpcLabel(i, role.talents.get(talent) + "/" + role.getNextLevel(talent), x + 26, y + 8));
 	}
 
 	@Override
-	public void drawScreen(int i, int j, float f) {
-		super.drawScreen(i, j, f);
-		if (this.selected != null && this.mc.world.getWorldTime() - this.startPressedTime > 4L
-				&& this.lastPressedTime < this.mc.world.getWorldTime() && this.mc.world.getWorldTime() % 4L == 0L) {
-			if (this.selected.mousePressed(this.mc, i, j) && Mouse.isButtonDown(0)) {
-				this.lastPressedTime = this.mc.world.getWorldTime();
-				if (this.lastPressedTime - this.startPressedTime < 20L) {
-					this.addExperience(1);
-				} else if (this.lastPressedTime - this.startPressedTime < 40L) {
-					this.addExperience(2);
-				} else if (this.lastPressedTime - this.startPressedTime < 60L) {
-					this.addExperience(4);
-				} else if (this.lastPressedTime - this.startPressedTime < 90L) {
-					this.addExperience(8);
-				} else if (this.lastPressedTime - this.startPressedTime < 140L) {
-					this.addExperience(14);
-				} else {
-					this.addExperience(28);
-				}
-			} else {
-				this.lastPressedTime = 0L;
-				this.selected = null;
+	public void drawScreen(int mouseXIn, int mouseYIn, float partialTicks) {
+		super.drawScreen(mouseXIn, mouseYIn, partialTicks);
+		if (selected != null && mc.world.getWorldTime() - startPressedTime > 4L && lastPressedTime < mc.world.getWorldTime() && mc.world.getWorldTime() % 4L == 0L) {
+			if (selected.mousePressed(mc, mouseXIn, mouseYIn) && Mouse.isButtonDown(0)) {
+				lastPressedTime = mc.world.getWorldTime();
+				if (lastPressedTime - startPressedTime < 20L) { addExperience(1); }
+				else if (lastPressedTime - startPressedTime < 40L) { addExperience(2); }
+				else if (lastPressedTime - startPressedTime < 60L) { addExperience(4); }
+				else if (lastPressedTime - startPressedTime < 90L) { addExperience(8); }
+				else if (lastPressedTime - startPressedTime < 140L) { addExperience(14); }
+				else { addExperience(28); }
+			}
+			else {
+				lastPressedTime = 0L;
+				selected = null;
 			}
 		}
-		this.mc.getTextureManager().bindTexture(Gui.ICONS);
-		this.drawTexturedModalRect(this.guiLeft + 4, this.guiTop + 20, 10, 64, 162, 5);
-		if (this.role.currentExp > 0) {
-			float v = 1.0f * this.role.currentExp / this.role.getMaxExp();
-			if (v > 1.0f) {
-				v = 1.0f;
-			}
-			this.drawTexturedModalRect(this.guiLeft + 4, this.guiTop + 20, 10, 69, (int) (v * 162.0f), 5);
+		mc.getTextureManager().bindTexture(Gui.ICONS);
+		drawTexturedModalRect(guiLeft + 4, guiTop + 20, 10, 64, 162, 5);
+		if (role.currentExp > 0) {
+			float v = 1.0f * role.currentExp / role.getMaxExp();
+			if (v > 1.0f) { v = 1.0f; }
+			drawTexturedModalRect(guiLeft + 4, guiTop + 20, 10, 69, (int) (v * 162.0f), 5);
 		}
-		String s = this.role.currentExp + "\\" + this.role.getMaxExp();
-		this.mc.fontRenderer.drawString(s, this.guiLeft + this.xSize / 2 - this.mc.fontRenderer.getStringWidth(s) / 2,
-				this.guiTop + 10, CustomNpcResourceListener.DefaultTextColor);
-		for (GuiTalent talent : this.talents.values()) {
-			talent.drawScreen(i, j, f);
-		}
+		String s = role.currentExp + "\\" + role.getMaxExp();
+		mc.fontRenderer.drawString(s, guiLeft + xSize / 2 - mc.fontRenderer.getStringWidth(s) / 2, guiTop + 10, CustomNpcResourceListener.DefaultTextColor);
+		for (GuiTalent talent : talents.values()) { talent.drawScreen(mouseXIn, mouseYIn, partialTicks); }
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.talents = new HashMap<>();
-		// int y = this.guiTop + 12;
-		this.addLabel(
-				new GuiNpcLabel(0, NoppesStringUtils.translate("quest.exp", ": "), this.guiLeft + 4, this.guiTop + 10));
-		GuiNpcCompanionStats.addTopMenu(this.role, this, 2);
+		talents = new HashMap<>();
+		addLabel(new GuiNpcLabel(0, NoppesStringUtils.translate("quest.exp", ": "), guiLeft + 4, guiTop + 10));
+		GuiNpcCompanionStats.addTopMenu(role, this, 2);
 		int i = 0;
-		for (EnumCompanionTalent e : this.role.talents.keySet()) {
-			this.addTalent(i++, e);
-		}
+		for (EnumCompanionTalent e : role.talents.keySet()) { addTalent(i++, e); }
 	}
 
 }

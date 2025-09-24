@@ -5,27 +5,29 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import noppes.npcs.client.gui.util.*;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.Arrays;
 
-public class SubGuiEditIngredients
-extends SubGuiInterface {
+public class SubGuiEditIngredients extends SubGuiInterface {
 
+    protected int hover;
     public final ItemStack[] stacks;
-    private int hover;
 
-    public SubGuiEditIngredients(int buttonID, ItemStack[] itemStacks) {
-        id = buttonID;
-        closeOnEsc = true;
+    public SubGuiEditIngredients(int id, ItemStack[] itemStacks) {
+        super(id);
         setBackground("smallbg.png");
+        closeOnEsc = true;
         xSize = 176;
         ySize = 76;
+
         stacks = Arrays.copyOf(itemStacks, itemStacks.length);
     }
 
     @Override
-    public void buttonEvent(IGuiNpcButton button) {
-        close();
+    public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+        if (mouseButton != 0) { return; }
+        if (button.id == 66) { onClosed(); }
     }
 
     @Override
@@ -39,9 +41,7 @@ extends SubGuiInterface {
         mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
         GlStateManager.translate(guiLeft + 7.0f, guiTop + 16.0f, 0.0f);
         for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 9; j++) {
-                drawTexturedModalRect(j * 18, i * 18, 0, 0, 18, 18);
-            }
+            for (int j = 0; j < 9; j++) { drawTexturedModalRect(j * 18, i * 18, 0, 0, 18, 18); }
         }
         GlStateManager.popMatrix();
 
@@ -67,15 +67,16 @@ extends SubGuiInterface {
     public void initGui() {
         super.initGui();
         addLabel(new GuiNpcLabel(0, "gui.recipe.del", guiLeft + 8, guiTop + 5));
-        addButton( new GuiNpcButton(66, guiLeft + 57, guiTop + 54, 60, 20, "gui.done"));
+        addButton( new GuiNpcButton(66, guiLeft + 57, guiTop + 54, 60, 20, "gui.done").setHoverText("hover.back"));
     }
 
-    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
-        super.mouseClicked(mouseX, mouseY, mouseButton);
-        if (hover != -1) {
-            if (stacks == null || hover >= stacks.length) { return; }
+    @Override
+    public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+        if (subgui == null && hover != -1 && stacks != null && hover < stacks.length) {
             stacks[hover] = ItemStack.EMPTY;
+            return true;
         }
+        return super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
     }
 
 }

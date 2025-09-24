@@ -160,23 +160,13 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			NPCRendererHelper.drawLayers(entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn, renderEntity);
 		} else {
 			Map<EnumParts, Boolean> sp = npc.animation.showParts;
-			//LogWriter.debug("TEST: ");
 			for (LayerRenderer<T> layerrenderer : layerRenderers) {
 				String layerName = layerrenderer.getClass().getSimpleName();
 				if (npc.modelData.isDisableLayer(layerName)) { continue; }
-				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead
-						|| layerName.equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) {
-					continue;
-				}
-				if (ArmourersWorkshopApi.isAvailable() && layerName.equals("LayerCustomHead") && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(npc.getItemStackFromSlot(EntityEquipmentSlot.HEAD))) {
-					continue;
-				}
-				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(EnumParts.BODY)) {
-					continue;
-				}
-				if (layerName.equals("SkinLayerRendererCustomNPC")) {
-					continue;
-				}
+				if ((layerrenderer instanceof LayerEyes || layerrenderer instanceof LayerHead || layerName.equals("LayerCustomHead")) && !sp.get(EnumParts.HEAD)) { continue; }
+				if (ArmourersWorkshopApi.isAvailable() && layerName.equals("LayerCustomHead") && ArmourersWorkshopApi.getSkinNBTUtils().hasSkinDescriptor(npc.getItemStackFromSlot(EntityEquipmentSlot.HEAD))) { continue; }
+				if ((layerrenderer instanceof LayerBody || layerrenderer instanceof LayerNpcCloak) && !sp.get(EnumParts.BODY)) { continue; }
+				if (layerName.equals("SkinLayerRendererCustomNPC")) { continue; }
 				boolean flag = setBrightness(npc, partialTicks, layerrenderer.shouldCombineTextures());
 				layerrenderer.doRenderLayer(npc, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scaleIn);
 				if (flag) { unsetBrightness(); }
@@ -210,6 +200,7 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 			model.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity);
 			model.isChild = entity.isChild();
 			NPCRendererHelper.renderModel(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, renderEntity, model, Objects.requireNonNull(getEntityTexture(npc)));
+
 			if (!npc.display.getOverlayTexture().isEmpty()) {
 				GlStateManager.depthFunc(515);
 				if (npc.textureGlowLocation == null) {
@@ -245,10 +236,6 @@ public class RenderCustomNpc<T extends EntityCustomNpc> extends RenderNPCInterfa
 		super.setLightmap((T) npc);
 	}
 
-	public List<String> getLayerRendererNames() {
-		List<String> list = new ArrayList<>();
-		list.add("LayerWear");
-		for (LayerRenderer<T> layerrenderer : layerRenderers) { list.add(layerrenderer.getClass().getSimpleName()); }
-		return list;
-	}
+	public List<LayerRenderer<T>> getLayers() { return new ArrayList<>(layerRenderers); }
+
 }

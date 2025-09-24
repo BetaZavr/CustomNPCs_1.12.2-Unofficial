@@ -1,7 +1,6 @@
 package noppes.npcs.client.model.part;
 
 import java.util.List;
-import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelRenderer;
@@ -22,41 +21,34 @@ public class ModelOBJPart
 	public EnumParts part;
 	public boolean smallArms;
 
-	public ModelOBJPart(ModelOBJPlayerArmor modelBase, EnumParts part, List<String> meshes, float x, float y, float z) {
-		super(modelBase);
-		this.modelBase = modelBase;
-		this.meshes = meshes;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.part = part;
+	public ModelOBJPart(ModelOBJPlayerArmor modelBaseIn, EnumParts partIn, List<String> meshesIn, float xIn, float yIn, float zIn) {
+		super(modelBaseIn);
+		modelBase = modelBaseIn;
+		meshes = meshesIn;
+		x = xIn;
+		y = yIn;
+		z = zIn;
+		part = partIn;
 	}
 
 	@Override
 	public void render(float scale) {
-		if (this.isHidden || !this.showModel) {
-			return;
-		}
-		Map<String, String> rmt = null;
-		int displayList = ModelBuffer.getDisplayList(this.modelBase.objModel, this.meshes, rmt); // get the previously
-																									// created render
-																									// sheet
+		if (isHidden || !showModel) { return; }
+		int displayList = ModelBuffer.getDisplayList(modelBase.objModel, meshes, null); // get the previously
+		// created render
+		// sheet
 		if (displayList >= 0) { // if it exists
 			GlStateManager.pushMatrix();
-			if (this.msr != null) {
-				this.msr.postRender(scale);
-			}
+			if (msr != null) { msr.postRender(scale); }
 			float addX = 0.0f;
-			if (this.smallArms && (this.part == EnumParts.ARM_LEFT || this.part == EnumParts.ARM_RIGHT)) {
+			if (smallArms && (part == EnumParts.ARM_LEFT || part == EnumParts.ARM_RIGHT)) {
 				GlStateManager.scale(0.75f, 1.0f, 1.0f);
-				addX = this.part == EnumParts.ARM_LEFT ? -0.0175f : 0.0175f;
+				addX = part == EnumParts.ARM_LEFT ? -0.0175f : 0.0175f;
 			}
-			if ((this.x + addX) != 0.0f || this.y != 0.0f || this.z != 0.0f) {
-				GlStateManager.translate(this.x + addX, this.y, this.z);
-			} // offset relative to model
+			if ((x + addX) != 0.0f || y != 0.0f || z != 0.0f) { GlStateManager.translate(x + addX, y, z); } // offset relative to model
 			GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
 			Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE); // setting a regular
-																									// texture
+			// texture
 			GlStateManager.callList(displayList); // display in game
 			GlStateManager.popMatrix();
 		}

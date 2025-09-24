@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import net.minecraft.client.gui.GuiScreen;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.*;
@@ -14,69 +12,54 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCManageLinkedNpc
-extends GuiNPCInterface2
-implements IScrollData, ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	public static GuiScreen Instance;
-	private List<String> data;
-	private GuiCustomScroll scroll;
+public class GuiNPCManageLinkedNpc extends GuiNPCInterface2 implements IScrollData, ICustomScrollListener {
+
+	protected final List<String> data = new ArrayList<>();
+	protected GuiCustomScroll scroll;
 
 	public GuiNPCManageLinkedNpc(EntityNPCInterface npc) {
 		super(npc);
-		this.data = new ArrayList<>();
-		GuiNPCManageLinkedNpc.Instance = this;
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuGlobal;
+
 		Client.sendData(EnumPacketServer.LinkedGetAll);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() == 1) {
-			this.save();
-			this.setSubGui(new SubGuiEditText(0, "New"));
-		}
-		if (button.getID() == 2 && this.scroll.hasSelected()) {
-			Client.sendData(EnumPacketServer.LinkedRemove, this.scroll.getSelected());
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		switch (button.getID()) {
+			case 1: save(); setSubGui(new SubGuiEditText(0, "New")); break;
+			case 2: {
+				if (scroll.hasSelected()) { Client.sendData(EnumPacketServer.LinkedRemove, scroll.getSelected()); }
+				break;
+			}
 		}
 	}
 
 	@Override
 	public void initGui() {
 		super.initGui();
-		this.addButton(new GuiNpcButton(1, this.guiLeft + 358, this.guiTop + 38, 58, 20, "gui.add"));
-		this.addButton(new GuiNpcButton(2, this.guiLeft + 358, this.guiTop + 61, 58, 20, "gui.remove"));
-		if (this.scroll == null) {
-			(this.scroll = new GuiCustomScroll(this, 0)).setSize(143, 208);
-		}
-		this.scroll.guiLeft = this.guiLeft + 214;
-		this.scroll.guiTop = this.guiTop + 4;
-		this.scroll.setList(this.data);
-		this.addScroll(this.scroll);
+		addButton(new GuiNpcButton(1, guiLeft + 358, guiTop + 38, 58, 20, "gui.add"));
+		addButton(new GuiNpcButton(2, guiLeft + 358, guiTop + 61, 58, 20, "gui.remove"));
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(143, 208); }
+		scroll.guiLeft = guiLeft + 214;
+		scroll.guiTop = guiTop + 4;
+		scroll.setList(data);
+		addScroll(scroll);
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
+		data.clear();
+		data.addAll(dataList);
+		initGui();
 	}
 
 	@Override
-	public void save() {
-	}
-
-	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> data) {
-		this.data = new ArrayList<>(list);
-		this.initGui();
-	}
-
-	@Override
-	public void setSelected(String selected) {
-	}
+	public void setSelected(String selected) { }
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
@@ -84,4 +67,11 @@ implements IScrollData, ISubGuiListener {
 			Client.sendData(EnumPacketServer.LinkedAdd, ((SubGuiEditText) subgui).text[0]);
 		}
 	}
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) { }
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
+
 }

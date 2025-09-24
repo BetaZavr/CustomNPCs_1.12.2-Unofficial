@@ -9,27 +9,29 @@ import noppes.npcs.constants.EnumAvailabilityStoredData;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.AvailabilityStoredData;
 
-public class SubGuiNpcAvailabilityStoredData
-extends SubGuiInterface
-implements ICustomScrollListener, ITextfieldListener {
+import javax.annotation.Nonnull;
 
-	private final Availability availability;
-	private final Map<String, AvailabilityStoredData> data = new TreeMap<>();
-	private GuiCustomScroll scroll;
-	private AvailabilityStoredData select = null;
-	private int keyError;
+public class SubGuiNpcAvailabilityStoredData extends SubGuiInterface implements ICustomScrollListener, ITextfieldListener {
 
-	public SubGuiNpcAvailabilityStoredData(Availability availability) {
+	protected final Availability availability;
+	protected final Map<String, AvailabilityStoredData> data = new TreeMap<>();
+	protected AvailabilityStoredData select = null;
+	protected GuiCustomScroll scroll;
+	protected int keyError;
+
+	public SubGuiNpcAvailabilityStoredData(Availability availabilityIn) {
+		super(0);
 		setBackground("menubg.png");
+		closeOnEsc = true;
 		xSize = 316;
 		ySize = 217;
-		closeOnEsc = true;
 
-		this.availability = availability;
+		availability = availabilityIn;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
 				if (select == null) { return; }
@@ -37,35 +39,29 @@ implements ICustomScrollListener, ITextfieldListener {
 				initGui();
 				break;
 			}
-			case 2: { // remove
-				if (select == null) {
-					return;
-				}
+			case 2: {
+				if (select == null) { return; }
 				availability.storeddata.remove(select);
 				select = null;
 				initGui();
 				break;
-			}
-			case 3: { // more
-				if (getTextField(0) == null || getTextField(1) == null || getButton(0) == null) {
-					return;
-				}
-				String key = getTextField(0).getFullText();
+			} // remove
+			case 3: {
+				if (getTextField(0) == null || getTextField(1) == null || getButton(0) == null) { return; }
+				String key = getTextField(0).getText();
 				int i = 0;
 				if (select != null) {
 					while (i < availability.storeddata.size()) {
 						AvailabilityStoredData asd = availability.storeddata.get(i);
 						i++;
-						if (asd == select) {
-							continue;
-						}
+						if (asd == select) { continue; }
 						if (asd.key.equals(key)) {
 							key += "_";
 							i = 0;
 						}
 					}
 					select.key = key;
-					select.value = getTextField(1).getFullText();
+					select.value = getTextField(1).getText();
 					select.type = EnumAvailabilityStoredData.values()[getButton(0).getValue()];
 					select = null;
 				} else {
@@ -77,15 +73,12 @@ implements ICustomScrollListener, ITextfieldListener {
 							i = 0;
 						}
 					}
-					availability.storeddata.add(new AvailabilityStoredData(key, getTextField(1).getFullText(), EnumAvailabilityStoredData.values()[getButton(0).getValue()]));
+					availability.storeddata.add(new AvailabilityStoredData(key, getTextField(1).getText(), EnumAvailabilityStoredData.values()[getButton(0).getValue()]));
 				}
 				initGui();
 				break;
-			}
-			case 66: {
-				close();
-				break;
-			}
+			} // more
+			case 66: onClosed(); break;
 		}
 	}
 
@@ -94,19 +87,17 @@ implements ICustomScrollListener, ITextfieldListener {
 		if (keyError > 0) {
 			keyError--;
 			if (getTextField(0) != null) {
-				IGuiNpcTextField textField = getTextField(0);
+				GuiNpcTextField textField = getTextField(0);
 				if (keyError != 0) {
-					((GuiNpcTextField) textField).setTextColor(0xFFFF0000);
-					((GuiNpcTextField) textField).setDisabledTextColour(0xFFFF0000);
+					textField.setTextColor(0xFFFF0000);
+					textField.setDisabledTextColour(0xFFFF0000);
 				} else {
-					((GuiNpcTextField) textField).setTextColor(0xFFFFFFFF);
-					((GuiNpcTextField) textField).setDisabledTextColour(0xFFFFFFFF);
+					textField.setTextColor(0xFFFFFFFF);
+					textField.setDisabledTextColour(0xFFFFFFFF);
 				}
 			}
 		}
-		if (getButton(3) != null && getTextField(0) != null) {
-			getButton(3).setEnabled(!getTextField(0).getFullText().isEmpty());
-		}
+		if (getButton(3) != null && getTextField(0) != null) { getButton(3).setIsEnable(!getTextField(0).getText().isEmpty()); }
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
@@ -114,14 +105,12 @@ implements ICustomScrollListener, ITextfieldListener {
 	public void initGui() {
 		super.initGui();
 		// title
-		GuiNpcLabel label = new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4);
-		label.setCenter(xSize);
-		addLabel(label);
+		addLabel(new GuiNpcLabel(1, "availability.available", guiLeft, guiTop + 4)
+				.setCenter(xSize));
 		// exit
 		int y = guiTop + ySize - 46;
-		GuiNpcButton button = new GuiNpcButton(66, guiLeft + 6, y + 22, 70, 20, "gui.done");
-		button.setHoverText("hover.back");
-		addButton(button);
+		addButton(new GuiNpcButton(66, guiLeft + 6, y + 22, 70, 20, "gui.done")
+				.setHoverText("hover.back"));
 		// data list
 		data.clear();
 		String selKey = "";
@@ -143,9 +132,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			}
 		}
 		if (select != null && selKey.isEmpty()) { select = null; }
-		if (scroll == null) {
-			(scroll = new GuiCustomScroll(this, 0)).setSize(xSize - 12, ySize - 64);
-		}
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(xSize - 12, ySize - 64); }
 		scroll.setList(new ArrayList<>(data.keySet()));
 		scroll.guiLeft = guiLeft + 6;
 		scroll.guiTop = guiTop + 14;
@@ -159,47 +146,40 @@ implements ICustomScrollListener, ITextfieldListener {
 			enumNames[i] = "availability." + easd.name().toLowerCase();
 			i++;
 		}
-		button = new GuiNpcButton(0, guiLeft + 6, y, 50, 20, enumNames, select == null || select.type == null ? 0 : select.type.ordinal());
-		button.setHoverText("availability.hover.sdtype." + (select == null || select.type == null  ? 0 : select.type.ordinal()));
-		addButton(button);
-		button = new GuiNpcButton(2, guiLeft + 290, y, 20, 20, "X");
-		button.setEnabled(select != null);
-		button.setHoverText("availability.hover.remove");
-		addButton(button);
+		addButton(new GuiNpcButton(0, guiLeft + 6, y, 50, 20, enumNames, select == null || select.type == null ? 0 : select.type.ordinal())
+				.setHoverText("availability.hover.sdtype." + (select == null || select.type == null  ? 0 : select.type.ordinal())));
+		addButton(new GuiNpcButton(2, guiLeft + 290, y, 20, 20, "X")
+				.setIsEnable(select != null)
+				.setHoverText("availability.hover.remove"));
 		// key
 		int x = guiLeft + 58;
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y + 1, 112, 18, select != null ? select.key : "");
-		textField.setMaxStringLength(120);
-		textField.setHoverText("availability.hover.sd.key");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(0, this, x, y + 1, 112, 18, select != null ? select.key : "")
+				.setHoverText("availability.hover.sd.key"));
+		getTextField(0).setMaxStringLength(120);
 		// value
-		textField = new GuiNpcTextField(1, this, x + 116, y + 1, 112, 18, select != null ? select.value : "");
-		textField.setMaxStringLength(120);
-		textField.setHoverText("availability.hover.sd.value");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(1, this, x + 116, y + 1, 112, 18, select != null ? select.value : "")
+				.setHoverText("availability.hover.sd.value"));
+		getTextField(1).setMaxStringLength(120);
 		// extra
-		button = new GuiNpcButton(3, guiLeft + xSize - 76, y + 22, 70, 20, "availability.more");
-		button.setHoverText("availability.hover.more");
-		addButton(button);
+		addButton(new GuiNpcButton(3, guiLeft + xSize - 76, y + 22, 70, 20, "availability.more")
+				.setHoverText("availability.hover.more"));
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
 		if (!data.containsKey(scroll.getSelected())) { return; }
 		select = data.get(scroll.getSelected());
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 	@Override
-	public void unFocused(IGuiNpcTextField textfield) {
+	public void unFocused(GuiNpcTextField textfield) {
 		if (textfield.getID() == 0) {
-			if (textfield.isEmpty()) {
-				return;
-			}
-			String key = textfield.getFullText();
+			if (textfield.isEmpty()) { return; }
+			String key = textfield.getText();
 			int i = 0;
             while (i < availability.storeddata.size()) {
                 AvailabilityStoredData asd = availability.storeddata.get(i);
@@ -212,8 +192,8 @@ implements ICustomScrollListener, ITextfieldListener {
                     i = 0;
                 }
             }
-			if (!textfield.getFullText().equals(key)) {
-				textfield.setFullText(key);
+			if (!textfield.getText().equals(key)) {
+				textfield.setText(key);
 				keyError = 60;
 			}
 			if (select != null) {
@@ -221,7 +201,7 @@ implements ICustomScrollListener, ITextfieldListener {
 				initGui();
 			}
 		} else if (select != null) {
-			select.value = textfield.getFullText();
+			select.value = textfield.getText();
 			initGui();
 		}
 	}

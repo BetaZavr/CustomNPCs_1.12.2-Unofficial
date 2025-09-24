@@ -15,30 +15,31 @@ import noppes.npcs.controllers.data.DialogOption;
 import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class SubGuiNpcDialogOptions
-extends SubGuiInterface
-implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
+import javax.annotation.Nonnull;
 
-	private final Dialog dialog;
-	private final Map<String, Integer> data = new TreeMap<>(); // {scrollTitle, dialogID}
-	private GuiCustomScroll scroll;
+public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomScrollListener, GuiYesNoCallback {
+
+	protected final Map<String, Integer> data = new TreeMap<>(); // {scrollTitle, dialogID}
+	protected final Dialog dialog;
+	protected GuiCustomScroll scroll;
 
 	// New from Unofficial (BetaZavr)
 	public final GuiScreen parent;
 
 	public SubGuiNpcDialogOptions(EntityNPCInterface npcIn, Dialog d, GuiScreen gui) {
-		super(npcIn);
+		super(0, npcIn);
 		setBackground("menubg.png");
+		closeOnEsc = true;
 		xSize = 256;
 		ySize = 216;
-		closeOnEsc = true;
 
 		dialog = d;
 		parent = gui;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
 				DialogOption option = new DialogOption();
@@ -77,23 +78,15 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 				initGui();
 				break;
 			} // down dialog
-			case 66: {
-				close();
-				break;
-			} // back
+			case 66: onClosed(); break;
 		}
 	}
 
 	@Override
 	public void confirmClicked(boolean result, int id) {
-		if (parent instanceof GuiDialogEdit && ((GuiDialogEdit) parent).parent != null) {
-			NoppesUtil.openGUI(player, ((GuiDialogEdit) parent).parent);
-		} else {
-			NoppesUtil.openGUI(player, this);
-		}
-		if (!result) {
-			return;
-		}
+		if (parent instanceof SubGuiDialogEdit && ((SubGuiDialogEdit) parent).parent != null) { NoppesUtil.openGUI(player, ((SubGuiDialogEdit) parent).parent); }
+		else { NoppesUtil.openGUI(player, this); }
+		if (!result) { return; }
 		dialog.options.remove(data.get(scroll.getSelected()));
 		initGui();
 	}
@@ -101,8 +94,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 	@Override
 	public void initGui() {
 		super.initGui();
-		addLabel(new GuiNpcLabel(66, "dialog.options", guiLeft, guiTop + 4));
-		getLabel(66).setCenter(xSize);
+		addLabel(new GuiNpcLabel(66, "dialog.options", guiLeft, guiTop + 4).setCenter(xSize));
 		data.clear();
 		List<String> list = new ArrayList<>();
 		List<Integer> colors = new ArrayList<>();
@@ -175,52 +167,42 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 			data.put(key, id);
 			list.add(key);
 		}
-		if (scroll == null) {
-			(scroll = new GuiCustomScroll(this, 0)).setSize(248, 154);
-		}
-		scroll.setListNotSorted(list);
-		scroll.setColors(colors);
-		scroll.setHoverTexts(hts);
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(248, 154); }
 		scroll.guiLeft = guiLeft + 4;
 		scroll.guiTop = guiTop + 14;
+		scroll.setUnsortedList(list)
+				.setColors(colors)
+				.setHoverTexts(hts);
 		addScroll(scroll);
 		addButton(new GuiNpcButton(0, guiLeft + 4, guiTop + 170, 48, 20, "gui.add"));
-		addButton(new GuiNpcButton(1, guiLeft + 54, guiTop + 170, 48, 20, "gui.remove"));
-		getButton(1).setEnabled(scroll.hasSelected());
-		addButton(new GuiNpcButton(2, guiLeft + 104, guiTop + 170, 48, 20, "selectServer.edit"));
-		getButton(2).setEnabled(scroll.hasSelected());
+		addButton(new GuiNpcButton(1, guiLeft + 54, guiTop + 170, 48, 20, "gui.remove")
+				.setIsEnable(scroll.hasSelected()));
+		addButton(new GuiNpcButton(2, guiLeft + 104, guiTop + 170, 48, 20, "selectServer.edit")
+				.setIsEnable(scroll.hasSelected()));
 		addButton(new GuiNpcButton(3, guiLeft + 154, guiTop + 170, 48, 20, "type.up", scroll.getSelect() != -1 && scroll.getSelect() != 0));
 		addButton(new GuiNpcButton(4, guiLeft + 204, guiTop + 170, 48, 20, "type.down", scroll.getSelect() != -1 && scroll.getSelect() > -1 && scroll.getSelect() < data.size() - 1));
-		addButton(new GuiNpcButton(66, guiLeft + 82, guiTop + 192, 98, 20, "gui.done"));
+		addButton(new GuiNpcButton(66, guiLeft + 82, guiTop + 192, 98, 20, "gui.done")
+				.setHoverText("hover.back"));
 	}
 
 	// New from Unofficial (BetaZavr)
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int time, IGuiCustomScroll scroll) {
-		if (!data.containsKey(scroll.getSelected())) {
-			scroll.setSelect(-1);
-			return;
-		}
+	public void scrollClicked(int mouseX, int mouseY, int time, GuiCustomScroll scroll) {
+		if (!data.containsKey(scroll.getSelected())) { scroll.setSelect(-1); return; }
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		if (!data.containsKey(scroll.getSelected())) {
-			return;
-		}
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+		if (!data.containsKey(scroll.getSelected())) { return; }
 		DialogOption option = dialog.options.get(data.get(scroll.getSelected()));
-		if (option == null) {
-			return;
-		}
+		if (option == null) { return; }
 		setSubGui(new SubGuiNpcDialogOption(option, parent));
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (parent instanceof GuiDialogEdit && ((GuiDialogEdit) parent).parent != null) {
-			NoppesUtil.openGUI(player, ((GuiDialogEdit) parent).parent);
-		}
+		if (parent instanceof SubGuiDialogEdit && ((SubGuiDialogEdit) parent).parent != null) { NoppesUtil.openGUI(player, ((SubGuiDialogEdit) parent).parent); }
 		initGui();
 	}
 
@@ -229,9 +211,7 @@ implements ICustomScrollListener, ISubGuiListener, GuiYesNoCallback {
 		int i = 0;
 		boolean bo = false;
 		for (int id : dialog.options.keySet()) {
-			if (id != i) {
-				bo = true;
-			}
+			if (id != i) { bo = true; }
 			DialogOption dlOp = dialog.options.get(id).copy();
 			dlOp.slot = i;
 			map.put(i, dlOp);

@@ -6,16 +6,15 @@ import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.gui.IGuiEntity;
 import noppes.npcs.controllers.PlayerSkinController;
+import noppes.npcs.util.ValueUtil;
 
-public class CustomGuiEntityWrapper
-extends CustomGuiComponentWrapper
-implements IGuiEntity {
+public class CustomGuiEntityWrapper extends CustomGuiComponentWrapper implements IGuiEntity {
 
+	protected IEntity<?> entity;
+	protected float scale = 1.0f;
+	protected boolean hasBorder = false;
+	protected boolean showArmor = true;
 	public NBTTagCompound entityNbt = null;
-	IEntity<?> entity;
-
-	float scale;
-	boolean hasBorder = false, showArmor = true;
 	/**
 	 * 0 - nope
 	 * 1 - mouse
@@ -29,23 +28,20 @@ implements IGuiEntity {
 		this(-1, 0, 0, null);
 	}
 
-	public CustomGuiEntityWrapper(int id, int x, int y, IEntity<?> entity) {
+	public CustomGuiEntityWrapper(int id, int x, int y, IEntity<?> entityIn) {
 		setId(id);
 		setPos(x, y);
-		this.entity = entity;
-		scale = 1.0f;
+		entity = entityIn;
 	}
 
 	@Override
 	public CustomGuiEntityWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
-		this.setScale(nbt.getFloat("Scale"));
+		setScale(nbt.getFloat("Scale"));
 		hasBorder = nbt.getBoolean("HasBorder");
 		showArmor = nbt.getBoolean("ShowArmor");
 		entityNbt = nbt.getCompoundTag("Entity");
-		if (entityNbt.getKeySet().isEmpty()) {
-			entity = null;
-		}
+		if (entityNbt.getKeySet().isEmpty()) { entity = null; }
 		rotType = nbt.getInteger("RotationType");
 		rotYaw = nbt.getInteger("RotationYaw");
 		rotPitch = nbt.getInteger("RotationPitch");
@@ -53,52 +49,31 @@ implements IGuiEntity {
 	}
 
 	@Override
-	public IEntity<?> getEntity() {
-		return entity;
-	}
+	public IEntity<?> getEntity() { return entity; }
 
 	@Override
-	public float getScale() {
-		return scale;
-	}
+	public float getScale() { return scale; }
 
 	@Override
-	public int getType() {
-		return GuiComponentType.ENTITY.get();
-	}
+	public int getType() { return GuiComponentType.ENTITY.get(); }
 
 	@Override
-	public boolean hasBorder() {
-		return hasBorder;
-	}
+	public boolean hasBorder() { return hasBorder; }
 
 	@Override
-	public boolean isShowArmorAndItems() {
-		return showArmor;
-	}
+	public boolean isShowArmorAndItems() { return showArmor; }
 
 	@Override
-	public void setBorder(boolean hasBorder) {
-		this.hasBorder = hasBorder;
-	}
+	public void setBorder(boolean hasBorderIn) { hasBorder = hasBorderIn; }
 
 	@Override
-	public void setEntity(IEntity<?> entity) {
-		this.entity = entity;
-	}
+	public void setEntity(IEntity<?> entityIn) { entity = entityIn; }
 
 	@Override
-	public void setScale(float scale) {
-		if (scale < 0) {
-			scale *= -1.0f;
-		}
-		this.scale = scale;
-	}
+	public void setScale(float scaleIn) { scale = ValueUtil.correctFloat(scaleIn, 0.0f, 10.0f); }
 
 	@Override
-	public void setShowArmorAndItems(boolean show) {
-		showArmor = show;
-	}
+	public void setShowArmorAndItems(boolean show) { showArmor = show; }
 
 	@Override
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
@@ -112,12 +87,10 @@ implements IGuiEntity {
 			if (entity instanceof IPlayer) {
 				entity.getMCEntity().writeToNBT(entityNbt);
 				if (PlayerSkinController.getInstance().playerTextures.containsKey(entity.getMCEntity().getUniqueID())) {
-					entityNbt.setTag("SkinData",
-							PlayerSkinController.getInstance().getNBT(entity.getMCEntity().getUniqueID()));
+					entityNbt.setTag("SkinData", PlayerSkinController.getInstance().getNBT(entity.getMCEntity().getUniqueID()));
 				}
-			} else {
-				entity.getMCEntity().writeToNBTAtomically(entityNbt);
 			}
+			else { entity.getMCEntity().writeToNBTAtomically(entityNbt); }
 		}
 		nbt.setTag("Entity", entityNbt);
 		nbt.setInteger("RotationType", rotType);
@@ -127,25 +100,25 @@ implements IGuiEntity {
 	}
 
 	@Override
-	public int getRotationType() { return this.rotType; }
+	public int getRotationType() { return rotType; }
 
 	@Override
 	public void setRotationType(int type) {
 		if (type < 0) { type *= -1; }
-		this.rotType = type % 3;
+		rotType = type % 3;
 	}
 
 	@Override
-	public int getYaw() { return this.rotYaw; }
+	public int getYaw() { return rotYaw; }
 
 	@Override
-	public int getPitch() { return this.rotPitch; }
+	public int getPitch() { return rotPitch; }
 
 	@Override
 	public void setRotation(int yaw, int pitch) { // int horizontal, int vertical
 		while (yaw < 0) { yaw += 360; }
-		this.rotYaw = yaw % 360;
-		this.rotPitch = pitch % 91;
+		rotYaw = yaw % 360;
+		rotPitch = pitch % 91;
 	}
 
 }

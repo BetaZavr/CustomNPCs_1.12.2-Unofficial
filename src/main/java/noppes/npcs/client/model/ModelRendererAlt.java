@@ -30,8 +30,8 @@ import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.items.CustomArmor;
 
 public class ModelRendererAlt
-extends ModelRenderer
-implements IModelRenderer {
+		extends ModelRenderer
+		implements IModelRenderer {
 
 	// Data
 	public EnumParts part;
@@ -222,9 +222,9 @@ implements IModelRenderer {
 				normalTop = true;
 			}
 		} else { // rotate
-            // Base
-            float limit = (float) (Math.PI / 2.0f);
-            if (rotateAngleY1 > limit) { rotateAngleY1 = limit; }
+			// Base
+			float limit = (float) (Math.PI / 2.0f);
+			if (rotateAngleY1 > limit) { rotateAngleY1 = limit; }
 			if (rotateAngleY1 < -limit) { rotateAngleY1 = -limit; }
 			double cos = Math.cos(-rotateAngleY1);
 			double sin = Math.sin(-rotateAngleY1);
@@ -248,11 +248,11 @@ implements IModelRenderer {
 	private void objDraw() {
 		switch (part) {
 			case HEAD:
-            case BODY: {
+			case BODY: {
 				GlStateManager.translate(0.0f, 1.5f, 0.0f);
 				break;
 			}
-            case ARM_RIGHT: {
+			case ARM_RIGHT: {
 				GlStateManager.translate(0.3175f, 1.375f, 0.0f);
 				break;
 			}
@@ -274,10 +274,9 @@ implements IModelRenderer {
 		}
 		GlStateManager.enableBlend();
 		GlStateManager.rotate(180.0f, 1.0f, 0.0f, 0.0f);
+		Minecraft mc = Minecraft.getMinecraft();
 		if (displayOBJListUp > 0) {
-			if (textureLocation == null) {
-				Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-			}
+			mc.getTextureManager().bindTexture(textureLocation != null ? textureLocation : TextureMap.LOCATION_BLOCKS_TEXTURE);
 			GlStateManager.callList(displayOBJListUp);
 		}
 		if (displayOBJListDown > 0) {
@@ -315,7 +314,7 @@ implements IModelRenderer {
 		if (displayList > 0) {
 			GlStateManager.callList(displayList);
 			if (childModels != null) {
-                for (ModelRenderer childModel : childModels) { childModel.render(scale); }
+				for (ModelRenderer childModel : childModels) { childModel.render(scale); }
 			}
 			return;
 		}
@@ -356,16 +355,16 @@ implements IModelRenderer {
 		float tan = (float) Math.tan(-rotateAngleX1 / 2.0f);
 		if (rotateAngleX1 <= -3.1415) { tan = 0.0f; } // remove infinity
 		Vec2f cr = new Vec2f(ye0, rotateAngleX1 * -ze / (float) -Math.PI); // center
-        Vec2f g0;
-        Vec2f g1;
-        Vec2f g2;
-        float t;// down
-        if (rotateAngleX1 < 0.0f) {
+		Vec2f g0;
+		Vec2f g1;
+		Vec2f g2;
+		float t;// down
+		if (rotateAngleX1 < 0.0f) {
 			// Calculated fillet positions
-            g0 = new Vec2f(cr.x + (ze - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (ze - cr.y) * cos0 - (ye0 - cr.x) * sin0);
-            g1 = new Vec2f(cr.x + (ze - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (ze - cr.y) * cos1 - (ye0 - cr.x) * sin1);
-            g2 = new Vec2f(cr.x + (ze - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (ze - cr.y) * cos2 - (ye0 - cr.x) * sin2);
-            t = (z - cr.y) * tan;
+			g0 = new Vec2f(cr.x + (ze - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (ze - cr.y) * cos0 - (ye0 - cr.x) * sin0);
+			g1 = new Vec2f(cr.x + (ze - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (ze - cr.y) * cos1 - (ye0 - cr.x) * sin1);
+			g2 = new Vec2f(cr.x + (ze - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (ze - cr.y) * cos2 - (ye0 - cr.x) * sin2);
+			t = (z - cr.y) * tan;
 			Vec2f g3 = new Vec2f(ye0 + t, z);
 
 			float d0 = (float) Math.hypot(g0.x-g1.x, g0.y-g1.y);
@@ -548,13 +547,13 @@ implements IModelRenderer {
 			vs.put(19, new PositionTextureVertex(tvs[5].x, yz19.x, yz19.y, 0.0F, 0.0F));
 			vs.put(20, new PositionTextureVertex(tvs[6].x, yz20.x, yz20.y, 0.0F, 0.0F));
 			vs.put(21, new PositionTextureVertex(tvs[7].x, yz21.x, yz21.y, 0.0F, 0.0F));
-        }
+		}
 		else {
 			// Calculated fillet positions
-            g0 = new Vec2f(cr.x + (z - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (z - cr.y) * cos0 - (ye0 - cr.x) * sin0);
-            g1 = new Vec2f(cr.x + (z - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (z - cr.y) * cos1 - (ye0 - cr.x) * sin1);
-            g2 = new Vec2f(cr.x + (z - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (z - cr.y) * cos2 - (ye0 - cr.x) * sin2);
-            t = (ze - cr.y) * tan;
+			g0 = new Vec2f(cr.x + (z - cr.y) * sin0 + (ye0 - cr.x) * cos0, cr.y + (z - cr.y) * cos0 - (ye0 - cr.x) * sin0);
+			g1 = new Vec2f(cr.x + (z - cr.y) * sin1 + (ye0 - cr.x) * cos1, cr.y + (z - cr.y) * cos1 - (ye0 - cr.x) * sin1);
+			g2 = new Vec2f(cr.x + (z - cr.y) * sin2 + (ye0 - cr.x) * cos2, cr.y + (z - cr.y) * cos2 - (ye0 - cr.x) * sin2);
+			t = (ze - cr.y) * tan;
 			Vec2f g3 = new Vec2f(ye0 + t, ze);
 			float d0 = (float) Math.hypot(g0.x-g1.x, g0.y-g1.y);
 			float n0 = dy0 / (dy0 + d0 * 1.5f) * d0 * 1.5f;
@@ -736,13 +735,13 @@ implements IModelRenderer {
 			vs.put(19, new PositionTextureVertex(tvs[5].x, yz19.x, yz19.y, 0.0F, 0.0F));
 			vs.put(20, new PositionTextureVertex(tvs[6].x, yz20.x, yz20.y, 0.0F, 0.0F));
 			vs.put(21, new PositionTextureVertex(tvs[7].x, yz21.x, yz21.y, 0.0F, 0.0F));
-        }
-        setQuard(i++, vs.get(15), vs.get(14), vs.get(18), vs.get(19), u + dz, v + dz + dy1, u + dz + dx, v + dz + dy2); // front
-        setQuard(i++, vs.get(17), vs.get(16), vs.get(20), vs.get(21), u + 2 * dz + dx, v + dz + dy1, u + 2 * (dz + dx), v + dz + dy2); // back
-        setQuard(i++, vs.get(16), vs.get(15), vs.get(19), vs.get(20), u + dz + dx, v + dz + dy1, u + 2 * dz + dx, v + dz + dy2);// inside
-        setQuard(i++, vs.get(14), vs.get(17), vs.get(21), vs.get(18), u, v + dz + dy1, u + dz, v + dz + dy2);// outside
-        setQuard(i, vs.get(19), vs.get(18), vs.get(21), vs.get(20), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
-        draw(scale);
+		}
+		setQuard(i++, vs.get(15), vs.get(14), vs.get(18), vs.get(19), u + dz, v + dz + dy1, u + dz + dx, v + dz + dy2); // front
+		setQuard(i++, vs.get(17), vs.get(16), vs.get(20), vs.get(21), u + 2 * dz + dx, v + dz + dy1, u + 2 * (dz + dx), v + dz + dy2); // back
+		setQuard(i++, vs.get(16), vs.get(15), vs.get(19), vs.get(20), u + dz + dx, v + dz + dy1, u + 2 * dz + dx, v + dz + dy2);// inside
+		setQuard(i++, vs.get(14), vs.get(17), vs.get(21), vs.get(18), u, v + dz + dy1, u + dz, v + dz + dy2);// outside
+		setQuard(i, vs.get(19), vs.get(18), vs.get(21), vs.get(20), u + dz + dx, v, u + 2 * dz + dx, v + dz); // down
+		draw(scale);
 	}
 
 	private void draw(float scale) {
@@ -761,7 +760,7 @@ implements IModelRenderer {
 	}
 
 	private void setQuard(int i, PositionTextureVertex ptv0, PositionTextureVertex ptv1, PositionTextureVertex ptv2, PositionTextureVertex ptv3, float u1, float v1, float u2, float v2) {
-        quads.put(i, new TexturedQuad(new PositionTextureVertex[] { ptv0, ptv1, ptv2, ptv3}));
+		quads.put(i, new TexturedQuad(new PositionTextureVertex[] { ptv0, ptv1, ptv2, ptv3}));
 		quads.get(i).vertexPositions[0] = ptv0.setTexturePosition(u2 / textureWidth, v1 / textureHeight);
 		quads.get(i).vertexPositions[1] = ptv1.setTexturePosition(u1 / textureWidth, v1 / textureHeight);
 		quads.get(i).vertexPositions[2] = ptv2.setTexturePosition(u1 / textureWidth, v2 / textureHeight);

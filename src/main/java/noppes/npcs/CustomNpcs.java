@@ -121,6 +121,9 @@ public class CustomNpcs {
 	@ConfigProp(info = "Currency symbol displayed in stores (unicode)", def = "20AC")
 	public static String CharCurrencies = "20AC";
 	public static String displayCurrencies = "" + ((char) 8364); // 20AC
+	@ConfigProp(info = "Donation currency symbol (unicode)", def = "20B1")
+	public static String CharDonation = "20B1";
+	public static String displayDonation = "" + ((char) 8383); // 20BF
 	@ConfigProp(info = "Number of chunk loading npcs that can be active at the same time", def = "20")
 	public static int ChuckLoaders = 20;
 	@ConfigProp(info = "Minimum and maximum melle and range Damage of NPCs for 1 and Maximum level, respectively (rarity Boss)", def = "8,52,6,26", min = "0,0,0,0")
@@ -261,6 +264,8 @@ public class CustomNpcs {
 	public static boolean SendMarcetInfo = false;
 	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing damage or blocking", def = "100", min = "0", max = "200")
 	public static int KnockBackBasePower = 100;
+	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing or blocking ranged damage", def = "100", min = "0", max = "200")
+	public static int KnockBackBasePowerRanged = 100;
 	@ConfigProp(info = "Shows the rarity of the item in the inventory slot", def = "true", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowRarityItem = true;
 	@ConfigProp(info = "Percentage of knockback power of all entities in the game when dealing damage or blocking", def = "10", min = "0", max = "100")
@@ -271,6 +276,8 @@ public class CustomNpcs {
 	public static boolean DisplayErrorInChat= true;
 	@ConfigProp(info = "Show additional buttons in the GUI menu or not", def = "false", type = Configuration.CATEGORY_CLIENT)
 	public static boolean ShowButtonsInGuiMenu = false;
+	@ConfigProp(info = "Replace background in menu", def = "true", type = Configuration.CATEGORY_CLIENT)
+	public static boolean ReplaceCustomBackground = true;
 
 	@SidedProxy(clientSide = "noppes.npcs.client.ClientProxy", serverSide = "noppes.npcs.CommonProxy")
 	public static CommonProxy proxy;
@@ -307,9 +314,7 @@ public class CustomNpcs {
 		try {
 			File dir = new File(".");
 			if (CustomNpcs.Server != null) {
-				if (!CustomNpcs.Server.isDedicatedServer()) {
-					dir = new File(Minecraft.getMinecraft().mcDataDir, "saves");
-				}
+				if (!Server.isDedicatedServer()) { dir = new File(Minecraft.getMinecraft().mcDataDir, "saves"); }
 				dir = new File(new File(dir, CustomNpcs.Server.getFolderName()), CustomNpcs.MODID);
 			}
 			if (s != null) {
@@ -356,7 +361,6 @@ public class CustomNpcs {
 			MinecraftForge.EVENT_BUS.register(new ScriptItemEventHandler());
 		}
 		ForgeModContainer.fullBoundingBoxLadders = true;
-		new CustomNpcsPermissions();
 		new RecipeController();
 		CustomNpcs.MARKOV_GENERATOR[0] = new MarkovRoman(3);
 		CustomNpcs.MARKOV_GENERATOR[1] = new MarkovJapanese(4);
@@ -446,6 +450,7 @@ public class CustomNpcs {
 		ScriptController.Instance.load();
 		DropController.getInstance().loadFile();
 		AnimationController.getInstance().loadAnimations();
+		new CustomNpcsPermissions();
 		new KeyController();
 		new TransportController();
 		new PlayerDataController();
@@ -516,7 +521,7 @@ public class CustomNpcs {
 		CustomNpcs.Config.config.save();
 		ServerCloneController.Instance = null;
 		PlayerSkinController.getInstance().save();
-		MarcetController.getInstance().saveMarcets();
+		MarcetController.getInstance().save();
 		AnimationController.getInstance().save();
 		KeyController.getInstance().save();
 		DropController.getInstance().save();
@@ -527,11 +532,11 @@ public class CustomNpcs {
 		CustomNpcs.Server = null;
 	}
 
-	@SuppressWarnings("all")
-	public static void setCharCurrencies(String unicode) {
-		CustomNpcs.CharCurrencies = unicode;
-		try { CustomNpcs.displayCurrencies = "" + ((char) Integer.parseInt(unicode, 16)); }
-		catch (Exception e) { CustomNpcs.displayCurrencies = "" + unicode.charAt(0); }
+	public static void resetChars(String currencies, String donations) {
+		try { CustomNpcs.displayCurrencies = "" + ((char) Integer.parseInt(currencies, 16)); }
+		catch (Exception e) { CustomNpcs.displayCurrencies = "" + currencies.charAt(0); }
+		try { CustomNpcs.displayDonation = "" + ((char) Integer.parseInt(donations, 16)); }
+		catch (Exception e) { CustomNpcs.displayDonation = "" + donations.charAt(0); }
 	}
 
 }

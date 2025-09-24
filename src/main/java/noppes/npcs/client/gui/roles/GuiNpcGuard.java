@@ -14,7 +14,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
@@ -22,21 +21,26 @@ import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.JobGuard;
 
-public class GuiNpcGuard
-extends GuiNPCInterface2 {
+import javax.annotation.Nonnull;
 
-	private final JobGuard role;
-	private GuiCustomScroll scroll1;
-	private GuiCustomScroll scroll2;
-	private final Map<String, String> data = new HashMap<>();
+public class GuiNpcGuard extends GuiNPCInterface2 implements ICustomScrollListener {
+
+	protected final JobGuard role;
+	protected GuiCustomScroll scrollAllEntities;
+	protected GuiCustomScroll scrollTargetEntities;
+	protected final Map<String, String> data = new HashMap<>();
 
 	public GuiNpcGuard(EntityNPCInterface npc) {
 		super(npc);
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
+
 		role = (JobGuard) npc.advanced.jobInterface;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
 				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
@@ -44,8 +48,8 @@ extends GuiNPCInterface2 {
 					String name = "entity." + ent.getName() + ".name";
 					if (EntityAnimal.class.isAssignableFrom(cl) && !role.targets.contains(name)) { role.targets.add(name); }
 				}
-				scroll1.setSelect(-1);
-				scroll2.setSelect(-1);
+				scrollAllEntities.setSelect(-1);
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
 			}
@@ -55,8 +59,8 @@ extends GuiNPCInterface2 {
 					String name = "entity." + ent.getName() + ".name";
 					if (EntityMob.class.isAssignableFrom(cl) && !EntityCreeper.class.isAssignableFrom(cl)  && !role.targets.contains(name)) { role.targets.add(name); }
 				}
-				scroll1.setSelect(-1);
-				scroll2.setSelect(-1);
+				scrollAllEntities.setSelect(-1);
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
 			}
@@ -68,26 +72,26 @@ extends GuiNPCInterface2 {
 						role.targets.add(name);
 					}
 				}
-				scroll1.setSelect(-1);
-				scroll2.setSelect(-1);
+				scrollAllEntities.setSelect(-1);
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
 			}
 			case 11: {
-				if (!scroll1.hasSelected()) { return; }
-				role.targets.add(data.get(scroll1.getSelected()));
-				scroll1.setSelect(-1);
-				scroll2.setSelect(-1);
+				if (!scrollAllEntities.hasSelected()) { return; }
+				role.targets.add(data.get(scrollAllEntities.getSelected()));
+				scrollAllEntities.setSelect(-1);
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
-			}
+			} // >
 			case 12: {
-				if (!scroll2.hasSelected()) { return; }
-				role.targets.remove(data.get(scroll2.getSelected()));
-				scroll2.setSelect(-1);
+				if (!scrollTargetEntities.hasSelected()) { return; }
+				role.targets.remove(data.get(scrollTargetEntities.getSelected()));
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
-			}
+			} // <
 			case 13: {
 				role.targets.clear();
 				for (EntityEntry ent : ForgeRegistries.ENTITIES.getValuesCollection()) {
@@ -97,19 +101,19 @@ extends GuiNPCInterface2 {
 						role.targets.add(name);
 					}
 				}
-				scroll1.setSelect(-1);
-				scroll2.setSelect(-1);
+				scrollAllEntities.setSelect(-1);
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
-			}
+			} // >>
 			case 14: {
 				role.targets.clear();
-				scroll1.setSelect(-1);
-				scroll2.setSelect(-1);
+				scrollAllEntities.setSelect(-1);
+				scrollTargetEntities.setSelect(-1);
 				initGui();
 				break;
-			}
-			case 66: close(); break;
+			} // <<
+			case 66: onClosed(); break;
 		}
 	}
 
@@ -119,19 +123,15 @@ extends GuiNPCInterface2 {
 		addButton(new GuiNpcButton(0, guiLeft + 10, guiTop + 4, 100, 20, "guard.animals"));
 		addButton(new GuiNpcButton(1, guiLeft + 140, guiTop + 4, 100, 20, "guard.mobs"));
 		addButton(new GuiNpcButton(2, guiLeft + 275, guiTop + 4, 100, 20, "guard.creepers"));
-		if (scroll1 == null) {
-			(scroll1 = new GuiCustomScroll(this, 0)).setSize(175, 154);
-		}
-		scroll1.guiLeft = guiLeft + 4;
-		scroll1.guiTop = guiTop + 58;
-		addScroll(scroll1);
+		if (scrollAllEntities == null) { scrollAllEntities = new GuiCustomScroll(this, 0).setSize(175, 154); }
+		scrollAllEntities.guiLeft = guiLeft + 4;
+		scrollAllEntities.guiTop = guiTop + 58;
+		addScroll(scrollAllEntities);
 		addLabel(new GuiNpcLabel(11, "guard.availableTargets", guiLeft + 4, guiTop + 48));
-		if (scroll2 == null) {
-			(scroll2 = new GuiCustomScroll(this, 1)).setSize(175, 154);
-		}
-		scroll2.guiLeft = guiLeft + 235;
-		scroll2.guiTop = guiTop + 58;
-		addScroll(scroll2);
+		if (scrollTargetEntities == null) { scrollTargetEntities = new GuiCustomScroll(this, 1).setSize(175, 154); }
+		scrollTargetEntities.guiLeft = guiLeft + 235;
+		scrollTargetEntities.guiTop = guiTop + 58;
+		addScroll(scrollTargetEntities);
 		addLabel(new GuiNpcLabel(12, "guard.currentTargets", guiLeft + 235, guiTop + 48));
 		List<String> all = new ArrayList<>();
 		data.clear();
@@ -139,43 +139,52 @@ extends GuiNPCInterface2 {
 			Class<? extends Entity> cl = ent.getEntityClass();
 			String name = "entity." + ent.getName() + ".name";
 			if (!role.targets.contains(name)) {
-				if (EntityNPCInterface.class.isAssignableFrom(cl)) {
-					continue;
-				}
-				if (!EntityLivingBase.class.isAssignableFrom(cl)) {
-					continue;
-				}
+				if (EntityNPCInterface.class.isAssignableFrom(cl) || !EntityLivingBase.class.isAssignableFrom(cl)) { continue; }
 				String key = new TextComponentTranslation(name).getFormattedText();
 				all.add(key);
 				data.put(key, name);
 			}
 		}
-		scroll1.setList(all);
+		scrollAllEntities.setList(all);
 		List<String> targets = new ArrayList<>();
 		for (String name : role.targets) {
 			String key = new TextComponentTranslation(name).getFormattedText();
 			targets.add(key);
 			data.put(key, name);
 		}
-		scroll2.setList(targets);
-		addButton(new GuiNpcButton(11, guiLeft + 180, guiTop + 80, 55, 20, ">"));
-		addButton(new GuiNpcButton(12, guiLeft + 180, guiTop + 102, 55, 20, "<"));
-		addButton(new GuiNpcButton(13, guiLeft + 180, guiTop + 130, 55, 20, ">>"));
-		addButton(new GuiNpcButton(14, guiLeft + 180, guiTop + 152, 55, 20, "<<"));
-	}
-
-	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 1) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-		}
+		scrollTargetEntities.setList(targets);
+		addButton(new GuiNpcButton(11, guiLeft + 180, guiTop + 80, 55, 20, ">")
+				.setHoverText("beacon.hover.add.element"));
+		addButton(new GuiNpcButton(12, guiLeft + 180, guiTop + 102, 55, 20, "<")
+				.setHoverText("beacon.hover.del.element"));
+		addButton(new GuiNpcButton(13, guiLeft + 180, guiTop + 130, 55, 20, ">>")
+				.setHoverText("beacon.hover.add.all.element"));
+		addButton(new GuiNpcButton(14, guiLeft + 180, guiTop + 152, 55, 20, "<<")
+				.setHoverText("hover.del.all.element"));
 	}
 
 	@Override
 	public void save() {
 		Client.sendData(EnumPacketServer.JobSave, role.save(new NBTTagCompound()));
 	}
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (scroll.getID() == 0) {
+			if (!scrollAllEntities.hasSelected()) { return; }
+			role.targets.add(data.get(scrollAllEntities.getSelected()));
+			scrollAllEntities.setSelect(-1);
+			scrollTargetEntities.setSelect(-1);
+		} // >
+		if (scroll.getID() == 0) {
+			if (!scrollTargetEntities.hasSelected()) { return; }
+			role.targets.remove(data.get(scrollTargetEntities.getSelected()));
+			scrollTargetEntities.setSelect(-1);
+		} // <
+		initGui();
+	}
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 }

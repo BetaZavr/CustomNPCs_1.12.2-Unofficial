@@ -194,7 +194,7 @@ public class NPCSpawning {
 								break;
 							}
 							// can see summon
-							if (data.canSeeSummon != Util.instance.npcCanSeeTarget(player, entity, false, true)) {
+							if (data.canSeeSummon != player.canEntityBeSeen(entity)) {
 								isSpawnPos = false;
 								break;
 							}

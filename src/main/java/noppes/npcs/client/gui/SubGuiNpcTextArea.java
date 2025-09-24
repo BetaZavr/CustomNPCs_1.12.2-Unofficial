@@ -3,21 +3,17 @@ package noppes.npcs.client.gui;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.client.gui.util.*;
 
-public class SubGuiNpcTextArea
-extends SubGuiInterface
-implements ITextChangeListener {
+import javax.annotation.Nonnull;
 
-	private boolean highlighting;
+public class SubGuiNpcTextArea extends SubGuiInterface implements ITextChangeListener {
+
+	protected boolean highlighting;
+	protected GuiTextArea textarea;
 	public String originalText;
 	public String text;
-	private GuiTextArea textarea;
 
-	public SubGuiNpcTextArea(int i, String text) {
-		this(text);
-		id = i;
-	}
-
-	public SubGuiNpcTextArea(String t) {
+	public SubGuiNpcTextArea(int id, String t) {
+		super(id);
 		setBackground("bgfilled.png");
 		xSize = 256;
 		ySize = 256;
@@ -31,18 +27,19 @@ implements ITextChangeListener {
 	}
 
 	public SubGuiNpcTextArea(String textOriginal, String t) {
-		this(t);
+		this(0, t);
 		originalText = textOriginal;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
-			case 0: close(); break;
-			case 100: NoppesStringUtils.setClipboardContents(textarea.getFullText()); break;
-			case 101: textarea.setFullText(NoppesStringUtils.getClipboardContents()); break;
-			case 102: textarea.setFullText(""); break;
-			case 103: textarea.setFullText(originalText); break;
+			case 0: onClosed(); break;
+			case 100: NoppesStringUtils.setClipboardContents(textarea.getText()); break;
+			case 101: textarea.setText(NoppesStringUtils.getClipboardContents()); break;
+			case 102: textarea.setText(""); break;
+			case 103: textarea.setText(originalText); break;
 		}
 	}
 
@@ -55,10 +52,14 @@ implements ITextChangeListener {
 	public void initGui() {
 		xSize = (int) (width * 0.88);
 		ySize = (int) (height * 0.95);
+		if ((double) ySize > (double) height * 0.95D) {
+			ySize = (int)((double) height * 0.95D);
+			xSize = (int)((double) ySize / 0.56D);
+		}
+		bgScale = (float) xSize / 440.0F;
 		super.initGui();
-		if (textarea != null) { text = textarea.getFullText(); }
-		textarea = new GuiTextArea(2, guiLeft + 5, guiTop + 5, xSize - 68, ySize - 10, text);
-		textarea.setListener(this);
+		if (textarea != null) { text = textarea.getText(); }
+		add(textarea = new GuiTextArea(0, guiLeft + 5, guiTop + 5, xSize - 68, ySize - 10, text).setListener(this));
 		if (highlighting) { textarea.enableCodeHighlighting(); }
 		add(textarea);
 		int x = guiLeft + 7 + textarea.width;

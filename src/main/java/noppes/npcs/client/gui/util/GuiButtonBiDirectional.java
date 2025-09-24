@@ -4,20 +4,21 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
 
-public class GuiButtonBiDirectional
-extends GuiNpcButton {
+public class GuiButtonBiDirectional extends GuiNpcButton {
 
 	public static ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/arrowbuttons.png");
 	public boolean checkWidth = true;
 	public boolean showShadow = true;
-	private boolean hoverL;
-	private boolean hoverR;
-	private final int color;
+
+	protected boolean hoverL;
+	protected boolean hoverR;
+	protected final int color;
 
 	public GuiButtonBiDirectional(int id, int x, int y, int width, int height, String[] arr, int current) {
 		super(id, x, y, width, height, arr, current);
@@ -67,17 +68,12 @@ extends GuiNpcButton {
 		if (checkWidth && mc.fontRenderer.getStringWidth(displayString) > maxWidth) {
 			for (int h = 0; h < displayString.length(); ++h) {
 				text += displayString.charAt(h);
-				if (mc.fontRenderer.getStringWidth(text) > maxWidth) {
-					break;
-				}
+				if (mc.fontRenderer.getStringWidth(text) > maxWidth) { break; }
 			}
 			text += "...";
-		} else {
-			text = displayString;
 		}
-		if (hovered && enabled) {
-			text = ((char) 167) + "n" + text;
-		}
+		else { text = displayString; }
+		if (hovered && enabled) { text = TextFormatting.UNDERLINE + text; }
 
 		c = color;
 		if (packedFGColour != 0) { c = packedFGColour; }
@@ -89,7 +85,7 @@ extends GuiNpcButton {
 	}
 
 	@Override
-	public boolean mousePressed(@Nonnull Minecraft minecraft, int mouseX, int mouseY) {
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
 		int value = getValue();
 		boolean bo = false;
 		if (visible && enabled && display != null && display.length != 0) {
@@ -98,15 +94,18 @@ extends GuiNpcButton {
 				bo = true;
 			}
 			if (hoverL) {
-				if (value <= 0) {
-					value = display.length;
-				}
+				if (value <= 0) { value = display.length; }
 				--value;
 				bo = true;
 			}
 			setDisplay(value);
 		}
-		return bo || super.mousePressed(minecraft, mouseX, mouseY);
+		return bo || super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
+	}
+
+	public GuiButtonBiDirectional setCheckWidth(boolean checkWidthIn) {
+		checkWidth = checkWidthIn;
+		return this;
 	}
 
 }

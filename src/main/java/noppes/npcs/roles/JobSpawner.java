@@ -2,9 +2,10 @@ package noppes.npcs.roles;
 
 import java.util.*;
 
+import net.minecraft.world.World;
+import noppes.npcs.CustomNpcs;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -200,11 +201,15 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
                 } else if (sdNbt.hasKey("Name", 8)) {
                     name = sdNbt.getString("Name");
                 } else if (sdNbt.hasKey("id", 8)) {
-                    Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(sdNbt.getString("id")),
-                            Minecraft.getMinecraft().world);
-                    if (entity != null) {
-                        name = entity.getName();
-                    }
+					World world = null;
+					if (npc != null) { world = npc.world; }
+					else if (CustomNpcs.proxy.getPlayer() != null) { world = CustomNpcs.proxy.getPlayer().world; }
+					if (world != null) {
+						Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(sdNbt.getString("id")), world);
+						if (entity != null) {
+							name = entity.getName();
+						}
+					}
                 }
                 compound.getTagList(key, 10).getCompoundTagAt(j).removeTag("EntityNBT");
 				compound.getTagList(key, 10).getCompoundTagAt(j).setString("Name", name);
@@ -342,7 +347,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 				if (!compound.hasKey("SpawnerNBT" + i, 10)) {
 					continue;
 				}
-				SpawnNPCData sd = new SpawnNPCData();
+				SpawnNPCData sd = new SpawnNPCData(npc.world);
 				sd.compound = compound.getCompoundTag("SpawnerNBT" + i);
 				sDs.add(sd);
 			}
@@ -396,19 +401,19 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 			NBTTagList nbt = compound.getTagList("DataEntitysWhen" + (i == 0 ? "Alive" : "Dead"), 10);
 			this.dataEntitys[i] = new SpawnNPCData[nbt.tagCount()];
 			for (int slot = 0; slot < nbt.tagCount(); slot++) {
-				this.dataEntitys[i][slot] = new SpawnNPCData(nbt.getCompoundTagAt(slot));
+				this.dataEntitys[i][slot] = new SpawnNPCData(nbt.getCompoundTagAt(slot), npc.world);
 			}
 		}
 	}
 
 	public SpawnNPCData readJobCompound(int slot, boolean isDead, NBTTagCompound spawnNBT) {
 		int type = isDead ? 1 : 0;
-		if (slot >= 0 && slot < this.dataEntitys[type].length) {
-			SpawnNPCData sd = this.dataEntitys[type][slot];
+		if (slot >= 0 && slot < dataEntitys[type].length) {
+			SpawnNPCData sd = dataEntitys[type][slot];
 			sd.readFromNBT(spawnNBT);
 			return sd;
 		}
-		return this.add(new SpawnNPCData(spawnNBT), isDead);
+		return add(new SpawnNPCData(spawnNBT, npc.world), isDead);
 	}
 
 	@Override
@@ -642,7 +647,7 @@ public class JobSpawner extends JobInterface implements IJobSpawner {
 
 	@Override
 	public NBTTagCompound save(NBTTagCompound compound) {
-		super.load(compound);
+		super.save(compound);
 		compound.setString("SpawnerId", this.id);
 		compound.setInteger("SpawnerWhenAlive", this.spawnType[0]);
 		compound.setInteger("SpawnerWhenDead", this.spawnType[1]);

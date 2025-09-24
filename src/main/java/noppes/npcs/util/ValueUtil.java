@@ -2,26 +2,25 @@ package noppes.npcs.util;
 
 public class ValueUtil {
 
-	public static double correctDouble(double given, double min, double max) {
-		if (given < min) {
-			return min;
-		}
-        return Math.min(given, max);
-    }
-
 	public static float correctFloat(float given, float min, float max) {
-		if (given < min) {
-			return min;
-		}
-        return Math.min(given, max);
-    }
+		if (given < min) { return min; }
+		return Math.min(given, max);
+	}
+
+	public static double correctDouble(double given, double min, double max) {
+		if (given < min) { return min; }
+		return Math.min(given, max);
+	}
 
 	public static int correctInt(int given, int min, int max) {
-		if (given < min) {
-			return min;
-		}
-        return Math.min(given, max);
-    }
+		if (given < min) { return min; }
+		return Math.min(given, max);
+	}
+
+	public static long correctLong(long given, long min, long max) {
+		if (given < min) { return min; }
+		return Math.min(given, max);
+	}
 
 	public static double max(double... obj) {
 		if (obj == null || obj.length == 0) {

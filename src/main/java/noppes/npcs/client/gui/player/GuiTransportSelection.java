@@ -21,32 +21,34 @@ import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.RoleTransporter;
 import noppes.npcs.util.Util;
+import org.lwjgl.input.Keyboard;
 
-public class GuiTransportSelection
-extends GuiNPCInterface
-implements ITopButtonListener, IScrollData, ICustomScrollListener {
+import javax.annotation.Nonnull;
 
-	private boolean canTransport = true;
+public class GuiTransportSelection extends GuiNPCInterface implements IScrollData, ICustomScrollListener {
+
+	protected final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	protected GuiCustomScroll scroll;
+	protected final Map<String, Integer> data = new TreeMap<>();
+	protected TransportLocation locSel;
+	protected Map<ItemStack, Boolean> barterItems;
+	protected boolean canTransport = true;
 	protected int bxSize = 0;
 	protected int bySize = 0;
-	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
-	private GuiCustomScroll scroll;
-	private final Map<String, Integer> data = new TreeMap<>();
-	private TransportLocation locSel;
-	private Map<ItemStack, Boolean> barterItems;
 
 	public GuiTransportSelection(EntityNPCInterface npc) {
 		super(npc);
-		xSize = 176;
 		drawDefaultBackground = false;
+		xSize = 176;
 		title = "";
+
 		NoppesUtilPlayer.sendData(EnumPlayerPacket.TransportCategoriesGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() == 0 && locSel != null) {
-			close();
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton == 1 && button.getID() == 0 && locSel != null) {
+			onClosed();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, locSel.id);
 		}
 	}
@@ -89,9 +91,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 				int v = guiTop + 30 + (slot / 3) * 18;
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 				drawTexturedModalRect(u, v, 0, 0, 18, 18);
-				if (canTransport) {
-					canTransport = barterItems.get(stack);
-				}
+				if (canTransport) { canTransport = barterItems.get(stack); }
 				if (getButton(0) != null && getButton(0).isHovered()) {
 					Gui.drawRect(u + 1, v + 1, u + 17, v + 17, barterItems.get(stack) ? 0x8000FF00 : player.capabilities.isCreativeMode ? 0x80FF6E00 : 0x80FF0000);
 				}
@@ -102,9 +102,7 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 			bySize = (int) (Math.ceil(a) * 18.0d);
 			GlStateManager.popMatrix();
 		}
-		if (locSel.money > 0) {
-			bySize += 14;
-		}
+		if (locSel.money > 0) { bySize += 14; }
 	}
 
 	@Override
@@ -125,23 +123,19 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 					RenderHelper.disableStandardItemLighting();
 					GlStateManager.popMatrix();
 					if (isMouseHover(mouseX, mouseY, u, v, 18, 18)) {
-                        setHoverText(new ArrayList<>(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL)));
+                        putHoverText(new ArrayList<>(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL)));
 					}
 					slot++;
 				}
 			}
 		}
 		if (getButton(0) != null) {
-			IGuiNpcButton button = getButton(0);
-			button.setEnabled(canTransport && locSel != null);
-			if (!button.isEnabled() && button.isHovered()) {
-				if (locSel == null) {
-					setHoverText(new TextComponentTranslation("transporter.hover.not.select").getFormattedText());
-				} else if (locSel.money > ClientProxy.playerData.game.getMoney()) {
-					setHoverText(new TextComponentTranslation("transporter.hover.not.money").getFormattedText());
-				} else {
-					setHoverText(new TextComponentTranslation("transporter.hover.not.item").getFormattedText());
-				}
+			GuiNpcButton button = getButton(0);
+			button.setIsEnable(canTransport && locSel != null);
+			if (!button.enabled && button.isHovered()) {
+				if (locSel == null) { putHoverText(new TextComponentTranslation("transporter.hover.not.select").getFormattedText()); }
+				else if (locSel.money > ClientProxy.playerData.game.getMoney()) { putHoverText(new TextComponentTranslation("transporter.hover.not.money").getFormattedText()); }
+				else { putHoverText(new TextComponentTranslation("transporter.hover.not.item").getFormattedText()); }
 			}
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
@@ -184,19 +178,14 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 						if (loc.money > 0) {
 							sfx = Util.instance.getTextReducedNumber(loc.money, true, true, false) + " "
 									+ CustomNpcs.displayCurrencies;
-							if (loc.money > 0 && loc.money > ClientProxy.playerData.game.getMoney()) {
-								color = redC;
-							}
+							if (loc.money > 0 && loc.money > ClientProxy.playerData.game.getMoney()) { color = redC; }
 						}
 					}
 					if (!loc.inventory.isEmpty() && color != redC) {
 						sfx += ((char) 167) + "7 [" + ((char) 167) + "6I" + ((char) 167) + "7]";
 						Map<ItemStack, Boolean> items = Util.instance.getInventoryItemCount(player, loc.inventory);
 						for (ItemStack s : items.keySet()) {
-							if (!items.get(s)) {
-								color = redC;
-								break;
-							}
+							if (!items.get(s)) { color = redC; break; }
 						}
 					}
 				}
@@ -209,20 +198,17 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 || isInventoryKey(i)) {
-			close();
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (subgui != null) { return subgui.keyCnpcsPressed(typedChar, keyCode); }
+		if (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode)) {
+			onClosed();
+			return true;
 		}
-	}
-
-	@Override
-	public void mouseClicked(int i, int j, int k) {
-		super.mouseClicked(i, j, k);
-		scroll.mouseClicked(i, j, k);
+		return super.keyCnpcsPressed(typedChar, keyCode);
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (data.containsKey(scroll.getSelected())) {
 			locSel = TransportController.getInstance().getTransport(data.get(scroll.getSelected()));
 			initGui();
@@ -230,15 +216,15 @@ implements ITopButtonListener, IScrollData, ICustomScrollListener {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
 		if (locSel != null) {
-			close();
+			onClosed();
 			NoppesUtilPlayer.sendData(EnumPlayerPacket.Transport, locSel.id);
 		}
 	}
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
 		data.clear();
 		for (String key : dataMap.keySet()) {
 			String name = new TextComponentTranslation(key).getFormattedText();

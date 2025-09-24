@@ -44,6 +44,7 @@ extends ModelPartData {
 
 	public ModelEyeData() {
 		super("eyes");
+		type = -1;
 		reset();
 	}
 	

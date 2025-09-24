@@ -302,9 +302,7 @@ public class JobFarmer extends JobInterface implements MassBlockController.IMass
 	public NBTTagCompound save(NBTTagCompound compound) {
 		super.save(compound);
 		compound.setInteger("JobChestMode", chestMode);
-		if (!holding.isEmpty()) {
-			compound.setTag("JobHolding", holding.writeToNBT(new NBTTagCompound()));
-		}
+		if (!holding.isEmpty()) { compound.setTag("JobHolding", holding.writeToNBT(new NBTTagCompound())); }
 		compound.setInteger("Range", range);
 		return compound;
 	}

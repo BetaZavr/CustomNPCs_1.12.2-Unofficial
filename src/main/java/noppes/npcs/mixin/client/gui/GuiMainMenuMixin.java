@@ -31,14 +31,17 @@ public class GuiMainMenuMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void npcs$onConstructor(CallbackInfo ci) {
-        for (int i = 0; i < 6; i++) {
-            TITLE_PANORAMA_PATHS[i] = new ResourceLocation(CustomNpcs.MODID, "textures/gui/title/background/"+cnpc$variant+"/panorama_"+i+".png");
+        CustomNpcs.resetChars(CustomNpcs.CharCurrencies, CustomNpcs.CharDonation);
+        if (CustomNpcs.ReplaceCustomBackground) {
+            for (int i = 0; i < 6; i++) {
+                TITLE_PANORAMA_PATHS[i] = new ResourceLocation(CustomNpcs.MODID, "textures/gui/title/background/"+cnpc$variant+"/panorama_"+i+".png");
+            }
         }
     }
 
     @Inject(method = "initGui", at = @At("TAIL"))
     public void npcs$initGui(CallbackInfo ci) {
-        if (CustomNpcs.ShowButtonsInGuiMenu) {
+        if (CustomNpcs.ReplaceCustomBackground && CustomNpcs.ShowButtonsInGuiMenu) {
             ((GuiScreen) (Object) this).buttonList.add(new GuiNpcButton(150, 3, 3, 20, 16, cnpc$variant + 1,
                             "MC", "1", "2", "3", "4"));
         }
@@ -46,7 +49,7 @@ public class GuiMainMenuMixin {
 
     @Inject(method = "actionPerformed", at = @At("TAIL"))
     protected void npcs$actionPerformed(GuiButton button, CallbackInfo ci) {
-        if (button.id == 150) {
+        if (button.id == 150 && CustomNpcs.ReplaceCustomBackground && CustomNpcs.ShowButtonsInGuiMenu) {
             cnpc$variant = ((GuiNpcButton) button).getValue() - 1;
             for(int i = 0; i < 6; ++i) {
                 if (cnpc$variant < 0) { TITLE_PANORAMA_PATHS[i] = new ResourceLocation("textures/gui/title/background/panorama_" + i + ".png"); }

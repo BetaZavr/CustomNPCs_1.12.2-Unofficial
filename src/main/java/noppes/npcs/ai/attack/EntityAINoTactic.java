@@ -16,7 +16,7 @@ public class EntityAINoTactic extends EntityAICustom {
 			return;
 		}
 		if (this.isRanged) {
-			this.canSeeToAttack = Util.instance.npcCanSeeTarget(this.npc, this.target, true, true);
+			this.canSeeToAttack = this.npc.canSee(this.target);
 			if (this.canSeeToAttack && this.distance <= this.range) {
 				if (this.inMove) {
 					this.npc.getNavigator().clearPath();

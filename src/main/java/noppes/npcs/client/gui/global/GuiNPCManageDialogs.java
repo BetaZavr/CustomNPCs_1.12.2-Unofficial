@@ -3,12 +3,10 @@ package noppes.npcs.client.gui.global;
 import java.util.*;
 import java.util.Map.Entry;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.Client;
@@ -25,15 +23,15 @@ import noppes.npcs.controllers.data.DialogOption.OptionDialogID;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class GuiNPCManageDialogs
-extends GuiNPCInterface2
-implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
+import javax.annotation.Nonnull;
 
-	public static GuiScreen Instance;
-	private final Map<String, DialogCategory> categoryData = new TreeMap<>();
-	private final Map<String, Dialog> dialogData = new LinkedHashMap<>();
-	private GuiCustomScroll scrollCategories;
-	private GuiCustomScroll scrollDialogs;
+public class GuiNPCManageDialogs extends GuiNPCInterface2
+		implements ICustomScrollListener, GuiYesNoCallback {
+
+	protected final Map<String, DialogCategory> categoryData = new TreeMap<>();
+	protected final Map<String, Dialog> dialogData = new LinkedHashMap<>();
+	protected GuiCustomScroll scrollCategories;
+	protected GuiCustomScroll scrollDialogs;
 
 	// New from Unofficial (BetaZavr)
 	protected static boolean isName = true;
@@ -43,21 +41,22 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 
 	public GuiNPCManageDialogs(EntityNPCInterface npc) {
 		super(npc);
-		Instance = this;
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuGlobal;
+
 		Client.sendData(EnumPacketServer.DialogCategoryGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 1: {
 				setSubGui(new SubGuiEditText(1, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
 			} // create cat
 			case 2: {
-				if (!categoryData.containsKey(selectedCategory)) {
-					return;
-				}
+				if (!categoryData.containsKey(selectedCategory)) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this,
 						categoryData.get(selectedCategory).title,
 						new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 2);
@@ -70,13 +69,10 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				break;
 			} // rename cat
 			case 9: {
-				if (copyDialog == null || !categoryData.containsKey(selectedCategory)) {
-					return;
-				}
+				if (copyDialog == null || !categoryData.containsKey(selectedCategory)) { return; }
 				Dialog dialog = copyDialog.copy(null);
 				dialog.id = -1;
 				dialog.category = categoryData.get(selectedCategory);
-
 				StringBuilder t = new StringBuilder(dialog.title);
 				boolean has = true;
 				while (has) {
@@ -90,7 +86,6 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 					if (has) { t.append("_"); }
 				}
 				dialog.title = t.toString();
-
 				selectedDialog = dialog.title;
 				Client.sendData(EnumPacketServer.DialogSave, categoryData.get(selectedCategory).id, dialog.save(new NBTTagCompound()));
 				initGui();
@@ -107,16 +102,14 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				break;
 			} // create dialog
 			case 12: {
-				if (!dialogData.containsKey(selectedDialog)) {
-					return;
-				}
+				if (!dialogData.containsKey(selectedDialog)) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this, dialogData.get(selectedDialog).getKey(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 12);
 				displayGuiScreen(guiyesno);
 				break;
 			} // del dialog
 			case 13: {
 				if (!dialogData.containsKey(selectedDialog)) { return; }
-				setSubGui(new GuiDialogEdit(npc, dialogData.get(selectedDialog), this));
+				setSubGui(new SubGuiDialogEdit(npc, dialogData.get(selectedDialog), this));
 				break;
 			} // edit dialog
 			case 14: {
@@ -128,16 +121,9 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void close() {
-		super.close();
-	}
-
-	@Override
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI(player, this);
-		if (!result) {
-			return;
-		}
+		if (!result) { return; }
 		if (id == 2) {
 			Client.sendData(EnumPacketServer.DialogCategoryRemove, categoryData.get(selectedCategory).id);
 			selectedCategory = "";
@@ -184,9 +170,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 						List<String> nextDialogs = new ArrayList<>();
 						h.add(new TextComponentTranslation(dialog.title).getFormattedText() + ":");
 						for (DialogOption option : dialog.options.values()) {
-							if (option.optionType != OptionType.DIALOG_OPTION || option.dialogs.isEmpty()) {
-								continue;
-							}
+							if (option.optionType != OptionType.DIALOG_OPTION || option.dialogs.isEmpty()) { continue; }
 							int i = 0;
 							for (OptionDialogID od : option.dialogs) {
 								nextDialogIDs.put(option.slot + "." + i, od.dialogId);
@@ -196,28 +180,20 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 						try {
 							Set<Integer> dSet = dData.dialogs.keySet();
 							for (int dialogId : dSet) {
-								if (!dData.hasDialog(dialogId)) {
-									continue;
-								}
+								if (!dData.hasDialog(dialogId)) { continue; }
 								Dialog d = dData.get(dialogId);
 								for (DialogOption option : d.options.values()) {
-									if (option.optionType != OptionType.DIALOG_OPTION || option.dialogs.isEmpty()) {
-										continue;
-									}
+									if (option.optionType != OptionType.DIALOG_OPTION || option.dialogs.isEmpty()) { continue; }
 									int i = 0;
 									for (OptionDialogID od : option.dialogs) {
-										if (od.dialogId != dialog.id) {
-											continue;
-										}
+										if (od.dialogId != dialog.id) { continue; }
 										activationDialogs.add(((char) 167) + "7ID:" + d.id + ((char) 167) + "8 " + (new TextComponentTranslation("gui.answer").getFormattedText()) + ((char) 167) + "8: " + ((char) 167) + "7" + option.slot + "." + i + ((char) 167) + "8; " + d.category.getName() + "/" + ((char) 167) + "r" + d.getName());
 										i++;
 									}
 								}
 								if (nextDialogIDs.containsValue(d.id)) {
 									for (String k : nextDialogIDs.keySet()) {
-										if (nextDialogIDs.get(k) != d.id) {
-											continue;
-										}
+										if (nextDialogIDs.get(k) != d.id) { continue; }
 										nextDialogs.add(((char) 167) + "8" + (new TextComponentTranslation("gui.answer").getFormattedText()) + ((char) 167) + "8: " + ((char) 167) + "7" + k + ((char) 167) + "7 ID:" + d.id + ((char) 167) + "8; " + d.category.getName() + "/" + ((char) 167) + "r" + d.getName());
 									}
 								}
@@ -226,15 +202,13 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 						if (!activationDialogs.isEmpty()) {
 							h.add(new TextComponentTranslation("dialog.hover.act.1").getFormattedText());
 							h.addAll(activationDialogs);
-						} else {
-							h.add(new TextComponentTranslation("dialog.hover.act.0").getFormattedText());
 						}
+						else { h.add(new TextComponentTranslation("dialog.hover.act.0").getFormattedText()); }
 						if (!nextDialogs.isEmpty()) {
 							h.add(new TextComponentTranslation("dialog.hover.next.1").getFormattedText());
 							h.addAll(nextDialogs);
-						} else {
-							h.add(new TextComponentTranslation("dialog.hover.next.0").getFormattedText());
 						}
+						else { h.add(new TextComponentTranslation("dialog.hover.next.0").getFormattedText()); }
 						hts.put(pos, h);
 						pos++;
 					}
@@ -250,60 +224,42 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		// dialog buttons
 		int x = guiLeft + 350, y = guiTop + 8;
 		addLabel(new GuiNpcLabel(3, "dialog.dialogs", x + 2, y));
-		GuiNpcButton button = new GuiNpcButton(13, x, y += 10, 64, 15, "selectServer.edit", !selectedDialog.isEmpty());
-		button.setHoverText("manager.hover.dialog.edit", selectedDialog);
-		addButton(button);
-		button = new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !selectedDialog.isEmpty());
-		button.setHoverText("manager.hover.dialog.del", selectedDialog);
-		addButton(button);
-		button = new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !selectedCategory.isEmpty());
-		button.setHoverText("manager.hover.dialog.add", selectedCategory);
-		addButton(button);
-		button = new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !selectedCategory.isEmpty());
-		button.setHoverText("manager.hover.dialog.copy", selectedDialog);
-		addButton(button);
-		button = new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", copyDialog != null);
-		button.setHoverText("manager.hover.dialog.paste." + (copyDialog != null), (copyDialog != null ? copyDialog.getKey() : ""));
-		addButton(button);
-		button = new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageDialogs.isName);
-		button.setHoverText("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(), ((GuiNpcCheckBox) button).getText());
-		addButton(button);
+		addButton(new GuiNpcButton(13, x, y += 10, 64, 15, "selectServer.edit", !selectedDialog.isEmpty())
+				.setHoverText("manager.hover.dialog.edit", selectedDialog));
+		addButton(new GuiNpcButton(12, x, y += 17, 64, 15, "gui.remove", !selectedDialog.isEmpty())
+				.setHoverText("manager.hover.dialog.del", selectedDialog));
+		addButton(new GuiNpcButton(11, x, y += 17, 64, 15, "gui.add", !selectedCategory.isEmpty())
+				.setHoverText("manager.hover.dialog.add", selectedCategory));
+		addButton(new GuiNpcButton(10, x, y += 21, 64, 15, "gui.copy", !selectedCategory.isEmpty())
+				.setHoverText("manager.hover.dialog.copy", selectedDialog));
+		addButton(new GuiNpcButton(9, x, y += 17, 64, 15, "gui.paste", copyDialog != null)
+				.setHoverText("manager.hover.dialog.paste." + (copyDialog != null), (copyDialog != null ? copyDialog.getKey() : "")));
+		addButton(new GuiNpcCheckBox(14, x, y + 17, 64, 14, "gui.name", "ID", GuiNPCManageDialogs.isName)
+				.setHoverText("hover.sort", new TextComponentTranslation("dialog.dialogs").getFormattedText(),
+				GuiNPCManageDialogs.isName ? new TextComponentTranslation("gui.name").getFormattedText() : "ID"));
 		// category buttons
 		y = guiTop + 130;
 		addLabel(new GuiNpcLabel(2, "gui.categories", x + 2, y));
 		// edit
-		button = new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !selectedCategory.isEmpty());
-		button.setHoverText("manager.hover.category.edit");
-		addButton(button);
+		addButton(new GuiNpcButton(3, x, y += 10, 64, 15, "selectServer.edit", !selectedCategory.isEmpty())
+				.setHoverText("manager.hover.category.edit"));
 		// del
-		button = new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !selectedCategory.isEmpty());
-		button.setHoverText("manager.hover.category.del");
-		addButton(button);
+		addButton(new GuiNpcButton(2, x, y += 17, 64, 15, "gui.remove", !selectedCategory.isEmpty())
+				.setHoverText("manager.hover.category.del"));
 		// add
-		button = new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add");
-		button.setHoverText("manager.hover.category.add");
-		addButton(button);
-
-		if (scrollCategories == null) {
-			(scrollCategories = new GuiCustomScroll(this, 0)).setSize(170, ySize - 3);
-		}
+		addButton(new GuiNpcButton(1, x, y + 17, 64, 15, "gui.add")
+				.setHoverText("manager.hover.category.add"));
+		if (scrollCategories == null) { scrollCategories = new GuiCustomScroll(this, 0).setSize(170, ySize - 3); }
 		scrollCategories.setList(new ArrayList<>(categoryData.keySet()));
 		scrollCategories.guiLeft = guiLeft + 4;
 		scrollCategories.guiTop = guiTop + 15;
-		if (!selectedCategory.isEmpty()) {
-			scrollCategories.setSelected(selectedCategory);
-		}
+		if (!selectedCategory.isEmpty()) { scrollCategories.setSelected(selectedCategory); }
 		addScroll(scrollCategories);
-
-		if (scrollDialogs == null) {
-			(scrollDialogs = new GuiCustomScroll(this, 1)).setSize(170, ySize - 3);
-		}
-		scrollDialogs.setListNotSorted(new ArrayList<>(dialogData.keySet()));
+		if (scrollDialogs == null) { scrollDialogs = new GuiCustomScroll(this, 1).setSize(170, ySize - 3); }
 		scrollDialogs.guiLeft = guiLeft + 176;
 		scrollDialogs.guiTop = guiTop + 15;
-		if (!selectedDialog.isEmpty()) {
-			scrollDialogs.setSelected(selectedDialog);
-		}
+		scrollDialogs.setUnsortedList(new ArrayList<>(dialogData.keySet()));
+		if (!selectedDialog.isEmpty()) { scrollDialogs.setSelected(selectedDialog); }
 		scrollDialogs.setHoverTexts(hts);
 		addScroll(scrollDialogs);
 	}
@@ -312,7 +268,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	public void save() { GuiNpcTextField.unfocus(); }
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (!scroll.hasSelected()) { return; }
 		if (scroll.getID() == 0) {
 			if (selectedCategory.equals(scroll.getSelected())) { return; }
@@ -328,8 +284,8 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-		if (!selectedDialog.isEmpty() && scroll.getID() == 1) { setSubGui(new GuiDialogEdit(npc, dialogData.get(selectedDialog), this)); }
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
+		if (!selectedDialog.isEmpty() && scroll.getID() == 1) { setSubGui(new SubGuiDialogEdit(npc, dialogData.get(selectedDialog), this)); }
 	}
 
 	@Override
@@ -396,7 +352,7 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 				initGui();
 			}
 		}
-		if (subgui instanceof GuiDialogEdit) {
+		if (subgui instanceof SubGuiDialogEdit) {
 			initGui();
 		}
 	}
@@ -407,16 +363,6 @@ implements ISubGuiListener, ICustomScrollListener, GuiYesNoCallback {
 		super.drawScreen(mouseX, mouseY, partialTicks);
 		if (hasSubGui()) { return; }
 		drawHorizontalLine(guiLeft + 348, guiLeft + 414, guiTop + 128, 0x80000000);
-	}
-
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && subgui == null) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
 	}
 
 	private static List<Entry<String, Dialog>> getEntryList(Map<String, Dialog> map) {

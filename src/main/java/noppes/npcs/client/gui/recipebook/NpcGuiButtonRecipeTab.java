@@ -23,8 +23,7 @@ import noppes.npcs.util.Util;
 
 // Displaying a tab button on the left edge of the GUI recipes window
 @SideOnly(Side.CLIENT)
-public class NpcGuiButtonRecipeTab
-extends GuiButtonRecipeTab {
+public class NpcGuiButtonRecipeTab extends GuiButtonRecipeTab {
 
     private float animationTime;
     private final CreativeTabs category;

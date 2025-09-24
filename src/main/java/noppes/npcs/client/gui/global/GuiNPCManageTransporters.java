@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -21,46 +20,49 @@ import noppes.npcs.controllers.data.TransportLocation;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
 
-public class GuiNPCManageTransporters
-extends GuiContainerNPCInterface2
-implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener {
+import javax.annotation.Nonnull;
 
-	public final Map<String, Integer> dataCat = new TreeMap<>();
-	public final Map<String, Integer> dataLoc = new TreeMap<>();
-	private GuiCustomScroll categories, locations;
-	public String catSel = "", locSel = "";
-	private boolean wait = true;
-	private final ContainerNPCTransportSetup container;
+public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
+		implements IGuiData, ICustomScrollListener, ITextfieldListener {
 
-	public GuiNPCManageTransporters(EntityNPCInterface npc, ContainerNPCTransportSetup container) {
-		super(npc, container);
-		this.ySize = 200;
+	protected final ContainerNPCTransportSetup container;
+	protected final Map<String, Integer> dataCat = new TreeMap<>();
+	protected final Map<String, Integer> dataLoc = new TreeMap<>();
+	protected GuiCustomScroll categories, locations;
+	protected String catSel = "";
+	protected String locSel = "";
+	protected boolean wait = true;
+
+	public GuiNPCManageTransporters(EntityNPCInterface npc, ContainerNPCTransportSetup containerIn) {
+		super(npc, containerIn);
+		setBackground("tradersetup.png");
+		closeOnEsc = true;
+		ySize = 200;
+		parentGui = EnumGuiType.MainMenuGlobal;
+
+		container = containerIn;
 		Client.sendData(EnumPacketServer.TransportCategoriesGet);
-		this.setBackground("tradersetup.png");
-		this.container = container;
 		if (TransportController.getInstance().categories.containsKey(container.catId)) {
 			TransportCategory category = TransportController.getInstance().categories.get(container.catId);
-			this.catSel = ((char) 167) + "7ID: " + container.catId + " \"" + ((char) 167) + "r" + (new TextComponentTranslation(category.title).getFormattedText()) + ((char) 167) + "7\"";
-			this.dataCat.put(this.catSel, container.catId);
+			catSel = ((char) 167) + "7ID: " + container.catId + " \"" + ((char) 167) + "r" + (new TextComponentTranslation(category.title).getFormattedText()) + ((char) 167) + "7\"";
+			dataCat.put(catSel, container.catId);
 		}
 		if (container.location.id > -1) {
-			this.locSel = ((char) 167) + "7ID: " + container.location.id + " \"" + ((char) 167) + "r" + (new TextComponentTranslation(container.location.name).getFormattedText()) + ((char) 167) + "7\"";
+			locSel = ((char) 167) + "7ID: " + container.location.id + " \"" + ((char) 167) + "r" + (new TextComponentTranslation(container.location.name).getFormattedText()) + ((char) 167) + "7\"";
 		}
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		TransportCategory cat = null;
-		TransportLocation loc = this.container.location;
-		if (!this.catSel.isEmpty()) {
-			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
-		}
+		TransportLocation loc = container.location;
+		if (!catSel.isEmpty()) { cat = TransportController.getInstance().categories.get(dataCat.get(catSel)); }
 		switch (button.getID()) {
-			case 0: { // add cat
-				this.setSubGui(new SubGuiEditText(0, Util.instance
-						.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
+			case 0: {
+				setSubGui(new SubGuiEditText(0, Util.instance.deleteColor(new TextComponentTranslation("gui.new").getFormattedText())));
 				break;
-			}
+			} // add cat
 			case 1: { // del cat
 				if (cat == null) {
 					return;
@@ -69,7 +71,7 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 				break;
 			}
 			case 2: { // tp
-				this.transfer(loc);
+				transfer(loc);
 				break;
 			}
 			case 3: {
@@ -86,14 +88,14 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
 		super.drawGuiContainerBackgroundLayer(f, i, j);
-		if (!this.locSel.isEmpty()) {
+		if (!locSel.isEmpty()) {
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			for (int slotId = 0; slotId < 10; ++slotId) {
-				int x = this.guiLeft + this.container.getSlot(slotId).xPos;
-				int y = this.guiTop + this.container.getSlot(slotId).yPos;
-				this.mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+				int x = guiLeft + container.getSlot(slotId).xPos;
+				int y = guiTop + container.getSlot(slotId).yPos;
+				mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-				this.drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
+				drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 			}
 		}
 	}
@@ -101,326 +103,260 @@ implements IGuiData, ISubGuiListener, ICustomScrollListener, ITextfieldListener 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (!this.wait && !this.catSel.isEmpty()) {
-			this.drawHorizontalLine(this.guiLeft + 212, this.guiLeft + this.xSize - 3, this.guiTop + 178, 0x80000000);
-			this.drawVerticalLine(this.guiLeft + 211, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
-			if (!this.locSel.isEmpty()) {
-				this.drawVerticalLine(this.guiLeft + 271, this.guiTop + 4, this.guiTop + 111, 0x80000000);
-				this.drawHorizontalLine(this.guiLeft + 212, this.guiLeft + 270, this.guiTop + 110, 0x80000000);
+		if (!wait && !catSel.isEmpty()) {
+			drawHorizontalLine(guiLeft + 212, guiLeft + xSize - 3, guiTop + 178, 0x80000000);
+			drawVerticalLine(guiLeft + 211, guiTop + 4, guiTop + ySize + 12, 0x80000000);
+			if (!locSel.isEmpty()) {
+				drawVerticalLine(guiLeft + 271, guiTop + 4, guiTop + 111, 0x80000000);
+				drawHorizontalLine(guiLeft + 212, guiLeft + 270, guiTop + 110, 0x80000000);
 			}
-			this.drawVerticalLine(this.guiLeft + 418, this.guiTop + 4, this.guiTop + this.ySize + 12, 0x80000000);
+			drawVerticalLine(guiLeft + 418, guiTop + 4, guiTop + ySize + 12, 0x80000000);
 		}
 	}
 
 	@Override
 	public void initGui() {
-		if (this.wait) {
-			super.initGui();
-			return;
-		}
+		if (wait) { super.initGui(); return; }
 		super.initGui();
-		if (this.categories == null) { (this.categories = new GuiCustomScroll(this, 0)).setSize(100, 96); }
-		this.categories.setListNotSorted(new ArrayList<>(dataCat.keySet()));
-		int x = this.guiLeft + 5, y = this.guiTop + 14;
-		this.categories.guiLeft = x;
-		this.categories.guiTop = y;
-		this.addScroll(this.categories);
-		if (!this.catSel.isEmpty()) { this.categories.setSelected(this.catSel); }
-		this.addLabel(new GuiNpcLabel(0, "gui.categories", this.guiLeft + 5, y - 10));
-		y += this.categories.height + 2;
+		if (categories == null) { categories = new GuiCustomScroll(this, 0).setSize(100, 96); }
+		int x = guiLeft + 5;
+		int y = guiTop + 14;
+		categories.guiLeft = x;
+		categories.guiTop = y;
+		addScroll(categories.setUnsortedList(new ArrayList<>(dataCat.keySet())));
+		if (!catSel.isEmpty()) { categories.setSelected(catSel); }
+		addLabel(new GuiNpcLabel(0, "gui.categories", guiLeft + 5, y - 10));
+		y += categories.height + 2;
 		GuiNpcButton button = new GuiNpcButton(0, x, y, 49, 20, "gui.add");
 		button.setHoverText("manager.hover.transport.add");
 		addButton(button);
 		button = new GuiNpcButton(1, x + 52, y, 49, 20, "gui.remove");
-		button.setEnabled(!this.catSel.isEmpty());
-		button.setHoverText("manager.hover.transport.del", "\"" + this.catSel + "\"");
+		button.setIsEnable(!catSel.isEmpty());
+		button.setHoverText("manager.hover.transport.del", "\"" + catSel + "\"");
 		addButton(button);
 
-		if (this.locations == null) { (this.locations = new GuiCustomScroll(this, 1)).setSize(100, 96); }
-		this.locations.setListNotSorted(new ArrayList<>(dataLoc.keySet()));
+		if (locations == null) { locations = new GuiCustomScroll(this, 1).setSize(100, 96); }
 		x += 102;
-		y = this.guiTop + 14;
-		this.locations.guiLeft = x;
-		this.locations.guiTop = y;
-		this.addScroll(this.locations);
-		if (!this.locSel.isEmpty()) { this.locations.setSelected(this.locSel); }
-		this.addLabel(new GuiNpcLabel(1, "gui.location", this.guiLeft + 113, y - 10));
-		y += this.locations.height + 2;
+		y = guiTop + 14;
+		locations.guiLeft = x;
+		locations.guiTop = y;
+		addScroll(locations.setUnsortedList(new ArrayList<>(dataLoc.keySet())));
+		if (!locSel.isEmpty()) { locations.setSelected(locSel); }
+		addLabel(new GuiNpcLabel(1, "gui.location", guiLeft + 113, y - 10));
+		y += locations.height + 2;
 		button = new GuiNpcButton(2, x, y, 100, 20, "transporter.travel");
-		button.setEnabled(!this.locSel.isEmpty());
+		button.setIsEnable(!locSel.isEmpty());
 		button.setHoverText("hover.teleport");
 		addButton(button);
 
-		if (this.catSel.isEmpty()) { return; }
-		TransportCategory cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
+		if (catSel.isEmpty()) { return; }
+		TransportCategory cat = TransportController.getInstance().categories.get(dataCat.get(catSel));
 		if (cat == null) { return; }
-		y = this.guiTop + 191;
-		this.addLabel(new GuiNpcLabel(2, "parameter.ikeysetting.catname", this.guiLeft + 216, y - 10));
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, this.fontRenderer, this.guiLeft + 214, y, 132, 20, cat.title);
+		y = guiTop + 191;
+		addLabel(new GuiNpcLabel(2, "parameter.ikeysetting.catname", guiLeft + 216, y - 10));
+		GuiNpcTextField textField = new GuiNpcTextField(0, this, guiLeft + 214, y, 132, 20, cat.title);
 		textField.setHoverText("manager.hover.transport.cat.name");
 		addTextField(textField);
 
-		if (this.locSel.isEmpty()) {
+		if (locSel.isEmpty()) {
 			return;
 		}
-		x = this.guiLeft + 214;
-		y = this.guiTop + 8;
-		this.addLabel(new GuiNpcLabel(3, "market.barter", x + 2, y));
+		x = guiLeft + 214;
+		y = guiTop + 8;
+		addLabel(new GuiNpcLabel(3, "market.barter", x + 2, y));
 		y += 80;
-		this.addLabel(new GuiNpcLabel(4, "market.currency", x + 2, y - 10));
-		textField = new GuiNpcTextField(1, this, x, y, 50, 20, "" + this.container.location.money);
-		textField.setMinMaxDefault(0, Integer.MAX_VALUE, (int) this.container.location.money);
+		addLabel(new GuiNpcLabel(4, "market.currency", x + 2, y - 10));
+		textField = new GuiNpcTextField(1, this, x, y, 50, 20, "" + container.location.money);
+		textField.setMinMaxDefault(0, Integer.MAX_VALUE, (int) container.location.money);
 		textField.setHoverText("manager.hover.transport.money");
 		addTextField(textField);
 
 		y += 34;
-		this.addLabel(new GuiNpcLabel(5, "parameter.ikeysetting.name", x + 2, y - 10));
-		textField = new GuiNpcTextField(2, this, this.fontRenderer, x, y, 202, 20, this.container.location.name);
+		addLabel(new GuiNpcLabel(5, "parameter.ikeysetting.name", x + 2, y - 10));
+		textField = new GuiNpcTextField(2, this, x, y, 202, 20, container.location.name);
 		textField.setHoverText("manager.hover.transport.loc.name");
 		addTextField(textField);
 		y += 34;
-		this.addLabel(new GuiNpcLabel(6, "UUID NPC", x + 2, y - 11));
-		textField = new GuiNpcTextField(3, this, this.fontRenderer, x, y, 202, 20, this.container.location.npc == null ? "" : this.container.location.npc.toString());
+		addLabel(new GuiNpcLabel(6, "UUID NPC", x + 2, y - 11));
+		textField = new GuiNpcTextField(3, this, x, y, 202, 20, container.location.npc == null ? "" : container.location.npc.toString());
 		textField.setHoverText("parameter.entity.uuid");
 		addTextField(textField);
 
 		x += 60;
-		y = this.guiTop + 20;
-		this.addLabel(new GuiNpcLabel(7, "parameter.world", x + 2, y - 11));
-		this.addLabel(new GuiNpcLabel(8, "ID:", x + 2, y + 6));
-		textField = new GuiNpcTextField(4, this, this.fontRenderer, x + 15, y, 42, 20, "" + this.container.location.dimension);
-		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, this.container.location.dimension);
+		y = guiTop + 20;
+		addLabel(new GuiNpcLabel(7, "parameter.world", x + 2, y - 11));
+		addLabel(new GuiNpcLabel(8, "ID:", x + 2, y + 6));
+		textField = new GuiNpcTextField(4, this, x + 15, y, 42, 20, "" + container.location.dimension);
+		textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, container.location.dimension);
 		textField.setHoverText("parameter.dimension.id");
 		addTextField(textField);
 
 		y += 34;
-		this.addLabel(new GuiNpcLabel(9, "parameter.position", x + 2, y - 11));
-		String idt = "ID:" + this.container.location.id;
-		this.addLabel(new GuiNpcLabel(10, idt, this.guiLeft + this.xSize - this.fontRenderer.getStringWidth(idt) - 4,
-				this.guiTop + 8));
+		addLabel(new GuiNpcLabel(9, "parameter.position", x + 2, y - 11));
+		String idt = "ID:" + container.location.id;
+		addLabel(new GuiNpcLabel(10, idt, guiLeft + xSize - fontRenderer.getStringWidth(idt) - 4,
+				guiTop + 8));
 		for (int i = 0; i < 3; i++) {
-			int v = i == 0 ? this.container.location.pos.getX()
-					: i == 1 ? this.container.location.pos.getY() : this.container.location.pos.getZ();
-			textField = new GuiNpcTextField(5 + i, this, this.fontRenderer, x + 1 + i * 48, y, 44, 20, "" + v);
+			int v = i == 0 ? container.location.pos.getX()
+					: i == 1 ? container.location.pos.getY() : container.location.pos.getZ();
+			textField = new GuiNpcTextField(5 + i, this, x + 1 + i * 48, y, 44, 20, "" + v);
 			textField.setMinMaxDefault(Integer.MIN_VALUE, Integer.MAX_VALUE, v);
 			textField.setHoverText("parameter.pos" + (i == 0 ? "x" : i == 1 ? "y" : "z"));
 			addTextField(textField);
 		}
 		y += 34;
-		this.addLabel(new GuiNpcLabel(11, "gui.type", x + 2, y - 11));
-		button = new GuiNpcButton(3, x, y, 137, 20, new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, this.container.location.type);
+		addLabel(new GuiNpcLabel(11, "gui.type", x + 2, y - 11));
+		button = new GuiNpcButton(3, x, y, 137, 20, new String[] { "transporter.discovered", "transporter.start", "transporter.interaction" }, container.location.type);
 		button.setHoverText("manager.hover.transport.type");
 		addButton(button);
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && this.subgui == null) {
-			this.save();
-			CustomNpcs.proxy.openGui(this.npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
-	}
-
-	@Override
 	public void save() {
 		GuiNpcTextField.unfocus();
-		if (this.catSel.isEmpty() || this.getTextField(0) == null) {
-			return;
-		}
-		TransportCategory cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
-		if (cat == null) {
-			return;
-		}
-		cat.title = this.getTextField(0).getFullText();
-		if (this.locSel.isEmpty() || this.getTextField(1) == null) {
+		if (catSel.isEmpty() || getTextField(0) == null) { return; }
+		TransportCategory cat = TransportController.getInstance().categories.get(dataCat.get(catSel));
+		if (cat == null) { return; }
+		cat.title = getTextField(0).getText();
+		if (locSel.isEmpty() || getTextField(1) == null) {
 			NBTTagCompound compound = new NBTTagCompound();
 			cat.writeNBT(compound);
 			Client.sendData(EnumPacketServer.TransportCategorySave, compound);
 			return;
 		}
-		this.container.location.money = this.getTextField(1).getInteger();
-		this.container.location.name = this.getTextField(2).getFullText();
-		this.container.location.dimension = this.getTextField(4).getInteger();
-		this.container.location.pos = new BlockPos(this.getTextField(5).getInteger(), this.getTextField(6).getInteger(),
-				this.getTextField(7).getInteger());
-		try {
-			this.container.location.npc = UUID.fromString(this.getTextField(3).getFullText());
-		} catch (Exception e) { LogWriter.error(e); }
-		this.container.location.type = this.getButton(3).getValue();
-		Client.sendData(EnumPacketServer.TransportCategorySave, this.container.saveTransport(cat));
+		container.location.money = getTextField(1).getInteger();
+		container.location.name = getTextField(2).getText();
+		container.location.dimension = getTextField(4).getInteger();
+		container.location.pos = new BlockPos(getTextField(5).getInteger(), getTextField(6).getInteger(), getTextField(7).getInteger());
+		try { container.location.npc = UUID.fromString(getTextField(3).getText()); } catch (Exception e) { LogWriter.error(e); }
+		container.location.type = getButton(3).getValue();
+		Client.sendData(EnumPacketServer.TransportCategorySave, container.saveTransport(cat));
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		switch (scroll.getID()) {
 			case 0: {
-				if (this.catSel.equals(scroll.getSelected()) || !this.dataCat.containsKey(scroll.getSelected())) {
-					return;
-				}
-				this.save();
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, this.container.location.id,
-						this.dataCat.get(scroll.getSelected()), 0);
-				this.wait = true;
-				this.initGui();
+				if (catSel.equals(scroll.getSelected()) || !dataCat.containsKey(scroll.getSelected())) { return; }
+				save();
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, container.location.id, dataCat.get(scroll.getSelected()), 0);
+				wait = true;
+				initGui();
 				break;
 			}
 			case 1: {
-				if (this.locSel.equals(scroll.getSelected()) || !this.dataLoc.containsKey(scroll.getSelected())
-						|| !this.dataCat.containsKey(this.catSel)) {
-					return;
-				}
-				this.save();
-				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, this.dataLoc.get(scroll.getSelected()),
-						this.dataCat.get(this.catSel), 0);
-				this.wait = true;
-				this.initGui();
+				if (locSel.equals(scroll.getSelected()) || !dataLoc.containsKey(scroll.getSelected()) || !dataCat.containsKey(catSel)) { return; }
+				save();
+				NoppesUtil.requestOpenGUI(EnumGuiType.ManageTransport, dataLoc.get(scroll.getSelected()), dataCat.get(catSel), 0);
+				wait = true;
+				initGui();
 				break;
 			}
 		}
-
-		this.setGuiData(null);
+		setGuiData(null);
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-		if (scroll.getID() == 1 && scroll.hasSelected()) {
-			this.transfer(this.container.location);
-		}
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+		if (scroll.getID() == 1 && scroll.hasSelected()) { transfer(container.location); }
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
 		int selCatId = -1;
-		if (!this.catSel.isEmpty()) {
-			selCatId = this.dataCat.get(this.catSel);
-		}
-		this.dataCat.clear();
-		this.dataLoc.clear();
+		if (!catSel.isEmpty()) { selCatId = dataCat.get(catSel); }
+		dataCat.clear();
+		dataLoc.clear();
 		for (int catId : TransportController.getInstance().categories.keySet()) {
 			TransportCategory cat = TransportController.getInstance().categories.get(catId);
 			String catKey = ((char) 167) + "7ID: " + catId + " \"" + ((char) 167) + "r"
 					+ (new TextComponentTranslation(cat.title).getFormattedText()) + ((char) 167) + "7\"";
-			this.dataCat.put(catKey, catId);
+			dataCat.put(catKey, catId);
 			if (catId == selCatId) {
 				for (int locId : cat.locations.keySet()) {
 					String locKey = ((char) 167) + "7ID: " + locId + " \"" + ((char) 167) + "r"
 							+ (new TextComponentTranslation(cat.locations.get(locId).name).getFormattedText())
 							+ ((char) 167) + "7\"";
-					this.dataLoc.put(locKey, locId);
+					dataLoc.put(locKey, locId);
 				}
 			}
 		}
-		if (!this.catSel.isEmpty() && !this.dataCat.containsKey(this.catSel)) {
-			this.catSel = "";
-		}
-		if (!this.locSel.isEmpty() && !this.dataLoc.containsKey(this.locSel)) {
-			this.locSel = "";
-		}
-		this.wait = false;
-		this.initGui();
+		if (!catSel.isEmpty() && !dataCat.containsKey(catSel)) { catSel = ""; }
+		if (!locSel.isEmpty() && !dataLoc.containsKey(locSel)) { locSel = ""; }
+		wait = false;
+		initGui();
 	}
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
-		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).text[0].isEmpty()) {
-			return;
-		}
+		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).text[0].isEmpty()) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("CategoryId", -1);
 		compound.setString("CategoryTitle", ((SubGuiEditText) subgui).text[0]);
 		Client.sendData(EnumPacketServer.TransportCategorySave, compound);
 	}
-
 	private void transfer(TransportLocation loc) {
-		if (loc == null) {
-			return;
-		}
-		try {
-			Client.sendData(EnumPacketServer.TeleportTo, loc.dimension, loc.pos.getX(), loc.pos.getY(), loc.pos.getZ());
-		} catch (Exception e) { LogWriter.error(e); }
+		if (loc == null) { return; }
+		try { Client.sendData(EnumPacketServer.TeleportTo, loc.dimension, loc.pos.getX(), loc.pos.getY(), loc.pos.getZ()); } catch (Exception e) { LogWriter.error(e); }
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
+	public void unFocused(GuiNpcTextField textField) {
 		TransportCategory cat = null;
-		TransportLocation loc = this.container.location;
-		if (!this.catSel.isEmpty()) {
-			cat = TransportController.getInstance().categories.get(this.dataCat.get(this.catSel));
-		}
+		TransportLocation loc = container.location;
+		if (!catSel.isEmpty()) { cat = TransportController.getInstance().categories.get(dataCat.get(catSel)); }
 		switch (textField.getID()) {
-			case 0: { // cat name
-				if (textField.getFullText().isEmpty() || cat == null) {
-					return;
-				}
-				cat.title = textField.getFullText();
+			case 0: {
+				if (textField.getText().isEmpty() || cat == null) { return; }
+				cat.title = textField.getText();
 				break;
-			}
-			case 1: { // money
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
+			} // cat name
+			case 1: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
 				loc.money = textField.getInteger();
 				break;
-			}
-			case 2: { // loc name
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
-				loc.name = textField.getFullText();
+			} // money
+			case 2: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
+				loc.name = textField.getText();
 				break;
-			}
-			case 3: { // npc uuid
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
-				try {
-					loc.npc = UUID.fromString(textField.getFullText());
-				} catch (Exception e) {
-					textField.setFullText(loc.npc == null ? "" : loc.npc.toString());
-				}
+			} // loc name
+			case 3: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
+				try { loc.npc = UUID.fromString(textField.getText()); } catch (Exception e) { textField.setText(loc.npc == null ? "" : loc.npc.toString()); }
 				break;
-			}
-			case 4: { // dim ID
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
+			} // npc uuid
+			case 4: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
 				int dimId = textField.getInteger();
 				if (!TransportController.getInstance().worldIDs.contains(dimId)) {
-					textField.setFullText("" + loc.dimension);
+					textField.setText("" + loc.dimension);
 					return;
 				}
 				loc.dimension = dimId;
 				break;
-			}
-			case 5: { // X
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
+			} // dim ID
+			case 5: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
 				int y = loc.pos.getY();
 				int z = loc.pos.getZ();
 				loc.pos = new BlockPos(textField.getInteger(), y, z);
 				break;
-			}
-			case 6: { // Y
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
+			} // X
+			case 6: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
 				int x = loc.pos.getX();
 				int z = loc.pos.getZ();
 				loc.pos = new BlockPos(x, textField.getInteger(), z);
 				break;
-			}
-			case 7: { // Z
-				if (textField.getFullText().isEmpty() || loc == null) {
-					return;
-				}
+			} // Y
+			case 7: {
+				if (textField.getText().isEmpty() || loc == null) { return; }
 				int x = loc.pos.getX();
 				int y = loc.pos.getY();
 				loc.pos = new BlockPos(x, y, textField.getInteger());
 				break;
-			}
+			} // Z
 		}
 	}
 

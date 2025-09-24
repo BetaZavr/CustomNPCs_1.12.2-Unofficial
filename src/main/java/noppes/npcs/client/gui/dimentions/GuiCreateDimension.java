@@ -28,8 +28,7 @@ import noppes.npcs.entity.EntityNPCInterface;
 import javax.annotation.Nonnull;
 
 @SideOnly(Side.CLIENT)
-public class GuiCreateDimension
-extends GuiScreen {
+public class GuiCreateDimension extends GuiScreen {
 
 	private static final String[] disallowedFilenames = new String[] { "CON", "COM", "PRN", "AUX", "CLOCK$", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 	public static String func_146317_a(ISaveFormat p_146317_0_, String p_146317_1_) {
@@ -68,202 +67,162 @@ extends GuiScreen {
 
 	private final int dimensionId;
 
-	public GuiCreateDimension(int dimensionId) {
-		this.seedID = "";
-		this.dimensionName = "custom_dimension";
-		this.dimensionId = dimensionId;
+	public GuiCreateDimension(int dimensionIdIn) {
+		seedID = "";
+		dimensionName = "custom_dimension";
+		dimensionId = dimensionIdIn;
 	}
 
 	@Override
 	protected void actionPerformed(@Nonnull GuiButton button) throws IOException {
-		if (!button.enabled) {
-			return;
-		}
-		if (button.id == 1) {
+		if (!button.enabled) { return; }
+		if (button.id == 1) { CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions); }
+		else if (button.id == 0) {
 			CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
-		} else if (button.id == 0) {
-			CustomNpcs.proxy.openGui((EntityNPCInterface) null, EnumGuiType.NpcDimensions);
-			if (this.alreadyGenerated) {
-				return;
-			}
-			this.alreadyGenerated = true;
+			if (alreadyGenerated) { return; }
+			alreadyGenerated = true;
 			long i = (new Random()).nextLong();
-			String s = this.seedTextField.getText();
+			String s = seedTextField.getText();
 			if (!StringUtils.isEmpty(s)) {
 				try {
 					long j = Long.parseLong(s);
-					if (j != 0L) {
-						i = j;
-					}
-				} catch (NumberFormatException numberformatexception) {
-					i = s.hashCode();
+					if (j != 0L) { i = j; }
 				}
+				catch (NumberFormatException numberformatexception) { i = s.hashCode(); }
 			}
-			WorldType.WORLD_TYPES[this.selectedIndex].onGUICreateWorldPress();
+			WorldType.WORLD_TYPES[selectedIndex].onGUICreateWorldPress();
 			final WorldInfo worldInfo = getWorldInfo(i);
-			Client.sendData(EnumPacketServer.DimensionSettings, this.dimensionId, worldInfo);
-		} else if (button.id == 3) {
-			this.func_146315_i();
-		} else if (button.id == 4) {
-			this.generateStructures = !this.generateStructures;
-			this.updateDisplayState();
-		} else if (button.id == 5) {
+			Client.sendData(EnumPacketServer.DimensionSettings, dimensionId, worldInfo);
+		}
+		else if (button.id == 3) { func_146315_i(); }
+		else if (button.id == 4) {
+			generateStructures = !generateStructures;
+			updateDisplayState();
+		}
+		else if (button.id == 5) {
             do {
-                ++this.selectedIndex;
-                if (this.selectedIndex >= WorldType.WORLD_TYPES.length) {
-                    this.selectedIndex = 0;
-                }
-            } while (!this.func_175299_g());
-			this.chunkProviderSettingsJson = "";
-			this.updateDisplayState();
-			this.showMoreWorldOptions(this.userInMoreOptions);
+                ++selectedIndex;
+                if (selectedIndex >= WorldType.WORLD_TYPES.length) { selectedIndex = 0; }
+            } while (!func_175299_g());
+			chunkProviderSettingsJson = "";
+			updateDisplayState();
+			showMoreWorldOptions(userInMoreOptions);
 		} else if (button.id == 8) {
-			if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.FLAT) {
-				this.mc.displayGuiScreen(new GuiCreateFlatDimension(this, this.chunkProviderSettingsJson));
-			} else if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.CUSTOMIZED) {
-				this.mc.displayGuiScreen(new GuiCustomizeDimension(this, this.chunkProviderSettingsJson));
-			}
+			if (WorldType.WORLD_TYPES[selectedIndex] == WorldType.FLAT) { mc.displayGuiScreen(new GuiCreateFlatDimension(this, chunkProviderSettingsJson)); }
+			else if (WorldType.WORLD_TYPES[selectedIndex] == WorldType.CUSTOMIZED) { mc.displayGuiScreen(new GuiCustomizeDimension(this, chunkProviderSettingsJson)); }
 		}
 	}
 
 	private WorldInfo getWorldInfo(long i) {
-		GameType gametype = GameType.getByName(this.gameType);
+		GameType gametype = GameType.getByName(gameType);
 		boolean hardcore = false;
-		WorldSettings worldsettings = new WorldSettings(i, gametype, this.generateStructures, hardcore, WorldType.WORLD_TYPES[this.selectedIndex]);
-		worldsettings.setGeneratorOptions(this.chunkProviderSettingsJson);
-        if (this.allowCheats && !hardcore) {
-			worldsettings.enableCommands();
-		}
-        return new CustomWorldInfo(worldsettings, this.dimensionNameTextField.getText().trim());
+		WorldSettings worldsettings = new WorldSettings(i, gametype, generateStructures, hardcore, WorldType.WORLD_TYPES[selectedIndex]);
+		worldsettings.setGeneratorOptions(chunkProviderSettingsJson);
+        if (allowCheats && !hardcore) { worldsettings.enableCommands(); }
+        return new CustomWorldInfo(worldsettings, dimensionNameTextField.getText().trim());
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		this.drawDefaultBackground();
-		this.drawCenteredString(this.fontRenderer, new TextComponentTranslation("dimensions.create").getFormattedText(),
-				this.width / 2, 20, -1);
-		if (this.userInMoreOptions) {
-			this.drawString(this.fontRenderer, new TextComponentTranslation("selectWorld.enterSeed").getFormattedText(),
-					this.width / 2 - 100, 47, -6250336);
-			this.drawString(this.fontRenderer, new TextComponentTranslation("selectWorld.seedInfo").getFormattedText(),
-					this.width / 2 - 100, 85, -6250336);
-			if (this.btnStructures.visible) {
-				this.drawString(this.fontRenderer,
+		drawDefaultBackground();
+		drawCenteredString(fontRenderer, new TextComponentTranslation("dimensions.create").getFormattedText(), width / 2, 20, -1);
+		if (userInMoreOptions) {
+			drawString(fontRenderer, new TextComponentTranslation("selectWorld.enterSeed").getFormattedText(), width / 2 - 100, 47, 0xFFA0A0A0);
+			drawString(fontRenderer, new TextComponentTranslation("selectWorld.seedInfo").getFormattedText(), width / 2 - 100, 85, 0xFFA0A0A0);
+			if (btnStructures.visible) {
+				drawString(fontRenderer,
 						new TextComponentTranslation("selectWorld.mapFeatures.info").getFormattedText(),
-						this.width / 2 - 150, 122, -6250336);
+						width / 2 - 150, 122, 0xFFA0A0A0);
 			}
-			this.seedTextField.drawTextBox();
-			if (WorldType.WORLD_TYPES[this.selectedIndex].hasInfoNotice()) {
-				this.fontRenderer.drawSplitString(
-						new TextComponentTranslation(WorldType.WORLD_TYPES[this.selectedIndex].getInfoTranslationKey())
-								.getFormattedText(),
-						this.btnDimensionType.x + 2, this.btnDimensionType.y + 22,
-						this.btnDimensionType.getButtonWidth(), 10526880);
+			seedTextField.drawTextBox();
+			if (WorldType.WORLD_TYPES[selectedIndex].hasInfoNotice()) {
+				fontRenderer.drawSplitString(
+						new TextComponentTranslation(WorldType.WORLD_TYPES[selectedIndex].getInfoTranslationKey()).getFormattedText(),
+						btnDimensionType.x + 2, btnDimensionType.y + 22,
+						btnDimensionType.getButtonWidth(), 10526880);
 			}
 		} else {
-			this.drawString(this.fontRenderer, new TextComponentTranslation("dimensions.enter.name").getFormattedText(),
-					this.width / 2 - 100, 47, -6250336);
-			this.drawString(this.fontRenderer,
-					new TextComponentTranslation("selectWorld.resultFolder").getFormattedText() + " "
-							+ this.field_146336_i,
-					this.width / 2 - 100, 85, -6250336);
-			this.dimensionNameTextField.drawTextBox();
+			drawString(fontRenderer, new TextComponentTranslation("dimensions.enter.name").getFormattedText(), width / 2 - 100, 47, 0xFFA0A0A0);
+			drawString(fontRenderer,
+					new TextComponentTranslation("selectWorld.resultFolder").getFormattedText() + " " + field_146336_i,
+					width / 2 - 100, 85, 0xFFA0A0A0);
+			dimensionNameTextField.drawTextBox();
 		}
 		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	private void func_146314_g() {
-		this.field_146336_i = this.dimensionNameTextField.getText().toLowerCase().trim();
-		while (this.field_146336_i.contains(" ")) {
-			this.field_146336_i = this.field_146336_i.replace(" ", "_");
-		}
+		field_146336_i = dimensionNameTextField.getText().toLowerCase().trim();
+		while (field_146336_i.contains(" ")) { field_146336_i = field_146336_i.replace(" ", "_"); }
 		char[] aChar = ChatAllowedCharacters.ILLEGAL_FILE_CHARACTERS;
-        for (char c0 : aChar) {
-            this.field_146336_i = this.field_146336_i.replace(c0, '_');
-        }
-		if (StringUtils.isEmpty(this.field_146336_i)) {
-			this.field_146336_i = "World";
-		}
-		this.field_146336_i = func_146317_a(this.mc.getSaveLoader(), this.field_146336_i);
+        for (char c0 : aChar) { field_146336_i = field_146336_i.replace(c0, '_'); }
+		if (StringUtils.isEmpty(field_146336_i)) { field_146336_i = "World"; }
+		field_146336_i = func_146317_a(mc.getSaveLoader(), field_146336_i);
 	}
 
-	private void func_146315_i() {
-		this.showMoreWorldOptions(!this.userInMoreOptions);
-	}
+	private void func_146315_i() { showMoreWorldOptions(!userInMoreOptions); }
 
 	public void func_146318_a(WorldInfo p_146318_1_) {
-		this.dimensionName = new TextComponentTranslation("selectWorld.newWorld.copyOf", p_146318_1_.getWorldName()).getFormattedText();
-		this.seedID = p_146318_1_.getSeed() + "";
-		this.selectedIndex = p_146318_1_.getTerrainType().getId();
-		this.chunkProviderSettingsJson = p_146318_1_.getGeneratorOptions();
-		this.generateStructures = p_146318_1_.isMapFeaturesEnabled();
-		this.allowCheats = p_146318_1_.areCommandsAllowed();
-
-		if (p_146318_1_.isHardcoreModeEnabled()) {
-			this.gameType = "hardcore";
-		} else if (p_146318_1_.getGameType().isSurvivalOrAdventure()) {
-			this.gameType = "survival";
-		} else if (p_146318_1_.getGameType().isCreative()) {
-			this.gameType = "creative";
-		}
+		dimensionName = new TextComponentTranslation("selectWorld.newWorld.copyOf", p_146318_1_.getWorldName()).getFormattedText();
+		seedID = p_146318_1_.getSeed() + "";
+		selectedIndex = p_146318_1_.getTerrainType().getId();
+		chunkProviderSettingsJson = p_146318_1_.getGeneratorOptions();
+		generateStructures = p_146318_1_.isMapFeaturesEnabled();
+		allowCheats = p_146318_1_.areCommandsAllowed();
+		if (p_146318_1_.isHardcoreModeEnabled()) { gameType = "hardcore"; }
+		else if (p_146318_1_.getGameType().isSurvivalOrAdventure()) { gameType = "survival"; }
+		else if (p_146318_1_.getGameType().isCreative()) { gameType = "creative"; }
 	}
 
 	private boolean func_175299_g() {
-		WorldType worldtype = WorldType.WORLD_TYPES[this.selectedIndex];
+		WorldType worldtype = WorldType.WORLD_TYPES[selectedIndex];
 		return worldtype != null && worldtype.canBeCreated() && (worldtype != WorldType.DEBUG_ALL_BLOCK_STATES || isShiftKeyDown());
 	}
 
 	@Override
 	public void initGui() {
 		Keyboard.enableRepeatEvents(true);
-		this.buttonList.clear();
-		this.buttonList.add(new GuiButton(0, this.width / 2 - 155, this.height - 28, 150, 20, new TextComponentTranslation("dimensions.create").getFormattedText()));
-		this.buttonList.add(new GuiButton(1, this.width / 2 + 5, this.height - 28, 150, 20, new TextComponentTranslation("gui.cancel").getFormattedText()));
-		this.buttonList.add(this.btnMoreOptions = new GuiButton(3, this.width / 2 - 75, 187, 150, 20, new TextComponentTranslation("dimensions.more.dimension.options").getFormattedText()));
-		this.buttonList.add(this.btnStructures = new GuiButton(4, this.width / 2 - 155, 100, 150, 20, new TextComponentTranslation("selectWorld.mapFeatures").getFormattedText()));
-		this.btnStructures.visible = false;
-		this.buttonList.add(this.btnDimensionType = new GuiButton(5, this.width / 2 + 5, 100, 150, 20, new TextComponentTranslation("selectWorld.mapType").getFormattedText()));
-		this.btnDimensionType.visible = false;
-		this.buttonList.add(this.btnCustomizeType = new GuiButton(8, this.width / 2 + 5, 120, 150, 20, new TextComponentTranslation("selectWorld.customizeType").getFormattedText()));
-		this.btnCustomizeType.visible = false;
-		this.dimensionNameTextField = new GuiTextField(9, this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
-		this.dimensionNameTextField.setFocused(true);
-		this.dimensionNameTextField.setText(this.dimensionName);
-		this.seedTextField = new GuiTextField(10, this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
-		this.seedTextField.setText(this.seedID);
-		this.showMoreWorldOptions(this.userInMoreOptions);
-		this.func_146314_g();
-		this.updateDisplayState();
+		buttonList.clear();
+		buttonList.add(new GuiButton(0, width / 2 - 155, height - 28, 150, 20, new TextComponentTranslation("dimensions.create").getFormattedText()));
+		buttonList.add(new GuiButton(1, width / 2 + 5, height - 28, 150, 20, new TextComponentTranslation("gui.cancel").getFormattedText()));
+		buttonList.add(btnMoreOptions = new GuiButton(3, width / 2 - 75, 187, 150, 20, new TextComponentTranslation("dimensions.more.dimension.options").getFormattedText()));
+		buttonList.add(btnStructures = new GuiButton(4, width / 2 - 155, 100, 150, 20, new TextComponentTranslation("selectWorld.mapFeatures").getFormattedText()));
+		btnStructures.visible = false;
+		buttonList.add(btnDimensionType = new GuiButton(5, width / 2 + 5, 100, 150, 20, new TextComponentTranslation("selectWorld.mapType").getFormattedText()));
+		btnDimensionType.visible = false;
+		buttonList.add(btnCustomizeType = new GuiButton(8, width / 2 + 5, 120, 150, 20, new TextComponentTranslation("selectWorld.customizeType").getFormattedText()));
+		btnCustomizeType.visible = false;
+		dimensionNameTextField = new GuiTextField(9, fontRenderer, width / 2 - 100, 60, 200, 20);
+		dimensionNameTextField.setFocused(true);
+		dimensionNameTextField.setText(dimensionName);
+		seedTextField = new GuiTextField(10, fontRenderer, width / 2 - 100, 60, 200, 20);
+		seedTextField.setText(seedID);
+		showMoreWorldOptions(userInMoreOptions);
+		func_146314_g();
+		updateDisplayState();
 	}
 
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException {
 		super.keyTyped(typedChar, keyCode);
-		if (this.dimensionNameTextField.isFocused() && !this.userInMoreOptions) {
-			this.dimensionNameTextField.textboxKeyTyped(typedChar, keyCode);
-			this.dimensionName = this.dimensionNameTextField.getText().toLowerCase();
-			while (this.dimensionName.contains(" ")) {
-				this.dimensionName = this.dimensionName.replace(" ", "_");
-			}
-		} else if (this.seedTextField.isFocused() && this.userInMoreOptions) {
-			this.seedTextField.textboxKeyTyped(typedChar, keyCode);
-			this.seedID = this.seedTextField.getText();
+		if (dimensionNameTextField.isFocused() && !userInMoreOptions) {
+			dimensionNameTextField.textboxKeyTyped(typedChar, keyCode);
+			dimensionName = dimensionNameTextField.getText().toLowerCase();
+			while (dimensionName.contains(" ")) { dimensionName = dimensionName.replace(" ", "_"); }
+		} else if (seedTextField.isFocused() && userInMoreOptions) {
+			seedTextField.textboxKeyTyped(typedChar, keyCode);
+			seedID = seedTextField.getText();
 		}
-		if (keyCode == 28 || keyCode == 156) {
-			this.actionPerformed(this.buttonList.get(0));
-		}
-		this.buttonList.get(0).enabled = !this.dimensionNameTextField.getText().isEmpty();
-		this.func_146314_g();
+		if (keyCode == 28 || keyCode == 156) { actionPerformed(buttonList.get(0)); }
+		buttonList.get(0).enabled = !dimensionNameTextField.getText().isEmpty();
+		func_146314_g();
 	}
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
 		super.mouseClicked(mouseX, mouseY, mouseButton);
-		if (this.userInMoreOptions) {
-			this.seedTextField.mouseClicked(mouseX, mouseY, mouseButton);
-		} else {
-			this.dimensionNameTextField.mouseClicked(mouseX, mouseY, mouseButton);
-		}
+		if (userInMoreOptions) { seedTextField.mouseClicked(mouseX, mouseY, mouseButton); }
+		else { dimensionNameTextField.mouseClicked(mouseX, mouseY, mouseButton); }
 	}
 
 	@Override
@@ -272,58 +231,44 @@ extends GuiScreen {
 	}
 
 	private void showMoreWorldOptions(boolean toggle) {
-		this.userInMoreOptions = toggle;
-		if (WorldType.WORLD_TYPES[this.selectedIndex] == WorldType.DEBUG_ALL_BLOCK_STATES) {
-			if (this.field_175300_s == null) {
-				this.field_175300_s = this.gameType;
-			}
-			this.gameType = "spectator";
-			this.btnStructures.visible = false;
-			this.btnDimensionType.visible = this.userInMoreOptions;
-			this.btnCustomizeType.visible = false;
+		userInMoreOptions = toggle;
+		if (WorldType.WORLD_TYPES[selectedIndex] == WorldType.DEBUG_ALL_BLOCK_STATES) {
+			if (field_175300_s == null) { field_175300_s = gameType; }
+			gameType = "spectator";
+			btnStructures.visible = false;
+			btnDimensionType.visible = userInMoreOptions;
+			btnCustomizeType.visible = false;
 		} else {
-			if (this.field_175300_s != null) {
-				this.gameType = this.field_175300_s;
-				this.field_175300_s = null;
+			if (field_175300_s != null) {
+				gameType = field_175300_s;
+				field_175300_s = null;
 			}
-			this.btnStructures.visible = this.userInMoreOptions
-					&& WorldType.WORLD_TYPES[this.selectedIndex] != WorldType.CUSTOMIZED;
-			this.btnDimensionType.visible = this.userInMoreOptions;
-			this.btnCustomizeType.visible = this.userInMoreOptions
-					&& WorldType.WORLD_TYPES[this.selectedIndex].isCustomizable();
+			btnStructures.visible = userInMoreOptions && WorldType.WORLD_TYPES[selectedIndex] != WorldType.CUSTOMIZED;
+			btnDimensionType.visible = userInMoreOptions;
+			btnCustomizeType.visible = userInMoreOptions && WorldType.WORLD_TYPES[selectedIndex].isCustomizable();
 		}
-		this.updateDisplayState();
-		if (this.userInMoreOptions) {
-			this.btnMoreOptions.displayString = new TextComponentTranslation("gui.done").getFormattedText();
-		} else {
-			this.btnMoreOptions.displayString = new TextComponentTranslation("dimensions.more.dimension.options")
-					.getFormattedText();
-		}
+		updateDisplayState();
+		if (userInMoreOptions) { btnMoreOptions.displayString = new TextComponentTranslation("gui.done").getFormattedText(); }
+		else { btnMoreOptions.displayString = new TextComponentTranslation("dimensions.more.dimension.options").getFormattedText(); }
 	}
 
 	private void updateDisplayState() {
-		this.gameMode1 = new TextComponentTranslation("selectWorld.gameMode." + this.gameType + ".line1")
-				.getFormattedText();
-		this.gameMode2 = new TextComponentTranslation("selectWorld.gameMode." + this.gameType + ".line2")
-				.getFormattedText();
-		this.btnStructures.displayString = new TextComponentTranslation("selectWorld.mapFeatures").getFormattedText()
-				+ " ";
-		if (this.generateStructures) {
-			this.btnStructures.displayString = this.btnStructures.displayString
-					+ new TextComponentTranslation("options.on").getFormattedText();
+		gameMode1 = new TextComponentTranslation("selectWorld.gameMode." + gameType + ".line1").getFormattedText();
+		gameMode2 = new TextComponentTranslation("selectWorld.gameMode." + gameType + ".line2").getFormattedText();
+		btnStructures.displayString = new TextComponentTranslation("selectWorld.mapFeatures").getFormattedText() + " ";
+		if (generateStructures) {
+			btnStructures.displayString = btnStructures.displayString + new TextComponentTranslation("options.on").getFormattedText();
 		} else {
-			this.btnStructures.displayString = this.btnStructures.displayString
-					+ new TextComponentTranslation("options.off").getFormattedText();
+			btnStructures.displayString = btnStructures.displayString + new TextComponentTranslation("options.off").getFormattedText();
 		}
-		this.btnDimensionType.displayString = new TextComponentTranslation("selectWorld.mapType").getFormattedText()
-				+ " " + new TextComponentTranslation(WorldType.WORLD_TYPES[this.selectedIndex].getTranslationKey())
-						.getFormattedText();
+		btnDimensionType.displayString = new TextComponentTranslation("selectWorld.mapType").getFormattedText() +
+				" " + new TextComponentTranslation(WorldType.WORLD_TYPES[selectedIndex].getTranslationKey()).getFormattedText();
 	}
 
 	@Override
 	public void updateScreen() {
-		this.dimensionNameTextField.updateCursorCounter();
-		this.seedTextField.updateCursorCounter();
+		dimensionNameTextField.updateCursorCounter();
+		seedTextField.updateCursorCounter();
 	}
 
 }

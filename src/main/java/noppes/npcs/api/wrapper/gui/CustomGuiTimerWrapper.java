@@ -8,65 +8,53 @@ import noppes.npcs.util.Util;
 
 public class CustomGuiTimerWrapper extends CustomGuiComponentWrapper implements IGuiTimer {
 
-	int color;
-	public long start, now, end;
-	float scale;
-	int width, height;
+	protected float scale = 1.0f;
+	protected int height;
+	protected int width;
+	protected int color = 0xFFFFFF;
+	public long start = 0L;
+	public long now = 0L;
+	public long end = 0L;
 	public boolean reverse;
 
-	public CustomGuiTimerWrapper() {
-		this.color = 16777215;
-		this.scale = 1.0f;
-		this.start = 0;
-		this.now = 0;
-		this.end = 0;
-	}
+	public CustomGuiTimerWrapper() { }
 
 	public CustomGuiTimerWrapper(int id, long start, long end, int x, int y, int width, int height) {
-		this();
-		this.setId(id);
-		this.setPos(x, y);
-		this.setSize(width, height);
-		this.setTime(start, end);
+		setId(id);
+		setPos(x, y);
+		setSize(width, height);
+		setTime(start, end);
 	}
 
 	public CustomGuiTimerWrapper(int id, long start, long end, int x, int y, int width, int height, int color) {
 		this(id, start, end, x, y, width, height);
-		this.setColor(color);
+		setColor(color);
 	}
 
 	@Override
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		super.fromNBT(nbt);
-		this.setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
-		this.setColor(nbt.getInteger("color"));
-		this.setScale(nbt.getFloat("scale"));
+		setSize(nbt.getIntArray("size")[0], nbt.getIntArray("size")[1]);
+		setColor(nbt.getInteger("color"));
+		setScale(nbt.getFloat("scale"));
 		long s = nbt.getLong("start");
 		long e = nbt.getLong("end");
-		if (s != this.start || e != this.end || this.now == 0) {
-			this.setTime(s, e);
-		}
+		if (s != start || e != end || now == 0) { setTime(s, e); }
 		return this;
 	}
 
 	@Override
-	public int getColor() {
-		return this.color;
-	}
+	public int getColor() { return color; }
 
 	@Override
-	public int getHeight() {
-		return this.height;
-	}
+	public int getHeight() { return height; }
 
 	@Override
-	public float getScale() {
-		return this.scale;
-	}
+	public float getScale() { return scale; }
 
 	@Override
 	public String getText() {
-		long time = this.reverse ? this.now - System.currentTimeMillis() : (System.currentTimeMillis() - this.now);
+		long time = reverse ? now - System.currentTimeMillis() : (System.currentTimeMillis() - now);
 		time /= 50L;
 		return Util.instance.ticksToElapsedTime(time, false, false, false);
 	}
@@ -78,48 +66,48 @@ public class CustomGuiTimerWrapper extends CustomGuiComponentWrapper implements 
 
 	@Override
 	public int getWidth() {
-		return this.width;
+		return width;
 	}
 
 	@Override
-	public IGuiTimer setColor(int color) {
-		this.color = color;
+	public IGuiTimer setColor(int colorIn) {
+		color = colorIn;
 		return this;
 	}
 
 	@Override
-	public IGuiTimer setScale(float scale) {
-		this.scale = scale;
+	public IGuiTimer setScale(float scaleIn) {
+		scale = scaleIn;
 		return this;
 	}
 
 	@Override
-	public IGuiTimer setSize(int width, int height) {
-		if (width <= 0 || height <= 0) {
-			throw new CustomNPCsException("Invalid component width or height: [" + width + ", " + height + "]");
+	public IGuiTimer setSize(int widthIn, int heightIn) {
+		if (widthIn <= 0 || heightIn <= 0) {
+			throw new CustomNPCsException("Invalid component width or height: [" + widthIn + ", " + heightIn + "]");
 		}
-		this.width = width;
-		this.height = height;
+		width = widthIn;
+		height = heightIn;
 		return this;
 	}
 
 	@Override
-	public void setTime(long start, long end) {
-		this.start = start;
-		this.end = end;
-		this.now = System.currentTimeMillis();
-		this.reverse = start > end;
+	public void setTime(long startIn, long endIn) {
+		start = startIn;
+		end = endIn;
+		now = System.currentTimeMillis();
+		reverse = start > end;
 	}
 
 	@Override
 	public NBTTagCompound toNBT(NBTTagCompound nbt) {
 		super.toNBT(nbt);
-		nbt.setIntArray("size", new int[] { this.width, this.height });
-		nbt.setInteger("color", this.color);
-		nbt.setFloat("scale", this.scale);
-		nbt.setLong("start", this.start);
-		nbt.setLong("end", this.end);
-		nbt.setBoolean("Reverse", this.reverse);
+		nbt.setIntArray("size", new int[] { width, height });
+		nbt.setInteger("color", color);
+		nbt.setFloat("scale", scale);
+		nbt.setLong("start", start);
+		nbt.setLong("end", end);
+		nbt.setBoolean("Reverse", reverse);
 		return nbt;
 	}
 

@@ -38,6 +38,7 @@ public class CommandNoppes extends CommandBase {
 		registerCommand(new CmdMark());
 		registerCommand(new CmdDimensions());
 		registerCommand(new CmdPlayers());
+		registerCommand(new CmdPermissions());
 	}
 
 	@Override

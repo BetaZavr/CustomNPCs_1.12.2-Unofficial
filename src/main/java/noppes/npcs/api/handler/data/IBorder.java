@@ -57,6 +57,14 @@ public interface IBorder {
 
 	String getMessage();
 
+    int getQuestID();
+
+	void setQuestID(int id);
+
+	boolean isQuestWhenEnter();
+
+	void setIsQuestWhenEnter(boolean bo);
+
 	int getMinX();
 
 	int getMinY();

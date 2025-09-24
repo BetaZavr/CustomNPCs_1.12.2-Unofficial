@@ -301,10 +301,10 @@ public class ServerEventsHandler {
 		}
 		if (!isClient && item.getItem() == CustomRegisters.soulstoneEmpty && event.getTarget() instanceof EntityLivingBase) {
 			((ItemSoulstoneEmpty) item.getItem()).store((EntityLivingBase) event.getTarget(), item,
-					event.getEntityPlayer());
+                    (EntityPlayerMP) event.getEntityPlayer());
 		}
 		if (item.getItem() == CustomRegisters.wand && npcInteracted && !isClient) {
-			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
+			if (!CustomNpcsPermissions.hasPermission((EntityPlayerMP) event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
 				CustomNpcs.debugData.end(event.getEntityPlayer());
 				return;
 			}
@@ -328,7 +328,7 @@ public class ServerEventsHandler {
 			event.setCanceled(true);
 		}
 		else if (item.getItem() == CustomRegisters.scripter && !isClient && npcInteracted) {
-			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
+			if (!CustomNpcsPermissions.hasPermission((EntityPlayerMP) event.getEntityPlayer(), CustomNpcsPermissions.NPC_GUI)) {
 				CustomNpcs.debugData.end(event.getEntityPlayer());
 				return;
 			}
@@ -337,7 +337,7 @@ public class ServerEventsHandler {
 			Server.sendData((EntityPlayerMP) event.getEntityPlayer(), EnumPacketClient.GUI, EnumGuiType.Script.ordinal(), 0, 0, 0);
 		}
 		else if (item.getItem() == CustomRegisters.mount) {
-			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.TOOL_MOUNTER)) {
+			if (!CustomNpcsPermissions.hasPermission((EntityPlayerMP) event.getEntityPlayer(), CustomNpcsPermissions.TOOL_MOUNTER)) {
 				CustomNpcs.debugData.end(event.getEntityPlayer());
 				return;
 			}
@@ -351,7 +351,7 @@ public class ServerEventsHandler {
 			}
 		}
 		else if (item.getItem() == CustomRegisters.wand && event.getTarget() instanceof EntityVillager) {
-			if (!CustomNpcsPermissions.hasPermission(event.getEntityPlayer(), CustomNpcsPermissions.EDIT_VILLAGER)) {
+			if (!CustomNpcsPermissions.hasPermission((EntityPlayerMP) event.getEntityPlayer(), CustomNpcsPermissions.EDIT_VILLAGER)) {
 				CustomNpcs.debugData.end(event.getEntityPlayer());
 				return;
 			}

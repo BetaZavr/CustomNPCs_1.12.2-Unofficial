@@ -17,9 +17,7 @@ public class Data implements IData {
 	protected NBTWrapper cacheNbt = NBT_EMPTY;
 
 	@Override
-	public void clear() {
-		map.clear();
-	}
+	public void clear() { map.clear(); }
 
 	@Override
 	public Object get(String key) {
@@ -38,9 +36,7 @@ public class Data implements IData {
 		if (cacheNbt == null) {
 			cacheNbt = NBT_EMPTY;
 			NBTBase tag = Util.instance.writeObjectToNbt(map);
-			if (tag instanceof NBTTagCompound) {
-				cacheNbt = new NBTWrapper((NBTTagCompound) tag);
-			}
+			if (tag instanceof NBTTagCompound) { cacheNbt = new NBTWrapper((NBTTagCompound) tag); }
 		}
 		CustomNpcs.debugData.end(this);
 		return cacheNbt;
@@ -82,8 +78,6 @@ public class Data implements IData {
 	}
 
 	@Override
-	public void setNbt(INbt nbt) {
-		setNbt(nbt.getMCNBT());
-	}
+	public void setNbt(INbt nbt) { setNbt(nbt.getMCNBT()); }
 
 }

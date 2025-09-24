@@ -7,70 +7,58 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.select.GuiSoundSelection;
+import noppes.npcs.client.gui.select.SubGuiSoundSelection;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.controllers.data.Line;
 import noppes.npcs.controllers.data.Lines;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class SubGuiNPCLinesEdit
-extends SubGuiInterface
-implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
+import javax.annotation.Nonnull;
 
+public class SubGuiNPCLinesEdit extends SubGuiInterface
+		implements ICustomScrollListener, ITextfieldListener {
+
+	protected final Map<String, Integer> data = new LinkedHashMap<>();
+	protected GuiCustomScroll scroll;
+	protected String select = "";
+	protected final String title;
 	public Lines lines;
-	private final Map<String, Integer> data = new LinkedHashMap<>();
-	private GuiCustomScroll scroll;
-	private String select = "";
-    private final String title;
 
-	public SubGuiNPCLinesEdit(int id, EntityNPCInterface npc, Lines lines, String title) {
-		super(npc);
+	public SubGuiNPCLinesEdit(int id, EntityNPCInterface npc, Lines linesIn, String titleIn) {
+		super(id, npc);
 		setBackground("menubg.png");
 		xSize = 256;
 		ySize = 217;
 		closeOnEsc = true;
 
-		this.id = id;
-		this.lines = lines.copy();
-		if (title == null) { title = ""; }
-		this.title = title;
+		lines = linesIn.copy();
+		title = titleIn == null ? "" : titleIn;
 		Client.sendData(EnumPacketServer.MainmenuAdvancedGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (select.isEmpty() && scroll.hasSelected()) {
-			select = scroll.getSelected();
-		}
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		if (select.isEmpty() && scroll.hasSelected()) { select = scroll.getSelected(); }
 		switch (button.getID()) {
-			case 0: { // add
-				setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine));
-				break;
-			}
-			case 1: { // remove
-				if (!data.containsKey(select)) {
-					return;
-				}
+			case 0: setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine)); break; // add
+			case 1: {
+				if (!data.containsKey(select)) { return; }
 				lines.remove(data.get(select));
-				if (scroll != null && scroll.getSelect() > 0) {
-					scroll.setSelect(scroll.getSelect() - 1);
-				}
+				if (scroll != null && scroll.hasSelected()) { scroll.setSelect(scroll.getSelect() - 1); }
 				initGui();
 				break;
-			}
-			case 2: { // sel sound
+			} // remove
+			case 2: {
 				if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
 					setSubGui(new SubGuiEditText(0, CustomNpcs.DefaultInteractLine)); // add
 					return;
 				}
-				setSubGui(new GuiSoundSelection(lines.lines.get(data.get(select)).getSound()));
+				setSubGui(new SubGuiSoundSelection(lines.lines.get(data.get(select)).getSound()));
 				break;
-			}
-			case 66: {
-				close();
-				break;
-			}
+			} // sel sound
+			case 66: onClosed(); break;
 		}
 	}
 
@@ -103,11 +91,9 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			}
 			hts.put(p, hover);
 		}
-		if (scroll == null) {
-			(scroll = new GuiCustomScroll(this, 0)).setSize(xSize - 12, ySize - 63);
-		}
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(xSize - 12, ySize - 63); }
 		List<String> list = new ArrayList<>(data.keySet());
-		scroll.setListNotSorted(list);
+		scroll.setUnsortedList(list);
 		scroll.guiLeft = guiLeft + 6;
 		scroll.guiTop = guiTop + 14;
 		Line line = null;
@@ -115,12 +101,9 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 			if (list.contains(select)) {
 				line = lines.lines.get(data.get(select));
 				scroll.setSelected(select);
-			} else {
-				select = "";
-			}
+			} else { select = ""; }
 		}
-		scroll.setSuffixes(suffixes);
-		scroll.setHoverTexts(hts);
+		scroll.setSuffixes(suffixes).setHoverTexts(hts);
 		addScroll(scroll);
 		// title
 		addLabel(new GuiNpcLabel(1, title.isEmpty() ? "" : title, guiLeft, guiTop + 4));
@@ -128,80 +111,59 @@ implements ICustomScrollListener, ISubGuiListener, ITextfieldListener {
 		// text
 		int x = guiLeft + 6;
 		int y = guiTop + 170;
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, x, y, xSize - 86, 20, line == null ? "" : line.getText());
-		textField.setHoverText("lines.hover.text");
-		addTextField(textField);
-		GuiNpcButton button = new GuiNpcButton(0, guiLeft + xSize - 77, y, 50, 20, "gui.add");
-		button.setHoverText("lines.hover.add");
-		addButton(button);
-		button = new GuiNpcButton(1, guiLeft + xSize - 25, y, 20, 20, "X");
-		button.setHoverText("lines.hover.remove");
-		addButton(button);
+		addTextField(new GuiNpcTextField(0, this, x, y, xSize - 86, 20, line == null ? "" : line.getText())
+				.setHoverText("lines.hover.text"));
+		addButton(new GuiNpcButton(0, guiLeft + xSize - 77, y, 50, 20, "gui.add")
+				.setHoverText("lines.hover.add"));
+		addButton(new GuiNpcButton(1, guiLeft + xSize - 25, y, 20, 20, "X")
+				.setHoverText("lines.hover.remove"));
 		// sound
-		y += 22;
-		textField = new GuiNpcTextField(1, this, x + 52, y, xSize - 116, 20, line == null ? "" : line.getSound());
-		textField.setHoverText("lines.hover.sound");
-		addTextField(textField);
-		button = new GuiNpcButton(2, guiLeft + xSize - 55, y, 50, 20, "availability.select");
-		button.setHoverText("bard.hover.select");
-		addButton(button);
-		button = new GuiNpcButton(66, x, y, 50, 20, "gui.done");
-		button.setHoverText("hover.back");
-		addButton(button);
+		addTextField(new GuiNpcTextField(1, this, x + 52, y += 22, xSize - 116, 20, line == null ? "" : line.getSound())
+				.setHoverText("lines.hover.sound"));
+		addButton(new GuiNpcButton(2, guiLeft + xSize - 55, y, 50, 20, "availability.select")
+				.setHoverText("bard.hover.select"));
+		addButton(new GuiNpcButton(66, x, y, 50, 20, "gui.done")
+				.setHoverText("hover.back"));
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (!data.containsKey(scroll.getSelected())) {
-			return;
-		}
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
+		if (!data.containsKey(scroll.getSelected())) { return; }
 		select = scroll.getSelected();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			SubGuiEditText sub = (SubGuiEditText) subgui;
-			if (sub.cancelled || sub.text[0].isEmpty()) {
-				return;
-			}
+			if (sub.cancelled || sub.text[0].isEmpty()) { return; }
 			Line line = new Line(sub.text[0]);
 			lines.correctLines();
 			int p = lines.lines.size();
 			lines.lines.put(p, line);
 			select = ((char) 167) + "7" + p + ": " + ((char) 167) + "r" + line.getText();
 			initGui();
-		} else if (subgui instanceof GuiSoundSelection) {
-			if (!data.containsKey(select)) {
-				return;
-			}
-			GuiSoundSelection sub = (GuiSoundSelection) subgui;
-			if (sub.selectedResource == null) {
-				return;
-			}
-			if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
-				return;
-			}
+		}
+		else if (subgui instanceof SubGuiSoundSelection) {
+			if (!data.containsKey(select)) { return; }
+			SubGuiSoundSelection sub = (SubGuiSoundSelection) subgui;
+			if (sub.selectedResource == null || !data.containsKey(select) || !lines.lines.containsKey(data.get(select))) { return; }
 			lines.lines.get(data.get(select)).setSound(sub.selectedResource.toString());
 			initGui();
 		}
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
-		if (hasSubGui()) {
-			return;
-		}
+	public void unFocused(GuiNpcTextField textField) {
+		if (hasSubGui()) { return; }
         if (textField.getID() == 0) {
-            if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) {
-                return;
-            }
-            lines.lines.get(data.get(select)).setText(textField.getFullText());
-            select = textField.getFullText();
+            if (!data.containsKey(select) || !lines.lines.containsKey(data.get(select))) { return; }
+            lines.lines.get(data.get(select)).setText(textField.getText());
+            select = textField.getText();
             initGui();
         }
 	}

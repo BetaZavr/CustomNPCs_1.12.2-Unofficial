@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.toasts.GuiToast;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
@@ -50,8 +51,8 @@ import noppes.npcs.client.gui.GuiAchievement;
 import noppes.npcs.client.gui.GuiNpcMobSpawnerAdd;
 import noppes.npcs.client.gui.GuiNpcRemoteEditor;
 import noppes.npcs.client.gui.global.GuiNPCManageDialogs;
-import noppes.npcs.client.gui.global.GuiNPCManageMarkets;
 import noppes.npcs.client.gui.global.GuiNPCManageQuest;
+import noppes.npcs.client.gui.global.GuiPermissionsEdit;
 import noppes.npcs.client.gui.player.*;
 import noppes.npcs.client.gui.script.GuiScriptInterface;
 import noppes.npcs.client.gui.util.GuiContainerNPCInterface;
@@ -63,19 +64,10 @@ import noppes.npcs.client.gui.util.IScrollData;
 import noppes.npcs.client.model.animation.AnimationConfig;
 import noppes.npcs.client.model.animation.EmotionConfig;
 import noppes.npcs.client.model.part.ModelData;
-import noppes.npcs.client.renderer.MarkRenderer;
 import noppes.npcs.constants.*;
 import noppes.npcs.containers.ContainerNPCBank;
 import noppes.npcs.controllers.*;
-import noppes.npcs.controllers.data.Dialog;
-import noppes.npcs.controllers.data.DropsTemplate;
-import noppes.npcs.controllers.data.Marcet;
-import noppes.npcs.controllers.data.MarkData;
-import noppes.npcs.controllers.data.MiniMapData;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.PlayerMail;
-import noppes.npcs.controllers.data.PlayerMiniMapData;
-import noppes.npcs.controllers.data.Quest;
+import noppes.npcs.controllers.data.*;
 import noppes.npcs.entity.EntityCustomNpc;
 import noppes.npcs.entity.EntityDialogNpc;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -259,6 +251,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				CustomNpcs.proxy.reloadItemTextures();
 			} else if (synctype == EnumSync.PlayerQuestData) {
 				data.setNBT(compound);
+			} else if (mc.currentScreen instanceof GuiPermissionsEdit) {
+				((GuiPermissionsEdit) mc.currentScreen).init();
 			}
 		} else if (type == EnumPacketClient.SYNC_UPDATE) {
 			EnumSync synctype = EnumSync.values()[buffer.readInt()];
@@ -295,12 +289,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			SyncController.remove(synctype, buffer.readInt(), buffer);
 		} else if (type == EnumPacketClient.MARK_DATA) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
-			if (!(entity instanceof EntityLivingBase)) {
-				return;
-			}
+			if (!(entity instanceof EntityLivingBase)) { return; }
 			MarkData mark = MarkData.get((EntityLivingBase) entity);
 			mark.setNBT(Server.readNBT(buffer));
-			MarkRenderer.needReload = true;
 		} else if (type == EnumPacketClient.DIALOG) {
 			Entity entity = mc.world.getEntityByID(buffer.readInt());
 			if (!(entity instanceof EntityNPCInterface)) {
@@ -317,7 +308,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			NoppesUtil.openDialog(dialog, npc, player);
 		} else if (type == EnumPacketClient.QUEST_COMPLETION) {
 			int id = buffer.readInt();
-			Quest quest = (Quest) QuestController.instance.get(id);
+			Quest quest = QuestController.instance.get(id);
 			if (!quest.completeText.isEmpty()) {
 				NoppesUtil.openGUI(player, new GuiQuestCompletion(quest));
 			} else if (quest.rewardType == EnumRewardType.ONE_SELECT && !quest.rewardItems.isEmpty()) {
@@ -355,19 +346,18 @@ public class PacketHandlerClient extends PacketHandlerServer {
 		else if (type == EnumPacketClient.UPDATE_NPC) {
 			NBTTagCompound compound = Server.readNBT(buffer);
 			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (entity instanceof EntityNPCInterface) {
+			if (entity instanceof EntityNPCInterface && !(mc.currentScreen instanceof IGuiData)) {
 				((EntityNPCInterface) entity).readSpawnData(compound);
 			}
 		}
 		else if (type == EnumPacketClient.ROLE) {
-			NBTTagCompound compound = Server.readNBT(buffer);
-			Entity entity = mc.world.getEntityByID(compound.getInteger("EntityId"));
-			if (!(entity instanceof EntityNPCInterface)) {
-				return;
+			Entity entity = mc.world.getEntityByID(buffer.readInt());
+			if (entity instanceof EntityNPCInterface) {
+				NBTTagCompound compound = Server.readNBT(buffer);
+				((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Type"));
+				((EntityNPCInterface) entity).advanced.roleInterface.load(compound);
+				NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 			}
-			((EntityNPCInterface) entity).advanced.setRole(compound.getInteger("Type"));
-			((EntityNPCInterface) entity).advanced.roleInterface.load(compound);
-			NoppesUtil.setLastNpc((EntityNPCInterface) entity);
 		}
 		else if (type == EnumPacketClient.GUI) {
 			EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];
@@ -580,53 +570,52 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			}
 		}
 		else if (type == EnumPacketClient.MARCET_CLOSE) {
-			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
+			Marcet m = MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
 				m.removeListener(player, false);
-			}
-			GuiScreen gui = mc.currentScreen;
-			if (gui instanceof GuiNPCTrader) {
-				gui.onGuiClosed();
+				GuiScreen gui = mc.currentScreen;
+				if (gui instanceof GuiNPCTrader && GuiNPCTrader.marcet != null && GuiNPCTrader.marcet.getId() == m.getId()) { ((GuiNPCTrader) gui).onClosed(); }
 			}
 		}
 		else if (type == EnumPacketClient.MARCET_DATA) {
 			boolean updateGui = false;
 			int t = buffer.readInt();
 			switch (t) {
-			case 0: {
-				MarcetController.getInstance().markets.clear();
-				MarcetController.getInstance().deals.clear();
-				break;
+				case 0: {
+					MarcetController.getInstance().markets.clear();
+					MarcetController.getInstance().deals.clear();
+					break;
+				}
+				case 1: {
+					MarcetController.getInstance().loadMarcet(Server.readNBT(buffer));
+					break;
+				}
+				case 2: {
+					updateGui = true;
+					break;
+				}
+				case 3: {
+					MarcetController.getInstance().loadDeal(Server.readNBT(buffer));
+					break;
+				}
+				case 4: {
+					MarcetController.getInstance().removeMarcet(buffer.readInt());
+					updateGui = true;
+					break;
+				}
+				case 5: {
+					Marcet marcet = MarcetController.getInstance().getMarcet(buffer.readInt());
+					if (marcet != null) {
+						NBTTagCompound compound = Server.readNBT(buffer);
+						Deal deal = marcet.getDeal(compound.getInteger("DealID"));
+						if (deal != null) { deal.readData(compound); }
+					}
+					updateGui = true;
+					break;
+				} // Deal.update()
 			}
-			case 1: {
-				MarcetController.getInstance().loadMarcet(Server.readNBT(buffer));
-				break;
-			}
-			case 2: {
-				updateGui = true;
-				break;
-			}
-			case 3: {
-				MarcetController.getInstance().loadDeal(Server.readNBT(buffer));
-				break;
-			}
-			case 4: {
-				MarcetController.getInstance().removeMarcet(buffer.readInt());
-				updateGui = true;
-				break;
-			}
-			}
-			if (!updateGui) {
-				return;
-			}
-			GuiScreen gui = mc.currentScreen;
-			if (gui == null) {
-				return;
-			}
-			if (gui instanceof GuiNPCTrader) {
-				((GuiNPCTrader) gui).setGuiData(new NBTTagCompound());
-			} else if (gui instanceof GuiNPCManageMarkets) {
-				((GuiNPCManageMarkets) gui).setGuiData(new NBTTagCompound());
+			if (updateGui && mc.currentScreen instanceof IGuiData) {
+				((IGuiData) mc.currentScreen).setGuiData(new NBTTagCompound());
 			}
 		}
 		else if (type == EnumPacketClient.DETECT_HELD_ITEM) {
@@ -768,7 +757,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 			}
 			if (animation != null) {
-				AnimationConfig ac = AnimationController.getInstance().animations.get(buffer.readInt());
+				AnimationConfig ac = AnimationController.getInstance().getAnimation(buffer.readInt());
 				if (ac != null) { animation.tryRunAnimation(ac, AnimationKind.get(buffer.readInt())); }
 			}
 		}
@@ -825,7 +814,7 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				}
 			}
 			if (animation != null) {
-				EmotionConfig ec = AnimationController.getInstance().emotions.get(buffer.readInt());
+				EmotionConfig ec = AnimationController.getInstance().getEmotion(buffer.readInt());
 				if (ec != null) { animation.tryRunEmotion(ec); }
 			}
 		}
@@ -1306,6 +1295,31 @@ public class PacketHandlerClient extends PacketHandlerServer {
 			if (message == null || message.getFormattedText().isEmpty()) { return; }
 			player.sendMessage(message);
 		}
+		else if (type == EnumPacketClient.GUI_OPEN_CASE) {
+			if (mc.currentScreen instanceof GuiContainer) {
+				int dealID = buffer.readInt();
+				int size = buffer.readInt();
+				Map<ItemStack, Integer> map = new LinkedHashMap<>();
+				for (int i = 0; i < size; i++) {
+					ItemStack stack = new ItemStack(Server.readNBT(buffer));
+					if (!NoppesUtilServer.IsItemStackNull(stack) && !stack.isEmpty()) {
+						boolean found = false;
+						for (ItemStack st : map.keySet()) {
+							if (NoppesUtilServer.IsItemStackNull(st) || st.isEmpty()) { continue; }
+							if (NoppesUtilPlayer.compareItems(stack, st, false, false)) {
+								map.put(st, map.get(st) + stack.getCount());
+								found = true;
+								break;
+							}
+						}
+						if (!found) { map.put(stack, stack.getCount()); }
+					}
+				}
+				if (!map.isEmpty()) {
+					mc.displayGuiScreen(new GuiOpenCase((GuiContainer) mc.currentScreen, dealID, map));
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent
@@ -1323,9 +1337,9 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				if (!PacketHandlerClient.list.contains(type)) { LogWriter.debug("Received: " + type); }
 				client(buffer, player, type);
 				CustomNpcs.debugData.end(null, type.toString());
-			} catch (Exception e) {
-				LogWriter.error("Error with EnumPacketClient." + type, e);
-			} finally {
+			}
+			catch (Exception e) { LogWriter.error("Error with EnumPacketClient." + type, e); }
+			finally {
 				buffer.release();
 			}
 		});

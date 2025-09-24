@@ -15,11 +15,17 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.village.MerchantRecipeList;
+import net.minecraft.village.Village;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
+import noppes.npcs.ServerEventsHandler;
+import noppes.npcs.api.wrapper.VillagerWrapper;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.*;
@@ -27,34 +33,43 @@ import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.CustomNPCsScheduler;
+import org.lwjgl.input.Keyboard;
 
-public class GuiNpcRemoteEditor
-extends GuiNPCInterface
-implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
+import javax.annotation.Nonnull;
 
-	private static boolean all = false;
-	private final HashMap<String, Integer> dataIDs = new HashMap<>();
-	private GuiCustomScroll scroll;
+public class GuiNpcRemoteEditor extends GuiNPCInterface
+		implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
+
+	protected static boolean all = false;
+	protected final HashMap<String, Integer> dataIDs = new HashMap<>();
+	protected GuiCustomScroll scroll;
+	protected final DecimalFormat df = new DecimalFormat("#.#");
 	public Entity selectEntity;
-	private final DecimalFormat df = new DecimalFormat("#.#");
 
 	public GuiNpcRemoteEditor() {
 		super();
-        xSize = 256;
 		setBackground("menubg.png");
+        xSize = 256;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
 			case 0: {
-				if (!dataIDs.containsKey(scroll.getSelected())) {
-					return;
-				}
+				if (!dataIDs.containsKey(scroll.getSelected())) { return; }
 				Entity entity = mc.world.getEntityByID(dataIDs.get(scroll.getSelected()));
 				if (entity instanceof EntityNPCInterface) {
 					Client.sendData(EnumPacketServer.RemoteMainMenu, dataIDs.get(scroll.getSelected()));
 					return;
+				}
+				if (entity instanceof EntityVillager) {
+					ServerEventsHandler.Merchant = (EntityVillager) entity;
+					MerchantRecipeList merchantrecipelist = ServerEventsHandler.Merchant.getRecipes(player);
+					if (merchantrecipelist != null) {
+						player.openGui(CustomNpcs.instance, EnumGuiType.MerchantAdd.ordinal(), player.world, entity.getEntityId(), 0, 0);
+						return;
+					}
 				}
 				if (entity == null) { return; }
 				GuiNbtBook gui = new GuiNbtBook(0, 0, 0);
@@ -66,60 +81,46 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 				gui.setGuiData(compound);
 				displayGuiScreen(gui);
 				break;
-			}
-			case 1: { // remove entity
-				if (!dataIDs.containsKey(scroll.getSelected())) {
-					return;
-				}
+			} // edit
+			case 1: {
+				if (!dataIDs.containsKey(scroll.getSelected())) { return; }
 				GuiYesNo guiyesno = new GuiYesNo(this, scroll.getSelected(), new TextComponentTranslation("gui.deleteMessage").getFormattedText(), 0);
 				displayGuiScreen(guiyesno);
 				break;
-			}
+			} // remove entity
 			case 2: {
-				if (!dataIDs.containsKey(scroll.getSelected())) {
-					return;
-				}
+				if (!dataIDs.containsKey(scroll.getSelected())) { return; }
 				Client.sendData(EnumPacketServer.RemoteReset, dataIDs.get(scroll.getSelected()));
 				Entity entity2 = player.world.getEntityByID(dataIDs.get(scroll.getSelected()));
-				if (entity2 instanceof EntityNPCInterface) {
-					((EntityNPCInterface) entity2).reset();
-				}
+				if (entity2 instanceof EntityNPCInterface) { ((EntityNPCInterface) entity2).reset(); }
 				break;
-			}
-			case 3: {
-				Client.sendData(EnumPacketServer.RemoteFreeze);
-				break;
-			}
-			case 4: { // tp
+			} // reset
+			case 3: Client.sendData(EnumPacketServer.RemoteFreeze); break; // freeze
+			case 4: {
 				if (dataIDs.containsKey(scroll.getSelected())) {
 					Client.sendData(EnumPacketServer.RemoteTpToNpc, true, dataIDs.get(scroll.getSelected()));
 					CustomNPCsScheduler.runTack(() -> Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all), 250);
 				}
 				break;
-			}
+			} // tp
 			case 5: {
 				for (int ids : dataIDs.values()) {
 					Client.sendData(EnumPacketServer.RemoteReset, ids);
 					Entity entity = player.world.getEntityByID(ids);
-					if (entity instanceof EntityNPCInterface) {
-						((EntityNPCInterface) entity).reset();
-					}
+					if (entity instanceof EntityNPCInterface) { ((EntityNPCInterface) entity).reset(); }
 				}
 				break;
-			}
+			} // reset all
 			case 6: {
 				GuiNpcRemoteEditor.all = ((GuiNpcCheckBox) button).isSelected();
 				Client.sendData(EnumPacketServer.RemoteNpcsGet, GuiNpcRemoteEditor.all);
 				break;
-			}
+			} // all entities
 			case 7: {
 				Client.sendData(EnumPacketServer.RemoveNpcEdit);
 				CustomNpcs.proxy.openGui(null, EnumGuiType.MainMenuGlobal, 0, 0, 0);
 				break;
-			}
-			default: {
-	
-			}
+			} // global
 		}
 	}
 
@@ -128,9 +129,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			Client.sendData(EnumPacketServer.RemoteDelete, dataIDs.get(scroll.getSelected()), GuiNpcRemoteEditor.all);
 			selectEntity = null;
 			Entity e = player.world.getEntityByID(dataIDs.get(scroll.getSelected()));
-			if (e != null) {
-				player.world.removeEntity(e);
-			}
+			if (e != null) { player.world.removeEntity(e); }
 		}
 		CustomNPCsScheduler.runTack(() -> {
 			NoppesUtil.openGUI(player, this);
@@ -139,8 +138,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawScreen(mouseX, mouseY, partialTicks);
+	public void postDrawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (subgui == null) {
 			GlStateManager.pushMatrix();
 			if (selectEntity != null) {
@@ -156,9 +154,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 						pitch = 30;
 						y += 10;
 					}
-					if (selectEntity instanceof EntityItemFrame) {
-						x += 16;
-					}
+					if (selectEntity instanceof EntityItemFrame) { x += 16; }
 				}
 				drawNpc(selectEntity, x, y, 1.0f, yaw, pitch, 0);
 			}
@@ -168,9 +164,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			GlStateManager.popMatrix();
 		}
 		if (!CustomNpcs.ShowDescriptions) { return; }
-		if (isMouseHover(mouseX, mouseY, guiLeft + 191, guiTop + 85, 61, 86)) {
-			drawHoverText("wand.hover.entity");
-		}
+		if (isMouseHover(mouseX, mouseY, guiLeft + 191, guiTop + 85, 61, 86)) { drawHoverText("wand.hover.entity"); }
 	}
 
 	@Override
@@ -185,42 +179,34 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 		int x = (xSize - fontRenderer.getStringWidth(title)) / 2;
 		addLabel(new GuiNpcLabel(0, title, guiLeft + x, guiTop - 8));
 		// edit
-		GuiNpcButton button = new GuiNpcButton(0, guiLeft + 170, guiTop + 4, 82, 20, "selectServer.edit");
-		button.setEnabled(selectEntity != null && !(selectEntity instanceof EntityPlayer));
-		button.setHoverText("wand.hover.edit");
-		addButton(button);
+		addButton(new GuiNpcButton(0, guiLeft + 170, guiTop + 4, 82, 20, "selectServer.edit")
+				.setIsEnable(selectEntity != null && !(selectEntity instanceof EntityPlayer))
+				.setHoverText("wand.hover.edit"));
 		// del
-		button = new GuiNpcButton(1, guiLeft + 170, guiTop + 24, 82, 20, "selectWorld.deleteButton");
-		button.setEnabled(selectEntity != null);
-		button.setHoverText("wand.hover.del");
-		addButton(button);
+		addButton(new GuiNpcButton(1, guiLeft + 170, guiTop + 24, 82, 20, "selectWorld.deleteButton")
+				.setIsEnable(selectEntity != null)
+				.setHoverText("wand.hover.del"));
 		// reset
-		button = new GuiNpcButton(2, guiLeft + 170, guiTop + 44, 82, 20, "remote.reset");
-		button.setEnabled(selectEntity instanceof EntityNPCInterface);
-		button.setHoverText("wand.hover.reset");
-		addButton(button);
+		addButton(new GuiNpcButton(2, guiLeft + 170, guiTop + 44, 82, 20, "remote.reset")
+				.setIsEnable(selectEntity instanceof EntityNPCInterface)
+				.setHoverText("wand.hover.reset"));
 		// freeze
-		button = new GuiNpcButton(3, guiLeft + 170, guiTop + 192, 82, 20,  CustomNpcs.FreezeNPCs ? "remote.unfreeze" : "remote.freeze");
-		button.setHoverText("wand.hover.freeze");
-		addButton(button);
+		addButton(new GuiNpcButton(3, guiLeft + 170, guiTop + 192, 82, 20,  CustomNpcs.FreezeNPCs ? "remote.unfreeze" : "remote.freeze")
+				.setHoverText("wand.hover.freeze"));
 		// tp
-		button = new GuiNpcButton(4, guiLeft + 170, guiTop + 64, 82, 20, "remote.tp");
-		button.setEnabled(scroll.hasSelected());
-		button.setHoverText("wand.hover.tp");
-		addButton(button);
+		addButton(new GuiNpcButton(4, guiLeft + 170, guiTop + 64, 82, 20, "remote.tp")
+				.setIsEnable(scroll.hasSelected())
+				.setHoverText("wand.hover.tp"));
 		// reset all
-		button = new GuiNpcButton(5, guiLeft + 170, guiTop + 172, 82, 20, "remote.resetall");
-		button.setHoverText("wand.hover.resetall");
-		addButton(button);
+		addButton(new GuiNpcButton(5, guiLeft + 170, guiTop + 172, 82, 20, "remote.resetall")
+				.setHoverText("wand.hover.resetall"));
 		// all entities
-		button = new GuiNpcCheckBox(6, guiLeft + 174, guiTop + 86, 20, 20, "", null, GuiNpcRemoteEditor.all);
-		button.setHoverText("wand.hover.showall");
-		addButton(button);
+		addButton(new GuiNpcCheckBox(6, guiLeft + 174, guiTop + 86, 13, 14, "", null, GuiNpcRemoteEditor.all)
+				.setHoverText("wand.hover.showall"));
 		// global
-		button = new GuiMenuSideButton(7, guiLeft + xSize, guiTop + 8, "menu.global");
-		((GuiMenuSideButton) button).setIsLeft(false);
-		button.setHoverText("display.hover.menu.global");
-		addButton(button);
+		addButton(new GuiMenuSideButton(7, guiLeft + xSize, guiTop + 8, "menu.global")
+				.setIsLeft(false)
+				.setHoverText("display.hover.menu.global"));
 	}
 
 	@Override
@@ -229,16 +215,20 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 || isInventoryKey(i)) { close(); }
-		super.keyTyped(c, i);
-		if (i == 200 || i == 208 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == mc.gameSettings.keyBindBack.getKeyCode()) { resetEntity(); }
-	}
-
-	@Override
-	public void mouseClicked(int i, int j, int k) {
-		super.mouseClicked(i, j, k);
-		scroll.mouseClicked(i, j, k);
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (subgui != null) { return subgui.keyCnpcsPressed(typedChar, keyCode); }
+		if (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode)) {
+			onClosed();
+			return true;
+		}
+		boolean bo = super.keyCnpcsPressed(typedChar, keyCode);
+		if (keyCode == Keyboard.KEY_UP ||
+				keyCode == Keyboard.KEY_DOWN ||
+				keyCode == mc.gameSettings.keyBindForward.getKeyCode() ||
+				keyCode == mc.gameSettings.keyBindBack.getKeyCode()) {
+			resetEntity();
+		}
+		return bo;
 	}
 
 	private void resetEntity() {
@@ -251,13 +241,13 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 	}
 
     @Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		resetEntity();
 		initGui();
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) { }
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
@@ -298,8 +288,7 @@ implements IGuiData, GuiYesNoCallback, ICustomScrollListener {
 			list.add(key);
 			dataIDs.put(key, nbt.getInteger("Id"));
 		}
-		scroll.setListNotSorted(list);
-		scroll.setHoverTexts(hts);
+		scroll.setUnsortedList(list).setHoverTexts(hts);
 		resetEntity();
 	}
 

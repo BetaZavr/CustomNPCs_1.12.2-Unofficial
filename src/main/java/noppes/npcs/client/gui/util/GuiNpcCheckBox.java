@@ -13,36 +13,32 @@ import noppes.npcs.CustomNpcs;
 
 import javax.annotation.Nonnull;
 
-public class GuiNpcCheckBox
-extends GuiNpcButton
-implements IComponentGui, IGuiNpcCheckBox {
+public class GuiNpcCheckBox extends GuiNpcButton implements IComponentGui {
 
-	public int id;
-	int offsetX;
-	int offsetY;
-	int offsetType;
-
-	String fullLabel;
-	int textColor;
-	float scale;
-	List<String> labels;
-	boolean showShadow;
-	boolean check;
-	boolean centered;
+	protected int offsetX;
+	protected int offsetY;
+	protected int offsetType;
+	protected String fullLabel;
+	protected int textColor;
+	protected float scale;
+	protected List<String> labels;
+	protected boolean showShadow;
+	protected boolean check;
+	protected boolean centered;
 
 	public String trueLabel;
 	public String falseLabel;
 
-	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String trueLabel, String falseLabel) {
+	public GuiNpcCheckBox(int id, int x, int y, int width, int height, String trueLabelIn, String falseLabelIn) {
 		super(id, x, y, width, height, "");
 		offsetX = 0;
 		offsetY = 0;
 		offsetType = -1;
 		visible = true;
 
-		if (trueLabel == null) { trueLabel = ""; }
-		this.trueLabel = trueLabel;
-		this.falseLabel = falseLabel == null || falseLabel.isEmpty() ? trueLabel : falseLabel;
+		if (trueLabelIn == null) { trueLabelIn = ""; }
+		trueLabel = trueLabelIn;
+		falseLabel = falseLabelIn == null || falseLabelIn.isEmpty() ? trueLabelIn : falseLabelIn;
 		check = false;
         scale = 1.0f;
 		centered = false;
@@ -69,7 +65,7 @@ implements IComponentGui, IGuiNpcCheckBox {
 
 	private void drawBox(Minecraft mc) {
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(x, y + ((float) height / 4), (float) id);
+		GlStateManager.translate(x, y + ((float) height / 4), 0.0f);
 		int colorBlack = 0xFF000000;
 		int colorWhite = 0xFFFFFFFF;
 		int colorDGray = 0xFF404040;
@@ -122,25 +118,21 @@ implements IComponentGui, IGuiNpcCheckBox {
 
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!visible) {
-			return;
-		}
+		if (!visible) { return; }
 		hovered = mouseX >= x - 1 && mouseY >= y + 1 && mouseX < x + width && mouseY < y + height + 2;
 		drawBox(mc);
 	}
 
-	public String getText() {
-		return fullLabel;
-	}
+	public String getText() { return fullLabel; }
 
 	public boolean isSelected() {
 		return check;
 	}
 
 	@Override
-	public boolean mousePressed(@Nonnull Minecraft mc, int mouseX, int mouseY) {
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
 		if (hovered && enabled && visible) {
-			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
+			Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0f));
 			check = !check;
 			setText();
 			return true;
@@ -148,35 +140,31 @@ implements IComponentGui, IGuiNpcCheckBox {
 		return false;
 	}
 
-	public void setColor(int newTextColor, boolean isShowShadow) {
+	public GuiNpcCheckBox setColor(int newTextColor, boolean isShowShadow) {
 		textColor = newTextColor;
 		showShadow = isShowShadow;
+		return this;
 	}
 
-	public void setScale(float newScale) {
-		scale = newScale;
-	}
+	public GuiNpcCheckBox setScale(float newScale) { scale = newScale; return this; }
 
-	public void setSelected(boolean select) {
+	public GuiNpcCheckBox setSelected(boolean select) {
 		check = select;
 		setText();
+		return this;
 	}
 
 	private void setText() {
 		fullLabel = new TextComponentTranslation(check ? trueLabel : falseLabel).getFormattedText();
 		labels = new ArrayList<>();
-		if (width - 13 < 5) {
-			return;
-		}
-		for (String s : Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(fullLabel, width - 13)) {
-			addLine(s);
-		}
+		if (width - 13 < 5) { return; }
+		for (String s : Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(fullLabel, width - 13)) { addLine(s); }
 	}
 
-	public void setText(String trueLabel, String falseLabel) {
-		if (trueLabel == null) { trueLabel = ""; }
-		this.trueLabel = trueLabel;
-		this.falseLabel = falseLabel == null || falseLabel.isEmpty() ? trueLabel : falseLabel;
+	public void setText(String trueLabelIn, String falseLabelIn) {
+		if (trueLabelIn == null) { trueLabelIn = ""; }
+		trueLabel = trueLabelIn;
+		falseLabel = falseLabelIn == null || falseLabelIn.isEmpty() ? trueLabelIn : falseLabelIn;
 		setText();
 	}
 	

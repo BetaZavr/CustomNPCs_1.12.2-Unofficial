@@ -181,7 +181,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		public StopAnimation(ICustomNpc<?> npc, int type, int id) {
 			super(npc);
 			this.type = type;
-			this.animation = AnimationController.getInstance().animations.get(id);
+			this.animation = AnimationController.getInstance().getAnimation(id);
 		}
 
 	}

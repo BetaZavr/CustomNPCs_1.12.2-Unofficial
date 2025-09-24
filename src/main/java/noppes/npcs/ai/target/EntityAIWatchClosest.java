@@ -58,7 +58,7 @@ public class EntityAIWatchClosest extends EntityAIBase {
 		if (closestEntity != null) {
 			if (closestEntity instanceof EntityLivingBase) {
 				CustomNpcs.debugData.end(npc);
-				return Util.instance.npcCanSeeTarget(npc, (EntityLivingBase) closestEntity, false, false);
+				return npc.canSee(closestEntity);
 			}
 			CustomNpcs.debugData.end(npc);
 			return npc.canSee(closestEntity);

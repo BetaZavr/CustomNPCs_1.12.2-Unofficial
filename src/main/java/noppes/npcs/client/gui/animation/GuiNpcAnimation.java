@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
-import noppes.npcs.CustomNpcs;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
@@ -25,35 +24,37 @@ import noppes.npcs.entity.data.DataAnimation;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.CustomNPCsScheduler;
 
-public class GuiNpcAnimation
-extends GuiNPCInterface2
-implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
+import javax.annotation.Nonnull;
+
+public class GuiNpcAnimation extends GuiNPCInterface2
+		implements ICustomScrollListener, IGuiData, GuiYesNoCallback {
 
 	public static int backColor = 0xFF000000;
 
-	private GuiCustomScroll scrollType;
-	private GuiCustomScroll scrollAnimations;
-	private GuiCustomScroll scrollAllAnimations;
+	protected GuiCustomScroll scrollType;
+	protected GuiCustomScroll scrollAnimations;
+	protected GuiCustomScroll scrollAllAnimations;
 
-	private boolean isChanged = true;
-	private final LinkedHashMap<Integer, List<String>> typeHovers = new LinkedHashMap<>();
-	private final Map<String, AnimationKind> dataType = new LinkedHashMap<>();
-	private final List<String> dataAnimations = new ArrayList<>();
-	private final Map<String, AnimationConfig> dataAllAnimations = new TreeMap<>();
+	protected boolean isChanged = true;
+	protected final LinkedHashMap<Integer, List<String>> typeHovers = new LinkedHashMap<>();
+	protected final Map<String, AnimationKind> dataType = new LinkedHashMap<>();
+	protected final List<String> dataAnimations = new ArrayList<>();
+	protected final Map<String, AnimationConfig> dataAllAnimations = new TreeMap<>();
 
-	private final EntityNPCInterface npcAnim;
-	private final DataAnimation animation;
-	private String selType = "";
-	private String selAnim = "";
-	private String selBaseAnim = "";
-	private AnimationController aData;
+	protected final EntityNPCInterface npcAnim;
+	protected final DataAnimation animation;
+	protected String selType = "";
+	protected String selAnim = "";
+	protected String selBaseAnim = "";
+	protected AnimationController aData;
 
 	public GuiNpcAnimation(EntityCustomNpc npc) {
 		super(npc, 4);
-		closeOnEsc = true;
-		animation = new DataAnimation(npc);
 		setBackground("bgfilled.png");
+		closeOnEsc = true;
+		parentGui = EnumGuiType.MainMenuAdvanced;
 
+		animation = new DataAnimation(npc);
 		dataType.clear();
 		dataType.put("puppet." + AnimationKind.INIT.name().toLowerCase().replace("_", ""), AnimationKind.INIT);
 		dataType.put("puppet." + AnimationKind.JUMP.name().toLowerCase().replace("_", ""), AnimationKind.JUMP);
@@ -80,20 +81,19 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 			typeHovers.put(i, Arrays.asList(hoverText.split("<br>")));
 			i++;
 		}
-
 		npcAnim = Util.instance.copyToGUI(npc, mc.world, false);
 		npcAnim.display.setName(npc.getName()+"_animation");
-
 		Client.sendData(EnumPacketServer.AnimationGet);
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		AnimationConfig anim = getAnim();
 		switch (button.getID()) {
 			case 0: { // add anim
 				if (scrollType == null || !scrollType.hasSelected()) { return; }
-				AnimationConfig newAnim = (AnimationConfig) aData.createNewAnim();
+				AnimationConfig newAnim = aData.createNewAnim();
 				newAnim.name = Util.instance.deleteColor(new TextComponentTranslation(selType).getFormattedText().replaceAll(" ", "_")+ "_" + newAnim.id);
 				newAnim.type = dataType.get(selType);
 				animation.addAnimation(newAnim.type, newAnim.id);
@@ -106,16 +106,10 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 			case 1: { // copy anim
 				if (anim == null) { return; }
 				AnimationController aData = AnimationController.getInstance();
-				anim = anim.copy();
-				anim.id = aData.getUnusedAnimId();
-				anim.immutable = false;
-				anim.type = dataType.get(selType);
-				aData.animations.put(anim.id, anim);
+				anim = aData.copy(anim.id, dataType.get(selType));
 				selAnim = anim.getSettingName();
 				selBaseAnim = anim.getSettingName();
-				if (dataType.containsKey(selType)) {
-					animation.addAnimation(dataType.get(selType), anim.id);
-				}
+				if (dataType.containsKey(selType)) { animation.addAnimation(dataType.get(selType), anim.id); }
 				isChanged = true;
 				initGui();
 				break;
@@ -140,15 +134,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI(player, this);
-		if (!result) {
-			return;
-		}
+		if (!result) { return; }
 		AnimationConfig anim = getAnim();
 		if (id == 0) {
 			if (anim == null) { return; }
-			if (dataType.containsKey(selType)) {
-				animation.removeAnimation(dataType.get(selType), anim.id);
-			}
+			if (dataType.containsKey(selType)) { animation.removeAnimation(dataType.get(selType), anim.id); }
 			AnimationController.getInstance().removeAnimation(anim.id);
 			isChanged = true;
 			initGui();
@@ -156,15 +146,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void close() {
-		save();
-		CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuAdvanced);
-	}
-
-	@Override
-	public void save() {
-		Client.sendData(EnumPacketServer.AnimationSave, animation.save(new NBTTagCompound()));
-	}
+	public void save() { Client.sendData(EnumPacketServer.AnimationSave, animation.save(new NBTTagCompound())); }
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -221,9 +203,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		drawVerticalLine(4, 0, 2, color);
 		if (hoverButton != -1) {
 			drawVerticalLine(4, -75 + hoverButton * 22, 1, 0xA0FFFF00);
-			if (hoverButton != 0) {
-				drawVerticalLine(4, -75, -74 + hoverButton * 22, color);
-			}
+			if (hoverButton != 0) { drawVerticalLine(4, -75, -74 + hoverButton * 22, color); }
 		}
 		else { drawVerticalLine(4, -75, 1, color); }
 		drawVerticalLine(5, -3, 2, color);
@@ -235,12 +215,8 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 
 	private AnimationConfig getAnim() {
 		if (!dataAnimations.contains(selAnim) && !selAnim.isEmpty()) { selAnim = ""; }
-		if (!selAnim.isEmpty() && dataAllAnimations.containsKey(selAnim)) {
-			return dataAllAnimations.get(selAnim);
-		}
-		if (selBaseAnim.isEmpty() || !dataAllAnimations.containsKey(selBaseAnim)) {
-			return null;
-		}
+		if (!selAnim.isEmpty() && dataAllAnimations.containsKey(selAnim)) { return dataAllAnimations.get(selAnim); }
+		if (selBaseAnim.isEmpty() || !dataAllAnimations.containsKey(selBaseAnim)) { return null; }
 		return dataAllAnimations.get(selBaseAnim);
 	}
 
@@ -250,9 +226,9 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		int x = guiLeft + 8;
 		int y = guiTop + 14;
 		if (scrollType == null) {
-			(scrollType = new GuiCustomScroll(this, 0)).setSize(120, 198);
-			scrollType.setListNotSorted(new ArrayList<>(dataType.keySet()));
-			scrollType.setHoverTexts(typeHovers);
+			scrollType = new GuiCustomScroll(this, 0).setSize(120, 198)
+					.setUnsortedList(new ArrayList<>(dataType.keySet()))
+					.setHoverTexts(typeHovers);
 		}
 		scrollType.guiLeft = x;
 		scrollType.guiTop = y;
@@ -267,7 +243,6 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		}
 		scrollType.setSelected(selType);
 		addLabel(new GuiNpcLabel(0, "animation.type", x + 1, y - 10));
-
 		x += 123;
 		dataAnimations.clear();
 		dataAllAnimations.clear();
@@ -277,7 +252,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 		int i = 0;
 		AnimationKind type = dataType.get(selType);
 		if (!selAnim.isEmpty() && !selBaseAnim.isEmpty() && !Util.instance.deleteColor(selAnim).equals(Util.instance.deleteColor(selBaseAnim))) { selAnim = ""; }
-		for (AnimationConfig ac : aData.animations.values()) {
+		for (AnimationConfig ac : aData.getAnimations()) {
 			String key = ((char) 167) + (type == ac.type ? "a" : "7") + ac.getSettingName();
 			if (animation.hasAnimation(type, ac.id)) { dataAnimations.add(key); }
 			dataAllAnimations.put(key, ac);
@@ -290,12 +265,11 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 			hts.put(i, list);
 			i++;
 		}
-
 		if (scrollAnimations == null) {
-			(scrollAnimations = new GuiCustomScroll(this, 1)).setSize(120, 198);
-			scrollAnimations.setHoverText("animation.hover.anim.list");
+			scrollAnimations = new GuiCustomScroll(this, 1).setSize(120, 198)
+					.setHoverText("animation.hover.anim.list");
 		}
-		scrollAnimations.setListNotSorted(dataAnimations);
+		scrollAnimations.setUnsortedList(dataAnimations);
 		scrollAnimations.guiLeft = x;
 		scrollAnimations.guiTop = y;
 		addScroll(scrollAnimations);
@@ -311,51 +285,39 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 			scrollAnimations.setSelected(selAnim);
 			if (!scrollAnimations.hasSelected()) { selAnim = ""; }
 			else { selAnim = scrollAnimations.getSelected(); }
-		} else {
-			scrollAnimations.setSelected(null);
 		}
+		else { scrollAnimations.setSelected(null); }
 		if (selBaseAnim.isEmpty()) { selBaseAnim = selAnim; }
 
 		x += 123;
-		if (scrollAllAnimations == null) {
-			(scrollAllAnimations = new GuiCustomScroll(this, 2)).setSize(160, 110);
-		}
-		scrollAllAnimations.setListNotSorted(allAnimations);
-		scrollAllAnimations.setHoverTexts(hts);
+		if (scrollAllAnimations == null) { scrollAllAnimations = new GuiCustomScroll(this, 2).setSize(160, 110); }
+		scrollAllAnimations.setUnsortedList(allAnimations)
+				.setHoverTexts(hts);
 		scrollAllAnimations.guiLeft = x;
 		scrollAllAnimations.guiTop = y + 88;
-		if (!selBaseAnim.isEmpty()) {
-			scrollAllAnimations.setSelected(selBaseAnim);
-		}
-		this.addScroll(scrollAllAnimations);
-
+		if (!selBaseAnim.isEmpty()) { scrollAllAnimations.setSelected(selBaseAnim); }
+		addScroll(scrollAllAnimations);
 		AnimationConfig anim = getAnim();
 		addLabel(new GuiNpcLabel(1, new TextComponentTranslation("movement.animation").getFormattedText() + ":", x + 1, y - 10));
 		// create
-		GuiNpcButton button = new GuiNpcButton(0, x, y, 60, 20, "markov.generate");
-		button.setHoverText("animation.hover.anim.create");
-		addButton(button);
+		addButton(new GuiNpcButton(0, x, y, 60, 20, "markov.generate")
+				.setHoverText("animation.hover.anim.create"));
 		// back color
-		button = new GuiNpcButton(4, x + 148, y, 10, 10, new String[] { "b", "w" }, backColor == 0xFF000000 ? 0 : 1);
-		button.setHoverText("animation.hover.color");
-		addButton(button);
+		addButton(new GuiNpcButton(4, x + 148, y, 10, 10, new String[] { "b", "w" }, backColor == 0xFF000000 ? 0 : 1)
+				.setHoverText("animation.hover.color"));
 		// copy
-		button = new GuiNpcButton(1, x, y += 22, 60, 20, "gui.copy");
-		button.setEnabled(anim != null);
-		button.setHoverText("animation.hover.anim.copy");
-		addButton(button);
+		addButton(new GuiNpcButton(1, x, y += 22, 60, 20, "gui.copy")
+				.setIsEnable(anim != null)
+				.setHoverText("animation.hover.anim.copy"));
 		// del
 		boolean isOP = anim != null && !anim.immutable;
-		button = new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove");
-		button.setEnabled(isOP);
-		button.setHoverText("animation.hover.anim.del");
-		addButton(button);
+		addButton(new GuiNpcButton(2, x, y += 22, 60, 20, "gui.remove")
+				.setIsEnable(isOP)
+				.setHoverText("animation.hover.anim.del"));
 		// edit
-		button = new GuiNpcButton(3, x, y + 22, 60, 20, "gui.edit");
-		button.setEnabled(isOP);
-		button.setHoverText("animation.hover.anim.edit");
-		addButton(button);
-
+		addButton(new GuiNpcButton(3, x, y + 22, 60, 20, "gui.edit")
+				.setIsEnable(isOP)
+				.setHoverText("animation.hover.anim.edit"));
 		resetAnimation();
 	}
 
@@ -372,7 +334,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getID() == 0) { // animation Type
 			if (selType.equals(scroll.getSelected())) { return; }
 			selType = scroll.getSelected();
@@ -398,7 +360,7 @@ implements ISubGuiListener, ICustomScrollListener, IGuiData, GuiYesNoCallback {
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) {
 		AnimationConfig anim;
 		if (scroll.getID() == 1) {
 			anim = getAnim();

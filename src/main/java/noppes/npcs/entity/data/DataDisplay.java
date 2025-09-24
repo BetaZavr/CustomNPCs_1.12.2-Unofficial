@@ -69,6 +69,18 @@ public class DataDisplay implements INPCDisplay {
 	public DataDisplay(EntityNPCInterface npcIn) {
 		npc = npcIn;
 		name = getRandomName();
+		if (npc.isServerWorld()) {
+			if ((new Random()).nextInt(10) == 0) {
+				DataPeople p = DataPeople.get();
+				name = p.name;
+				title = p.title;
+				if (!p.skin.isEmpty()) { texture = p.skin; }
+			}
+			else {
+				markovGeneratorId = (new Random()).nextInt(10);
+				name = getRandomName();
+			}
+		}
 	}
 
 	public Availability getAvailability() {

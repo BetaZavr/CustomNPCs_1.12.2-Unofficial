@@ -13,34 +13,31 @@ import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
 
-public class GuiMenuTopIconButton
-extends GuiMenuTopButton {
+public class GuiMenuTopIconButton extends GuiMenuTopButton {
 
+	protected static final ResourceLocation resource = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
 	protected static RenderItem itemRender;
-	private static final ResourceLocation resource = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
-	private final ItemStack item;
+	protected final ItemStack item;
 
-	public GuiMenuTopIconButton(int i, GuiButton parent, String s, ItemStack item) {
+	public GuiMenuTopIconButton(int i, GuiButton parent, String s, ItemStack itemIn) {
 		super(i, parent, s);
 		width = 28;
 		height = 28;
-		this.item = item;
+		item = itemIn;
 		offsetW = 12;
 	}
 
-	public GuiMenuTopIconButton(int i, int x, int y, String s, ItemStack item) {
+	public GuiMenuTopIconButton(int i, int x, int y, String s, ItemStack itemIn) {
 		super(i, x, y, s);
 		width = 28;
 		height = 28;
-		this.item = item;
+		item = itemIn;
 		offsetW = 12;
 	}
 
 	@Override
 	public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-		if (!isVisible()) {
-			return;
-		}
+		if (!visible) { return; }
 		super.drawButton(mc, mouseX, mouseY, partialTicks);
         item.getItem();
 		mc.getTextureManager().bindTexture(GuiMenuTopIconButton.resource);
@@ -72,22 +69,14 @@ extends GuiMenuTopButton {
 			int k = 0;
 			for (Object s : textLines) {
 				int l = font.getStringWidth(s.toString());
-				if (l > k) {
-					k = l;
-				}
+				if (l > k) { k = l; }
 			}
 			int j2 = mouseX + 12;
 			int k2 = mouseY - 12;
 			int i1 = 8;
-			if (textLines.size() > 1) {
-				i1 += 2 + (textLines.size() - 1) * 10;
-			}
-			if (j2 + k > width) {
-				j2 -= 28 + k;
-			}
-			if (k2 + i1 + 6 > height) {
-				k2 = height - i1 - 6;
-			}
+			if (textLines.size() > 1) { i1 += 2 + (textLines.size() - 1) * 10; }
+			if (j2 + k > width) { j2 -= 28 + k; }
+			if (k2 + i1 + 6 > height) { k2 = height - i1 - 6; }
 			zLevel = 300.0f;
 			itemRender.zLevel = 300.0f;
 			int j3 = -267386864;
@@ -105,9 +94,7 @@ extends GuiMenuTopButton {
 			for (int i2 = 0; i2 < textLines.size(); ++i2) {
 				String s2 = (String) textLines.get(i2);
 				font.drawStringWithShadow(s2, j2, k2, -1);
-				if (i2 == 0) {
-					k2 += 2;
-				}
+				if (i2 == 0) { k2 += 2; }
 				k2 += 10;
 			}
 			zLevel = 0.0f;

@@ -1,28 +1,27 @@
 package noppes.npcs.client.gui.script;
 
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.client.gui.util.GuiNPCInterface;
 import noppes.npcs.client.gui.util.GuiNpcButton;
 import noppes.npcs.constants.EnumScriptType;
+import org.lwjgl.input.Keyboard;
 
 import javax.annotation.Nonnull;
 
-public class GuiScriptGlobal
-extends GuiNPCInterface {
+public class GuiScriptGlobal extends GuiNPCInterface {
 
-	private final String playerEventsList;
-    private final String npcEventsList;
-    private final String potionEventsList;
-	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
+	protected final String playerEventsList;
+	protected final String npcEventsList;
+	protected final String potionEventsList;
+	protected final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/smallbg.png");
 
 	public GuiScriptGlobal() {
 		super();
+		drawDefaultBackground = false;
 		xSize = 176;
 		ySize = 222;
-		drawDefaultBackground = false;
 		title = "";
 
 		// Player
@@ -49,27 +48,14 @@ extends GuiNPCInterface {
 	}
 
 	@Override
-	protected void actionPerformed(@Nonnull GuiButton guibutton) {
-		switch (guibutton.id) {
-			case 1: {
-				displayGuiScreen(new GuiScriptNPCs());
-				break;
-			}
-			case 2: {
-				displayGuiScreen(new GuiScriptForge());
-				break;
-			}
-			case 3: {
-				displayGuiScreen(new GuiScriptPotion());
-				break;
-			}
-			case 4: {
-				displayGuiScreen(new GuiScriptClient());
-				break;
-			}
-			default: {
-				displayGuiScreen(new GuiScriptPlayers());
-			}
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		switch (button.getID()) {
+			case 1: displayGuiScreen(new GuiScriptNPCs()); break;
+			case 2: displayGuiScreen(new GuiScriptForge()); break;
+			case 3: displayGuiScreen(new GuiScriptPotion()); break;
+			case 4: displayGuiScreen(new GuiScriptClient()); break;
+			default: displayGuiScreen(new GuiScriptPlayers());
 		}
 	}
 
@@ -114,9 +100,13 @@ extends GuiNPCInterface {
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 || isInventoryKey(i)) { close(); }
-		else { super.keyTyped(c, i); }
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (subgui != null) { return subgui.keyCnpcsPressed(typedChar, keyCode); }
+		if (keyCode == Keyboard.KEY_ESCAPE || isInventoryKey(keyCode)) {
+			onClosed();
+			return true;
+		}
+		return super.keyCnpcsPressed(typedChar, keyCode);
 	}
 
 }

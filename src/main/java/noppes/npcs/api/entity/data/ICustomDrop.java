@@ -2,6 +2,7 @@ package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface ICustomDrop {
 
 	IAttributeSet addAttribute(String attributeName);

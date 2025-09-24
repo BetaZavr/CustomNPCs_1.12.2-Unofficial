@@ -23,7 +23,7 @@ public abstract class AbstractAbility implements IAbility {
 		float f = npc.getHealth() / npc.getMaxHealth();
 		return f >= minHP && f <= maxHP
 				&& (getRNG() <= 1 || npc.getRNG().nextInt(getRNG()) == 0)
-				&& npc.canEntityBeSeen(target);
+				&& npc.canSee(target);
 	}
 
 	@Override

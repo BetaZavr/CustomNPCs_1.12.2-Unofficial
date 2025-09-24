@@ -20,34 +20,37 @@ import noppes.npcs.controllers.data.Bank;
 import noppes.npcs.controllers.data.Bank.CeilSettings;
 import noppes.npcs.entity.EntityNPCInterface;
 
-public class GuiNPCManageBanks
-extends GuiContainerNPCInterface2
-implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback, ISubGuiListener {
+import javax.annotation.Nonnull;
 
-	private Bank bank = new Bank();
-	private final ContainerManageBanks container;
-	private final HashMap<String, Integer> data = new HashMap<>();
-	private GuiCustomScroll scroll;
-	private String selected = "";
-	private int ceil = 0, waitTime = 30;
-	private boolean isWait;
+public class GuiNPCManageBanks extends GuiContainerNPCInterface2
+		implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, GuiYesNoCallback {
+
+	protected final HashMap<String, Integer> data = new HashMap<>();
+	protected final ContainerManageBanks container;
+	protected GuiCustomScroll scroll;
+	protected Bank bank = new Bank();
+	protected String selected = "";
+	protected boolean isWait;
+	protected int ceil = 0;
+	protected int waitTime = 30;
 
 	public GuiNPCManageBanks(EntityNPCInterface npc, ContainerManageBanks cont) {
 		super(npc, cont);
-		drawDefaultBackground = false;
 		setBackground("inventorymenu.png");
+		drawDefaultBackground = false;
+		closeOnEsc = true;
 		ySize = 200;
+		parentGui = EnumGuiType.MainMenuGlobal;
 
 		container = cont;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
 		switch (button.getID()) {
-			case 0: { // ceil
-				if (ceil == button.getValue()) {
-					return;
-				}
+			case 0: {
+				if (ceil == button.getValue()) { return; }
 				save();
 				ceil = button.getValue();
 				Client.sendData(EnumPacketServer.BankGet, bank.id, ceil);
@@ -55,32 +58,25 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 				waitTime = 30;
 				initGui();
 				break;
-			}
-			case 1: { // add ceil
+			} // ceil
+			case 1: {
 				ceil = bank.ceilSettings.size();
 				Client.sendData(EnumPacketServer.BankAddCeil, bank.id, ceil);
 				isWait = true;
 				waitTime = 30;
 				initGui();
 				break;
-			}
-			case 2: { // remove ceil
-				if (!data.containsKey(selected) || !bank.ceilSettings.containsKey(ceil)) {
-					return;
-				}
+			} // add ceil
+			case 2: {
+				if (!data.containsKey(selected) || !bank.ceilSettings.containsKey(ceil)) { return; }
 				String msg = new TextComponentTranslation("bank.hover.ceil.del").getFormattedText();
-				while (msg.contains("<br>")) {
-					msg = msg.replace("<br>", "" + ((char) 10));
-				}
+				while (msg.contains("<br>")) { msg = msg.replace("<br>", "" + ((char) 10)); }
 				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + bank.id + " \"" + bank.name + "\"; " + new TextComponentTranslation("gui.ceil", ": ID:" + (ceil + 1)).getFormattedText()).getFormattedText(), msg, 1);
 				displayGuiScreen(guiyesno);
 				break;
-			}
-			case 3: { // public
-				bank.isPublic = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 6: { // add bank
+			} // remove ceil
+			case 3: bank.isPublic = ((GuiNpcCheckBox) button).isSelected(); break; // public
+			case 6: {
 				save();
 				scroll.clear();
 				StringBuilder t = new StringBuilder("New");
@@ -95,26 +91,20 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 				waitTime = 30;
 				initGui();
 				break;
-			}
-			case 7: { // remove bank
-				if (!data.containsKey(selected)) {
-					return;
-				}
+			} // add bank
+			case 7: {
+				if (!data.containsKey(selected)) { return; }
 				String msg = new TextComponentTranslation("bank.hover.del").getFormattedText();
-				while (msg.contains("<br>")) {
-					msg = msg.replace("<br>", "" + ((char) 10));
-				}
+				while (msg.contains("<br>")) { msg = msg.replace("<br>", "" + ((char) 10)); }
 				GuiYesNo guiyesno = new GuiYesNo(this, new TextComponentTranslation("gui.bank", ": ID:" + bank.id + " \"" + bank.name + "\"").getFormattedText(), msg, 0);
 				displayGuiScreen(guiyesno);
 				break;
-			}
-			case 8: { // settings
-				if (bank == null) {
-					return;
-				}
+			} // remove bank
+			case 8: {
+				if (bank == null) { return; }
 				setSubGui(new SubGuiEditBankAccess(0, bank));
 				break;
-			}
+			} // settings
 		}
 	}
 
@@ -122,12 +112,8 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	public void subGuiClosed(SubGuiInterface gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
-			if (bank.isChanging != subGui.isChanging) {
-				bank.isChanging = subGui.isChanging;
-			}
-			if (!bank.owner.equals(subGui.owner)) {
-				bank.owner = subGui.owner;
-			}
+			if (bank.isChanging != subGui.isChanging) { bank.isChanging = subGui.isChanging; }
+			if (!bank.owner.equals(subGui.owner)) { bank.owner = subGui.owner; }
 			if (subGui.names.size() != bank.access.size()) {
 				bank.access.clear();
 				bank.access.addAll(subGui.names);
@@ -145,44 +131,35 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	@Override
 	public void confirmClicked(boolean result, int id) {
 		NoppesUtil.openGUI(player, this);
-		if (!result) {
-			return;
-		}
-		switch (id) { // remove bank
+		if (!result) { return; }
+		switch (id) {
 			case 0: {
-				if (!data.containsKey(selected)) {
-					return;
-				}
+				if (!data.containsKey(selected)) { return; }
 				Client.sendData(EnumPacketServer.BankRemove, data.get(selected), -1);
 				isWait = true;
 				waitTime = 30;
 				initGui();
 				break;
-			}
-			case 1: { // remove ceil
-				if (!data.containsKey(selected) || !bank.ceilSettings.containsKey(ceil)) {
-					return;
-				}
+			} // remove bank
+			case 1: {
+				if (!data.containsKey(selected) || !bank.ceilSettings.containsKey(ceil)) { return; }
 				Client.sendData(EnumPacketServer.BankRemove, data.get(selected), ceil);
 				isWait = true;
 				waitTime = 30;
 				initGui();
 				break;
-			}
+			} // remove ceil
 		}
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-		if (isWait || waitTime > 0 || subgui != null) {
-			return;
-		}
+		if (isWait || waitTime > 0 || subgui != null) { return; }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		for (int slotId = 0; slotId < 2; ++slotId) {
             inventorySlots.getSlot(slotId).xPos = selected.isEmpty() ? -5000 : 180;
 			inventorySlots.getSlot(slotId).yPos = selected.isEmpty() ? -5000 : slotId == 0 ? 123 : 159;
-
 			int x = guiLeft + inventorySlots.getSlot(slotId).xPos;
 			int y = guiTop + inventorySlots.getSlot(slotId).yPos;
 			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
@@ -209,9 +186,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		if (isWait || waitTime > 0) {
 			if (!isWait) {
 				waitTime--;
-				if (waitTime == 0) {
-					initGui();
-				}
+				if (waitTime == 0) { initGui(); }
 			}
 			String text = new TextComponentTranslation("gui.wait", ": " + new TextComponentTranslation("gui.wait.data").getFormattedText()).getFormattedText();
 			fontRenderer.drawString(text, guiLeft + (width - fontRenderer.getStringWidth(text)) / 2, guiTop + 60, CustomNpcs.LableColor.getRGB());
@@ -231,9 +206,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (scroll == null) {
-			(scroll = new GuiCustomScroll(this, 0)).setSize(160, 180);
-		}
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(160, 180); }
 		if (isWait || waitTime > 0) { return; }
 		int x = guiLeft + 254;
 		int y = guiTop + 8;
@@ -253,84 +226,70 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		scroll.setHoverTexts(hts);
 		// add bank
 		y += scroll.height + 2;
-		GuiNpcButton button = new GuiNpcButton(6, x, y, 50, 20, "gui.add");
-		button.setHoverText("bank.hover.add");
-		addButton(button);
+		addButton(new GuiNpcButton(6, x, y, 50, 20, "gui.add")
+				.setHoverText("bank.hover.add"));
 		// del bank
-		button = new GuiNpcButton(7, x + scroll.width - 50, y, 50, 20, "gui.remove");
-		button.setEnabled(!selected.isEmpty() && data.size() > 1);
-		button.setHoverText(new TextComponentTranslation("bank.hover.del").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(7, x + scroll.width - 50, y, 50, 20, "gui.remove")
+				.setIsEnable(!selected.isEmpty() && data.size() > 1)
+				.setHoverText(new TextComponentTranslation("bank.hover.del").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText()));
 		// name
 		x = guiLeft + 75;
 		y = guiTop + 8;
-		GuiNpcTextField textField = new GuiNpcTextField(0, this, fontRenderer, x, y, 160, 16, selected);
-		textField.setMaxStringLength(20);
-		textField.setVisible(!selected.isEmpty());
-		textField.setHoverText("bank.hover.name");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(0, this, x, y, 160, 16, selected)
+				.setIsVisible(!selected.isEmpty())
+				.setHoverText("bank.hover.name"));
+		getTextField(0).setMaxStringLength(20);
 		// cells
 		y += 22;
 		List<String> csIds = new ArrayList<>();
 		if (bank != null) {
-			for (int i = 0; i < bank.ceilSettings.size(); i++) {
-				csIds.add("" + (i + 1));
-			}
+			for (int i = 0; i < bank.ceilSettings.size(); i++) { csIds.add("" + (i + 1)); }
 		}
-		button = new GuiButtonBiDirectional(0, x, y, 50, 20, csIds.toArray(new String[0]), ceil);
-		button.setIsVisible(!selected.isEmpty());
-		button.setHoverText("bank.hover.ceil", "" + bank.ceilSettings.size());
-		addButton(button);
+		addButton(new GuiButtonBiDirectional(0, x, y, 50, 20, csIds.toArray(new String[0]), ceil)
+				.setIsVisible(!selected.isEmpty())
+				.setHoverText("bank.hover.ceil", "" + bank.ceilSettings.size()));
 		// add ceil
-		button = new GuiNpcButton(1, x + 55, y, 50, 20, "gui.add");
-		button.setIsVisible(!selected.isEmpty());
-		button.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(1, x + 55, y, 50, 20, "gui.add")
+				.setIsVisible(!selected.isEmpty())
+				.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText()));
 		// del ceil
-		button = new GuiNpcButton(2, x + 110, y, 50, 20, "gui.remove");
-		button.setIsVisible(!selected.isEmpty());
-		button.setEnabled(ceil > 0);
-		button.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
-		addButton(button);
+		addButton(new GuiNpcButton(2, x + 110, y, 50, 20, "gui.remove")
+				.setIsVisible(!selected.isEmpty())
+				.setIsEnable(ceil > 0)
+				.setHoverText(new TextComponentTranslation("bank.hover.ceil.add").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText()));
 		// slots
 		y += 22;
 		CeilSettings cs = bank.ceilSettings.get(ceil);
 		int sc = cs.startCells;
 		int mc = cs.maxCells;
 		// min
-		textField = new GuiNpcTextField(1, this, fontRenderer, x, y, 50, 18, "" + sc);
-		textField.setVisible(!selected.isEmpty());
-		textField.setMinMaxDefault(1, mc, sc);
-		textField.setHoverText(new TextComponentTranslation("bank.hover.slots.min").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(1, this, x, y, 50, 18, "" + sc)
+				.setIsVisible(!selected.isEmpty())
+				.setMinMaxDefault(1, mc, sc)
+				.setHoverText(new TextComponentTranslation("bank.hover.slots.min").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText()));
 		// max
-		textField = new GuiNpcTextField(2, this, fontRenderer, x + 110, y, 50, 18, "" + mc);
-		textField.setVisible(!selected.isEmpty());
-		textField.setMinMaxDefault(1, 198, mc);
-		textField.setHoverText(new TextComponentTranslation("bank.hover.slots.max").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText());
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(2, this, x + 110, y, 50, 18, "" + mc)
+				.setIsVisible(!selected.isEmpty())
+				.setMinMaxDefault(1, 198, mc)
+				.setHoverText(new TextComponentTranslation("bank.hover.slots.max").appendSibling(new TextComponentTranslation("bank.hover.change")).getFormattedText()));
 		// is public
-		button = new GuiNpcCheckBox(3, x, (y += 18), 160, 16, "bank.public.true", "bank.public.false", bank.isPublic);
-		button.setIsVisible(!selected.isEmpty());
-		button.setHoverText("bank.hover.public");
-		addButton(button);
+		addButton(new GuiNpcCheckBox(3, x, (y += 18), 160, 16, "bank.public.true", "bank.public.false", bank.isPublic)
+				.setIsVisible(!selected.isEmpty())
+				.setHoverText("bank.hover.public"));
 		// setting names
-		button = new GuiNpcButton(8, x, y + 20, 20, 20, 20, 146, GuiNPCInterface.WIDGETS);
-		button.setHoverText("bank.hover.settings");
-		button.setIsVisible(!selected.isEmpty() && bank.isPublic);
-		addButton(button);
+		addButton(new GuiNpcButton(8, x, y + 20, 20, 20, 20, 146, GuiNPCInterface.WIDGETS)
+				.setHoverText("bank.hover.settings")
+				.setIsVisible(!selected.isEmpty() && bank.isPublic));
 		// open money
-		textField = new GuiNpcTextField(3, this, fontRenderer, x += 126, y += 52, 50, 18, "" + cs.openMoney);
-		textField.setVisible(!selected.isEmpty());
-		textField.setMinMaxDefault(0, Integer.MAX_VALUE, cs.openMoney);
-		textField.setHoverText("bank.hover.open.money");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(3, this, x += 126, y += 52, 50, 18, "" + cs.openMoney)
+				.setIsVisible(!selected.isEmpty())
+				.setMinMaxDefault(0, Integer.MAX_VALUE, cs.openMoney)
+				.setHoverText("bank.hover.open.money"));
 		// upgrade money
-		textField = new GuiNpcTextField(4, this, fontRenderer, x, y + 36, 50, 18, "" + cs.upgradeMoney);
-		textField.setVisible(!selected.isEmpty());
-		textField.setMinMaxDefault(0, Integer.MAX_VALUE, cs.upgradeMoney);
-		textField.setHoverText("bank.hover.upgrade.money");
-		addTextField(textField);
+		addTextField(new GuiNpcTextField(4, this, x, y + 36, 50, 18, "" + cs.upgradeMoney)
+				.setIsVisible(!selected.isEmpty())
+				.setMinMaxDefault(0, Integer.MAX_VALUE, cs.upgradeMoney)
+				.setHoverText("bank.hover.upgrade.money"));
 	}
 
 	@Override
@@ -338,16 +297,6 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 		Client.sendData(EnumPacketServer.BanksGet);
 		isWait = false;
 		waitTime = 30;
-	}
-
-	@Override
-	public void keyTyped(char c, int i) {
-		if (i == 1 && subgui == null) {
-			save();
-			CustomNpcs.proxy.openGui(npc, EnumGuiType.MainMenuGlobal);
-			return;
-		}
-		super.keyTyped(c, i);
 	}
 
 	@Override
@@ -365,7 +314,7 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		if (scroll.getID() == 0 && !scroll.getSelected().equals(selected)) {
 			save();
 			ceil = 0;
@@ -378,26 +327,21 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void scrollDoubleClicked(String selection, IGuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 
 	@Override
-	public void setData(Vector<String> list, HashMap<String, Integer> dataMap) {
+	public void setData(Vector<String> dataList, HashMap<String, Integer> dataMap) {
 		data.clear();
 		data.putAll(dataMap);
-		scroll.setList(list);
+		scroll.setList(dataList);
 		isWait = false;
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		if (bank == null) {
-			bank = new Bank();
-		}
+		if (bank == null) { bank = new Bank(); }
 		bank.readFromNBT(compound);
-		if (compound.hasKey("CurrentCeil", 3)) {
-			ceil = compound.getInteger("CurrentCeil");
-		}
+		if (compound.hasKey("CurrentCeil", 3)) { ceil = compound.getInteger("CurrentCeil"); }
 		container.setBank(bank, ceil);
 		selected = bank.name;
 		isWait = false;
@@ -411,13 +355,11 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 	}
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
-		if (bank.id == -1) {
-			return;
-		}
+	public void unFocused(GuiNpcTextField textField) {
+		if (bank.id == -1) { return; }
 		switch (textField.getID()) {
-			case 0: { // name
-				String name = textField.getFullText();
+			case 0: {
+				String name = textField.getText();
 				if (!name.isEmpty() && !data.containsKey(name)) {
 					String old = bank.name;
 					data.remove(bank.name);
@@ -427,39 +369,39 @@ implements IScrollData, ICustomScrollListener, ITextfieldListener, IGuiData, Gui
 					scroll.replace(old, bank.name);
 				}
 				break;
-			}
-			case 1: { // startCells
+			} // name
+			case 1: {
 				if (!textField.isInteger()) {
-					textField.setFullText("" + textField.getDefault());
+					textField.setText("" + textField.def);
 					return;
 				}
 				bank.ceilSettings.get(ceil).startCells = textField.getInteger();
 				break;
-			}
-			case 2: { // maxCells
+			} // startCells
+			case 2: {
 				if (!textField.isInteger()) {
-					textField.setFullText("" + textField.getDefault());
+					textField.setText("" + textField.def);
 					return;
 				}
 				bank.ceilSettings.get(ceil).maxCells = textField.getInteger();
 				break;
-			}
-			case 3: { // open money
+			} // maxCells
+			case 3: {
 				if (!textField.isInteger()) {
-					textField.setFullText("" + textField.getDefault());
+					textField.setText("" + textField.def);
 					return;
 				}
 				bank.ceilSettings.get(ceil).openMoney = textField.getInteger();
 				break;
-			}
-			case 4: { // upgrade money
+			} // open money
+			case 4: {
 				if (!textField.isInteger()) {
-					textField.setFullText("" + textField.getDefault());
+					textField.setText("" + textField.def);
 					return;
 				}
 				bank.ceilSettings.get(ceil).upgradeMoney = textField.getInteger();
 				break;
-			}
+			} // upgrade money
 		}
 	}
 

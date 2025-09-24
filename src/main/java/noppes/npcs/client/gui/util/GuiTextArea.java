@@ -2,12 +2,14 @@ package noppes.npcs.client.gui.util;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.TextComponentTranslation;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.gui.Gui;
@@ -17,11 +19,9 @@ import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesStringUtils;
 import noppes.npcs.config.TrueTypeFont;
 
-public class GuiTextArea
-extends Gui
-implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
+public class GuiTextArea extends Gui implements IComponentGui {
 
-	private static final TrueTypeFont font = new TrueTypeFont(new Font(CustomNpcs.FontType, Font.PLAIN, CustomNpcs.FontSize), 1.0f);
+	protected static final TrueTypeFont font = new TrueTypeFont(new Font(CustomNpcs.FontType, Font.PLAIN, CustomNpcs.FontSize), 1.0f);
 
 	protected TextContainer container = null;
 	protected ITextChangeListener listener;
@@ -49,17 +49,16 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	public List<UndoData> undoList = new ArrayList<>();
 	public List<UndoData> redoList = new ArrayList<>();
 	public boolean undoing = true;
-	public boolean hovered = false;
 	public boolean freeze = false;
 	public int errorLine = -1;
 
-	public GuiTextArea(int id, int x, int y, int width, int height, String label) {
-		this.id = id;
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-		setFullText(label);
+	public GuiTextArea(int idIn, int xIn, int yIn, int widthIn, int heightIn, String label) {
+		id = idIn;
+		x = xIn;
+		y = yIn;
+		width = widthIn;
+		height = heightIn;
+		setText(label);
 		GuiTextArea.font.setSpecial('\uffff');
 	}
 
@@ -67,7 +66,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		if (s == null || s.isEmpty()) { return;}
 		undoList.add(new UndoData(text, cursorPosition, startSelection, endSelection, scrolledLine));
 		if (undoList.size() > 100) { undoList.remove(0); }
-		setFullText(getSelectionBeforeText() + s + getSelectionAfterText());
+		setText(getSelectionBeforeText() + s + getSelectionAfterText());
 		endSelection = startSelection + s.length();
 		cursorPosition = endSelection;
 		startSelection = endSelection;
@@ -88,13 +87,10 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		while (i < container.lines.size()) {
 			LineData data = container.lines.get(i);
 			if (cursorPosition >= data.start && cursorPosition < data.end) {
-				if (i == 0) {
-					return 0;
-				}
+				if (i == 0) { return 0; }
 				return getSelectionPos(x + 1 + GuiTextArea.font.width(data.text.substring(0, cursorPosition - data.start)), y + 1 + (i - 1 - scrolledLine) * container.lineHeight);
-			} else {
-				++i;
 			}
+			else { ++i; }
 		}
 		return 0;
 	}
@@ -102,8 +98,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	@Override
 	public void render(IEditNPC gui, int xMouse, int yMouse, float partialTicks) {
 		if (!visible) { return; }
-		hovered = xMouse >= x && xMouse <= x + width && yMouse >= y && yMouse <= y + height;
-		if (hovered && !gui.hasSubGui() && !hoverText.isEmpty()) { gui.setHoverText(hoverText); }
+		active = xMouse >= x && xMouse <= x + width && yMouse >= y && yMouse <= y + height;
+		if (active && !gui.hasSubGui() && !hoverText.isEmpty()) { gui.putHoverText(hoverText); }
 		drawRect(x - 1, y - 1, x + width + 1, y + height + 1, new Color(0xFFA0A0A0).getRGB());
 		drawRect(x, y, x + width, y + height, new Color(0xFF000000).getRGB());
 		container.visibleLines = height / container.lineHeight;
@@ -119,9 +115,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 					}
 					setCursor(i, true);
 				}
-			} else if (doubleClicked) {
-				doubleClicked = false;
 			}
+			else if (doubleClicked) { doubleClicked = false; }
 			if (clickScrolling) {
 				clickScrolling = Mouse.isButtonDown(0);
 				int diff = container.linesCount - container.visibleLines;
@@ -142,9 +137,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			if (startSelection != endSelection) {
 				Matcher m = container.regexWord.matcher(text);
 				while (m.find()) {
-					if (m.start() == startSelection && m.end() == endSelection) {
-						wordHeightLight = text.substring(startSelection, endSelection);
-					}
+					if (m.start() == startSelection && m.end() == endSelection) { wordHeightLight = text.substring(startSelection, endSelection); }
 				}
 			}
 			List<LineData> list = new ArrayList<>(container.lines);
@@ -155,7 +148,6 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 					drawRect(x + 1, posY, x + width - 1, posY + container.lineHeight + 1, 0x99CC0000);
 				}
 			}
-
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			for (int j = 0; j < list.size(); ++j) {
@@ -197,7 +189,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 					int yPos = y + (j - scrolledLine) * container.lineHeight + 1;
 					GuiTextArea.font.draw(data.getFormattedString(container.makeup), (x + 1), yPos, 0xFFE0E0E0); // draw text
 
-					if (active && isEnabled() && cursorCounter / 6 % 2 == 0) {
+					if (active && enabled && cursorCounter / 6 % 2 == 0) {
 						if (cursorPosition >= data.start && cursorPosition < data.end) {
 							int posX = x + GuiTextArea.font.width(line.substring(0, cursorPosition - data.start));
 							drawRect(posX + 1, yPos, posX + 2, yPos + 1 + container.lineHeight, 0xFFD0D0D0);
@@ -210,7 +202,6 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 				}
 			}
 			GlStateManager.popMatrix();
-
 			if (hasVerticalScrollbar()) {
 				Minecraft.getMinecraft().getTextureManager().bindTexture(GuiCustomScroll.resource);
 				int sbSize = (int) Math.max((1.0f * container.visibleLines / container.linesCount * height), 2);
@@ -244,11 +235,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		char[] chars = str.toCharArray();
 		for (int i = 0; i < chars.length; ++i) {
 			char c = chars[i];
-			if (c == s) {
-				++found;
-			} else if (c == e && --found == 0) {
-				return i;
-			}
+			if (c == s) { ++found; }
+			else if (c == e && --found == 0) { return i; }
 		}
 		return 0;
 	}
@@ -258,11 +246,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		char[] chars = str.toCharArray();
 		for (int i = chars.length - 1; i >= 0; --i) {
 			char c = chars[i];
-			if (c == e) {
-				++found;
-			} else if (c == s && --found == 0) {
-				return i - chars.length + 1;
-			}
+			if (c == e) { ++found; }
+			else if (c == s && --found == 0) { return i - chars.length + 1; }
 		}
 		return 0;
 	}
@@ -287,9 +272,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 					char[] chars = data.text.toCharArray();
 					for (int j = 1; j <= chars.length; ++j) {
 						int w = GuiTextArea.font.width(data.text.substring(0, j));
-						if (xMouse < lineWidth + (w - lineWidth) / 2) {
-							return data.start + j - 1;
-						}
+						if (xMouse < lineWidth + (w - lineWidth) / 2) { return data.start + j - 1; }
 						lineWidth = w;
 					}
 					return data.end - 1;
@@ -299,54 +282,43 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		return container.text.length();
 	}
 
-	@Override
-	public void setFocus(boolean bo) { }
-
-	@Override
-	public String getFullText() { return text; }
-
-	@Override
-	public void unFocus() {  }
+	public String getText() { return text; }
 
 	public boolean hasVerticalScrollbar() { return container.visibleLines < container.linesCount; }
 
-	public boolean isActive() { return active; }
+	@Override
+	public GuiTextArea setIsEnable(boolean bo) { enabled = bo; return this; }
 
 	@Override
-	public boolean isEnabled() { return enabled && visible; }
+	public List<String> getHoversText() { return Collections.emptyList(); }
 
 	@Override
-	public void setEnabled(boolean bo) { enabled = bo; }
+	public boolean isHovered() { return active; }
 
-	@Override
-	public boolean isHovered() { return hovered; }
-
-	public void keyTyped(char c, int i) {
-		if (!active) { return; }
-		if (GuiScreen.isKeyComboCtrlA(i)) {
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (!active) { return false; }
+		if (GuiScreen.isKeyComboCtrlA(keyCode)) {
 			int n = 0;
 			cursorPosition = n;
 			startSelection = n;
 			endSelection = text.length();
-			return;
+			return true;
 		} // select all
-		if (!isEnabled()) { return; }
-		if (i == 203) {
-			int j = 1;
+		int j;
+		if (keyCode == Keyboard.KEY_LEFT) {
+			j = 1;
 			if (GuiScreen.isCtrlKeyDown()) {
 				Matcher m = container.regexWord.matcher(text.substring(0, cursorPosition));
 				while (m.find()) {
-					if (m.start() == m.end()) {
-						continue;
-					}
+					if (m.start() == m.end()) { continue; }
 					j = cursorPosition - m.start();
 				}
 			}
 			setCursor(cursorPosition - j, GuiScreen.isShiftKeyDown());
-			return;
+			return true;
 		} // left arrow
-		if (i == 205) {
-			int j = 1;
+		if (keyCode == Keyboard.KEY_RIGHT) {
+			j = 1;
 			if (GuiScreen.isCtrlKeyDown()) {
 				Matcher m = container.regexWord.matcher(text.substring(cursorPosition));
 				if ((m.find() && m.start() > 0) || m.find()) {
@@ -354,80 +326,84 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 				}
 			}
 			setCursor(cursorPosition + j, GuiScreen.isShiftKeyDown());
-			return;
+			return true;
 		}// right arrow
-		if (i == 200) {
+		if (keyCode == Keyboard.KEY_UP) {
 			setCursor(cursorUp(), GuiScreen.isShiftKeyDown());
-			return;
+			return true;
 		} // up arrow
-		if (i == 208) {
+		if (keyCode == Keyboard.KEY_DOWN) {
 			setCursor(cursorDown(), GuiScreen.isShiftKeyDown());
-			return;
+			return true;
 		} // down arrow
-		if (i == 211) {
-			String s = this.getSelectionAfterText();
-			if (!s.isEmpty() && this.startSelection == this.endSelection) {
-				s = s.substring(1);
+		String select;
+		if (GuiScreen.isKeyComboCtrlX(keyCode)) {
+			if (startSelection != endSelection) {
+				NoppesStringUtils.setClipboardContents(text.substring(startSelection, endSelection));
+				if (enabled) {
+					select = getSelectionBeforeText();
+					setText(select + getSelectionAfterText());
+					cursorPosition = startSelection = endSelection = select.length();
+				}
 			}
-			setFullText(getSelectionBeforeText() + s);
-			int startSelection = this.startSelection;
+			return true;
+		} // cut
+		if (GuiScreen.isKeyComboCtrlC(keyCode)) {
+			if (startSelection != endSelection) {
+				NoppesStringUtils.setClipboardContents(text.substring(startSelection, endSelection));
+			}
+			return true;
+		} // copy
+		if (!enabled) { return false; }
+		if (keyCode == Keyboard.KEY_DELETE) {
+			select = getSelectionAfterText();
+			if (!select.isEmpty() && startSelection == endSelection) { select = select.substring(1); }
+			setText(getSelectionBeforeText() + select);
 			cursorPosition = startSelection;
 			endSelection = startSelection;
-			return;
+			return true;
 		} // delete
-		if (i == 14) {
-			String s = this.getSelectionBeforeText();
+		if (keyCode == Keyboard.KEY_BACK) {
+			select = getSelectionBeforeText();
 			if (startSelection > 0 && startSelection == endSelection) {
-				s = s.substring(0, s.length() - 1);
+				select = select.substring(0, select.length() - 1);
 				--startSelection;
 			}
-			setFullText(s + getSelectionAfterText());
+			setText(select + getSelectionAfterText());
 			cursorPosition = startSelection;
 			endSelection = startSelection;
-			return;
+			return true;
 		} // backspace
-		if (GuiScreen.isKeyComboCtrlX(i)) {
-			if (startSelection != endSelection) {
-				NoppesStringUtils.setClipboardContents(text.substring(startSelection, endSelection));
-				String s = getSelectionBeforeText();
-				setFullText(s + getSelectionAfterText());
-				int length = s.length();
-				cursorPosition = length;
-				startSelection = length;
-				endSelection = length;
-			}
-			return;
-		} // cut
-		if (GuiScreen.isKeyComboCtrlC(i)) {
-			if (startSelection != endSelection) {
-				NoppesStringUtils.setClipboardContents(text.substring(startSelection, endSelection));
-			}
-			return;
-		} // copy
-		if (GuiScreen.isKeyComboCtrlV(i)) {
+		if (GuiScreen.isKeyComboCtrlV(keyCode)) {
 			addText(NoppesStringUtils.getClipboardContents());
-			return;
+			return true;
 		} // parse
-		if (i == 44 && GuiScreen.isCtrlKeyDown()) {
-			if (undoList.isEmpty()) { return; }
-			redoList.add(new UndoData(text, cursorPosition, startSelection, endSelection, scrolledLine));
-			setUndoData(undoList.remove(undoList.size() - 1));
+		if (keyCode == Keyboard.KEY_Z && GuiScreen.isCtrlKeyDown()) {
+			if (!undoList.isEmpty()) {
+				redoList.add(new UndoData(text, cursorPosition, startSelection, endSelection, scrolledLine));
+				setUndoData(undoList.remove(undoList.size() - 1));
+			}
+			return true;
         } // undo (Ctrl+Z)
-		if (i == 21 && GuiScreen.isCtrlKeyDown()) {
-			if (redoList.isEmpty()) { return; }
-			undoList.add(new UndoData(text, cursorPosition, startSelection, endSelection, scrolledLine));
-			if (undoList.size() > 100) { undoList.remove(0); }
-			setUndoData(redoList.remove(redoList.size() - 1));
-			return;
+		if (keyCode == Keyboard.KEY_Y && GuiScreen.isCtrlKeyDown()) {
+			if (!redoList.isEmpty()) {
+				undoList.add(new UndoData(text, cursorPosition, startSelection, endSelection, scrolledLine));
+				if (undoList.size() > 100) { undoList.remove(0); }
+				setUndoData(redoList.remove(redoList.size() - 1));
+			}
+			return true;
 		} // redo (Ctrl+Y)
-		if (i == 15) { addText("	"); } // Tab
-		if (i == 28) { addText('\n' + getIndentCurrentLine()); } // Enter
-		if (ChatAllowedCharacters.isAllowedCharacter(c)) { addText(Character.toString(c)); }
+		if (keyCode == Keyboard.KEY_TAB) { addText("\t"); } // Tab
+		if (keyCode == Keyboard.KEY_RETURN || keyCode == Keyboard.KEY_NUMPADENTER) {
+			addText('\n' + getIndentCurrentLine());
+		} // Enter
+		if (ChatAllowedCharacters.isAllowedCharacter(typedChar)) { addText(Character.toString(typedChar)); }
+		return true;
     }
 
 	private void setUndoData(UndoData data) {
 		undoing = true;
-		setFullText(data.text);
+		setText(data.text);
 		undoing = false;
 		cursorPosition = data.cursorPosition;
 		startSelection = data.startSelection;
@@ -446,21 +422,22 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	}
 
 	@Override
-	public boolean mouseClicked(int xMouse, int yMouse, int mouseButton) {
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
 		if (freeze) { return false; }
-		active = (xMouse >= x && xMouse < x + width && yMouse >= y && yMouse < y + height);
+		active = (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height);
 		if (active) {
-			int selectionPos = getSelectionPos(xMouse, yMouse);
+			int selectionPos = getSelectionPos(mouseX, mouseY);
 			cursorPosition = selectionPos;
 			endSelection = selectionPos;
 			startSelection = selectionPos;
 			clicked = (mouseButton == 0);
 			doubleClicked = false;
 			long time = System.currentTimeMillis();
-			if (clicked && container.linesCount * container.lineHeight > height && xMouse > x + width - 8) {
+			if (clicked && container.linesCount * container.lineHeight > height && mouseX > x + width - 8) {
 				clicked = false;
 				clickScrolling = true;
-			} else if (time - lastClicked < 500L) {
+			}
+			else if (time - lastClicked < 500L) {
 				doubleClicked = true;
 				Matcher m = container.regexWord.matcher(text);
 				while (m.find()) {
@@ -476,11 +453,12 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		return active;
 	}
 
+	@Override
+	public boolean mouseCnpcsReleased(int mouseX, int mouseY, int state) { return false; }
+
 	private void setCursor(int i, boolean select) {
 		i = Math.min(Math.max(i, 0), text.length());
-		if (i == cursorPosition) {
-			return;
-		}
+		if (i == cursorPosition) { return; }
 		if (!select) {
             cursorPosition = i;
 			startSelection = i;
@@ -488,11 +466,8 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			return;
 		}
 		int diff = cursorPosition - i;
-		if (cursorPosition == startSelection) {
-			startSelection -= diff;
-		} else if (cursorPosition == endSelection) {
-			endSelection -= diff;
-		}
+		if (cursorPosition == startSelection) { startSelection -= diff; }
+		else if (cursorPosition == endSelection) { endSelection -= diff; }
 		if (startSelection > endSelection) {
 			int j = endSelection;
 			endSelection = startSelection;
@@ -501,10 +476,9 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		cursorPosition = i;
 	}
 
-	public void setListener(ITextChangeListener gui) { listener = gui; }
+	public GuiTextArea setListener(ITextChangeListener gui) { listener = gui; return this; }
 
-	@Override
-	public void setFullText(String newText) {
+	public void setText(String newText) {
 		CustomNpcs.debugData.start(null);
 		newText = newText.replace("\r", "");
 		if (text != null && text.equals(newText)) { return; }
@@ -518,62 +492,7 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 		CustomNpcs.debugData.end(null);
 	}
 
-	@Override
-	public int getInteger() { return 0; }
-
-	@Override
-	public long getLong() { return 0; }
-
-	@Override
-	public double getDouble() { return 0; }
-
-	@Override
-	public boolean isDouble() { return false; }
-
-	@Override
-	public boolean isEmpty() { return false; }
-
-	@Override
-	public long getDefault() { return 0; }
-
-	@Override
-	public double getDoubleDefault() { return 0; }
-
-	@Override
-	public boolean isInteger() { return false; }
-
-	@Override
-	public boolean isLong() { return false; }
-
-	@Override
-	public void setMinMaxDefault(long minValue, long maxValue, long defaultValue) { }
-
-	@Override
-	public boolean isLatinAlphabetOnly() { return false; }
-
-	@Override
-	public void setLatinAlphabetOnly(boolean latinAlphabetOnly) { }
-
-	@Override
-	public void setMinMaxDoubleDefault(double minValue, double maxValue, double defaultValue) { }
-
-	@Override
-	public boolean isAllowUppercase() { return false; }
-
-	@Override
-	public void setAllowUppercase(boolean allowUppercase) { }
-
-	@Override
-	public long getMax() { return 0; }
-
-	@Override
-	public long getMin() { return 0; }
-
-	@Override
-	public double getDoubleMax() { return 0; }
-
-	@Override
-	public double getDoubleMin() { return 0; }
+	public boolean isEmpty() { return text.isEmpty(); }
 
 	@Override
 	public int getID() { return id; }
@@ -582,9 +501,9 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 	public int[] getCenter() { return new int[] { x + width / 2, y + height  / 2}; }
 
 	@Override
-	public void setHoverText(String text, Object ... args) {
+	public GuiTextArea setHoverText(String text, Object ... args) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return; }
+		if (text == null || text.isEmpty()) { return this; }
 		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
 		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
 		while (text.contains("<br>")) {
@@ -592,42 +511,20 @@ implements IComponentGui, IKeyListener, IMouseListener, IGuiTextArea {
 			text = text.substring(text.indexOf("<br>") + 4);
 		}
 		hoverText.add(text);
+		return this;
 	}
 
 	@Override
-	public int getLeft() { return x; }
+	public GuiTextArea setIsVisible(boolean bo) { visible = bo; return this; }
 
 	@Override
-	public int getTop() { return y; }
+	public void moveTo(int addX, int addY) {
+		x += addX;
+		y += addY;
+	}
 
 	@Override
-	public void setLeft(int left) { x = left; }
-
-	@Override
-	public void setTop(int top) { y = top; }
-
-	@Override
-	public int getWidth() { return width; }
-
-	@Override
-	public int getHeight() { return height; }
-
-	@Override
-	public void customKeyTyped(char c, int id) { keyTyped(c, id); }
-
-	@Override
-	public void customMouseClicked(int mouseX, int mouseY, int mouseButton) { mouseClicked(mouseX, mouseY, mouseButton); }
-
-	@Override
-	public void customMouseReleased(int mouseX, int mouseY, int mouseButton) { }
-
-	@Override
-	public boolean isVisible() { return visible; }
-
-	@Override
-	public void setIsVisible(boolean bo) { visible = bo; }
-
-	public void updateScreen() {
+	public void updateCnpcsScreen() {
 		++cursorCounter;
 		if (freeze) { return; }
 		int dWheel = Mouse.getDWheel();

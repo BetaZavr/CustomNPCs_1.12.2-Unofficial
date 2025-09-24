@@ -24,14 +24,11 @@ import net.minecraftforge.fml.client.config.GuiEditArrayEntries;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import net.minecraftforge.fml.client.config.IConfigElement;
 import noppes.npcs.CustomNpcs;
-import noppes.npcs.client.gui.SubGuiColorSelector;
-import noppes.npcs.client.gui.util.ISubGuiListener;
+import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.util.Util;
 
-public class CustomNpcsConfigGui
-extends GuiConfig
-implements ISubGuiListener {
+public class CustomNpcsConfigGui extends GuiConfig {
 
 	public static class ColorEntry extends ButtonEntry {
 
@@ -41,9 +38,7 @@ implements ISubGuiListener {
 		public ColorEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {
 			super(owningScreen, owningEntryList, configElement);
 			String value = configElement.get().toString();
-			if (value.length() > 6) {
-				value = value.substring(0, 6);
-			}
+			if (value.length() > 6) { value = value.substring(0, 6); }
 			beforeValue = value;
 			currentValue = value;
 			btnValue.enabled = enabled();
@@ -56,22 +51,18 @@ implements ISubGuiListener {
 				boolean isSelected, float partial) {
 			btnValue.visible = false;
 			super.drawEntry(slotIndex, x, y, listWidth, slotHeight, mouseX, mouseY, isSelected, partial);
-
 			btnValue.width = (int) ((float) (owningEntryList.controlWidth - 2) * 0.75f);
 			btnValue.x = owningScreen.entryList.controlX;
 			btnValue.y = y;
 			btnValue.enabled = enabled();
 			btnValue.visible = true;
-			btnValue.drawButton(this.mc, mouseX, mouseY, partial);
-
+			btnValue.drawButton(mc, mouseX, mouseY, partial);
 			int left = btnValue.x + btnValue.width + 2;
 			int right = left + (owningEntryList.controlWidth - btnValue.width) - 2;
 			GuiUtils.drawGradientRect(0, left, y, right, y + 18, 0xFF000000, 0xFF000000);
 			int color = (int) Long.parseLong(currentValue, 16);
 			float alpha = (float) (color >> 24 & 255) / 255.0F;
-			if (alpha == 0.0f) {
-				color += 0xFF000000;
-			}
+			if (alpha == 0.0f) { color += 0xFF000000; }
 			GuiUtils.drawGradientRect(0, left + 1, y + 1, right - 1, y + 17, color, color);
 		}
 
@@ -81,7 +72,7 @@ implements ISubGuiListener {
 
 		@Override
 		public Object getCurrentValue() {
-			return this.currentValue;
+			return currentValue;
 		}
 
 		@Override
@@ -96,18 +87,17 @@ implements ISubGuiListener {
 
 		@Override
 		public boolean isDefault() {
-			return configElement.getDefault() != null ? configElement.getDefault().toString().equals(currentValue)
-					: currentValue.trim().isEmpty();
+			return configElement.getDefault() != null ? configElement.getDefault().toString().equals(currentValue) : currentValue.trim().isEmpty();
 		}
 
 		@Override
 		public boolean saveConfigElement() {
 			if (enabled()) {
-				if (isChanged() && this.isValidValue) {
-					this.configElement.set(this.currentValue);
+				if (isChanged() && isValidValue) {
+					configElement.set(currentValue);
 					return configElement.requiresMcRestart();
-				} else if (isChanged() && !this.isValidValue) {
-					this.configElement.setToDefault();
+				} else if (isChanged() && !isValidValue) {
+					configElement.setToDefault();
 					return configElement.requiresMcRestart() && beforeValue != null
 							? beforeValue.equals(configElement.getDefault())
 							: configElement.getDefault() == null;
@@ -155,45 +145,35 @@ implements ISubGuiListener {
 
 	public static class CustomArrayEntry extends ArrayEntry {
 
-		public CustomArrayEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList,
-				IConfigElement configElement) {
+		public CustomArrayEntry(GuiConfig owningScreen, GuiConfigEntries owningEntryList, IConfigElement configElement) {
 			super(owningScreen, owningEntryList, configElement);
 		}
 
 		@Override
 		public void valueButtonPressed(int slotIndex) {
-			mc.displayGuiScreen(new CustomNpcsConfigGui.CustomGuiEditArray(owningScreen, configElement, slotIndex,
-					currentValues, enabled()));
+			mc.displayGuiScreen(new CustomNpcsConfigGui.CustomGuiEditArray(owningScreen, configElement, slotIndex, currentValues, enabled()));
 		}
 	}
 
-	public static class CustomGuiEditArray extends GuiEditArray implements ISubGuiListener {
+	public static class CustomGuiEditArray extends GuiEditArray {
 
 		public static SubGuiInterface subGui;
 
-		public CustomGuiEditArray(GuiScreen parentScreen, IConfigElement configElement, int slotIndex,
-				Object[] currentValues, boolean enabled) {
+		public CustomGuiEditArray(GuiScreen parentScreen, IConfigElement configElement, int slotIndex, Object[] currentValues, boolean enabled) {
 			super(parentScreen, configElement, slotIndex, currentValues, enabled);
 		}
 
 		@Override
-		protected GuiEditArrayEntries createEditArrayEntries() {
-			return new CustomGuiEditArrayEntries(this, this.mc, this.configElement, this.beforeValues,
-					this.currentValues);
-		}
+		protected GuiEditArrayEntries createEditArrayEntries() { return new CustomGuiEditArrayEntries(this, mc, configElement, beforeValues, currentValues); }
 
 		@Override
 		public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 			if (subGui != null) {
-				this.drawDefaultBackground();
+				drawDefaultBackground();
 				subGui.drawScreen(mouseX, mouseY, partialTicks);
-				this.drawCenteredString(this.fontRenderer, this.title, this.width / 2, 8, 16777215);
-				if (this.titleLine2 != null) {
-					this.drawCenteredString(this.fontRenderer, this.titleLine2, this.width / 2, 18, 16777215);
-				}
-				if (this.titleLine3 != null) {
-					this.drawCenteredString(this.fontRenderer, this.titleLine3, this.width / 2, 28, 16777215);
-				}
+				drawCenteredString(fontRenderer, title, width / 2, 8, 16777215);
+				if (titleLine2 != null) { drawCenteredString(fontRenderer, titleLine2, width / 2, 18, 16777215); }
+				if (titleLine3 != null) { drawCenteredString(fontRenderer, titleLine3, width / 2, 28, 16777215); }
 				return;
 			}
 			super.drawScreen(mouseX, mouseY, partialTicks);
@@ -203,8 +183,8 @@ implements ISubGuiListener {
 		public void initGui() {
 			super.initGui();
 			if (subGui != null) {
-				subGui.width = this.width;
-				subGui.height = this.height;
+				subGui.width = width;
+				subGui.height = height;
 				subGui.initGui();
 			}
 		}
@@ -212,17 +192,16 @@ implements ISubGuiListener {
 		@Override
 		public void keyTyped(char eventChar, int eventKey) {
 			if (subGui != null) {
-				subGui.keyTyped(eventChar, eventKey);
+				subGui.keyCnpcsPressed(eventChar, eventKey);
 				return;
 			}
 			super.keyTyped(eventChar, eventKey);
-
 		}
 
 		@Override
 		public void mouseClicked(int x, int y, int mouseEvent) throws IOException {
 			if (subGui != null) {
-				subGui.mouseClicked(x, y, mouseEvent);
+				subGui.mouseCnpcsPressed(x, y, mouseEvent);
 				return;
 			}
 			super.mouseClicked(x, y, mouseEvent);
@@ -231,13 +210,12 @@ implements ISubGuiListener {
 		@Override
 		public void mouseReleased(int x, int y, int mouseEvent) {
 			if (subGui != null) {
-				subGui.mouseReleased(x, y, mouseEvent);
+				subGui.mouseCnpcsReleased(x, y, mouseEvent);
 				return;
 			}
 			super.mouseReleased(x, y, mouseEvent);
 		}
 
-		@Override
 		public void subGuiClosed(SubGuiInterface subgui) {
 			String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
 			if (subgui.getObject() instanceof CustomGuiEditArrayEntries.ColorEntry) {
@@ -250,11 +228,10 @@ implements ISubGuiListener {
 		}
 	}
 
-	public static SubGuiInterface subGui;
+	public static SubGuiInterface subGui = null;
 
 	public CustomNpcsConfigGui(GuiScreen parentScreen, List<IConfigElement> elementsList, String modName) {
 		super(parentScreen, elementsList, modName, false, false, modName);
-		subGui = null;
 	}
 
 	@Override
@@ -262,25 +239,18 @@ implements ISubGuiListener {
 		if (subGui != null) {
 			drawDefaultBackground();
 			subGui.drawScreen(mouseX, mouseY, partialTicks);
-			drawCenteredString(this.fontRenderer, this.title, this.width / 2, 8, 0xFFFFFFFF);
-			if (subGui.object instanceof ColorEntry) {
-				drawCenteredString(this.fontRenderer, ((ColorEntry) subGui.object).getName(), this.width / 2, 18,
-						0xFFA0A0A0);
-			}
-			String title2 = this.titleLine2;
+			drawCenteredString(fontRenderer, title, width / 2, 8, 0xFFFFFFFF);
+			if (subGui.object instanceof ColorEntry) { drawCenteredString(fontRenderer, ((ColorEntry) subGui.object).getName(), width / 2, 18, 0xFFA0A0A0); }
+			String title2 = titleLine2;
 			if (title2 != null) {
 				int strWidth = mc.fontRenderer.getStringWidth(title2);
 				int ellipsisWidth = mc.fontRenderer.getStringWidth("...");
-				if (strWidth > width - 6 && strWidth > ellipsisWidth) {
-					title2 = mc.fontRenderer.trimStringToWidth(title2, width - 6 - ellipsisWidth).trim() + "...";
-				}
-				this.drawCenteredString(this.fontRenderer, title2, this.width / 2, 18, 16777215);
+				if (strWidth > width - 6 && strWidth > ellipsisWidth) { title2 = mc.fontRenderer.trimStringToWidth(title2, width - 6 - ellipsisWidth).trim() + "..."; }
+				drawCenteredString(fontRenderer, title2, width / 2, 18, 0xFFFFFF);
 			}
-
-			this.btnUndoAll.enabled = this.entryList.areAnyEntriesEnabled(this.chkApplyGlobally.isChecked())
-					&& this.entryList.hasChangedEntry(this.chkApplyGlobally.isChecked());
-			this.btnDefaultAll.enabled = this.entryList.areAnyEntriesEnabled(this.chkApplyGlobally.isChecked())
-					&& !this.entryList.areAllEntriesDefault(this.chkApplyGlobally.isChecked());
+			btnUndoAll.enabled = entryList.areAnyEntriesEnabled(chkApplyGlobally.isChecked()) && entryList.hasChangedEntry(chkApplyGlobally.isChecked());
+			btnDefaultAll.enabled = entryList.areAnyEntriesEnabled(chkApplyGlobally.isChecked())
+					&& !entryList.areAllEntriesDefault(chkApplyGlobally.isChecked());
 
 			if (undoHoverChecker.checkHover(mouseX, mouseY)) {
 				drawToolTip(Arrays.asList(I18n.format("fml.configgui.tooltip.undoAll").split("\n")), mouseX, mouseY);
@@ -289,8 +259,7 @@ implements ISubGuiListener {
 				drawToolTip(Arrays.asList(I18n.format("fml.configgui.tooltip.resetAll").split("\n")), mouseX, mouseY);
 			}
 			if (checkBoxHoverChecker.checkHover(mouseX, mouseY)) {
-				drawToolTip(Arrays.asList(I18n.format("fml.configgui.tooltip.applyGlobally").split("\n")), mouseX,
-						mouseY);
+				drawToolTip(Arrays.asList(I18n.format("fml.configgui.tooltip.applyGlobally").split("\n")), mouseX, mouseY);
 			}
 			return;
 		}
@@ -303,13 +272,19 @@ implements ISubGuiListener {
 		String name = "";
 		for (String str : stringList) {
 			if (name != null) {
-				if (name.isEmpty()) {
-					name = str.toLowerCase();
-				} else {
-					newToolTip.add(((char) 167) + "e"
-							+ new TextComponentTranslation(
-									"property." + Util.instance.deleteColor(name) + ".hover")
-											.getFormattedText());
+				if (name.isEmpty()) { name = Util.instance.deleteColor(str.toLowerCase()); }
+				else {
+					String c = "";
+					if (name.contains("charcurrencies") || name.contains("chardonation")) {
+						for (IConfigEntry configEntry : entryList.listEntries) {
+							if (configEntry.getName().equalsIgnoreCase(name)) {
+								try { c = "" + ((char) Integer.parseInt((String) configEntry.getCurrentValue(), 16)); }
+								catch (Exception e) { c = "" + ((String) configEntry.getCurrentValue()).charAt(0); }
+								break;
+							}
+						}
+					}
+					newToolTip.add(((char) 167) + "e" + new TextComponentTranslation("property." + name + ".hover", c).getFormattedText());
 					name = null;
 					continue;
 				}
@@ -323,26 +298,22 @@ implements ISubGuiListener {
 	public void initGui() {
 		super.initGui();
 		if (subGui != null) {
-			subGui.width = this.width;
-			subGui.height = this.height;
+			subGui.width = width;
+			subGui.height = height;
 			subGui.initGui();
 		}
 		int i = -1;
 		List<IConfigEntry> list = new ArrayList<>(entryList.listEntries);
 		for (IConfigEntry entry : list) {
 			i++;
-			if (entry.getConfigElement().getType() != ConfigGuiType.COLOR) {
-				continue;
-			}
+			if (entry.getConfigElement().getType() != ConfigGuiType.COLOR) { continue; }
 			if (entry.getClass() == StringEntry.class) {
 				entryList.listEntries.remove(entry);
-				entryList.listEntries.add(i,
-						new CustomNpcsConfigGui.ColorEntry(this, entryList, entry.getConfigElement()));
+				entryList.listEntries.add(i, new CustomNpcsConfigGui.ColorEntry(this, entryList, entry.getConfigElement()));
 			}
 			if (entry.getClass() == ArrayEntry.class) {
 				entryList.listEntries.remove(entry);
-				entryList.listEntries.add(i,
-						new CustomNpcsConfigGui.CustomArrayEntry(this, entryList, entry.getConfigElement()));
+				entryList.listEntries.add(i, new CustomNpcsConfigGui.CustomArrayEntry(this, entryList, entry.getConfigElement()));
 			}
 		}
 	}
@@ -350,7 +321,7 @@ implements ISubGuiListener {
 	@Override
 	public void keyTyped(char eventChar, int eventKey) {
 		if (subGui != null) {
-			subGui.keyTyped(eventChar, eventKey);
+			subGui.keyCnpcsPressed(eventChar, eventKey);
 			return;
 		}
 		super.keyTyped(eventChar, eventKey);
@@ -360,7 +331,7 @@ implements ISubGuiListener {
 	@Override
 	public void mouseClicked(int x, int y, int mouseEvent) throws IOException {
 		if (subGui != null) {
-			subGui.mouseClicked(x, y, mouseEvent);
+			subGui.mouseCnpcsPressed(x, y, mouseEvent);
 			return;
 		}
 		super.mouseClicked(x, y, mouseEvent);
@@ -369,7 +340,7 @@ implements ISubGuiListener {
 	@Override
 	public void mouseReleased(int x, int y, int mouseEvent) {
 		if (subGui != null) {
-			subGui.mouseReleased(x, y, mouseEvent);
+			subGui.mouseCnpcsReleased(x, y, mouseEvent);
 			return;
 		}
 		super.mouseReleased(x, y, mouseEvent);
@@ -379,10 +350,10 @@ implements ISubGuiListener {
 	public void onGuiClosed() {
 		CustomNpcs.Config.resetData();
 		CustomNpcs.Config.config.save();
+		CustomNpcs.resetChars(CustomNpcs.CharCurrencies, CustomNpcs.CharDonation);
 		super.onGuiClosed();
 	}
 
-	@Override
 	public void subGuiClosed(SubGuiInterface subgui) {
 		String color = ((SubGuiColorSelector) subgui).getColor().toUpperCase();
 		if (subgui.getObject() instanceof ColorEntry) {

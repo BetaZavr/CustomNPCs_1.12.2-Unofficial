@@ -9,6 +9,9 @@ import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
@@ -24,7 +27,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.RoleType;
-import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.event.CustomGuiEvent;
 import noppes.npcs.api.event.ItemEvent;
@@ -560,186 +562,186 @@ public class PacketHandlerPlayer {
 			PlayerOverlayHUD hud = data.hud;
 			NBTTagCompound compound = Server.readNBT(buffer);
 			hud.setWindowSize(compound.getTagList("WindowSize", 6));
-		} else if (type == EnumPlayerPacket.TraderMarketBuy) {
-			Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
+		}
+		else if (type == EnumPlayerPacket.TraderMarketBuy) {
+			int marcetID = buffer.readInt();
+			Marcet marcet = MarcetController.getInstance().getMarcet(marcetID);
 			if (marcet == null || marcet.notHasListener(player)) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 				return;
 			}
-			Deal deal = marcet.getDeal(buffer.readInt());
-			if (deal == null || deal.getType() == 1 || deal.getProduct().isEmpty()) {
+			int dealID = buffer.readInt();
+			Deal deal = marcet.getDeal(dealID);
+			if (deal == null || deal.getType() == 1) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 				return;
 			}
-			boolean canGiveItem = deal.availability.isAvailable(player);
-			DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal,
-					data.game.getMarcetLevel(marcet.getId()));
-			if (!player.capabilities.isCreativeMode) {
-				// Has Money
-				if (canGiveItem && dm.buyMoney > data.game.getMoney()) {
-					canGiveItem = false;
-				}
-				// Has Items
-				if (canGiveItem) {
-					canGiveItem = Util.instance.canRemoveItems(player.inventory.mainInventory, dm.buyItems,
-							dm.ignoreDamage, dm.ignoreNBT);
-				}
-			}
-			Entity entity = player.world.getEntityByID(buffer.readInt());
-			ICustomNpc<?> npc = null;
-			if (entity instanceof EntityNPCInterface) {
-				npc = (ICustomNpc<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
-			}
-			if (!canGiveItem) {
-                assert npc != null;
-                EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(),
-						new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.buyItems));
-				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
-				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				return;
-			}
-			if (!player.capabilities.isCreativeMode) {
-				// Del Money
-                data.game.addMoney(-1 * dm.buyMoney);
-                // Del Items
-				for (ItemStack st : dm.buyItems.keySet()) {
-					Util.instance.removeItem(player, st, dm.buyItems.get(st), dm.ignoreDamage, dm.ignoreNBT);
-				}
-			}
-			// Give
-			if (deal.getMaxCount() > 0 && deal.getAmount() < dm.count) {
-				dm.count = deal.getAmount();
-				if (dm.count == 0) { // GM
-					dm.count = dm.main.getCount();
-				}
-			}
-			boolean bo = false;
-			ItemStack stack = dm.main.copy();
-			if (dm.count > dm.main.getMaxStackSize()) {
-				int c = dm.count;
-				while (c > 0) {
-					stack = dm.main.copy();
-                    stack.setCount(Math.min(c, dm.main.getMaxStackSize()));
-					c -= dm.main.getMaxStackSize();
-					boolean b = player.inventory.addItemStackToInventory(stack);
-					if (b && !bo) {
-						bo = true;
-					}
-				}
-			} else {
-				stack.setCount(dm.count);
-				bo = dm.count > 0 && player.inventory.addItemStackToInventory(stack);
-			}
-			assert npc != null;
-			if (bo) {
-				if (deal.getMaxCount() != 0) {
-					deal.setAmount(deal.getAmount() - dm.count);
-				}
-				if (CustomNpcs.SendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.buy", dm.main.getDisplayName() + " x" + dm.count)); }
-				NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-				Util.instance.updatePlayerInventory(player);
-				data.game.addMarkupXP(marcet.getId(), 5);
-                EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(),
-						new RoleEvent.TraderEvent(player, npc, dm.main, dm.buyItems));
-				marcet.detectAndSendChanges();
-			} else {
-                EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.buyItems));
-				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
-			}
-			//CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 150);
-			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-		} else if (type == EnumPlayerPacket.TraderMarketSell) {
-			Marcet marcet = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
-			if (marcet == null || marcet.notHasListener(player)) {
-				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
-				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				return;
-			}
-			Deal deal = marcet.getDeal(buffer.readInt());
-			if (deal == null || deal.getType() == 0 || deal.getProduct().isEmpty()) {
-				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
-				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-				return;
-			}
-			DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal,
-					data.game.getMarcetLevel(marcet.getId()));
-			Entity entity = player.world.getEntityByID(buffer.readInt());
-			ICustomNpc<?> npc = null;
-			if (entity instanceof EntityNPCInterface) {
-				npc = (ICustomNpc<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
-			}
+			int npcID = buffer.readInt();
+			int count = buffer.readInt();
+			DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal, data.game.getMarcetLevel(marcet.getId()), count);
+			boolean notGiveItem = !deal.availability.isAvailable(player) ||
+					dm.buyMoney < data.game.getMoney() || // has money
+					dm.buyDonat < data.game.getDonat() || // has donal
+					!Util.instance.canRemoveItems(player.inventory.mainInventory, dm.buyItems, dm.ignoreDamage, dm.ignoreNBT); // has items
 			if (marcet.isLimited) {
-				boolean notSell = false;
-				if (marcet.money < dm.sellMoney) {
-					notSell = true;
-				} else {
-					marcet.money -= dm.sellMoney;
-				}
-				if (!notSell && !dm.sellItems.isEmpty() && !Util.instance.canRemoveItems(marcet.inventory,
-						dm.sellItems, dm.ignoreDamage, dm.ignoreNBT)) {
-					notSell = true;
-				} else {
-					marcet.removeInventoryItems(dm.sellItems);
-				}
-				if (notSell) {
+				boolean notBuy = false;
+				Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
+				mainItem.put(dm.main, dm.count);
+				if (!deal.isCase() && !Util.instance.canRemoveItems(marcet.inventory, mainItem, dm.ignoreDamage, dm.ignoreNBT)) { notBuy = true; }
+				if (notBuy) {
 					marcet.detectAndSendChanges();
+					Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+					Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+					player.sendMessage(new TextComponentTranslation("marcet.message.not.deal"));
+					return;
+				}
+				marcet.money += dm.sellMoney;
+				if (!deal.isCase()) { marcet.removeInventoryItems(mainItem); }
+			}
+			EntityNPCInterface npc = null;
+			Entity entity = player.world.getEntityByID(npcID);
+			if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
+
+			if (!player.isCreative()) {
+				if (notGiveItem) {
+					if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TradeFailedEvent(player, npc.wrappedNPC, dm.main, dm.buyItems)); }
 					Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 					Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 					return;
 				}
+				data.game.addMoney(-1 * dm.buyMoney); // remove money
+				data.game.addDonat(-1 * dm.buyDonat); // remove donat
+				// Del Items
+				for (ItemStack st : dm.buyItems.keySet()) { Util.instance.removeItem(player, st, dm.buyItems.get(st), dm.ignoreDamage, dm.ignoreNBT); }
 			}
-			if (player.capabilities.isCreativeMode
-					|| Util.instance.removeItem(player, dm.main, dm.ignoreDamage, dm.ignoreNBT)) {
+			boolean bo;
+			if (deal.isCase()) {
+				List<ItemStack> addedTo = new ArrayList<>();
+				double baseChance = 1.0d;
+				IAttributeInstance l = player.getEntityAttribute(SharedMonsterAttributes.LUCK);
+				if (l != null) {
+					double luck = l.getAttributeValue();
+					if (luck != 0.0d) {
+						if (luck < 0) {
+							luck *= -1;
+							baseChance -= luck * luck * -0.005555d + luck * 0.255555d; // 1lv = 25%$ 10lv = 200%
+						}
+						else { baseChance += luck * luck * -0.005555d + luck * 0.255555d; } // 1lv = 25%$ 10lv = 200%
+					}
+				}
+				for (int i = 0; i < count; i++) { addedTo.addAll(deal.createCaseItems(baseChance)); }
+				for (ItemStack stack : addedTo) { spawnItem(player, stack); }
+				bo = !addedTo.isEmpty();
+				if (bo) { Server.sendData(player, EnumPacketClient.GUI_OPEN_CASE, dealID, addedTo); }
+			}
+			else {
+				bo = true;
+				ItemStack stack = dm.main.copy();
+				if (dm.count > dm.main.getMaxStackSize()) {
+					while (dm.count > 0) {
+						stack = dm.main.copy();
+						stack.setCount(Math.min(dm.count, dm.main.getMaxStackSize()));
+						dm.count -= dm.main.getMaxStackSize();
+						spawnItem(player, stack);
+					}
+				}
+				else {
+					stack.setCount(dm.count);
+					spawnItem(player, stack);
+				}
+			}
+			if (bo) {
+				if (deal.getMaxCount() != 0) { deal.setAmount(deal.getAmount() - dm.count); }
+				if (CustomNpcs.SendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.buy", dm.main.getDisplayName() + " x" + dm.count)); }
+				NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+				Util.instance.updatePlayerInventory(player);
+				data.game.addMarkupXP(marcet.getId(), 5);
+				if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TraderEvent(player, npc.wrappedNPC, dm.main, dm.buyItems)); }
+				marcet.detectAndSendChanges();
+			}
+			else if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TradeFailedEvent(player, npc.wrappedNPC, dm.main, dm.buyItems)); }
+			Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+		}
+		else if (type == EnumPlayerPacket.TraderMarketSell) {
+			int marcetID = buffer.readInt();
+			Marcet marcet = MarcetController.getInstance().getMarcet(marcetID);
+			if (marcet == null || marcet.notHasListener(player)) {
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+				return;
+			}
+			int dealID = buffer.readInt();
+			Deal deal = marcet.getDeal(dealID);
+			if (deal == null || deal.getType() == 1) {
+				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+				return;
+			}
+			int npcID = buffer.readInt();
+			int count = buffer.readInt();
+			DealMarkup dm = MarcetController.getInstance().getBuyData(marcet, deal, data.game.getMarcetLevel(marcet.getId()), count);
+			Entity entity = player.world.getEntityByID(npcID);
+			EntityNPCInterface npc = null;
+			if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
+			if (marcet.isLimited) {
+				boolean notSell = marcet.money < dm.sellMoney;
+				if (!notSell && !dm.sellItems.isEmpty() &&
+						!Util.instance.canRemoveItems(marcet.inventory, dm.sellItems, dm.ignoreDamage, dm.ignoreNBT)) { notSell = true; }
+				if (notSell) {
+					marcet.detectAndSendChanges();
+					Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
+					Server.sendData(player, EnumPacketClient.GUI_UPDATE);
+					player.sendMessage(new TextComponentTranslation("marcet.message.not.deal"));
+					return;
+				}
+				marcet.money -= dm.sellMoney;
+				Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
+				mainItem.put(dm.main, dm.count);
+				marcet.addInventoryItems(mainItem);
+				marcet.removeInventoryItems(dm.sellItems);
+			}
+			if (player.isCreative() || Util.instance.removeItem(player, dm.main, dm.ignoreDamage, dm.ignoreNBT)) {
 				// Add Items
 				if (!dm.sellItems.isEmpty()) {
 					boolean change = false;
 					for (ItemStack st : dm.sellItems.keySet()) {
-						int count = dm.sellItems.get(st);
-						while (count > 0) {
+						int c = dm.sellItems.get(st);
+						while (c > 0) {
 							ItemStack stc = st.copy();
-							stc.setCount(Math.min(count, st.getMaxStackSize()));
-							count -= st.getMaxStackSize();
-							if (player.inventory.addItemStackToInventory(stc)) {
-								change = true;
-							}
+							stc.setCount(Math.min(c, st.getMaxStackSize()));
+							c -= st.getMaxStackSize();
+							if (player.inventory.addItemStackToInventory(stc)) { change = true; }
 						}
 					}
 					if (change) {
-						NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f,
-								((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+						NoppesUtilServer.playSound(player, SoundEvents.ENTITY_ITEM_PICKUP, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
 						Util.instance.updatePlayerInventory(player);
 					}
-					marcet.addInventoryItems(dm.sellItems);
 				}
 				// Add Money
 				if (dm.sellMoney > 0) {
-                    data.game.addMoney(dm.sellMoney);
-                    marcet.money -= dm.sellMoney;
+					data.game.addMoney(dm.sellMoney);
+					marcet.money -= dm.sellMoney;
 				}
-				if (deal.getMaxCount() != 0) {
-					deal.setAmount(deal.getAmount() + dm.count);
-				}
+				if (deal.getMaxCount() != 0) { deal.setAmount(deal.getAmount() + dm.count); }
 				if (CustomNpcs.SendMarcetInfo) { player.sendMessage(new TextComponentTranslation("mes.market.sell", dm.main.getDisplayName() + " x" + dm.count)); }
 				data.game.addMarkupXP(marcet.getId(), 1);
-                assert npc != null;
-                EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(), new RoleEvent.TraderEvent(player, npc, dm.main, dm.sellItems));
+				if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TraderEvent(player, npc.wrappedNPC, dm.main, dm.sellItems)); }
 				marcet.detectAndSendChanges();
-			} else {
-                assert npc != null;
-                EventHooks.onNPCRole((EntityNPCInterface) npc.getMCEntity(),
-						new RoleEvent.TradeFailedEvent(player, npc, dm.main, dm.sellItems));
-				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 			}
-			//CustomNPCsScheduler.runTack(() -> Server.sendData(player, EnumPacketClient.GUI_UPDATE), 150);
+			else if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TradeFailedEvent(player, npc.wrappedNPC, dm.main, dm.sellItems)); }
+			Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 			Server.sendData(player, EnumPacketClient.GUI_UPDATE);
-		} else if (type == EnumPlayerPacket.TraderMarketReset) {
+		}
+		else if (type == EnumPlayerPacket.TraderMarketReset) {
 			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
 				m.updateNew();
 			}
-		} else if (type == EnumPlayerPacket.TraderMarketRemove) {
+		} else if (type == EnumPlayerPacket.TraderLivePlayer) {
 			Marcet m = (Marcet) MarcetController.getInstance().getMarcet(buffer.readInt());
 			if (m != null) {
 				m.removeListener(player, true);
@@ -1049,6 +1051,15 @@ public class PacketHandlerPlayer {
 				}
 			}
 		}
+	}
+
+	private void spawnItem(EntityPlayerMP player, ItemStack stack) {
+		EntityItem ie = new EntityItem(player.world, player.posX, player.posY, player.posZ, stack);
+		ie.motionX = 0.0d;
+		ie.motionY = 0.0d;
+		ie.motionZ = 0.0d;
+		ie.lifespan = 100;
+		player.world.onEntityAdded(ie);
 	}
 
 }

@@ -36,20 +36,17 @@ import noppes.npcs.util.BuilderData;
 
 import javax.annotation.Nonnull;
 
-public class GuiBuilderSetting
-extends GuiContainerNPCInterface
-implements ICustomScrollListener, ITextfieldListener {
+public class GuiBuilderSetting extends GuiContainerNPCInterface implements ICustomScrollListener, ITextfieldListener {
 
-	private static final Map<String, SchematicWrapper> baseFiles = new TreeMap<>();
-	ContainerBuilderSettings container;
-	private final ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
-	private final ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
-
-	private final ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
-	private int maxRange = 10;
-	private GuiCustomScroll schematics;
-	private final BuilderData builder;
-	private final Map<String, SchematicWrapper> files = new TreeMap<>();
+	protected static final Map<String, SchematicWrapper> baseFiles = new TreeMap<>();
+	protected final ContainerBuilderSettings container;
+	protected final ResourceLocation background = new ResourceLocation(CustomNpcs.MODID, "textures/gui/bgfilled.png");
+	protected final ResourceLocation inventory = new ResourceLocation(CustomNpcs.MODID, "textures/gui/baseinventory.png");
+	protected final ResourceLocation invRes = new ResourceLocation("textures/gui/container/inventory.png");
+	protected final BuilderData builder;
+	protected final Map<String, SchematicWrapper> files = new TreeMap<>();
+	protected GuiCustomScroll schematics;
+	protected int maxRange = 10;
 
 	public GuiBuilderSetting(ContainerBuilderSettings cont) {
 		super(null, cont);
@@ -63,14 +60,8 @@ implements ICustomScrollListener, ITextfieldListener {
 			InputStream stream = MinecraftServer.class.getResourceAsStream("/assets/" + CustomNpcs.MODID + "/schematics/" + name);
 			if (stream == null) {
 				File file = new File(SchematicController.getDir(), name);
-				if (!file.exists()) {
-					continue;
-				}
-				try {
-					stream = new FileInputStream(file);
-				} catch (FileNotFoundException e) {
-					continue;
-				}
+				if (!file.exists()) { continue; }
+				try { stream = new FileInputStream(file); } catch (FileNotFoundException e) { continue; }
 			}
 			try {
 				NBTTagCompound compound = CompressedStreamTools.readCompressed(stream);
@@ -108,9 +99,7 @@ implements ICustomScrollListener, ITextfieldListener {
 		File schematicDir = SchematicController.getDir();
 		if (schematicDir.exists()) {
 			for (File f : Objects.requireNonNull(schematicDir.listFiles())) {
-				if (!f.isFile() || !f.getName().endsWith(".schematic")) {
-					continue;
-				}
+				if (!f.isFile() || !f.getName().endsWith(".schematic")) { continue; }
 				try {
 					NBTTagCompound compound = CompressedStreamTools.readCompressed(Files.newInputStream(f.toPath()));
 					if (compound.getKeySet().isEmpty() || !compound.hasKey("Width", 2) || !compound.hasKey("Length", 2)
@@ -131,63 +120,21 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0 || builder == null) { return; }
 		switch (button.getID()) {
-			case 1: { // Facing
-				if (builder == null) {
-					return;
-				}
-				builder.facing = button.getValue();
-				break;
-			}
-			case 2: { // reg[0]
-				if (builder == null) {
-					return;
-				}
-				builder.region[0] = button.getValue() + 1;
-				break;
-			}
-			case 3: { // reg[1]
-				if (builder == null) {
-					return;
-				}
-				builder.region[1] = button.getValue() + 1;
-				break;
-			}
-			case 4: { // reg[2]
-				if (builder == null) {
-					return;
-				}
-				builder.region[2] = button.getValue() + 1;
-				break;
-			}
-			case 5: { // add Air
-				if (builder == null) {
-					return;
-				}
-				builder.addAir = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 6: { // replace Air
-				if (builder == null) {
-					return;
-				}
-				builder.replaceAir = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
-			case 7: { // is Solid
-				if (builder == null) {
-					return;
-				}
-				builder.isSolid = ((GuiNpcCheckBox) button).isSelected();
-				break;
-			}
+			case 1: builder.facing = button.getValue(); break;
+			case 2: builder.region[0] = button.getValue() + 1; break;
+			case 3: builder.region[1] = button.getValue() + 1; break;
+			case 4: builder.region[2] = button.getValue() + 1; break;
+			case 5: builder.addAir = ((GuiNpcCheckBox) button).isSelected(); break;
+			case 6: builder.replaceAir = ((GuiNpcCheckBox) button).isSelected(); break;
+			case 7: builder.isSolid = ((GuiNpcCheckBox) button).isSelected(); break;
 		}
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-
 		GlStateManager.pushMatrix();
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		GlStateManager.translate(guiLeft, guiTop, 0.0f);
@@ -217,7 +164,6 @@ implements ICustomScrollListener, ITextfieldListener {
 				drawHorizontalLine(58, 112, 108, lineColor);
 				drawVerticalLine(58, 108, 132, lineColor);
 			}
-
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.translate(7.0f, 135.0f, 0.0f);
 			mc.getTextureManager().bindTexture(inventory);
@@ -225,9 +171,7 @@ implements ICustomScrollListener, ITextfieldListener {
 			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			GlStateManager.translate(0.0f, -119.0f, 0.0f);
 			// Slots
-			for (int i = 1; i < 10; i++) {
-				drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); // main
-			}
+			for (int i = 1; i < 10; i++) { drawTexturedModalRect((i / 6) * 54, ((i < 6 ? 0 : -5) + i - 1) * 24, 0, 0, 18, 18); } // main
 			if (builder.getType() == 2) { drawTexturedModalRect(54, 96, 0, 0, 18, 18); }
 			drawHorizontalLine(-3, 106, -2, lineColor);
 			drawVerticalLine(106, -13, 117, lineColor);
@@ -258,11 +202,8 @@ implements ICustomScrollListener, ITextfieldListener {
 			GlStateManager.rotate(45.0f, 0.0f, 1.0f, 0.0f);
 			GlStateManager.rotate(30.0f, 1.0f, 0.0f, 1.0f);
 			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d, -0.5d, -0.5d, 0.5d, 0.5d, 0.5d)), 1.0f, 1.0f, 1.0f, 1.0f);
-			if (builder.facing == 0) {
-				GlStateManager.translate(0.0f, 0.0f, 1.01f);
-			} else if (builder.facing == 2) {
-				GlStateManager.translate(0.0f, 0.0f, -1.1f);
-			}
+			if (builder.facing == 0) { GlStateManager.translate(0.0f, 0.0f, 1.01f); }
+			else if (builder.facing == 2) { GlStateManager.translate(0.0f, 0.0f, -1.1f); }
 			RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(-0.5d * (double) builder.region[0],
 					-0.5d * (double) builder.region[1], -0.5d * (double) builder.region[2],
 					0.5d * (double) builder.region[0], 0.5d * (double) builder.region[1],
@@ -271,7 +212,8 @@ implements ICustomScrollListener, ITextfieldListener {
 			GlStateManager.enableTexture2D();
 			GlStateManager.disableBlend();
 			GlStateManager.popMatrix();
-		} else {
+		}
+		else {
 			// Borders
 			drawHorizontalLine(118, 223, 36, lineColor);
 			drawVerticalLine(117, 3, 212, lineColor);
@@ -286,15 +228,12 @@ implements ICustomScrollListener, ITextfieldListener {
 		super.handleMouseClick(slotIn, slotId, mouseButton, type);
         if (slotId >= 36) {
 			int id = slotId - (builder.getType() == 2 ? 36 : 35);
-			IGuiNpcTextField textField = getTextField(id);
-			if (textField == null) {
-				return;
-			}
-			if (slotIn.getStack().isEmpty()) {
-				textField.setFullText("");
-			} else {
+			GuiNpcTextField textField = getTextField(id);
+			if (textField == null) { return; }
+			if (slotIn.getStack().isEmpty()) { textField.setText(""); }
+			else {
 				if (!builder.chances.containsKey(id)) { builder.chances.put(id, 100); }
-				textField.setFullText("" + builder.chances.get(id));
+				textField.setText("" + builder.chances.get(id));
 			}
 		}
 	}
@@ -302,14 +241,9 @@ implements ICustomScrollListener, ITextfieldListener {
 	@Override
 	public void initGui() {
 		super.initGui();
-		if (builder == null) {
-			return;
-		}
+		if (builder == null) { return; }
 		maxRange = ClientProxy.playerData.game.op ? 100 : 10;
 		int type = builder.getType();
-		GuiNpcLabel label;
-		GuiNpcButton button;
-		GuiNpcTextField textField;
 		int y = guiTop + 4;
 		if (builder.getID() > -1) {
 			addLabel(new GuiNpcLabel(1, "ID:" + builder.getID(), guiLeft + 120, y));
@@ -324,47 +258,38 @@ implements ICustomScrollListener, ITextfieldListener {
 				int i = 0;
 				for (String key : schematics.getList()) {
 					String fName = key;
-					if (key.endsWith(".schematic")) {
-						fName = key.substring(0, key.lastIndexOf(".schematic"));
-					} else if (key.endsWith(".blueprint")) {
-						fName = key.substring(0, key.lastIndexOf(".blueprint"));
-					}
+					if (key.endsWith(".schematic")) { fName = key.substring(0, key.lastIndexOf(".schematic")); }
+					else if (key.endsWith(".blueprint")) { fName = key.substring(0, key.lastIndexOf(".blueprint")); }
 					if (fName.equals(builder.schematicName)) {
 						schematics.setSelect(i);
 						break;
 					}
 					i++;
 				}
-				if (i == schematics.getList().size()) {
-					schematics.setSelect(-1);
-				}
+				if (i == schematics.getList().size()) { schematics.setSelect(-1); }
 			}
 			addScroll(schematics);
 			addLabel(new GuiNpcLabel(6, new TextComponentTranslation("gui.name").getFormattedText() + ":", guiLeft + 120, guiTop + 40));
-			textField = new GuiNpcTextField(10, this, guiLeft + 120, guiTop + 54, 99, 15, builder.schematicName);
-			textField.setHoverText("scale.width");
-			addTextField(textField);
+			addTextField(new GuiNpcTextField(10, this, guiLeft + 120, guiTop + 54, 99, 15, builder.schematicName)
+					.setHoverText("scale.width"));
 		}
 		if (type < 3) {
-			label = new GuiNpcLabel(0, new TextComponentTranslation("gui.help.block").getFormattedText() + " [?]:", guiLeft + 4, guiTop + 4);
-			label.setHoverText("builder.hover.blocks." + type);
-			addLabel(label);
-			label = new GuiNpcLabel(3, new TextComponentTranslation("gui.area").getFormattedText() + " [?]:", guiLeft + 120, y);
-			label.setHoverText("builder.hover.type." + type);
-			addLabel(label);
+			addLabel(new GuiNpcLabel(0, new TextComponentTranslation("gui.help.block").getFormattedText() + " [?]:", guiLeft + 4, guiTop + 4)
+					.setHoverText("builder.hover.blocks." + type));
+			addLabel(new GuiNpcLabel(3, new TextComponentTranslation("gui.area").getFormattedText() + " [?]:", guiLeft + 120, y)
+					.setHoverText("builder.hover.type." + type));
 			y += 12;
 			for (int i = 0; i < 3; i++) { // Region
-				textField = new GuiNpcTextField(i + 10, this, guiLeft + 120 + i * 34, y, 30, 15, "" + builder.region[i]);
-				textField.setMinMaxDefault(1, maxRange, builder.region[i]);
-				if (i == 0) { textField.setHoverText("scale.width"); }
-				else if (i == 1) { textField.setHoverText("scale.depth"); }
-				else { textField.setHoverText("schematic.height"); }
-				addTextField(textField);
+				String hover;
+				if (i == 0) { hover = "scale.width"; }
+				else if (i == 1) { hover = "scale.depth"; }
+				else { hover = "schematic.height"; }
+				addTextField(new GuiNpcTextField(i + 10, this, guiLeft + 120 + i * 34, y, 30, 15, "" + builder.region[i])
+						.setMinMaxDefault(1, maxRange, builder.region[i])
+						.setHoverText(hover));
 			}
-			button = new GuiButtonBiDirectional(1, guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, builder.facing);
-			button.setHoverText("builder.hover.fasing");
-			addButton(button);
-
+			addButton(new GuiButtonBiDirectional(1, guiLeft + 120, y += 18, 99, 20, new String[] { "builder.fasing.0", "builder.fasing.1", "builder.fasing.2" }, builder.facing)
+					.setHoverText("builder.hover.fasing"));
 			double t = 0, j = 0;
 			for (int i = 1; i < 10; i++) {
 				if (builder.chances.containsKey(i)) {
@@ -385,39 +310,31 @@ implements ICustomScrollListener, ITextfieldListener {
 					return;
 				}
 			}
-
 			for (int i = 1; i < 10; i++) { // Blocks
-				textField = new GuiNpcTextField(i, this, guiLeft + 28 + (i / 6) * 54, guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15, "" + (builder.chances.containsKey(i) ? builder.chances.get(i) : ""));
-				textField.setMinMaxDefault(1, 100, builder.chances.getOrDefault(i, 100));
-				textField.setHoverText("builder.hover.chance." + type, "" + vs[i]);
-				addTextField(textField);
+				addTextField(new GuiNpcTextField(i, this, guiLeft + 28 + (i / 6) * 54, guiTop + 17 + ((i < 6 ? 0 : -5) + i - 1) * 24, 28, 15, "" + (builder.chances.containsKey(i) ? builder.chances.get(i) : ""))
+						.setMinMaxDefault(1, 100, builder.chances.getOrDefault(i, 100))
+						.setHoverText("builder.hover.chance." + type, "" + vs[i]));
 			}
 		}
 		else {
-			label = new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", guiLeft + 4, guiTop + 4);
-			label.setHoverText("builder.hover.list", "" + maxRange);
-			addLabel(label);
+			addLabel(new GuiNpcLabel(5, new TextComponentTranslation("gui.file.list").getFormattedText() + " [?]:", guiLeft + 4, guiTop + 4)
+					.setHoverText("builder.hover.list", "" + maxRange));
 		}
 		if (type < 4) {
-			button = new GuiNpcCheckBox(5, guiLeft + 120, y + 22, 99, 15, "tile.air.name", null, builder.addAir);
-			button.setHoverText("schematic" + (type == 3 ? ".schem" : "") + ".air");
-			addButton(button);
+			addButton(new GuiNpcCheckBox(5, guiLeft + 120, y + 22, 99, 15, "tile.air.name", null, builder.addAir)
+					.setHoverText("schematic" + (type == 3 ? ".schem" : "") + ".air"));
 			if (type == 2 || type == 3) {
-				button = new GuiNpcCheckBox(6, guiLeft + 172 + (type == 3 ? -52 : 0), guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all", null, builder.replaceAir);
-				button.setHoverText("schematic" + (type == 3 ? ".schem" : "") + ".replace");
-				addButton(button);
-
+				addButton(new GuiNpcCheckBox(6, guiLeft + 172 + (type == 3 ? -52 : 0), guiTop + 145 + (type == 3 ? -60 : 0), 70, 15, "drop.type.all", null, builder.replaceAir)
+						.setHoverText("schematic" + (type == 3 ? ".schem" : "") + ".replace"));
 			}
 			if (type == 3) {
-				button = new GuiNpcCheckBox(7, guiLeft + 120, guiTop + 100, 70, 15, "gui.solid", null, builder.isSolid);
-				button.setHoverText("schematic.schem.solid");
-				addButton(button);
+				addButton(new GuiNpcCheckBox(7, guiLeft + 120, guiTop + 100, 70, 15, "gui.solid", null, builder.isSolid)
+						.setHoverText("schematic.schem.solid"));
 			}
 		}
 		if (type == 2) {
-			label = new GuiNpcLabel(4, "_[?]_", guiLeft + 88, guiTop + 116);
-			label.setHoverText("builder.hover.main.block");
-			addLabel(label);
+			addLabel(new GuiNpcLabel(4, "_[?]_", guiLeft + 88, guiTop + 116)
+					.setHoverText("builder.hover.main.block"));
 		}
 	}
 
@@ -429,41 +346,31 @@ implements ICustomScrollListener, ITextfieldListener {
 	}
 
 	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) {
 		// File List
 		builder.schematicName = scroll.getSelected();
-		if (builder.schematicName.endsWith(".schematic")) {
-			builder.schematicName = builder.schematicName.substring(0, builder.schematicName.lastIndexOf(".schematic"));
-		} else if (builder.schematicName.endsWith(".blueprint")) {
-			builder.schematicName = builder.schematicName.substring(0, builder.schematicName.lastIndexOf(".blueprint"));
-		}
+		if (builder.schematicName.endsWith(".schematic")) { builder.schematicName = builder.schematicName.substring(0, builder.schematicName.lastIndexOf(".schematic")); }
+		else if (builder.schematicName.endsWith(".blueprint")) { builder.schematicName = builder.schematicName.substring(0, builder.schematicName.lastIndexOf(".blueprint")); }
 		SchematicWrapper schema = SchematicController.Instance.getSchema(builder.schematicName + ".schematic");
 		if (schema != null) {
 			builder.region[0] = schema.schema.getLength();
 			builder.region[1] = schema.schema.getWidth();
 			builder.region[2] = schema.schema.getHeight();
 		}
-		IGuiNpcTextField textField = getTextField(10);
-		if (textField != null) {
-			textField.setFullText(builder.schematicName);
-		}
+		GuiNpcTextField textField = getTextField(10);
+		if (textField != null) { textField.setText(builder.schematicName); }
 	}
 
 	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
-	}
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 	@Override
-	public void unFocused(IGuiNpcTextField textField) {
-		if (builder == null) {
-			return;
-		}
+	public void unFocused(GuiNpcTextField textField) {
+		if (builder == null) { return; }
 		if (textField.getID() < 10) {
-			if (textField.getFullText().isEmpty()) {
-				return;
-			}
+			if (textField.getText().isEmpty()) { return; }
 			if (builder.inv.getStackInSlot(textField.getID()).isEmpty()) {
-				textField.setFullText("");
+				textField.setText("");
 				return;
 			}
 			builder.chances.put(textField.getID(), textField.getInteger());
@@ -471,18 +378,14 @@ implements ICustomScrollListener, ITextfieldListener {
 		}
 		if (builder.getType() == 3 || builder.getType() == 4) {
 			if (textField.getID() == 10) {
-				builder.schematicName = textField.getFullText();
+				builder.schematicName = textField.getText();
 				initGui();
 			}
 		} else {
 			int pos = textField.getID() - 10;
 			int value = textField.getInteger();
-			if (value > maxRange) {
-				value = maxRange;
-			}
-			if (value <= 0) {
-				value = 1;
-			}
+			if (value > maxRange) { value = maxRange; }
+			if (value <= 0) { value = 1; }
 			builder.region[pos] = value;
 		}
 	}

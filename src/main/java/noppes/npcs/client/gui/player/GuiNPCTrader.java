@@ -2,24 +2,28 @@ package noppes.npcs.client.gui.player;
 
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentBase;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.*;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.api.handler.data.IDeal;
-import noppes.npcs.api.handler.data.IMarcet;
 import noppes.npcs.client.ClientProxy;
+import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.containers.ContainerNPCTrader;
 import noppes.npcs.controllers.MarcetController;
@@ -28,588 +32,1248 @@ import noppes.npcs.controllers.data.DealMarkup;
 import noppes.npcs.controllers.data.Marcet;
 import noppes.npcs.controllers.data.MarcetSection;
 import noppes.npcs.controllers.data.MarkupData;
-import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.util.Util;
+import noppes.npcs.util.ValueUtil;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
-public class GuiNPCTrader
-extends GuiContainerNPCInterface
-implements ICustomScrollListener, IGuiData {
+import javax.annotation.Nonnull;
 
-	private static final ResourceLocation BUTTONS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader_buttons.png");
-	private static boolean isIdSort = true;
-	private static boolean isSearch = true;
-	private static int section = -1;
-	private static Marcet marcet;
+// Changed from Unofficial (BetaZavr)
+@SideOnly(Side.CLIENT)
+public class GuiNPCTrader extends GuiContainerNPCInterface
+		implements IGuiData, ITextfieldListener, ITextChangeListener {
 
-	private static final Comparator<TempDeal> comparator = (t1, t2) -> {
-        if (isIdSort) {
+	public static final ResourceLocation BUTTONS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trade/buttons.png");
+	public static final ResourceLocation HOVERS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trade/hovers.png");
+	public static final ResourceLocation INV = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trade/player_inventory.png");
+	public static final ResourceLocation SCROLL = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trade/scroll.png");
+	public static final ResourceLocation ICONS = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trade/sections.png");
+	public static Marcet marcet;
+	protected static String search = "";
+	protected static boolean isIdSort = true;
+	protected static int section = -1;
+	protected static final Comparator<Deal> comparator = (t1, t2) -> {
+		if (isIdSort) {
 			Map<Integer, Integer> indexMap = new HashMap<>();
 			int i = 0;
 			for (IDeal iDeal : GuiNPCTrader.marcet.getDeals(GuiNPCTrader.section)) { indexMap.put(iDeal.getId(), i++); }
-			return Integer.compare(indexMap.getOrDefault(t1.id, Integer.MAX_VALUE), indexMap.getOrDefault(t2.id, Integer.MAX_VALUE));
-        } else {
-            return t1.stackName.compareToIgnoreCase(t2.stackName);
-        }
-    };
+			return Integer.compare(indexMap.getOrDefault(t1.getId(), Integer.MAX_VALUE), indexMap.getOrDefault(t2.getId(), Integer.MAX_VALUE));
+		}
+		else { return t1.getName().compareToIgnoreCase(t2.getName()); }
+	};
 
-	private final Map<String, Deal> data = new TreeMap<>();
-	private int px;
-	private int py;
-	private int canBuy = 0;
-	private int canSell = 0;
-	private int ceilPos = -1;
-	private int colorP = 0x01000000;
-	private final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/trader.png");
-	private GuiCustomScroll scroll;
-	boolean wait = false;
-	private DealMarkup selectDealData;
-	private long money = 0L;
+	protected final Map<Integer, Deal> data = new LinkedHashMap<>();
+	protected DealMarkup selectDealData;
 
-	public GuiNPCTrader(EntityNPCInterface npc, ContainerNPCTrader container) {
-		super(npc, container);
-		ySize = 224;
-		xSize = 224;
-		title = "role.trader";
+	protected List<Integer> canBuy = new ArrayList<>();
+	protected List<Integer> canSell = new ArrayList<>();
+	protected int count = 1;
+
+	// buttons
+	public Map<Integer, TradeButton> tButtons = new ConcurrentHashMap<>();
+	// display
+	protected boolean wait = false;
+	protected int invPosX;
+	protected int invPosY;
+	// scroll
+	protected boolean isScrolled;
+	protected int scrollWidth;
+	protected int scrollHMax;
+	protected int scrollBMax;
+	protected int scrollHeight;
+	protected int scrollBHeight;
+	protected int scrollY;
+	protected int scrollMaxY;
+	// hovers
+	protected List<String> hovers = new ArrayList<>();
+	protected boolean isHovered;
+	protected int hoverHeightMax;
+	protected int hoverHMax;
+	protected int hoverBMax;
+	protected int hoverHeight;
+	protected int hoverBHeight;
+	protected int hoverY;
+	protected int hoverMaxY;
+	// model rotate
+	protected Map<String, String> materialTextures = new HashMap<>();
+	protected float rotateX = 0.0f;
+	protected float rotateZ = 0.0f;
+
+	// Tabs
+	protected int ceilHeight = 0;
+	protected int ceilList = -1;
+
+	public GuiNPCTrader(ContainerNPCTrader container) {
+		super(NoppesUtil.getLastNpc(), container);
+		drawDefaultBackground = false;
 		closeOnEsc = true;
+		hoverIsGame = true;
+		title = "";
 
+		ScaledResolution sw = new ScaledResolution(mc);
+		xSize = (int) sw.getScaledWidth_double();
+		ySize = (int) sw.getScaledHeight_double();
 		marcet = container.marcet;
 	}
 
 	@Override
-	public void buttonEvent(IGuiNpcButton button) {
-		if (button.getID() > 4 && button.getID() < 10) {
-			section = button.getID() - 5 + ceilPos * 5;
+	public void buttonEvent(@Nonnull GuiNpcButton button, int mouseButton) {
+		if (mouseButton != 0) { return; }
+		if (button instanceof TradeButtonBiDirectional) {
+			count = button.getValue() + 1;
 			initGui();
 			return;
 		}
-		switch (button.getID()) {
-			case 0: { // buy
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, marcet.getId(), selectDealData.deal.getId(), npc.getEntityId());
-				break;
+		if (button instanceof SectionButton) {
+			int s = button.id - 20 + ceilList * ceilHeight;
+			if (button.id >= 20 && s != section) {
+				section = s;
+				selectDealData = null;
+				scrollY = 0;
+				hoverY = 0;
+				rotateX = 0.0f;
+				rotateZ = 0.0f;
+				count = 1;
+				initGui();
 			}
-			case 1: { // Sell
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, marcet.getId(), selectDealData.deal.getId(), npc.getEntityId());
-				break;
+			return;
+		}
+		if (button instanceof TradeButton) {
+			TradeButton tradeB = (TradeButton) button;
+			if ((tradeB.deal.getAmount() > 0 || player.isCreative()) && (selectDealData == null || selectDealData.deal.getId() != tradeB.deal.getId())) {
+				selectDealData = tradeB.dm;
+				hoverY = 0;
+				rotateX = 0.0f;
+				rotateZ = 0.0f;
+				count = 1;
+				initGui();
 			}
-			case 2: { // Reset
-				NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, marcet.getId(), selectDealData.deal.getId(), npc.getEntityId());
-				break;
-			}
-			case 3: { // up
-				if (ceilPos <= 0) { return; }
-				ceilPos--;
+			return;
+		} // select deal
+		switch (button.id) {
+			case 0: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, marcet.getId(), selectDealData.deal.getId(), npc == null ? -1 : npc.getEntityId(), count); break; // buy
+			case 1: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, marcet.getId(), selectDealData.deal.getId(), npc == null ? -1 : npc.getEntityId(), count); break; // Sell
+			case 2: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, marcet.getId()); break; // Reset
+			case 3: {
+				if (ceilList <= 0) { return; }
+				ceilList--;
 				initGui();
 				return;
-			}
-			case 4: { // down
-				if (ceilPos >= Math.floor((double) marcet.sections.size() / 5.0d)) { return; }
-				ceilPos++;
+			} // up
+			case 4: {
+				if (ceilList >= Math.floor((double) marcet.sections.size() / 5.0d)) { return; }
+				ceilList++;
 				initGui();
 				return;
-			}
+			} // down
 			case 11: {
 				isIdSort = ((GuiNpcCheckBox) button).isSelected();
 				initGui();
 				return;
-			}
-			case 12: {
-				isSearch = ((GuiNpcCheckBox) button).isSelected();
-				initGui();
-				return;
-			}
+			} // sort type
 		}
 		wait = true;
 		initGui();
 	}
 
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float f, int i, int j) {
-		drawWorldBackground(0);
+	public void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+		GlStateManager.enableBlend();
+		GlStateManager.translate(0.0f, 0.0f, -1.0f);
+		int w;
+		int h = (250 - scrollHeight) / 2;
+		String text;
+		// update / money pos
+		mc.getTextureManager().bindTexture(INV);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		mc.getTextureManager().bindTexture(resource);
-		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
-
-		super.drawGuiContainerBackgroundLayer(f, i, j);
-		if (selectDealData != null && !selectDealData.main.isEmpty()) {
-			// Main Slot
-			GlStateManager.enableAlpha();
-			GlStateManager.enableBlend();
-			GlStateManager.enableRescaleNormal();
-			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
-			drawTexturedModalRect(px, py, 0, 0, 17, 17);
-			drawTexturedModalRect(px + 17, py, 10, 0, 8, 17);
-			drawTexturedModalRect(px, py + 17, 0, 10, 17, 8);
-			drawTexturedModalRect(px + 17, py + 17, 10, 10, 8, 8);
-			// Main Slot colored
-			int redC = 0x80FF0000;
-			int orangeC = 0x80FF6E00;
-			int greenC = 0x8000FF00;
-			if (colorP != redC && selectDealData.deal.getMaxCount() > 0 && selectDealData.deal.getAmount() == 0) { colorP = redC; }
-			if (player.capabilities.isCreativeMode && colorP == redC) { colorP = orangeC; }
-			Gui.drawRect(px + 1, py + 1, px + 24, py + 24, colorP);
-			GlStateManager.disableRescaleNormal();
-			// Currency Colored
-			if (getLabel(4) != null && getLabel(4).isEnabled()) {
-				if (money != ClientProxy.playerData.game.getMoney()) {
-					money = ClientProxy.playerData.game.getMoney();
-					if (selectDealData.buyMoney > 0) {
-						String text = Util.instance.getTextReducedNumber(selectDealData.buyMoney, true, true, false) + CustomNpcs.displayCurrencies + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.displayCurrencies;
-						if (marcet.isLimited) {
-							text += " / " + Util.instance.getTextReducedNumber(marcet.money, true, true, false) + CustomNpcs.displayCurrencies;
-						}
-						getLabel(4).setLabel(text);
-					}
-				}
-				if (getButton(0) != null && getButton(0).isHovered()) {
-					int color = player.capabilities.isCreativeMode ? orangeC : redC;
-					if (money >= selectDealData.deal.getMoney()) { color = greenC; }
-					Gui.drawRect(px - 2, guiTop + 112, guiLeft + 218, guiTop + 136, color);
-				}
+		drawTexturedModalRect(invPosX, 0, 0, 142, 178, 24);
+		// player inventory:
+		drawTexturedModalRect(invPosX, invPosY, 0, 0, 178, 118);
+		// Scroll
+		int s = 0;
+		int v;
+		mc.getTextureManager().bindTexture(SCROLL);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		for (int i = 0; i < scrollHMax; i++) {
+			if (i == 0) { v = 0; } else { v = 3 + h; }
+			drawTexturedModalRect(0, i * scrollHeight, 0, v, scrollWidth, scrollHeight); // left
+			drawTexturedModalRect(scrollWidth, i * scrollHeight, 214 - scrollWidth, v, scrollWidth, scrollHeight); // right
+			s += scrollHeight;
+		}
+		// end
+		h = ySize - s;
+		drawTexturedModalRect(0, ySize - h, 0, 256 - h, scrollWidth, h); // left
+		drawTexturedModalRect(scrollWidth, ySize - h, 214 - scrollWidth, 256 - h, scrollWidth, h); // right
+		// bar
+		if (scrollMaxY > 0) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(scrollWidth * 2 - 14, 4.0f, 0.0f);
+			GlStateManager.scale(0.5f, 0.5f, 1.0f);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			drawTexturedModalRect(0, 0, 236, 0, 20, 20);
+			drawTexturedModalRect(0, (ySize - 61) * 2, 236, 236, 20, 20);
+			GlStateManager.scale(1.0f, 2.0f, 1.0f);
+			s = 10;
+			h = (216 - scrollBHeight) / 2;
+			for (int i = 0; i < scrollBMax; i++) {
+				if (i == 0) { v = 20; } else { v = h; }
+				drawTexturedModalRect(0, 10 + i * scrollBHeight, 236, v, 20, scrollBHeight); // bar
+				s += scrollBHeight;
 			}
-			// Items
-			if (!selectDealData.buyHasPlayerItems.isEmpty()) {
-				GlStateManager.pushMatrix();
-				mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
-				int slot = 0;
-				for (ItemStack curr : selectDealData.buyHasPlayerItems.keySet()) {
-					int u = px + (slot % 3) * 18;
-					int v = py + 38 + (slot / 3) * 18;
+			h = 28;
+			drawTexturedModalRect(0, s, 236, 236 - scrollHeight, 20, scrollHeight - h); // bar
+			GlStateManager.popMatrix();
+		}
+		mc.getTextureManager().bindTexture(BUTTONS);
+		// place of sale
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		drawTexturedModalRect(4, ySize - 46, 0, 214, scrollWidth - 4, 42);
+		drawTexturedModalRect(scrollWidth, ySize - 46, 260 - scrollWidth, 214, scrollWidth - 4, 42);
+		// hover deal
+		if (selectDealData != null && selectDealData.deal != null) {
+			int x = xSize - 155;
+			int y = 24;
+			mc.getTextureManager().bindTexture(HOVERS);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			drawTexturedModalRect(x, y, 0, 0, 132, 50);
+			if (hoverHeightMax >= 24) {
+				y += 50;
+				s = 0;
+				for (int i = 0; i < hoverHMax; i++) {
+					if (i == 0) { v = 50; } else { v = 53; }
+					drawTexturedModalRect(x, y + i * hoverHeight, 0, v, 132, hoverHeight);
+					s += hoverHeight;
+				}
+				// end
+				h = hoverHeightMax - s;
+				drawTexturedModalRect(x, invPosY - 24 - h, 0, 256 - h, 132, h);
+				// bar
+				if (hoverMaxY > 0) {
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(x + 120.0f, y + 2, 0.0f);
+					GlStateManager.scale(0.5f, 0.5f, 1.0f);
+					mc.getTextureManager().bindTexture(SCROLL);
 					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-					drawTexturedModalRect(u, v, 0, 0, 18, 18);
-					if (getButton(0) != null && getButton(0).isHovered()) {
-						Gui.drawRect(u + 1, v + 1, u + 17, v + 17, selectDealData.buyHasPlayerItems.get(curr) ? greenC : player.capabilities.isCreativeMode ? orangeC : redC);
+					drawTexturedModalRect(0, 0, 236, 0, 20, 20);
+					drawTexturedModalRect(0, (hoverHeightMax - 14) * 2, 236, 236, 20, 20);
+					if (hoverHeightMax > 24) {
+						GlStateManager.scale(1.0f, 2.0f, 1.0f);
+						s = 10;
+						h = (216 - hoverBHeight) / 2;
+						for (int i = 0; i < hoverBMax; i++) {
+							if (i == 0) { v = 20; } else { v = h; }
+							drawTexturedModalRect(0, 10 + i * hoverBHeight, 236, v, 20, hoverBHeight); // bar
+							s += hoverBHeight;
+						}
+						h = hoverHeightMax % 2 != 0 ? 9 : 10;
+						drawTexturedModalRect(0, s, 236, 236 - hoverHeight, 20, hoverHeight - h); // bar
 					}
-					slot++;
+					GlStateManager.popMatrix();
 				}
-				GlStateManager.popMatrix();
-
 			}
 		}
+		// Market level
 		if (marcet.showXP) {
-			mc.getTextureManager().bindTexture(resource);
-			GlStateManager.enableBlend();
+			mc.getTextureManager().bindTexture(INV);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			drawTexturedModalRect(guiLeft + 6, guiTop + 139, 234, 0, 22, 76);
+			drawTexturedModalRect(xSize - 100, invPosY - 24, 0, 118, 100, 24);
 			MarkupData md = ClientProxy.playerData.game.getMarkupData(marcet.getId());
-			double plXP = md.xp;
-			double mXP = marcet.markup.get(md.level).xp;
-			if (plXP > mXP) {
-				plXP = mXP;
+			MarkupData mm = marcet.markup.get(md.level);
+			if (md.xp > 0) {
+				double mXP = mm.xp;
+				if (md.xp >= mXP) { s = 96; }
+				else { s = (int) (96.0d * md.xp / mXP); }
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				drawTexturedModalRect(xSize - 2 - s, ySize - 142, 198 - s, 118, s, 24);
 			}
-			double h = 74.0d * plXP / mXP;
-			int g = (int) h, t = 0;
-			if (h > 0.0d && h < 74.0d) {
-				g--;
-				t = 1;
-			}
-			if (g > 0) {
-				drawTexturedModalRect(guiLeft + 7, guiTop + 214 - g, 235, 151 - g, 20, g);
-			}
-			if (t == 1) {
-				GlStateManager.color(0.85f, 0.85f, 0.85f, 1.0f);
-				if (g == 0) {
-					g = 1;
-				}
-				drawTexturedModalRect(guiLeft + 8, guiTop + 213 - g, 236, 151 - g, 20, 1);
-			}
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-			GlStateManager.disableBlend();
-			String lv = Util.instance
-					.deleteColor(new TextComponentTranslation("enchantment.level." + md.level).getFormattedText());
-			if (lv.equals("enchantment.level." + md.level)) {
-				lv = "" + md.level;
-			}
-			mc.fontRenderer.drawString(lv, guiLeft + 16 - (float) mc.fontRenderer.getStringWidth(lv) / 2, guiTop + 205, CustomNpcs.MainColor.getRGB(), true);
+			String lv = "enchantment.level." + (md.level + 1);
+			if (!new TextComponentTranslation(lv).getFormattedText().equals(lv)) { lv = new TextComponentTranslation(lv).getFormattedText(); }
+			else { lv = "" + (md.level + 1); }
+			drawString(fontRenderer, lv, xSize - 6 - fontRenderer.getStringWidth(lv), ySize - 131, CustomNpcs.MainColor.getRGB());
+			if (isMouseHover(mouseX, mouseY, xSize - 100, ySize - 142, 100, 24)) {
+				putHoverText("market.hover.you.level", "" + (md.level + 1),
+						"" + Math.min(md.xp, mm.xp), "" + mm.xp,
+						(mm.buy <= 0.0f ? TextFormatting.GREEN: TextFormatting.RED) + "" + (int) (mm.buy * 100.0f),
+						(mm.sell <= 0.0f ? TextFormatting.RED: TextFormatting.GREEN) + "" + (int) (mm.sell * 100.0f));
+			} // hover market xp
 		}
-		if (subgui != null) {
-			return;
+
+		// name
+		if (marcet.getName().isEmpty()) { text = new TextComponentTranslation("role.trader").getFormattedText(); }
+		else { text = new TextComponentTranslation(marcet.getName()).getFormattedText(); }
+		w = ClientProxy.Font.width(text) / 2;
+		ClientProxy.Font.drawString(text, scrollWidth - w + 13, 2, CustomNpcs.MainColor.getRGB());
+		// update
+		if (marcet.updateTime > 0) {
+			TextFormatting color = TextFormatting.RESET;
+			if (marcet.nextTime <= 60000 && marcet.nextTime % 1000 < 500) { color = TextFormatting.GOLD; }
+			else if (marcet.nextTime <= 10000) { color = marcet.nextTime % 1000 < 500 ? TextFormatting.GOLD : TextFormatting.RED; }
+			text = new TextComponentTranslation("market.uptime", color + Util.instance.ticksToElapsedTime(marcet.nextTime / 50, false, false, false)).getFormattedText();
+			w = ClientProxy.Font.width(text);
+			ClientProxy.Font.drawString(text, invPosX + 3, 2, CustomNpcs.MainColor.getRGB());
+			if (marcet.nextTime <= 0) { NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.MarketTime, this, 2500, marcet.getId()); }
+			if (isMouseHover(mouseX, mouseY, invPosX, 0, w, 24)) {
+				putHoverText("market.hover.update");
+			} // hover update time
 		}
-		int u0 = px - 2;
-		int u1 = guiLeft + xSize - 7;
-		int backC = 0xA0000000;
-		drawHorizontalLine(u0, u1, guiTop + 14, backC);
-		drawVerticalLine(u0 - 1, guiTop + 14, guiTop + 43, backC);
-		drawVerticalLine(u1 + 1, guiTop + 14, guiTop + 43, backC);
-		drawHorizontalLine(u0, u1, guiTop + 43, backC);
-		if (selectDealData != null && !selectDealData.baseItems.isEmpty()) {
-			drawVerticalLine(u0 - 1, guiTop + 43, guiTop + 111, backC);
-			drawVerticalLine(u1 + 1, guiTop + 43, guiTop + 111, backC);
+		// marcet money
+		text = Util.instance.getTextReducedNumber(marcet.money, true, true, false) + CustomNpcs.displayCurrencies;
+		w = ClientProxy.Font.width(text);
+		ClientProxy.Font.drawString(text, xSize - w - 15, 2, CustomNpcs.MainColor.getRGB());
+		if (isMouseHover(mouseX, mouseY, xSize - w - 14, 0, w, 24)) {
+			putHoverText("market.hover.currency.1", marcet.money, CustomNpcs.displayCurrencies);
 		}
-		if (selectDealData != null && (!selectDealData.baseItems.isEmpty() || selectDealData.baseMoney > 0)) {
-			drawHorizontalLine(u0, u1, guiTop + 111, backC);
-		}
-		if (selectDealData != null && selectDealData.baseMoney > 0) {
-			drawHorizontalLine(u0, u1, guiTop + 136, backC);
-			drawVerticalLine(u0 - 1, guiTop + 111, guiTop + 136, backC);
-			drawVerticalLine(u1 + 1, guiTop + 111, guiTop + 136, backC);
-		}
-		colorP = 0x01000000;
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(xSize - 15, 0, 1.0f);
+		GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);
+		mc.getTextureManager().bindTexture(GuiNPCInterface.MONEY);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+		GlStateManager.popMatrix();
+		// money
+		int x = invPosX + 4;
+		int y = invPosY + 9;
+		text = new TextComponentTranslation("questlog.rewardmoney", ClientProxy.playerData.game.getTextMoney(), CustomNpcs.displayCurrencies).getFormattedText();
+		ClientProxy.Font.drawString(text, x, y, CustomNpcs.MainColor.getRGB());
+		w = ClientProxy.Font.width(text);
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(x + w, y - 2.0f, 1.0f);
+		GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+		GlStateManager.popMatrix();
+		if (isMouseHover(mouseX, mouseY, x, y, w + 16, 16)) {
+			putHoverText(new TextComponentTranslation("inventory.hover.currency").appendText(" " + ClientProxy.playerData.game.getMoney()).getFormattedText());
+		} // hover money
+		// donat
+		text = new TextComponentTranslation("questlog.rewarddonat", ClientProxy.playerData.game.getTextDonat(), CustomNpcs.displayDonation).getFormattedText();
+		w = ClientProxy.Font.width(text);
+		x = xSize - 18 - w;
+		ClientProxy.Font.drawString(text, x, y, CustomNpcs.MainColor.getRGB());
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(x + w, y - 2.0f, 1.0f);
+		GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);
+		mc.getTextureManager().bindTexture(GuiNPCInterface.DONAT);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+		GlStateManager.popMatrix();
+		if (isMouseHover(mouseX, mouseY, x, y, w + 16, 16)) {
+			putHoverText(new TextComponentTranslation("inventory.hover.donat").appendText(" " + ClientProxy.playerData.game.getDonat()).getFormattedText());
+		} // hover donat
+		// search icon
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(5.0f, ySize - 25.0f, 0.0f);
+		GlStateManager.scale(0.833333f, 0.833333f, 0.833333f);
+		mc.getTextureManager().bindTexture(GuiNPCInterface.ICONS);
+		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		drawTexturedModalRect(0, 0, 0, 216, 24, 24);
+		GlStateManager.popMatrix();
 	}
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		ItemStack stack = ItemStack.EMPTY;
-		int ct = 0;
-		if (selectDealData != null && !selectDealData.main.isEmpty()) {
-			stack = selectDealData.main;
-			ct = selectDealData.count;
-
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(guiLeft, guiTop, 50.0f);
-			GlStateManager.color(2.0f, 2.0f, 2.0f, 1.0f);
-			GlStateManager.translate(px - guiLeft, py - guiTop, 0.0f);
-			RenderHelper.enableGUIStandardItemLighting();
-			float s = 1.5f;
-			GlStateManager.scale(s, s, s);
-			mc.getRenderItem().renderItemAndEffectIntoGUI(selectDealData.main, 0, 0);
-			GlStateManager.translate(0.0f, 0.0f, 200.0f);
-			drawString(mc.fontRenderer, "" + selectDealData.count, 16 - mc.fontRenderer.getStringWidth("" + selectDealData.count), 9, 0xFFFFFFFF);
-			RenderHelper.disableStandardItemLighting();
-			GlStateManager.popMatrix();
-
-			if (isMouseHover(mouseX, mouseY, px, guiTop + 14, 25, 25)) {
-				List<String> list = new ArrayList<>();
-				list.add(new TextComponentTranslation("market.hover.product").getFormattedText());
-				list.addAll(selectDealData.main.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
-				setHoverText(list);
-			}
-			if (!selectDealData.buyItems.isEmpty()) {
-				int slot = 0;
-				for (ItemStack curr : selectDealData.buyItems.keySet()) {
-					int u = px + 1 + (slot % 3) * 18;
-					int v = py + 39 + (slot / 3) * 18;
-					GlStateManager.pushMatrix();
-					GlStateManager.translate(u, v, 50.0f);
-					mc.getRenderItem().renderItemAndEffectIntoGUI(curr, 0, 0);
-					GlStateManager.translate(0.0f, 0.0f, 200.0f);
-					int count = selectDealData.buyItems.get(curr);
-					drawString(mc.fontRenderer, "" + count, 16 - mc.fontRenderer.getStringWidth("" + count), 9, 0xFFFFFFFF);
-					GlStateManager.popMatrix();
-					if (isMouseHover(mouseX, mouseY, u, v, 18, 18)) {
-						List<String> list = new ArrayList<>();
-						list.add(new TextComponentTranslation("market.hover.item").getFormattedText());
-						list.addAll(curr.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
-						setHoverText(list);
-					}
-					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-					drawTexturedModalRect(u, v, 0, 0, 18, 18);
-					slot++;
-				}
-			}
-		}
-		if (getLabel(6) != null && getLabel(6).isEnabled()) {
-			getLabel(6).setLabel(new TextComponentTranslation("market.uptime", Util.instance.ticksToElapsedTime(marcet.nextTime / 50, false, false, false)).getFormattedText());
-			if (marcet.nextTime <= 0) {
-				NoppesUtilPlayer.sendDataCheckDelay(EnumPlayerPacket.MarketTime, this, 2500, marcet.getId());
-			}
-		}
+		if (marcet == null) { onClosed(); return; }
 		super.drawScreen(mouseX, mouseY, partialTicks);
+		GlStateManager.enableBlend();
+		if (!hovers.isEmpty()) {
+			int i = 0;
+			int x = xSize - 152;
+			int y;
+			GlStateManager.pushMatrix();
 
-		if (subgui != null) { return; }
-		if (getLabel(3) != null && getLabel(3).isEnabled() && isMouseHover(mouseX, mouseY, px - 2, guiTop + 113, 80, 24)) {
-			int buyMoney = selectDealData.deal.getMoney();
-			if (selectDealData != null && selectDealData.buyMoney > 0) { buyMoney = (int) selectDealData.buyMoney; }
-			TextComponentBase text = new TextComponentTranslation("market.hover.currency.0", "" + buyMoney, CustomNpcs.displayCurrencies, "" + money, CustomNpcs.displayCurrencies);
-			if (marcet.isLimited) { text.appendSibling(new TextComponentTranslation("market.hover.currency.1", "" + marcet.money)); }
-			setHoverText(text.getFormattedText());
-		} else if (getButton(0) != null && getButton(0).isVisible() && getButton(0).isHovered()) {
-			ITextComponent text = new TextComponentTranslation("market.hover.buy", stack.getDisplayName());
-			if (canBuy != 0) { text.appendSibling(new TextComponentTranslation("market.hover.notbuy." + canBuy)); }
-			setHoverText(text.getFormattedText());
-		} else if (getButton(1) != null && getButton(1).isVisible() && getButton(1).isHovered()) {
-			colorP = 0x8000FF00;
-			if (Util.instance.inventoryItemCount(player, stack, selectDealData.deal.availability, selectDealData.deal.getIgnoreDamage(), selectDealData.deal.getIgnoreNBT()) < ct) { colorP = 0x80FF0000; }
-			TextComponentBase text = new TextComponentTranslation("market.hover.sell.0", stack.getDisplayName());
-			if (canSell != 0) { text.appendSibling(new TextComponentTranslation("market.hover.notsell." + canSell)); }
-			else {
-				if (selectDealData != null && !selectDealData.sellHasPlayerItems.isEmpty()) {
-					if (!selectDealData.sellItems.isEmpty()) {
-						if (selectDealData.sellOneOfEach) { text.appendSibling(new TextComponentTranslation("market.hover.sell.3")); }
-						else { text.appendSibling(new TextComponentTranslation("market.hover.sell.1")); }
-					}
-					for (ItemStack s : selectDealData.sellItems.keySet()) {
-						text.appendSibling(new TextComponentString("<br>" + s.getDisplayName() + (selectDealData.sellOneOfEach ? "" : " x" + (selectDealData.sellItems.get(s)))));
-					}
-				}
-				if (selectDealData != null && selectDealData.sellMoney > 0) { text.appendSibling(new TextComponentTranslation("market.hover.sell.2", "" + selectDealData.sellMoney, CustomNpcs.displayCurrencies)); }
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			int c = xSize < mc.displayWidth ? (int) Math.round((double) mc.displayWidth / (double) xSize) : 1;
+			GL11.glScissor(x * c, (ySize - 72 - hoverHeightMax) * c, 127 * c, (hoverHeightMax - 4) * c);
+			for (String hover : hovers) {
+				y = 77 + hoverY + i * (fontRenderer.FONT_HEIGHT + 1);
+				if (y >= 77 - fontRenderer.FONT_HEIGHT && y < 71 + hoverHeightMax) { drawString(fontRenderer, hover, x, y, CustomNpcs.MainColor.getRGB()); }
+				if (y >= 71 + hoverHeightMax) { break; }
+				i++;
 			}
-			setHoverText(text.getFormattedText());
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+			GlStateManager.popMatrix();
 		}
-		if (marcet.showXP && isMouseHover(mouseX, mouseY, guiLeft + 7, guiTop + 140, 22, 74)) {
-			MarkupData md = ClientProxy.playerData.game.getMarkupData(marcet.getId());
-			MarkupData mm = marcet.markup.get(md.level);
-			int pXP = Math.min(md.xp, mm.xp);
-			setHoverText("market.hover.you.level", "" + (md.level + 1), "" + pXP, "" + mm.xp, "" + (int) (mm.buy * 100.0f), "" + (int) (mm.sell * 100.0f));
-		} else if (getButton(2) != null && getButton(2).isVisible() && getButton(2).isHovered()) {
-			setHoverText(new TextComponentTranslation("market.hover.reset").getFormattedText());
-		} else if (selectDealData.deal != null && selectDealData.deal.getMaxCount() > 0 && isMouseHover(mouseX, mouseY, guiLeft + 177, guiTop + 24, 45, 14)) {
-			setHoverText(selectDealData.deal.getMaxCount() > 0 ? new TextComponentTranslation("market.hover.item.amount", "" + selectDealData.deal.getAmount()).getFormattedText() : "");
-		} else if (getLabel(6) != null && getLabel(6).isEnabled() && getLabel(6).isHovered()) {
-			setHoverText(new TextComponentTranslation("market.hover.update").getFormattedText());
+		if (scrollMaxY != 0) {
+			float f0 = (float) -scrollY / (float) scrollMaxY * (float) (ySize - 81);
+			GlStateManager.pushMatrix();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			GlStateManager.translate(scrollWidth * 2.0f - 14.5f, 4.0f + f0, 0.0f);
+			GlStateManager.scale(0.5f, 0.5f, 0.5f);
+			mc.getTextureManager().bindTexture(SCROLL);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			drawTexturedModalRect(0, 0, 214, 0, 22, 60);
+			GlStateManager.popMatrix();
 		}
-		drawHoverText(null);
+		if (hoverMaxY != 0) {
+			//isHovered = isMouseHover(mouseX, mouseY, xSize - 35, 76, 10, hoverHeightMax - 4);
+			float f0 = (float) -hoverY / (float) hoverMaxY * (float) (hoverHeightMax - 20);
+			GlStateManager.pushMatrix();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			GlStateManager.translate(xSize - 35.0f, 76.0f + f0, 0.0f);
+			GlStateManager.scale(0.5f, 0.5f, 0.5f);
+			mc.getTextureManager().bindTexture(SCROLL);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			drawTexturedModalRect(0, 0, 214, 0, 22, 16);
+			drawTexturedModalRect(0, 16, 214, 44, 22, 16);
+			GlStateManager.popMatrix();
+		}
+		if (selectDealData != null && selectDealData.deal != null) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(xSize - 89.0f, 49.0f, 50.0f);
+			if (rotateX == 0 && rotateZ == 0 && mc.world != null) {
+				GlStateManager.rotate(-30.0f, 1.0f, 0.0f, 0.0f);
+				GlStateManager.rotate((float) (System.currentTimeMillis() % 36000) / -20.0f, 0.0f, 1.0f, 0.0f);
+			}
+			else {
+				GlStateManager.rotate(-30.0f + rotateX, 1.0f, 0.0f, 0.0f);
+				GlStateManager.rotate(rotateZ, 0.0f, 0.0f, 1.0f);
+			}
+			if (selectDealData.deal.isCase()) {
+				GlStateManager.translate(-16.0f, -8.0f, 0.0f);
+				GlStateManager.scale(32.0f, -32.0f, 32.0f);
+				GlStateManager.callList(ModelBuffer.getDisplayList(selectDealData.deal.getCaseObjModel(), null, materialTextures));
+			}
+			else {
+				if (!selectDealData.deal.getProduct().isEmpty()) {
+					ItemStack stack = selectDealData.deal.getProduct().getMCItemStack();
+					GlStateManager.scale(32.0f, -32.0f, 32.0f);
+					mc.getRenderItem().renderItem(stack, ItemCameraTransforms.TransformType.NONE);
+				}
+			}
+			GlStateManager.popMatrix();
+		}
+		if (Mouse.hasWheel()) {
+			if (isMouseHover(mouseX, mouseY, 3, 3, scrollWidth * 2 - 6, ySize - 50)) {
+				scrollY = ValueUtil.correctInt(scrollY + (int) (Mouse.getDWheel() / 120.0d * 28.0d), -scrollMaxY, 0);
+			}
+			else if (isMouseHover(mouseX, mouseY, xSize - 153, 76, 128, hoverHeightMax - 4)) {
+				hoverY = ValueUtil.correctInt(hoverY + (int) (Mouse.getDWheel() / 120.0d * ((double) fontRenderer.FONT_HEIGHT + 1.0d)), -hoverMaxY, 0);
+			}
+		}
 	}
 
 	@Override
 	public void initGui() {
+		ScaledResolution sw = new ScaledResolution(mc);
+		// window
+		if (xSize != (int) sw.getScaledWidth_double() || ySize != (int) sw.getScaledHeight_double()) {
+			scrollY = 0;
+			hoverY = 0;
+		}
+		xSize = (int) sw.getScaledWidth_double();
+		ySize = (int) sw.getScaledHeight_double();
+		((ContainerNPCTrader) inventorySlots).reset(xSize, ySize);
+		boolean focus = getTextField(0) != null && getTextField(0).isFocused();
 		super.initGui();
-		data.clear();
-
-		px = guiLeft + 162;
-		py = guiTop + 17;
-
-		GuiMenuSideButton tab;
-		if (ceilPos < 0) {
-			ceilPos = 0;
+		invPosX = xSize - 178;
+		invPosY = ySize - 118;
+		scrollWidth = ValueUtil.correctInt(214, 0, xSize - 202) / 2;
+		if (ySize <= 512) {
+			scrollHMax = 1;
+			scrollBMax = 1;
+			scrollHeight = ySize / 2;
+			scrollBHeight = (ySize - 85) / 2;
+		}
+		else {
+			scrollHMax = (int) Math.ceil(((float) ySize - 10.0f) / 216.0f);
+			scrollHeight = (int) Math.ceil(((float) ySize - 6.0f) / (float) scrollHMax);
+			scrollHMax--;
+			scrollBMax = (int) Math.ceil(((float) ySize - 85.0f) / 200.0f);
+			scrollBHeight = (int) Math.ceil(((float) ySize - 85) / (float) scrollHMax);
+			scrollBMax--;
+		}
+		hoverHeightMax = invPosY - 98;
+		if (hoverHeightMax <= 206) {
+			hoverHMax = 1;
+			hoverBMax = 1;
+			hoverHeight = (hoverHeightMax - 4) / 2;
+			hoverBHeight = (hoverHeightMax - 24) / 2;
+		}
+		else {
+			hoverHMax = (int) Math.ceil(((float) hoverHeightMax - 4.0f) / 216.0f);
+			hoverHeight = (int) Math.ceil(((float) hoverHeightMax - 4.0f) / (float) hoverHMax);
+			hoverHMax--;
+			hoverBMax = (int) Math.ceil(((float) hoverHeightMax - 24.0f) / 200.0f);
+			hoverBHeight = (int) Math.ceil(((float) hoverHeightMax - 24.0f) / (float) hoverHMax);
+			hoverBMax--;
+		}
+		ceilHeight = (int) Math.floor(((float) ySize - 36.0f) / 24.0f);
+		// gm buttons
+		addButton(new GuiNpcButton(2, invPosX, invPosY - 22, 76, 20, "remote.reset")
+				.setIsVisible(player.isCreative())
+				.setHoverText("market.hover.reset"));
+		// section tabs
+		SectionButton tab;
+		if (ceilList < 0) {
+			ceilList = 0;
 			section = 0;
 		}
 		if (marcet.sections.size() > 1) {
-			if (marcet.sections.size() > 5) {
-				if (ceilPos > 0) {
-					tab = new GuiMenuSideButton(3, guiLeft + 1, guiTop + 4, "" + ((char) 708));
-					tab.height = 16;
-					tab.offsetText = 1;
+			int offsetY = 4;
+			if (marcet.sections.size() > ceilHeight) {
+				if (ceilList > 0 && section != ceilList) {
+					tab = new SectionButton(this, 3, null, scrollWidth * 2 + 3, ySize - 16);
 					addButton(tab);
-				}
-				if (ceilPos < Math.floor((double) marcet.sections.size() / 5.0d)) {
-					tab = new GuiMenuSideButton(4, guiLeft + 1, guiTop + 100, "" + ((char) 709));
-					tab.height = 16;
-					tab.offsetText = 2;
+				} // down | next
+				if (ceilList < Math.floor((double) marcet.sections.size() / (double) ceilHeight)) {
+					tab = new SectionButton(this, 4, null, scrollWidth * 2 + 3, 7);
 					addButton(tab);
-				}
+				} // up | back
+				offsetY += 14;
 			}
-			for (int i = 0; i < 5 && (i + ceilPos * 5) < marcet.sections.size(); i++) {
-				tab = new GuiMenuSideButton(5 + i, guiLeft + 1, guiTop + 20 + i * 16, marcet.sections.get(i + ceilPos * 5).getName());
-				tab.data = i + ceilPos * 5;
-				tab.height = 16;
-				if (i + ceilPos * 5 == section) { tab.active = true; }
+			int id;
+			for (int i = 0; i < ceilHeight && (i + ceilList * ceilHeight) < marcet.sections.size(); i++) {
+				id = i + ceilList * ceilHeight;
+				tab = new SectionButton(this, 20 + i, marcet.sections.get(id), scrollWidth * 2 + 9, offsetY + i * 24);
+				ITextComponent temp = new TextComponentTranslation("market.hover.section");
+				temp.getStyle().setColor(TextFormatting.GRAY);
+				tab.setHoverText(temp.getFormattedText() + "<br>" + marcet.sections.get(id).getName());
+				if (i + ceilList * ceilHeight == section) { tab.active = true; }
 				addButton(tab);
 			}
 		}
-		List<TempDeal> selectInTrade = new ArrayList<>();
-		List<TempDeal> selectNotTrade = new ArrayList<>();
+		// section deals
 		int level = ClientProxy.playerData.game.getMarcetLevel(marcet.getId());
+		List<Deal> dealInTrade = new ArrayList<>();
+		List<Deal> caseInTrade = new ArrayList<>();
+		List<Deal> dealNotTrade = new ArrayList<>();
+		List<Deal> caseNotTrade = new ArrayList<>();
 		MarcetController mData = MarcetController.getInstance();
 		MarcetSection ms = marcet.sections.get(section);
+		String s = search.toLowerCase();
 		if (ms != null && !ms.deals.isEmpty()) {
 			for (Deal deal : ms.deals) {
-				String key = deal.getName();
-				while (data.containsKey(key)) { key = ((char)167) + "r" + key; }
-				if (deal.getMaxCount() != 0 && deal.getAmount() == 0) { selectNotTrade.add(new TempDeal(deal.getId(), deal.getProduct().getDisplayName(), key)); }
-				else {selectInTrade.add(new TempDeal(deal.getId(), deal.getProduct().getDisplayName(), key)); }
-				data.put(key, deal);
-				if (selectDealData != null && selectDealData.deal != null
-						&& selectDealData.deal.getId() == deal.getId()) {
-					selectDealData = mData.getBuyData(marcet, deal, level);
+				if (!s.isEmpty() && !deal.getName().toLowerCase().contains(s)) { continue; }
+				if (deal.getMaxCount() != 0 && deal.getAmount() == 0) {
+					if (deal.isCase()) { caseNotTrade.add(deal); }
+					else { dealNotTrade.add(deal); }
+				}
+				else {
+					if (deal.isCase()) { caseInTrade.add(deal); }
+					else { dealInTrade.add(deal); }
 				}
 			}
 		}
-		if (scroll == null) { (scroll = new GuiCustomScroll(this, 6)).setSize(154, 123); }
-		selectInTrade.sort(comparator);
-		selectNotTrade.sort(comparator);
-		List<String> sel = new ArrayList<>();
-		for (TempDeal td : selectInTrade) { sel.add(td.key); }
-		for (TempDeal td : selectNotTrade) { sel.add(td.key); }
-		List<ItemStack> stacks = new ArrayList<>();
-		List<String> suffixes = new ArrayList<>();
-		LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
+		dealInTrade.sort(comparator);
+		caseInTrade.sort(comparator);
+		dealNotTrade.sort(comparator);
+		caseNotTrade.sort(comparator);
+		data.clear();
+		for (Deal deal : caseInTrade) { data.put(deal.getId(), deal); }
+		for (Deal deal : caseNotTrade) { data.put(deal.getId(), deal); }
+		for (Deal deal : dealInTrade) { data.put(deal.getId(), deal); }
+		for (Deal deal : dealNotTrade) { data.put(deal.getId(), deal); }
+		if (data.isEmpty()) { scrollMaxY = 0; }
+		else { scrollMaxY = ValueUtil.correctInt(data.size() * 28 - ySize + 62, 0, Integer.MAX_VALUE); }
 		int i = 0;
-		for (String key : sel) {
-			Deal deal = data.get(key);
-			DealMarkup dm = mData.getBuyData(marcet, deal, level);
-			stacks.add(dm.main);
-			List<String> info = new ArrayList<>();
-			info.add(new TextComponentTranslation("market.hover.product").getFormattedText());
-
-			if (deal.getMaxCount() > 0) { suffixes.add(((char) 167) + (deal.getAmount() == 0 ? "4" : deal.getAmount() < deal.getProduct().getMaxStackSize() ? "b" : "a") + Util.instance.getTextReducedNumber(deal.getAmount(), true, true, false)); }
-			else { suffixes.add(((char) 167) + "a" + new String(Character.toChars(0x221E))); }
-			info.add(dm.main.getDisplayName() + " x" + dm.count + " " + (new TextComponentTranslation("market.hover.item." + (deal.getMaxCount() > 0 ? deal.getAmount() == 0 ? "not" : "amount" : "infinitely"), "" + deal.getAmount()).getFormattedText()));
-			if (!dm.buyItems.isEmpty()) {
-				info.add(new TextComponentTranslation("market.hover.item").getFormattedText());
-				for (ItemStack curr : dm.buyItems.keySet()) { info.add(curr.getDisplayName() + " x" + dm.buyItems.get(curr)); }
+		for (Deal deal : data.values()) {
+			TradeButton button = new TradeButton(this, deal, level, 5, 15 + i * 28, (scrollWidth * 2) - (scrollMaxY == 0 ? 9 : 22), dealInTrade.contains(deal) || caseInTrade.contains(deal));
+			tButtons.put(button.id, button);
+			addButton(button);
+			i++;
+			if ((selectDealData == null || selectDealData.deal == null) && (player.isCreative() || deal.getMaxCount() > 0 && deal.getAmount() > 0)) {
+				selectDealData = mData.getBuyData(marcet, deal, level, count);
 			}
-			if (dm.buyMoney > 0) {
-				info.add(new TextComponentTranslation("market.hover.currency").getFormattedText());
-				info.add(dm.buyMoney + CustomNpcs.displayCurrencies);
+		}
+		if (selectDealData != null && selectDealData.deal != null) {
+			selectDealData = mData.getBuyData(marcet, selectDealData.deal, level, count);
+			boolean found = false;
+			for (Deal deal : data.values()) {
+				if (deal.getId() == selectDealData.deal.getId()) {
+					found = true;
+					break;
+				}
 			}
-			hts.put(i++, info);
+			if (found) { selectDealData.check(player.inventory.mainInventory); }
+			else {
+				selectDealData = null;
+				scrollY = 0;
+				hoverY = 0;
+				rotateX = 0.0f;
+				rotateZ = 0.0f;
+			}
 		}
-		if (selectDealData == null || selectDealData.deal == null) { selectDealData = mData.getBuyData(marcet, data.get(sel.get(0)), level); }
-		selectDealData.check(mc.player.inventory.mainInventory);
-		scroll.canSearch(isSearch);
-		scroll.setListNotSorted(sel);
-		scroll.setStacks(stacks);
-		scroll.setHoverTexts(hts);
-		scroll.setSuffixes(suffixes);
-
-		scroll.guiLeft = guiLeft + 4;
-		scroll.guiTop = guiTop + 14;
-		scroll.setSelected(selectDealData.deal.getName());
-		title = marcet.getShowName();
-		addScroll(scroll);
-
-		int gray = 0xFF202020;
-		addLabel(new GuiNpcLabel(1, "market.deals", guiLeft + 4, guiTop + 5));
-		GuiNpcLabel label = new GuiNpcLabel(2, "market.barter", px, guiTop + 46);
-		label.color = gray;
-		label.enabled = !selectDealData.buyItems.isEmpty();
-		addLabel(label);
-		addLabel(new GuiNpcLabel(3, "market.currency", px, guiTop + 114, gray));
-		addLabel(new GuiNpcLabel(4, "", px, guiTop + 126, gray)); // Money
-		money = ClientProxy.playerData.game.getMoney();
-		if (selectDealData.buyMoney > 0) {
-			getLabel(3).setEnabled(true);
-			String text = Util.instance.getTextReducedNumber(selectDealData.buyMoney, true, true, false) + CustomNpcs.displayCurrencies + " / " + ClientProxy.playerData.game.getTextMoney() + CustomNpcs.displayCurrencies;
-			if (marcet.isLimited) { text += " / " + Util.instance.getTextReducedNumber(marcet.money, true, true, false) + CustomNpcs.displayCurrencies; }
-			getLabel(4).setEnabled(true);
-			getLabel(4).setLabel(text);
-		}
-		else {
-			getLabel(3).setEnabled(false);
-			getLabel(4).setEnabled(false);
-		}
-		addLabel(new GuiNpcLabel(5, "", px + 27, guiTop + 25, gray)); // amount
-		if (selectDealData.deal.getMaxCount() > 0) {
-			getLabel(5).setLabel(((char) 167) + (selectDealData.deal.getAmount() == 0 ? "4" : selectDealData.deal.getAmount() < selectDealData.deal.getProduct().getMaxStackSize() ? "1" : "2") + "x" + Util.instance.getTextReducedNumber(selectDealData.deal.getAmount(), true, true, false));
-		}
-		else {
-			getLabel(5).setLabel(new String(Character.toChars(0x221E)));
-		}
-		if (marcet.updateTime > 0) {
-			addLabel(new GuiNpcLabel(6, "", guiLeft + 80, guiTop + 5, gray)); // time
-			getLabel(6).setEnabled(marcet.updateTime > 0);
+		if (selectDealData != null && selectDealData.deal != null) {
+			hovers.clear();
+			List<String> temp = new ArrayList<>();
+			if (selectDealData.deal.isCase()) {
+				materialTextures.put("minecraft:entity/chest/christmas", selectDealData.deal.getCaseTexture().toString());
+				if (selectDealData.deal.showInCase() || player.isCreative())
+				{ selectDealData.deal.putHoverCaseItems(temp, player.isCreative() ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL); }
+			} else if (!selectDealData.deal.getProduct().isEmpty()) {
+				temp.addAll(selectDealData.deal.getProduct().getMCItemStack().getTooltip(player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+			}
+			if (!temp.isEmpty()) {
+				String lastColor;
+				int w = 116;
+				for (String line : temp) {
+					if (fontRenderer.getStringWidth(line) < w) { hovers.add(line); }
+					else {
+						lastColor = "";
+						StringBuilder l = new StringBuilder();
+						for (int j = 0; j < line.length(); j++) {
+							char c = line.charAt(j);
+							try {
+								if ((int) c == 167) {
+									lastColor = c + "" + line.charAt(j + 1);
+								}
+							}
+							catch (Exception ignored) { }
+							if (fontRenderer.getStringWidth(l.toString() + c) > w) {
+								hovers.add(l.toString());
+								l = new StringBuilder(lastColor + c);
+								lastColor = "";
+							}
+							else { l.append(c); }
+						}
+						if (!l.toString().isEmpty()) { hovers.add(l.toString()); }
+					}
+				}
+			}
+			if (hovers.isEmpty()) { hoverMaxY = 0; }
+			else { hoverMaxY = ValueUtil.correctInt(hovers.size() * (fontRenderer.FONT_HEIGHT + 1) - hoverHeightMax + 4, 0, Integer.MAX_VALUE); }
 		}
 		// buy
-		int x = guiLeft + 194;
-		int y = guiTop + 139;
-		GuiNpcButton button;
-		addButton(button = new GuiNpcButton(0, x, y, 12, 18, 0, 0, BUTTONS));
-		button.txrW = 24;
-		button.txrH = 36;
-		button.setIsAnim(true);
-		button.setIsVisible(selectDealData.deal.getType() != 1);
-		canBuy = 0;
-		if (button.isVisible()) {
-			if (!player.capabilities.isCreativeMode) {
-				if (wait || selectDealData.deal.getType() == 1) { canBuy = 1; }
-				if (canBuy == 0 && selectDealData.deal.getAmount() <= 0) { canBuy = 6; }
-				if (canBuy == 0 && !selectDealData.deal.availability.isAvailable(player)) { canBuy = 2; }
-				if (canBuy == 0 && selectDealData.buyMoney > 0 && money < selectDealData.buyMoney) { canBuy = 3; }
-				if (canBuy == 0 && !Util.instance.canRemoveItems(player.inventory.mainInventory, selectDealData.buyItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canBuy = 4; }
-				if (canBuy == 0
-						&& !Util.instance.canAddItemAfterRemoveItems(player.inventory.mainInventory,
-								selectDealData.main, selectDealData.buyItems,
-								selectDealData.ignoreDamage, selectDealData.ignoreNBT)) {
-					canBuy = 5;
-				}
+		int x = scrollWidth;
+		int y = ySize - 45;
+		boolean enableBuy = selectDealData != null && selectDealData.deal != null && selectDealData.deal.getType() != 1;
+		GuiNpcButton buyButton;
+		addButton(buyButton = new GuiNpcButton(0, x, y, scrollWidth - 5, 20,
+				"   " + new TextComponentTranslation("gui.buy").getFormattedText())
+				.setTexture(BUTTONS)
+				.setUV(0, 144, 128, 20)
+				.setIsEnable(enableBuy));
+		buyButton.simple(true);
+		canBuy.clear();
+		if (enableBuy) {
+			if (wait || selectDealData.deal.getType() == 1) { canBuy.add(1); }
+			if (selectDealData.deal.getAmount() <= 0 && selectDealData.deal.getMaxCount() <= 0) { canBuy.add(6); }
+			if (!selectDealData.deal.availability.isAvailable(player)) { canBuy.add(2); }
+			if (selectDealData.buyMoney > 0 && ClientProxy.playerData.game.getMoney() < selectDealData.buyMoney) { canBuy.add(3); }
+			if (selectDealData.buyDonat > 0 && ClientProxy.playerData.game.getDonat() < selectDealData.buyDonat) { canBuy.add(7); }
+			if (!Util.instance.canRemoveItems(player.inventory.mainInventory, selectDealData.buyItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canBuy.add(4); }
+			if (!selectDealData.deal.isCase() && !Util.instance.canAddItemAfterRemoveItems(player.inventory.mainInventory, selectDealData.main, selectDealData.buyItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canBuy.add(5); }
+			Map<ItemStack, Integer> mainItem = new LinkedHashMap<>();
+			mainItem.put(selectDealData.main, selectDealData.count);
+			if (marcet.isLimited && !selectDealData.deal.isCase() && !Util.instance.canRemoveItems(marcet.inventory, mainItem, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canBuy.add(8); }
+			if (buyButton.enabled) {
+				if (!player.isCreative()) { buyButton.setIsEnable(canBuy.isEmpty()); }
+				if (!canBuy.isEmpty()) { buyButton.setLayerColor(0xFF800000); }
 			}
-			button.setEnabled(canBuy == 0);
 		}
 		// sell
-		addButton(button = new GuiNpcButton(1, x + 13, y, 12, 18, 24, 0, BUTTONS));
-		button.txrW = 24;
-		button.txrH = 36;
-		button.setIsAnim(true);
-		button.setIsVisible(selectDealData.deal.getType() != 0);
-		canSell = 0;
-		if (button.isVisible()) {
-			if (!player.capabilities.isCreativeMode) {
-				if (wait) {
-					canSell = 1;
-				} else if (!selectDealData.deal.availability.isAvailable(player)) {
-					canSell = 2;
-				} else {
-					Map<ItemStack, Integer> map = new HashMap<>();
-					map.put(selectDealData.main, selectDealData.count);
-					if (canSell == 0 && !selectDealData.main.isEmpty()
-							&& !Util.instance.canRemoveItems(player.inventory.mainInventory, map,
-							selectDealData.ignoreDamage, selectDealData.ignoreNBT)) {
-						canSell = 3;
-					}
-					if (canSell == 0 && marcet.isLimited) {
-						if (selectDealData.sellMoney > marcet.money) {
-							canSell = 4;
-						}
-						if (canSell == 0 && !selectDealData.sellItems.isEmpty()
-								&& !Util.instance.canRemoveItems(marcet.inventory,
-										selectDealData.sellItems, selectDealData.ignoreDamage,
-										selectDealData.ignoreNBT)) {
-							canSell = 5;
-						}
-					}
-					if (canSell == 0 && selectDealData.deal.getMaxCount() == 0 && canBuy == 6
-							&& selectDealData.deal.getType() != 1) {
-						canSell = 6;
+		boolean enableSell = selectDealData != null && selectDealData.deal != null  && selectDealData.deal.getType() != 0;
+		GuiNpcButton sellButton;
+		addButton(sellButton = new GuiNpcButton(1, x, y + 20, scrollWidth - 5, 20,
+				new TextComponentTranslation("gui.sell").getFormattedText() + "   ")
+				.setTexture(BUTTONS)
+				.setUV(128, 144, 128, 20)
+				.setIsEnable(enableSell));
+		sellButton.simple(true);
+		canSell.clear();
+		if (enableSell) {
+			if (wait) { canSell.add(1); }
+			if (!selectDealData.deal.availability.isAvailable(player)) { canSell.add(2); }
+			Map<ItemStack, Integer> mainItem = new HashMap<>();
+			mainItem.put(selectDealData.main, selectDealData.count);
+			if (!selectDealData.main.isEmpty()  && !Util.instance.canRemoveItems(player.inventory.mainInventory, mainItem,  selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canSell.add(3); }
+			if (marcet.isLimited) {
+				if (selectDealData.sellMoney > marcet.money) { canSell.add(4); }
+				if (!selectDealData.sellItems.isEmpty() && !Util.instance.canRemoveItems(marcet.inventory,  selectDealData.sellItems, selectDealData.ignoreDamage, selectDealData.ignoreNBT)) { canSell.add(5); }
+			}
+			if (selectDealData.deal.getMaxCount() == 0 && selectDealData.deal.getAmount() <= 0 && selectDealData.deal.getType() != 1) { canSell.add(6); }
+			if (sellButton.enabled) {
+				if (!player.isCreative()) { sellButton.setIsEnable(canSell.isEmpty()); }
+				if (!canSell.isEmpty()) { sellButton.setLayerColor(0xFF800000); }
+			}
+		}
+		// prise buttons
+		if (selectDealData != null && selectDealData.deal != null) {
+			List<String> hoverBuy = new ArrayList<>();
+			List<String> hoverSell = new ArrayList<>();
+			if (selectDealData.deal.getAmount() > 0 || (mc.player != null && mc.player.isCreative())) {
+				if (!canBuy.isEmpty()) {
+					for (int id : canBuy) { hoverBuy.add(new TextComponentTranslation("market.hover.notbuy." + id).getFormattedText()); }
+				}
+				if (!canSell.isEmpty()) {
+					for (int id : canSell) { hoverSell.add(new TextComponentTranslation("market.hover.notsell." + id).getFormattedText()); }
+				}
+				if (!canBuy.isEmpty() || selectDealData.deal.getAmount() <= 0) { hoverBuy.add(new TextComponentTranslation("gui.allowed").getFormattedText()); }
+				if (!canSell.isEmpty()) { hoverSell.add(new TextComponentTranslation("gui.allowed").getFormattedText()); }
+				// buy hover info
+				if (!selectDealData.buyItems.isEmpty()) {
+					hoverBuy.add(new TextComponentTranslation("market.hover.item.buy").getFormattedText());
+					for (ItemStack curr : selectDealData.buyItems.keySet()) {
+						hoverBuy.add(curr.getDisplayName() + TextFormatting.GRAY + " x" + TextFormatting.GOLD + selectDealData.buyItems.get(curr) + " ");
 					}
 				}
+				if (selectDealData.buyMoney > 0) { hoverBuy.add(new TextComponentTranslation("market.hover.currency.buy", selectDealData.buyMoney, CustomNpcs.displayCurrencies).getFormattedText()); }
+				if (selectDealData.buyDonat > 0) { hoverBuy.add(new TextComponentTranslation("market.hover.donat.buy", selectDealData.buyDonat, CustomNpcs.displayDonation).getFormattedText()); }
+				// sell hover info
+				if (!selectDealData.sellItems.isEmpty()) {
+					hoverSell.add(new TextComponentTranslation("market.hover.item.sell").getFormattedText());
+					for (ItemStack curr : selectDealData.sellItems.keySet()) {
+						hoverSell.add(curr.getDisplayName() + TextFormatting.GRAY +" x" + TextFormatting.GOLD + selectDealData.sellItems.get(curr) + " ");
+					}
+				}
+				if (selectDealData.sellMoney > 0) { hoverSell.add(new TextComponentTranslation("market.hover.currency.sell", selectDealData.sellMoney, CustomNpcs.displayCurrencies).getFormattedText()); }
 			}
-			button.setEnabled(canSell == 0);
+			if (selectDealData.deal.getType() != 1) { buyButton.setHoverText(hoverBuy); }
+			if (selectDealData.deal.getType() != 0) { sellButton.setHoverText(hoverSell); }
 		}
-
-		addButton(new GuiNpcButton(2, guiLeft - 66, guiTop + 117, 64, 20, "remote.reset"));
-		getButton(2).setIsVisible(player.capabilities.isCreativeMode);
-
-		addButton(button = new GuiNpcCheckBox(11, x, y += 20, 26, 12, "type.id", "N", isIdSort));
-		button.setHoverText("hover.sort",
-				new TextComponentTranslation("market.deals").getFormattedText(),
-				new TextComponentTranslation(isIdSort ? "type.id" : "gui.name").getFormattedText());
-
-		if (sel.size() > 9) {
-			addButton(button = new GuiNpcCheckBox(12, x, y + 18, 26, 12, "+", "-", isSearch));
-			button.setHoverText("market.hover.is.search");
-		}
+		addButton(new TradeButtonBiDirectional(this, 6, y, scrollWidth - 5));
+		addButton(new GuiNpcCheckBox(11, 3, 3, 26, 12, "type.id", "N", isIdSort)
+				.setHoverText("hover.sort", new TextComponentTranslation("market.deals").getFormattedText(), new TextComponentTranslation(isIdSort ? "type.id" : "gui.name").getFormattedText()));
+		addTextField(new MarcetTextField(this, 28, ySize - 19, scrollWidth - 31)
+				.setHoverText("market.hover.is.search"));
+		getTextField(0).setFocused(focus);
+		// hover item / case
 	}
 
 	@Override
-	public void keyTyped(char c, int i) {
-		super.keyTyped(c, i);
-		if (i == 200 || i == mc.gameSettings.keyBindForward.getKeyCode() || i == 208 || i == mc.gameSettings.keyBindBack.getKeyCode()) {
-			int pos = scroll.getSelect() + ((i == 200 || i == mc.gameSettings.keyBindForward.getKeyCode()) ? -1 : 1);
-			if (pos < 0 || pos >= scroll.getList().size()) { return; }
-			String sel = scroll.getList().get(pos);
-			if (!data.containsKey(sel)) { return; }
-			selectDealData.deal = data.get(sel);
-			initGui();
+	public boolean keyCnpcsPressed(char typedChar, int keyCode) {
+		if (!hasSubGui()) {
+			if (keyCode == Keyboard.KEY_UP || keyCode == mc.gameSettings.keyBindForward.getKeyCode()) {
+				if (!hovers.isEmpty() && isMouseHover(mouseX, mouseY, xSize - 153, 76, 128, hoverHeightMax - 4)) {
+					hoverY = ValueUtil.correctInt(hoverY + fontRenderer.FONT_HEIGHT + 1, -hoverMaxY, 0);
+					return true;
+				} else {
+					scrollY = ValueUtil.correctInt(scrollY + 28, -scrollMaxY, 0);
+				}
+			} else if (keyCode == Keyboard.KEY_DOWN || keyCode == mc.gameSettings.keyBindBack.getKeyCode()) {
+				if (!hovers.isEmpty() && isMouseHover(mouseX, mouseY, xSize - 153, 76, 128, hoverHeightMax - 4)) {
+					hoverY = ValueUtil.correctInt(hoverY - fontRenderer.FONT_HEIGHT - 1, -hoverMaxY, 0);
+					return true;
+				} else {
+					scrollY = ValueUtil.correctInt(scrollY - 28, -scrollMaxY, 0);
+				}
+			}
 		}
+		return super.keyCnpcsPressed(typedChar, keyCode);
+	}
+
+	@Override
+	public boolean mouseCnpcsPressed(int mouseX, int mouseY, int mouseButton) {
+		if (mouseButton == 0) {
+			isScrolled = isMouseHover(mouseX, mouseY, scrollWidth * 2 - 14, 4, 10, ySize - 51);
+			if (isScrolled) {
+				double yPos = ValueUtil.correctDouble(mouseY, 20.0d, ySize - 71.0d) - 20.0d;
+				scrollY = ValueUtil.correctInt((int) (yPos / (ySize - 91.0d) * -scrollMaxY), -scrollMaxY, 0);
+			}
+			isHovered = isMouseHover(mouseX, mouseY, xSize - 35, 76, 10, hoverHeightMax - 4);
+			if (isHovered) {
+				double yPos = ValueUtil.correctDouble(mouseY, 86.0d, 61.0d + hoverHeightMax) - 86.0d;
+				hoverY = ValueUtil.correctInt((int) (yPos / (hoverHeightMax - 26.0d) * -hoverMaxY), -hoverMaxY, 0);
+			}
+		}
+		return super.mouseCnpcsPressed(mouseX, mouseY, mouseButton);
+	}
+
+	@Override
+	public void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick) {
+		if (Mouse.isButtonDown(0)) {
+			if (isScrolled) {
+				double yPos = ValueUtil.correctDouble(mouseY, 20.0d, ySize - 71.0d) - 20.0d;
+				scrollY = ValueUtil.correctInt((int) (yPos / (ySize - 91.0d) * -scrollMaxY), -scrollMaxY, 0);
+			} else if (isHovered) {
+				double yPos = ValueUtil.correctDouble(mouseY, 86.0d, 61.0d + hoverHeightMax) - 86.0d;
+				hoverY = ValueUtil.correctInt((int) (yPos / (hoverHeightMax - 26.0d) * -hoverMaxY), -hoverMaxY, 0);
+			}
+		}
+		super.mouseClickMove(mouseX, mouseY, clickedMouseButton, timeSinceLastClick);
 	}
 
 	@Override
 	public void save() {
-		NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketRemove, marcet.getId());
-	}
-
-	@Override
-	public void scrollClicked(int mouseX, int mouseY, int mouseButton, IGuiCustomScroll scroll) {
-		if (!data.containsKey(scroll.getSelected())) {
-			return;
-		}
-		selectDealData.deal = data.get(scroll.getSelected());
-		initGui();
-	}
-
-	@Override
-	public void scrollDoubleClicked(String select, IGuiCustomScroll scroll) {
+		if (marcet != null) { NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderLivePlayer, marcet.getId()); }
 	}
 
 	@Override
 	public void setGuiData(NBTTagCompound compound) {
-		IMarcet market = MarcetController.getInstance().getMarcet(marcet.getId());
 		wait = false;
-		marcet = (Marcet) market;
-		((ContainerNPCTrader) inventorySlots).marcet = (Marcet) market;
+		marcet = MarcetController.getInstance().getMarcet(marcet.getId());
+		((ContainerNPCTrader) inventorySlots).marcet = marcet;
 		initGui();
 	}
 
-	public static class TempDeal {
+	@Override
+	public void unFocused(GuiNpcTextField textField) { }
 
-		public final int id;
-		public final String stackName;
-		public final String key;
+	@Override
+	public void textUpdate(String text) {
+		search = text;
+		initGui();
+	}
 
-		public TempDeal(int id, String stackName, String key) {
-			this.id = id;
-			this.stackName = stackName;
-			this.key = key;
+	@SideOnly(Side.CLIENT)
+	public static class TradeButton extends GuiNpcButton {
+
+		protected static final Random rnd = new Random();
+		protected final Minecraft mc = Minecraft.getMinecraft();
+		protected final Deal deal;
+		protected final DealMarkup dm;
+		protected final boolean inTrade;
+		protected final GuiNPCTrader listener;
+		// case
+		protected ResourceLocation objCase;
+		protected Map<String, String> materialTextures = new HashMap<>();
+		protected boolean type;
+		protected boolean start;
+		protected int rncd;
+		// hovers
+		protected final List<String> hoverMain = new ArrayList<>();
+		protected final List<String> hoverPrise = new ArrayList<>();
+
+		public TradeButton(GuiNPCTrader gui, Deal dealIn, int level, int x, int y, int w, boolean inTradeIn) {
+			super(dealIn.getId(), x, y, w, 28, dealIn.getName());
+			texture = BUTTONS;
+			deal = dealIn;
+			txrW = 256;
+			txrH = 28;
+
+			listener = gui;
+			dm = MarcetController.getInstance().getBuyData(marcet, deal, level, gui.count);
+			if (!deal.isCase()) { currentStack = dm.main; }
+			inTrade = inTradeIn;
+			ITextComponent temp;
+			// product info
+			if (deal.isCase()) {
+				hoverMain.add(new TextComponentTranslation("market.hover.case").getFormattedText());
+				hoverMain.add(new TextComponentTranslation("market.deal.case.count", deal.getCaseCount()).getFormattedText());
+				if (!deal.showInCase()) {
+					temp = new TextComponentTranslation("market.case.show.false");
+					temp.getStyle().setColor(TextFormatting.RED);
+					hoverMain.add(temp.getFormattedText());
+				}
+				if (deal.showInCase() ||
+						(mc.player != null && mc.player.isCreative()))
+				{ deal.putHoverCaseItems(hoverMain, TooltipFlags.NORMAL); }
+			}
+			else {
+				hoverMain.add(new TextComponentTranslation("market.hover.product").getFormattedText());
+				hoverMain.add(dm.main.getDisplayName() + TextFormatting.GRAY + " x" + TextFormatting.GOLD + dm.count + " " +
+						new TextComponentTranslation("market.hover.item." + (deal.getMaxCount() > 0 ? deal.getAmount() == 0 ? "not" : "amount" : "infinitely"), "" + deal.getAmount()).getFormattedText());
+			}
+			if (deal.getAmount() > 0 || (mc.player != null && mc.player.isCreative())) {
+				if (deal.getAmount() <= 0) { hoverPrise.add(new TextComponentTranslation("gui.allowed").getFormattedText()); }
+				// buy hover info
+				if (!dm.buyItems.isEmpty()) {
+					hoverPrise.add(new TextComponentTranslation("market.hover.item.buy").getFormattedText());
+					for (ItemStack curr : dm.buyItems.keySet()) {
+						hoverPrise.add(curr.getDisplayName() + TextFormatting.GRAY + " x" + TextFormatting.GOLD + dm.buyItems.get(curr) + " ");
+					}
+				}
+				if (dm.buyMoney > 0) { hoverPrise.add(new TextComponentTranslation("market.hover.currency.buy", dm.buyMoney, CustomNpcs.displayCurrencies).getFormattedText()); }
+				if (dm.buyDonat > 0) { hoverPrise.add(new TextComponentTranslation("market.hover.donat.buy", dm.buyDonat, CustomNpcs.displayDonation).getFormattedText()); }
+				// sell hover info
+				if (!dm.sellItems.isEmpty()) {
+					hoverPrise.add(new TextComponentTranslation("market.hover.item.sell").getFormattedText());
+					for (ItemStack curr : dm.sellItems.keySet()) {
+						hoverPrise.add(curr.getDisplayName() + TextFormatting.GRAY + " x" + TextFormatting.GOLD + dm.sellItems.get(curr) + " ");
+					}
+				}
+				if (dm.sellMoney > 0) { hoverPrise.add(new TextComponentTranslation("market.hover.currency.sell", dm.sellMoney, CustomNpcs.displayCurrencies).getFormattedText()); }
+			}
+			// case model
+			rncd = rnd.nextInt(10000);
+			objCase = deal.getCaseObjModel();
+			if (objCase != null) {
+				try {
+					mc.getResourceManager().getResource(objCase);
+                    objCase = Deal.defaultCaseOBJ;
+                }
+				catch (Exception e) { objCase = null; }
+			}
+			materialTextures.put("minecraft:entity/chest/christmas", deal.getCaseTexture().toString());
+		}
+
+		@Override
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+			if (!visible) { return; }
+			GlStateManager.enableBlend();
+			int posY = y + listener.scrollY;
+			hovered = mouseY > 14 && mouseY < listener.ySize - 47 && mouseX >= x && mouseY >= posY && mouseX < x + width && mouseY < posY + height;
+			if (hovered) {
+				hoverText.clear();
+				hoverText.addAll(hoverMain);
+			}
+			int posX = x;
+			if (posY + height < 15 || posY > listener.ySize - 48) { return; }
+			posY = y;
+			RenderHelper.enableGUIStandardItemLighting();
+
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			int c = listener.xSize < mc.displayWidth ? (int) Math.round((double) mc.displayWidth / (double) listener.xSize) : 1;
+			GL11.glScissor(x * c, 48 * c, (width + 1) * c, (listener.ySize - 62) * c);
+
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(0.0f, listener.scrollY, 1.0f);
+
+			GlStateManager.pushMatrix();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			boolean isPrefabricated = txrW == 0;
+			float scaleH = height / (float) txrH;
+			float scaleW = isPrefabricated ? scaleH : width / (float) txrW;
+			GlStateManager.scale(scaleW, scaleH, 1.0f);
+			GlStateManager.translate(posX / scaleW, posY / scaleH, 0.0f);
+			mc.getTextureManager().bindTexture(texture);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			drawTexturedModalRect(0, 0, txrX, txrY + getState(inTrade) * txrH, txrW, txrH);
+			GlStateManager.popMatrix();
+
+			RenderHelper.enableGUIStandardItemLighting();
+			// rarity color
+			if (deal.getRarityColor() != 0) { drawGradientRect(posX + 2, posY + 2, posX + width - 2, posY + height - 2, 0x0, deal.getRarityColor() | 0x80000000); }
+			// case obj model
+			if (deal.isCase() && objCase != null) {
+				GlStateManager.pushMatrix();
+				GlStateManager.enableAlpha();
+				GlStateManager.enableBlend();
+				GlStateManager.translate(posX + 16.0f, posY + 8.5f, 16.0f);
+				if ((System.currentTimeMillis() + rncd) % 10000 < 2000 || hovered && isMouseHover(mouseX, mouseY, posX + 1, posY + listener.scrollY + 2, 32, 22)) {
+					float i = (float) ((System.currentTimeMillis() + rncd) % 2000);
+					if (!start) {
+						GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+						GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
+						GlStateManager.scale(16.0f, -16.0f, 16.0f);
+						GlStateManager.callList(ModelBuffer.getDisplayList(objCase, null, materialTextures));
+						if (i >= 1980) { start = true; }
+					}
+					else {
+						if (i <= 20) { type = rnd.nextFloat() < 0.5f; }
+						float rot;
+						if (type) {
+							if (i < 600) { rot = -0.033333f * i; }
+							else if (i < 1700) { rot = 0.027273f * i - 36.363636f; }
+							else { rot = - 0.033333f * i + 66.666666f; }
+							GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+							GlStateManager.rotate(-75.0f + rot, 0.0f, 1.0f, 0.0f);
+							GlStateManager.scale(16.0f, -16.0f, 16.0f);
+							GlStateManager.callList(ModelBuffer.getDisplayList(objCase, null, materialTextures));
+						}
+						else {
+							GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+							GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
+							GlStateManager.scale(16.0f, -16.0f, 16.0f);
+							GlStateManager.callList(ModelBuffer.getDisplayList(objCase, Collections.singletonList("body"), materialTextures));
+							if (i < 1500) { rot = 0.016667f * i; }
+							else if (i < 1900) { rot = 25.0f; }
+							else { rot = - 0.25f * i + 500.0f; }
+							GlStateManager.pushMatrix();
+							GlStateManager.rotate(rot, 0.0f, 0.0f, 1.0f);
+							GlStateManager.callList(ModelBuffer.getDisplayList(objCase, Collections.singletonList("top"), materialTextures));
+							GlStateManager.popMatrix();
+						}
+					}
+				}
+				else {
+					GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+					GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
+					GlStateManager.scale(16.0f, -16.0f, 16.0f);
+					GlStateManager.callList(ModelBuffer.getDisplayList(objCase, null, materialTextures));
+				}
+				GlStateManager.popMatrix();
+			}
+			if (currentStack != null && !currentStack.isEmpty()) {
+				mc.getTextureManager().bindTexture(GuiNPCTrader.ICONS);
+				GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+				drawTexturedModalRect( posX + 6, posY + 2, 0, getState(true) * 24, 24, 24);
+				if (!inTrade) { GlStateManager.color(0.4F, 0.4F, 0.4F, 1.0F); }
+				mc.getRenderItem().renderItemAndEffectIntoGUI(currentStack, posX + 10, posY + 6);
+				mc.getRenderItem().renderItemOverlays(mc.fontRenderer, currentStack, posX + 10, posY + 6);
+				if (!inTrade) { GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F); }
+				if (hovered && isMouseHover(mouseX, mouseY, posX + 6, posY + listener.scrollY + 3, 22, 22)) {
+					hoverText.clear();
+					hoverText.addAll(currentStack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+				}
+			}
+			// money and barter
+			int mw = 0;
+			if (deal.getAmount() > 0 || (mc.player != null && mc.player.isCreative())) {
+				// money
+				ITextComponent money = new TextComponentString("");
+				if (dm.sellMoney > 0) {
+					money.appendText(TextFormatting.YELLOW + "↑" + TextFormatting.RESET + Util.instance.getTextReducedNumber(dm.sellMoney, true, true, false));
+				}
+				if (dm.buyMoney > 0) {
+					if (!money.getFormattedText().isEmpty()) { money.appendText(" "); }
+					money.appendText(TextFormatting.GREEN + "↓" + TextFormatting.RESET + Util.instance.getTextReducedNumber(dm.buyMoney, true, true, true));
+				}
+				ITextComponent donat = new TextComponentString("");
+				if (dm.buyDonat > 0) {
+					if (!donat.getFormattedText().isEmpty()) { donat.appendText(" "); }
+					donat.appendText(TextFormatting.BLUE + "↓" + TextFormatting.RESET + Util.instance.getTextReducedNumber(dm.buyDonat, true, true, false));
+				}
+				int mt = 0;
+				boolean hasM = !money.getFormattedText().isEmpty();
+				boolean hasD = !donat.getFormattedText().isEmpty();
+				if (hasM && hasD) {
+					posX = x + width - 14;
+					posY = y + 3;
+					mt = 1;
+					mw = mc.fontRenderer.getStringWidth(money.getFormattedText());
+					if (System.currentTimeMillis() % 4000 < 2000) { mt = 2; mw = mc.fontRenderer.getStringWidth(donat.getFormattedText()); }
+				}
+				else if (hasM || hasD) {
+					posX = x + width - 14;
+					posY = y + 3;
+					if (hasM) { mt = 1; mw = mc.fontRenderer.getStringWidth(money.getFormattedText()); }
+					if (hasD) { mt = 2; mw = mc.fontRenderer.getStringWidth(donat.getFormattedText()); }
+				}
+				// draw prise info
+				if (mt != 0) {
+					posX -= mw;
+					drawString(mc.fontRenderer, (mt == 1 ? money : donat).getFormattedText(), posX, posY, CustomNpcs.MainColor.getRGB() | 0xFF000000);
+					GlStateManager.pushMatrix();
+					GlStateManager.enableAlpha();
+					GlStateManager.enableBlend();
+					GlStateManager.translate(posX + mw - 2, posY - 4, 0.0f);
+					GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);
+					mc.getTextureManager().bindTexture(mt == 1 ? GuiNPCInterface.MONEY : GuiNPCInterface.DONAT);
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					drawTexturedModalRect(0, 0, 0, 0, 256, 256);
+					GlStateManager.popMatrix();
+					if (hovered && isMouseHover(mouseX, mouseY, posX, posY + listener.scrollY, mw + 14, 10)) {
+						hoverText.clear();
+						hoverText.addAll(hoverPrise);
+					}
+				}
+				// barter
+				if (!dm.buyItems.isEmpty()) {
+					float sc = 1.0f;
+					int size = dm.buyItems.size();
+					mw = size * 16;
+					if (width - 34 < mw) { sc = (width - 34.0f) / (float) mw; }
+					float s = 0.666666f * sc;
+					// slots
+					GlStateManager.pushMatrix();
+					GlStateManager.enableAlpha();
+					GlStateManager.enableBlend();
+					GlStateManager.translate(x + width - 2 - mw * sc, y + height - 2.0f - 16.0f * sc, 0.0f);
+					GlStateManager.scale(s, s, s);
+					mc.getTextureManager().bindTexture(GuiNPCTrader.ICONS);
+					GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+					for (int i = 0; i < size; i++) { drawTexturedModalRect(i * 24, 0, 0, 0, 24, 24); }
+					GlStateManager.popMatrix();
+					s = 0.875f * sc;
+					// stacks
+					GlStateManager.pushMatrix();
+					posX = (int) (x + width - 1 - mw * sc);
+					posY = (int) (y + height - 1.0f - 16.0f * sc);
+					GlStateManager.translate(posX, posY, 0.0f);
+					GlStateManager.scale(s, s, s);
+					int i = 0;
+					for (ItemStack stack : dm.buyItems.keySet()) {
+						mc.getRenderItem().renderItemAndEffectIntoGUI(stack, i * 18, 0);
+						GlStateManager.pushMatrix();
+						String sCount = Util.instance.getTextReducedNumber(dm.buyItems.get(stack), true, true, false);
+						GlStateManager.translate(i * 18 + 17, 16.0F, 200.0F);
+						GlStateManager.scale(0.75f, 0.75f, 0.75f);
+						GlStateManager.disableLighting();
+						GlStateManager.disableDepth();
+						GlStateManager.disableBlend();
+						mc.fontRenderer.drawStringWithShadow(sCount, 24.0f - (float) mc.fontRenderer.getStringWidth(sCount), -6.0f, 0xFFFFFF);
+						GlStateManager.enableLighting();
+						GlStateManager.enableDepth();
+						GlStateManager.enableBlend();
+						GlStateManager.popMatrix();
+
+						if (hovered && isMouseHover(mouseX, mouseY, posX + (i * 18) * s, posY + listener.scrollY, 16.0f * s, 16.0f * s)) {
+							hoverText.clear();
+							hoverText.addAll(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+						}
+						i++;
+					}
+					GlStateManager.popMatrix();
+				}
+			}
+			// name
+			GlStateManager.popMatrix();
+
+			GlStateManager.pushMatrix();
+			posX = x + 36;
+			posY = y + 2 + listener.scrollY;
+			GuiNpcButton.renderString(mc.fontRenderer, getDisplayString(), posX, posY, posX + width - 39 - mw, posY + 10, CustomNpcs.MainColor.getRGB() | 0xFF000000, true, false);
+			GlStateManager.popMatrix();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		}
+
+		public int getState(boolean tradeIn) {
+			if (!tradeIn) { return 2; }
+			if (!listener.hasSubGui()) {
+				try {
+					if (listener.selectDealData.deal.equals(deal)) { return 1; }
+				}
+				catch (Exception ignored) { }
+				if (hovered && !listener.hasSubGui()) {
+					return Mouse.isButtonDown(0) ? 2 : 1;
+				}
+			}
+			return 0;
+		}
+
+		public boolean isMouseHover(double mX, double mY, double px, double py, double pWidth, double pHeight) {
+			return mX >= px && mY >= py && mX < (px + pWidth) && mY < (py + pHeight);
+		}
+
+	}
+
+	@SideOnly(Side.CLIENT)
+	public class SectionButton extends GuiMenuSideButton {
+
+		protected final GuiNPCTrader listener;
+
+		public SectionButton(GuiNPCTrader gui, int id, MarcetSection sectionIn, int x, int y) {
+			super(id, x, y, "");
+			width = sectionIn == null ? 16 : 24;
+			height = sectionIn == null ? 9 : 24;
+			listener = gui;
+			texture = GuiNPCTrader.ICONS;
+			if (sectionIn != null) {
+				txrX = (sectionIn.getIcon() % 10) * 24;
+				txrY = (int) Math.floor((float) sectionIn.getIcon() / 10.0f) * 72;
+			} else {
+				txrX = 240;
+				txrY = id == 3 ? 27 : 0;
+			}
+		}
+
+		@Override
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+			if (!visible) { return; }
+			hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+			int state = 0;
+			boolean lbm = Mouse.isButtonDown(0);
+			if (hovered && !listener.hasSubGui()) { state = (lbm ? 2 : 1) * height; }
+			else if (active) { state = height; }
+			GlStateManager.pushMatrix();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			mc.getTextureManager().bindTexture(texture);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.translate(0.0f, 0.0f, 1.0f);
+			drawTexturedModalRect(x, y, txrX, txrY + state, width, height);
+			if (hovered && !hoverText.isEmpty()) {
+				if (listener != null) { listener.putHoverText(hoverText); }
+				else { drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY); }
+			}
+			GlStateManager.popMatrix();
+		}
+
+	}
+
+	@SideOnly(Side.CLIENT)
+	public class TradeButtonBiDirectional extends GuiButtonBiDirectional {
+
+		protected final GuiNPCTrader listener;
+
+		public TradeButtonBiDirectional(GuiNPCTrader gui, int x, int y, int w) {
+			super(0, x, y, w, 20, new String[1], 0);
+			texture = GuiNPCTrader.BUTTONS;
+			txrY = 84;
+			txrW = 256;
+			txrH = 20;
+			listener = gui;
+			display = new String[64];
+			for (int i = 0; i < 64; i++) { display[i] = "" + (i + 1); }
+			displayValue = gui.count - 1;
+			if (displayValue < display.length) { setDisplayText(display[displayValue]); }
+		}
+
+		@Override
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+			if (!visible) { return; }
+			hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
+			hoverL = mouseX >= x && mouseY >= y && mouseX < x + 20 && mouseY < y + height;
+			hoverR = !hoverL && mouseX >= x + width - 19 && mouseY >= y && mouseX < x + width && mouseY < y + height;
+
+			boolean lmb = Mouse.isButtonDown(0);
+			int stateL = !enabled ? 40 : hoverL ? (display.length > 1 ? lmb ? 40 : 20 : 0) : 0;
+			int stateR = !enabled ? 40 : hoverR ? (display.length > 1 ? lmb ? 40 : 20 : 0) : 0;
+			int state = !enabled ? 40 : hovered && display.length > 1 ? 20 : 0;
+			int wl = (width - 38) / 2;
+			int wr = width - 39 - wl;
+
+			GlStateManager.pushMatrix();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.translate(x, y, 1.0f);
+			mc.getTextureManager().bindTexture(GuiNPCTrader.BUTTONS);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			drawTexturedModalRect(0, 0, 0, txrY + stateL, 19, 20);
+			drawTexturedModalRect(width - 20, 0, 256 - 19, txrY + stateR, 19, 20);
+			drawTexturedModalRect(19, 0, 19, txrY + state, wl, 20);
+			drawTexturedModalRect(19 + wl, 0, 236 - wr, txrY + state,  wr, 20);
+			GlStateManager.popMatrix();
+
+			String text = "";
+			float maxWidth = (width - 36);
+			if (checkWidth && mc.fontRenderer.getStringWidth(displayString) > maxWidth) {
+				for (int h = 0; h < displayString.length(); ++h) {
+					text += displayString.charAt(h);
+					if (mc.fontRenderer.getStringWidth(text) > maxWidth) { break; }
+				}
+				text += "...";
+			}
+			else { text = displayString; }
+			if (hovered && enabled) { text = TextFormatting.UNDERLINE + text; }
+			int c = color;
+			if (packedFGColour != 0) { c = packedFGColour; }
+			else if (!enabled) { c = CustomNpcs.NotEnableColor.getRGB(); }
+			else if (hovered) { c = CustomNpcs.HoverColor.getRGB(); }
+
+			renderString(mc.fontRenderer, text, x + 11, y, x + width - 11, y + height, c, showShadow, true);
+
+			if (hovered && !hoverText.isEmpty()) {
+				if (listener != null) { listener.putHoverText(hoverText); }
+				else { drawHoveringText(new ArrayList<>(hoverText), mouseX, mouseY); }
+			}
+		}
+
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static class MarcetTextField extends GuiNpcTextField {
+
+		public MarcetTextField(GuiNPCTrader gui, int x, int y, int widthIn) {
+			super(0, gui, x, y, widthIn, 18, GuiNPCTrader.search);
+			setEnableBackgroundDrawing(false);
+		}
+
+		@Override
+		public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
+			if (!enabled || !getVisible()) { return; }
+			setTextColor(isFocused() ? 14737632 : 7368816);
+			int posX = x - 3;
+			int posY = y - 6;
+			int w = width + 6;
+			hovered = mouseX >= posX && mouseY >= posY && mouseX < posX + w && mouseY < posY + height + 2;
+
+			int w0 = w / 2;
+			int w1 = w - w0;
+			int state = isFocused() || !hovered ? 56 : 0;
+			GlStateManager.pushMatrix();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			Minecraft.getMinecraft().getTextureManager().bindTexture(GuiNPCTrader.BUTTONS);
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			GlStateManager.translate(0.0f, 0.0f, 1.0f);
+			drawTexturedModalRect(posX, posY, 0, state, w0, 10); // left
+			drawTexturedModalRect(posX, posY + 10, 0, state + 18, w0, 10); // left down
+			drawTexturedModalRect(posX + w0, posY, 256 - w1, state, w1, 10); // right up
+			drawTexturedModalRect(posX + w0, posY + 10, 256 - w1, state + 18, w1, 10); // right down
+			super.drawTextBox();
+			if (hovered && !hoverText.isEmpty() && listener instanceof GuiNPCTrader) { ((GuiNPCTrader) listener).putHoverText(hoverText); }
+			GlStateManager.popMatrix();
 		}
 
 	}

@@ -212,11 +212,6 @@ public class DataRanged implements INPCRanged {
 		this.pSize = compound.getInteger("pSize");
 		this.pArea = compound.getInteger("pArea");
 		this.pTrail = compound.getInteger("pTrail");
-		if (compound.hasKey("MaxFiringRange", 3)) {
-			this.rangedRange = compound.getInteger("MaxFiringRange");
-		} else {
-			this.rangedRange = compound.getDouble("MaxFiringRange");
-		}
 		this.fireRate = compound.getInteger("FireRate");
 		this.minDelay = ValueUtil.correctInt(compound.getInteger("minDelay"), 1, 9999);
 		this.maxDelay = ValueUtil.correctInt(compound.getInteger("maxDelay"), 1, 9999);
@@ -237,6 +232,9 @@ public class DataRanged implements INPCRanged {
 		this.groundSound = compound.getString("GroundSound");
 		this.canFireIndirect = compound.getInteger("FireIndirect");
 		this.meleeDistance = compound.getInteger("DistanceToMelee");
+		// New from Unofficial (BetaZavr)
+		if (compound.hasKey("MaxFiringRange", 3)) { rangedRange = compound.getInteger("MaxFiringRange"); }
+		else { rangedRange = compound.getDouble("MaxFiringRange"); }
 	}
 
 	@Override
@@ -316,7 +314,7 @@ public class DataRanged implements INPCRanged {
 
 	@Override
 	public void setRange(double range) {
-		this.rangedRange = ValueUtil.correctDouble(range, 1.0d, 64.0d);
+		rangedRange = ValueUtil.correctDouble(range, 1.0d, 64.0d);
 	}
 
 	@Override

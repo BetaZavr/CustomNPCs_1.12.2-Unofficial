@@ -14,39 +14,24 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 
 	public static CustomGuiComponentWrapper createFromNBT(NBTTagCompound nbt) {
 		switch (nbt.getInteger("type")) {
-		case 0: {
-			return new CustomGuiButtonWrapper().fromNBT(nbt);
+			case 0: return new CustomGuiButtonWrapper().fromNBT(nbt);
+			case 1: return new CustomGuiLabelWrapper().fromNBT(nbt);
+			case 2: return new CustomGuiTexturedRectWrapper().fromNBT(nbt);
+			case 3: return new CustomGuiTextFieldWrapper().fromNBT(nbt);
+			case 4: return new CustomGuiScrollWrapper().fromNBT(nbt);
+			case 5: return new CustomGuiItemSlotWrapper().fromNBT(nbt);
+			case 6: return new CustomGuiTimerWrapper().fromNBT(nbt);
+			case 7: return new CustomGuiEntityWrapper().fromNBT(nbt);
 		}
-		case 1: {
-			return new CustomGuiLabelWrapper().fromNBT(nbt);
-		}
-		case 2: {
-			return new CustomGuiTexturedRectWrapper().fromNBT(nbt);
-		}
-		case 3: {
-			return new CustomGuiTextFieldWrapper().fromNBT(nbt);
-		}
-		case 4: {
-			return new CustomGuiScrollWrapper().fromNBT(nbt);
-		}
-		case 5: {
-			return new CustomGuiItemSlotWrapper().fromNBT(nbt);
-		}
-		case 6: {
-			return new CustomGuiTimerWrapper().fromNBT(nbt);
-		}
-		case 7: {
-			return new CustomGuiEntityWrapper().fromNBT(nbt);
-		}
-		default: {
-			return null;
-		}
-		}
+		return null;
 	}
-	String[] hoverText;
-	IItemStack hoverStack;
 
-	int id, posX, posY, offsetType;
+	protected String[] hoverText;
+	protected IItemStack hoverStack;
+	protected int offsetType;
+	protected int posX;
+	protected int posY;
+	protected int id;
 
 	public CustomGuiComponentWrapper fromNBT(NBTTagCompound nbt) {
 		setId(nbt.getInteger("id"));
@@ -54,49 +39,33 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 		if (nbt.hasKey("hover")) {
 			NBTTagList list = nbt.getTagList("hover", 8);
 			String[] hoverText = new String[list.tagCount()];
-			for (int i = 0; i < list.tagCount(); ++i) {
-				hoverText[i] = ((NBTTagString) list.get(i)).getString();
-			}
+			for (int i = 0; i < list.tagCount(); ++i) { hoverText[i] = ((NBTTagString) list.get(i)).getString(); }
 			setHoverText(hoverText);
 		}
-		if (nbt.hasKey("hoverStack")) {
-			setHoverStack(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbt.getCompoundTag("hoverStack"))));
-		}
+		if (nbt.hasKey("hoverStack")) { setHoverStack(Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbt.getCompoundTag("hoverStack")))); }
 		return this;
 	}
 
 	@Override
-	public String[] getHoverText() {
-		return hoverText;
-	}
+	public String[] getHoverText() { return hoverText; }
 
 	@Override
-	public int getId() {
-		return id;
-	}
+	public int getId() { return id; }
 
 	@Override
-	public int getPosX() {
-		return posX;
-	}
+	public int getPosX() { return posX; }
 
 	@Override
-	public int getPosY() {
-		return posY;
-	}
+	public int getPosY() { return posY; }
 
 	public abstract int getType();
 
 	@Override
-	public boolean hasHoverText() {
-		return hoverStack != null || hoverText != null && hoverText.length > 0;
-	}
+	public boolean hasHoverText() { return hoverStack != null || hoverText != null && hoverText.length > 0; }
 
 	@Override
 	public void offSet(int type) {
-		if (type < 0) {
-			type *= -1;
-		}
+		if (type < 0) { type *= -1; }
 		offsetType = type % 4;
 	}
 
@@ -140,17 +109,11 @@ public abstract class CustomGuiComponentWrapper implements ICustomGuiComponent {
 		if (hoverText != null) {
 			NBTTagList list = new NBTTagList();
 			for (String s : hoverText) {
-				if (s != null && !s.isEmpty()) {
-					list.appendTag(new NBTTagString(s));
-				}
+				if (s != null && !s.isEmpty()) { list.appendTag(new NBTTagString(s)); }
 			}
-			if (list.tagCount() > 0) {
-				nbt.setTag("hover", list);
-			}
+			if (list.tagCount() > 0) { nbt.setTag("hover", list); }
 		}
-		if (hoverStack != null && !hoverStack.isEmpty()) {
-			nbt.setTag("hoverStack", hoverStack.getMCItemStack().writeToNBT(new NBTTagCompound()));
-		}
+		if (hoverStack != null && !hoverStack.isEmpty()) { nbt.setTag("hoverStack", hoverStack.getMCItemStack().writeToNBT(new NBTTagCompound())); }
 		nbt.setInteger("type", getType());
 		return nbt;
 	}
