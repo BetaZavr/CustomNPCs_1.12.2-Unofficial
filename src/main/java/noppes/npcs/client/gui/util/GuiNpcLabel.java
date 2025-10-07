@@ -2,12 +2,13 @@ package noppes.npcs.client.gui.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.CustomNpcResourceListener;
 import noppes.npcs.util.Util;
@@ -15,12 +16,15 @@ import noppes.npcs.util.Util;
 public class GuiNpcLabel implements IComponentGui {
 
 	protected final List<String> hoverText = new ArrayList<>();
-	protected List<String> label;
+	protected final FontRenderer font;
+
+	protected String message;
 	protected boolean hovered;
 	protected int backColor = 0;
 	protected int borderColor = 0;
 	protected int color;
 	public boolean enabled = true;
+	public boolean hasShadow = false;
 	public int height = 9;
 	public int width = 0;
 	public int id;
@@ -36,7 +40,14 @@ public class GuiNpcLabel implements IComponentGui {
 		x = xIn;
 		y = yIn;
 		color = colorIn;
-		setLabel(label.toString());
+		font = Minecraft.getMinecraft().fontRenderer;
+		setLabel(label instanceof ITextComponent ? ((ITextComponent) label).getFormattedText() : label.toString());
+	}
+
+	public GuiNpcLabel(int id, Object obj, int x, int y, int widthIn, int heightIn) {
+		this(id, obj, x, y, CustomNpcResourceListener.DefaultTextColor);
+		width = widthIn;
+		height = heightIn;
 	}
 
 	public GuiNpcLabel setCenter(int widthIn) { x += (widthIn - width) / 2; return this; }
@@ -46,7 +57,7 @@ public class GuiNpcLabel implements IComponentGui {
 		if (!enabled) { return; }
 		hovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 		if (hovered && !hoverText.isEmpty()) { gui.putHoverText(hoverText); }
-		if (label == null || label.isEmpty()) { return; }
+		if (message == null || message.isEmpty()) { return; }
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		if (borderColor != 0) {
 			Gui.drawRect(x - 2, y - 1, x + width + 2, y + height, borderColor);
@@ -54,11 +65,9 @@ public class GuiNpcLabel implements IComponentGui {
 		if (backColor != 0) {
 			Gui.drawRect(x - 1, y, x + width + 1, y + height - 1, backColor);
 		}
-		int i = 0;
-		for (String str : label) {
-			Minecraft.getMinecraft().fontRenderer.drawString(str, x, y + i, color);
-			i += 10;
-		}
+		GuiNpcButton.renderString(font, message,
+				x, y, x + width, y + height,
+				color, hasShadow, false);
 	}
 
 	@Override
@@ -77,16 +86,10 @@ public class GuiNpcLabel implements IComponentGui {
 	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
 
 	@Override
-	public GuiNpcLabel setHoverText(String text, Object ... args) {
+	public GuiNpcLabel setHoverText(Object... components) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return this; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
+		if (components == null) { return this; }
+		noppes.npcs.util.Util.instance.putHovers(hoverText, components);
 		return this;
 	}
 
@@ -115,11 +118,12 @@ public class GuiNpcLabel implements IComponentGui {
 
 	public GuiNpcLabel setLabel(Object labels) {
 		if (labels == null) {
-			label = null;
+			message = null;
 			height = 10;
 			width = 0;
 			return this;
 		}
+		if (labels instanceof ITextComponent) { labels = ((ITextComponent) labels).getFormattedText(); }
 		if (labels.toString().contains("\n")) {
 			List<String> list = new ArrayList<>();
 			String text = labels.toString();
@@ -134,27 +138,28 @@ public class GuiNpcLabel implements IComponentGui {
 		if (labels instanceof List) {
 			if (((List<?>) labels).size() == 1) {
 				String str = ((List<?>) labels).get(0) == null ? "" : new TextComponentTranslation(labels.toString()).getFormattedText();
-				label = Collections.singletonList(str);
+				message = str;
 				height = 10;
-				width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
+				width = font.getStringWidth(Util.instance.deleteColor(str));
 				return this;
 			}
-			label = new ArrayList<>();
+			StringBuilder s = new StringBuilder();
 			height = 10 * ((List<?>) labels).size();
 			width = 0;
 			for (Object obj : (List<?>) labels) {
 				String str = new TextComponentTranslation(obj.toString()).getFormattedText();
-				label.add(str);
-				int w = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
+				s.append(str);
+				int w = font.getStringWidth(Util.instance.deleteColor(str));
 				if (width < w) { width = w; }
 			}
+			message = s.toString();
 		}
 		else {
 			String str = labels.toString();
 			try { str = new TextComponentTranslation(labels.toString()).getFormattedText(); } catch (Exception ignored) { }
-			label = Collections.singletonList(str);
+			message = str;
 			height = 10;
-			width = Minecraft.getMinecraft().fontRenderer.getStringWidth(Util.instance.deleteColor(str));
+			width = font.getStringWidth(Util.instance.deleteColor(str));
 		}
 		return this;
 	}
@@ -163,6 +168,6 @@ public class GuiNpcLabel implements IComponentGui {
 
 	public GuiNpcLabel setBorderColor(int color) { borderColor = color; return this; }
 
-	public List<String> getLabels() { return new ArrayList<>(label); }
+	public String getMessage() { return message; }
 
 }

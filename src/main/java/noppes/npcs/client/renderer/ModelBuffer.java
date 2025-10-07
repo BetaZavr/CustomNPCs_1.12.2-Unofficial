@@ -9,6 +9,7 @@ import java.util.function.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.texture.*;
+import noppes.npcs.CustomNpcs;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 
@@ -38,9 +39,8 @@ import noppes.npcs.items.CustomArmor;
 
 public class ModelBuffer {
 
-	protected static final Map<ResourceLocation, TextureAtlasSprite> ATLASES = new HashMap<>(); // list of parameterized
-	protected static final List<ParameterizedModel> MODELS = new ArrayList<>(); // list of parameterized
 	// rendered models
+	protected static final List<ParameterizedModel> MODELS = new ArrayList<>(); // list of parameterized
 	public static List<ResourceLocation> NOT_FOUND = new ArrayList<>();	// list of missing models
 	// so as not to freeze
 	// the client
@@ -59,6 +59,7 @@ public class ModelBuffer {
 	 *            material, Value is a new resource texture
 	 * @return ID of the drawing sheet
 	 */
+	@SuppressWarnings("all")
 	public static int getDisplayList(ResourceLocation objModel, List<String> visibleMeshes, Map<String, String> replacesMaterialTextures) {
 		if (ModelBuffer.NOT_FOUND.contains(objModel)) { return -1; }
 		ParameterizedModel tempModel = new ParameterizedModel(-1, objModel, visibleMeshes, replacesMaterialTextures);
@@ -72,7 +73,9 @@ public class ModelBuffer {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (model.listId < 0) {
 			try {
-				ImmutableMap<String, String> customData = ImmutableMap.copyOf(Collections.singletonMap("flip-v", "true")); // revers V coordinates in texture
+				// revers V coordinates in texture
+				ImmutableMap<String, String> customData = ImmutableMap.copyOf(Collections.singletonMap("flip-v", "true"));
+				// load model
 				model.iModel = (OBJModel) OBJLoader.INSTANCE.loadModel(model.file).process(customData);
 				GL11.glPushMatrix();
 				GL11.glNewList(model.listId = GL11.glGenLists(1), GL11.GL_COMPILE);
@@ -89,21 +92,53 @@ public class ModelBuffer {
 					}
 					TextureAtlasSprite sprite = mc.getTextureMapBlocks().getAtlasSprite(loc.toString());
 					if (sprite == mc.getTextureMapBlocks().getMissingSprite()) {
+						// custom or not load texture to blocks atlas
 						try {
-							if (ATLASES.containsKey(loc)) { sprite = ATLASES.get(loc); }
-							else { sprite = createDynamicTextureAtlas(loc, model); }
-							return mc.getTextureMapBlocks().getAtlasSprite(loc.toString());
-						} catch (Exception e) {
-							LogWriter.error("Failed to load texture " + location, e);
+							ResourceLocation textureLocation = location;
+							if (!location.getResourcePath().toLowerCase().endsWith(".png")) { textureLocation = new ResourceLocation(location.getResourceDomain(), "textures/" + location.getResourcePath() + ".png"); }
+							IResource resource = mc.getResourceManager().getResource(textureLocation);
+							String key = textureLocation.getResourcePath();
+							if (key.contains("textures/")) { key = key.replace("textures/", ""); }
+							ResourceLocation atlasKey = new ResourceLocation(CustomNpcs.MODID, "textures/atlas/" + key);
+							if (sprite == mc.getTextureMapBlocks().getMissingSprite()) {
+								LogWriter.debug("Need create custom atlas \""+atlasKey+"\"");
+							}
+							sprite = mc.getTextureMapBlocks().registerSprite(atlasKey);
+							BufferedImage image = TextureUtil.readBufferedImage(resource.getInputStream());
+							int[] pixels = new int[image.getWidth() * image.getHeight()];
+							image.getRGB(0, 0, image.getWidth(), image.getHeight(), pixels, 0, image.getWidth());
+							DynamicTexture dynamicTexture = (DynamicTexture) mc.getTextureManager().getTexture(atlasKey);
+							boolean needLoad = dynamicTexture == null;
+							if (needLoad) {
+								dynamicTexture = new DynamicTexture(image);
+								dynamicTexture.updateDynamicTexture();
+							}
+							sprite.setIconWidth(image.getWidth());
+							sprite.setIconHeight(image.getHeight());
+							int[][] mipmapPixels = new int[1][];
+							mipmapPixels[0] = dynamicTexture.getTextureData();
+							sprite.setFramesTextureData(Lists.<int[][]>newArrayList(mipmapPixels));
+							sprite.initSprite(image.getWidth(), image.getHeight(), 0, 0, false);
+							if (needLoad) {
+								mc.getTextureManager().loadTexture(atlasKey, dynamicTexture);
+								LogWriter.debug("Create custom atlas \""+atlasKey+"\": from texture: \"" + textureLocation+"\"");
+							}
+							model.atlas = atlasKey;
 						}
+						catch (Exception e) { LogWriter.error(e); }
 					}
 					return sprite;
 				};
-				if (model.visibleMeshes == null || model.visibleMeshes.isEmpty()) { model.visibleMeshes = new ArrayList<>(model.iModel.getMatLib().getGroups().keySet()); }
+				if (model.visibleMeshes == null || model.visibleMeshes.isEmpty()) {
+					model.visibleMeshes = new ArrayList<>(model.iModel.getMatLib().getGroups().keySet());
+					model.visibleMeshes.remove("OBJModel.Default.Element.Name");
+				}
+				// baked
 				@SuppressWarnings("deprecation")
 				IBakedModel bakedModel = model.iModel.bake(new OBJModel.OBJState(ImmutableList.copyOf(model.visibleMeshes), true), DefaultVertexFormats.ITEM, spriteFunction);
 				GL11.glEnable(GL11.GL_DEPTH_TEST);
 				GL11.glShadeModel(GL11.GL_SMOOTH);
+				// draw
 				Tessellator tessellator = Tessellator.getInstance();
 				BufferBuilder buffer = tessellator.getBuffer();
 				buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
@@ -111,6 +146,7 @@ public class ModelBuffer {
 				tessellator.draw();
 				GL11.glEndList();
 				GL11.glPopMatrix();
+				// save
 				ModelBuffer.MODELS.add(model);
 			} catch (Exception e) {
 				ModelBuffer.NOT_FOUND.add(objModel);
@@ -119,34 +155,6 @@ public class ModelBuffer {
 		}
 		mc.getTextureManager().bindTexture(model.atlas);
 		return model.listId;
-	}
-
-	private static TextureAtlasSprite createDynamicTextureAtlas(ResourceLocation location, ParameterizedModel model) {
-		Minecraft mc = Minecraft.getMinecraft();
-		TextureAtlasSprite sprite = mc.getTextureMapBlocks().getMissingSprite();
-		try {
-			ResourceLocation textureLocation = location;
-			if (!location.getResourcePath().toLowerCase().endsWith(".png")) {
-				textureLocation = new ResourceLocation(location.getResourceDomain(), "textures/" + location.getResourcePath() + ".png");
-			}
-			IResource resource = mc.getResourceManager().getResource(textureLocation);
-			mc.getTextureManager().bindTexture(textureLocation);
-			sprite = mc.getTextureMapBlocks().registerSprite(location);
-			BufferedImage bufferedImage = TextureUtil.readBufferedImage(resource.getInputStream());
-			if (bufferedImage.getWidth() > 0 && bufferedImage.getHeight() > 0) {
-				int[][] pixels = new int[1][];
-				pixels[0] = new int[bufferedImage.getWidth() * bufferedImage.getHeight()];
-				bufferedImage.getRGB(0, 0, bufferedImage.getWidth(), bufferedImage.getHeight(), pixels[0], 0, bufferedImage.getWidth());
-				sprite.setIconWidth(bufferedImage.getWidth());
-				sprite.setIconHeight(bufferedImage.getHeight());
-				sprite.setFramesTextureData(Lists.<int[][]>newArrayList(pixels));
-				model.atlas = textureLocation;
-			}
-			else { LogWriter.error("Invalid dimensions for texture: " + location); }
-		}
-		catch (Exception ignored) { }
-		ATLASES.put(location, sprite);
-		return sprite;
 	}
 
 	public static ResourceLocation getMainOBJTexture(ResourceLocation objModel) {

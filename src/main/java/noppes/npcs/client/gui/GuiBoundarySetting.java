@@ -403,7 +403,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		addScroll(regions);
 		// regions
 		GuiNpcLabel label = new GuiNpcLabel(103, "gui.regions", guiLeft + 5, guiTop + 4);
-		label.setHoverText("region.hover.regions.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText());
+		label.setHoverText(new TextComponentTranslation("region.hover.regions.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText()));
 		addLabel(label);
 		if (points == null) { (points = new GuiCustomScroll(this, 1)).setSize(xSize - side - 124, side / 2); }
 		points.setUnsortedList(new ArrayList<>(dataPoints.values()));
@@ -413,7 +413,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		addScroll(points);
  		// points
 		label = new GuiNpcLabel(104, "gui.points", r1, guiTop + 4);
-		label.setHoverText("region.hover.points.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText());
+		label.setHoverText(new TextComponentTranslation("region.hover.points.list", new TextComponentTranslation("item.npcboundary.name").getFormattedText()));
 		addLabel(label);
 		// ID 0 - color
 		String color = "gui.color";
@@ -437,80 +437,80 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		String trRegion = new TextComponentTranslation("gui.region").getFormattedText();
 		addButton(new GuiNpcButton(3, r0 + 13, guiTop + 3, 13, 13, "←")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.-x", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.-x", trRegion)));
 		// ID 4 - OffSet +X
 		addButton(new GuiNpcButton(4, r0 + 27, guiTop + 3, 13, 13, "→")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.+x", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.+x", trRegion)));
 		// ID 5 - OffSet -Z
 		addButton(new GuiNpcButton(5, r0 - 1, guiTop + 18, 13, 13, "↑")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.-z", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.-z", trRegion)));
 		// ID 6 - OffSet +Z
 		addButton(new GuiNpcButton(6, r0 - 1, guiTop + 32, 13, 13, "↓")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.+z", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.+z", trRegion)));
 		// ID 7 - OffSet -Y
 		addButton(new GuiNpcButton(7, r0 - 1, guiTop + side - 21, 13, 13, "↓")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.-y", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.-y", trRegion)));
 		// ID 8 - OffSet +Y
 		addButton(new GuiNpcButton(8, r0 - 1, guiTop + side - 35, 13, 13, "↑")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.+y", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.+y", trRegion)));
 
 		// ID 10 - Up Point Pos
 		addButton(new GuiNpcButton(10, r1, h0, 39, 13, "˄")
 				.setIsEnable(region != null)
-				.setHoverText("region.hover.offSet.up", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.up", trRegion)));
 		// ID 11 - Down Point Pos
 		addButton(new GuiNpcButton(11, r1 + 41, h0, 39, 13, "˅")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.point.offSet.down", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.point.offSet.down", trRegion)));
 		// ID 9 - remove point
 		addButton(new GuiNpcButton(9, r1 + 82, h0, 13, 13, "X")
 				.setIsEnable(region != null && point != null && dataPoints.size() > 1 && points.hasSelected())
-				.setHoverText("region.hover.point.remove", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.point.remove", trRegion)));
 
 		// ID 12 - OffSet Point -X
 		String trPoint = new TextComponentTranslation("gui.point").getFormattedText();
 		addButton(new GuiNpcButton(12, r1, h0 + 25, 12, 12, "←")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.-x", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.-x", trPoint)));
 		// ID 13 - OffSet Point +X
 		addButton(new GuiNpcButton(13, r1 + 22, h0 + 25, 12, 12, "→")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.+x", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.+x", trPoint)));
 		// ID 14 - OffSet Point -Z
 		addButton(new GuiNpcButton(14, r1 + 11, h0 + 14, 12, 12, "↑")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.-z", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.-z", trPoint)));
 		// ID 15 - OffSet Point +Z
 		addButton(new GuiNpcButton(15, r1 + 11, h0 + 36, 12, 12, "↓")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.+z", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.+z", trPoint)));
 
 		// ID 18 - Max Y Up -
 		addButton(new GuiNpcButton(18, r1, h0 + 50, 12, 12, "↑")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.up.-y", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.up.-y", trPoint)));
 		// ID 19 - Max Y Up +
 		addButton(new GuiNpcButton(19, r1, h0 + 62, 12, 12, "↓")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.up.+y", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.up.+y", trPoint)));
 		// ID 20 - Max Y Down -
 		addButton(new GuiNpcButton(20, r1 + 49, h0 + 50, 12, 12, "↑")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.down.-y", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.down.-y", trPoint)));
 		// ID 21 - Max Y Down +
 		addButton(new GuiNpcButton(21, r1 + 49, h0 + 62, 12, 12, "↓")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("region.hover.offSet.down.+y", trPoint));
+				.setHoverText(new TextComponentTranslation("region.hover.offSet.down.+y", trPoint)));
 
 		// ID 24 - Teleport to Center
 		addButton(new GuiNpcButton(24, r1 + 74, h0 + 23, 16, 16, "TP")
 				.setIsEnable(region != null && point != null)
-				.setHoverText("hover.teleport", trPoint));
+				.setHoverText(new TextComponentTranslation("hover.teleport", trPoint)));
 		// ID 25 - Keep Out Type
 		addButton(new GuiNpcCheckBox(25, guiLeft + 5, guiTop + side + 5, 110, 10, "region.keepout.true", "region.keepout.false" , region != null && region.keepOut)
 				.setHoverText("region.hover.keepout"));
@@ -529,7 +529,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 		// ID 28 - remove quest
 		addButton(new GuiNpcButton(28, r1 + 81, guiTop + side - 1, 14, 14, "X")
 				.setIsEnable(region != null && region.questID > 0)
-				.setHoverText("region.hover.quest.remove", trRegion));
+				.setHoverText(new TextComponentTranslation("region.hover.quest.remove", trRegion)));
 		// ID 29 - quest when enter
 		addButton(new GuiNpcCheckBox(29, r1, guiTop + side + 16, 95, 10, "region.quest.when.enter.true", "region.quest.when.enter.false", region != null && region.questWhenEnter)
 				.setIsEnable(region != null)

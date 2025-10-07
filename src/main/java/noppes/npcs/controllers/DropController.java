@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -16,7 +16,6 @@ import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.LogWriter;
 import noppes.npcs.Server;
-import noppes.npcs.api.NpcAPI;
 import noppes.npcs.client.Client;
 import noppes.npcs.constants.EnumPacketClient;
 import noppes.npcs.constants.EnumPacketServer;
@@ -72,36 +71,34 @@ public class DropController {
 	}
 
 	private void loadDefaultDrops() {
-		NpcAPI api = NpcAPI.Instance();
-		if (api == null) { return; }
 		DropsTemplate temp = new DropsTemplate();
 		temp.groups.put(0, new TreeMap<>());
 		DropSet ds0 = new DropSet(null, null);
 		ds0.amount[0] = 5;
 		ds0.amount[1] = 8;
 		ds0.chance = 72.5d;
-		ds0.item = api.getIItemStack(new ItemStack(Items.COAL));
+		ds0.item = new ItemStack(Items.COAL);
 		ds0.pos = 0;
 		temp.groups.get(0).put(0, ds0);
 		DropSet ds1 = new DropSet(null, null);
 		ds1.amount[0] = 2;
 		ds1.amount[1] = 5;
 		ds1.chance = 8.0d;
-		ds1.item = api.getIItemStack(new ItemStack(Items.IRON_INGOT));
+		ds1.item = new ItemStack(Items.IRON_INGOT);
 		ds1.pos = 1;
 		temp.groups.get(0).put(1, ds1);
 		DropSet ds2 = new DropSet(null, null);
 		ds2.amount[0] = 1;
 		ds2.amount[1] = 3;
 		ds2.chance = 4.3333d;
-		ds2.item = api.getIItemStack(new ItemStack(Items.GOLD_INGOT));
+		ds2.item = new ItemStack(Items.GOLD_INGOT);
 		ds2.pos = 2;
 		temp.groups.get(0).put(2, ds2);
 		DropSet ds3 = new DropSet(null, null);
 		ds3.amount[0] = 1;
 		ds3.amount[1] = 2;
 		ds3.chance = 0.575d;
-		ds3.item = api.getIItemStack(new ItemStack(Items.DIAMOND));
+		ds3.item = new ItemStack(Items.DIAMOND);
 		ds3.pos = 3;
 		temp.groups.get(0).put(3, ds3);
 
@@ -110,9 +107,9 @@ public class DropController {
 		df0.amount[0] = 1;
 		df0.amount[1] = 1;
 		df0.chance = 2.5d;
-		df0.item = api.getIItemStack(new ItemStack(Items.IRON_AXE));
+		df0.item = new ItemStack(Items.IRON_AXE);
 		df0.pos = 0;
-		EnchantSet ench0 = (EnchantSet) df0.addEnchant(Enchantment.getEnchantmentByLocation("unbreaking"));
+		EnchantSet ench0 = (EnchantSet) df0.addEnchant(Enchantments.UNBREAKING);
 		ench0.setChance(50.0d);
 		ench0.setLevels(1, 5);
 		AttributeSet attr = (AttributeSet) df0.addAttribute(SharedMonsterAttributes.ATTACK_DAMAGE.getName());

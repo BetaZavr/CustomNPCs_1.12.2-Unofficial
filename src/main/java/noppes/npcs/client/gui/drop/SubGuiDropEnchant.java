@@ -65,11 +65,11 @@ public class SubGuiDropEnchant extends SubGuiInterface implements ITextfieldList
 		// min
 		addTextField(new GuiNpcTextField(52, this, guiLeft + 4, guiTop + 39, 50, 14, "" + levels[0])
 				.setMinMaxDefault(0, 100000, enchant.getMinLevel())
-				.setHoverText("drop.hover.enchant.levels", "" + enchant.ench.getMaxLevel(), tied));
+				.setHoverText(new TextComponentTranslation("drop.hover.enchant.levels", "" + enchant.ench.getMaxLevel(), tied)));
 		// max
 		addTextField(new GuiNpcTextField(53, this, guiLeft + 4, guiTop + 53, 50, 14, "" + levels[1])
 				.setMinMaxDefault(0, 100000, enchant.getMaxLevel())
-				.setHoverText("drop.hover.enchant.levels", "" + enchant.ench.getMaxLevel(), tied));
+				.setHoverText(new TextComponentTranslation("drop.hover.enchant.levels", "" + enchant.ench.getMaxLevel(), tied)));
 		// chance
 		addLabel(new GuiNpcLabel(anyIDs, "drop.chance", guiLeft + 56, guiTop + 74));
 		addTextField(new GuiNpcTextField(54, this, guiLeft + 4, guiTop + 69, 50, 20, String.valueOf(enchant.getChance()))

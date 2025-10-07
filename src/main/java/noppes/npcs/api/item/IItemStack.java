@@ -2,6 +2,7 @@ package noppes.npcs.api.item;
 
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.INbt;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 
@@ -92,5 +93,10 @@ public interface IItemStack {
 	void setLore(String[] lore);
 
 	void setStackSize(int size);
+
+	// New from Unofficial (BetaZavr)
+	IEntity<?> getOwner();
+
+	void setOwner(IEntity<?> iEntity);
 
 }

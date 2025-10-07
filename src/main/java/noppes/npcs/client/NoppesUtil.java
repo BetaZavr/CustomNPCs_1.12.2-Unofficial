@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
 
+import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.LogWriter;
 import org.lwjgl.Sys;
 
@@ -174,4 +175,8 @@ public class NoppesUtil {
 		}
 	}
 
+    public static void requestOpenContainerGUI(EnumGuiType gui, NBTTagCompound data) {
+		data.setBoolean("IsContainer", true);
+		Client.sendData(EnumPacketServer.GuiContainer, gui.ordinal(), data);
+    }
 }

@@ -5,7 +5,6 @@ import java.util.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.ai.CombatHandler;
@@ -27,9 +26,9 @@ public class NpcEvent extends CustomNPCsEvent {
 	public static class CollideEvent extends NpcEvent {
 		public IEntity<?> entity;
 
-		public CollideEvent(ICustomNpc<?> npc, Entity entity) {
+		public CollideEvent(ICustomNpc<?> npc, Entity entityIn) {
 			super(npc);
-			this.entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+			entity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
 		}
 	}
 
@@ -39,11 +38,11 @@ public class NpcEvent extends CustomNPCsEvent {
 		public IPos pos, portal;
 		public int dimension;
 
-		public CustomNpcTeleport(ICustomNpc<?> npc, IPos portal, IPos pos, int dimensionID) {
+		public CustomNpcTeleport(ICustomNpc<?> npc, IPos portalIn, IPos posIn, int dimensionIn) {
 			super(npc);
-			this.pos = pos;
-			this.portal = portal;
-			this.dimension = dimensionID;
+			pos = posIn;
+			portal = portalIn;
+			dimension = dimensionIn;
 		}
 
 	}
@@ -55,11 +54,11 @@ public class NpcEvent extends CustomNPCsEvent {
 		public boolean isBlocked;
 		public int type;
 
-		public NeedBlockDamage(ICustomNpc<?> npc, DamageSource damagesource, boolean isBlocked, int type) {
+		public NeedBlockDamage(ICustomNpc<?> npc, DamageSource damagesource, boolean isBlockedIn, int typeIn) {
 			super(npc);
-			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
-			this.isBlocked = isBlocked;
-			this.type = type;
+			damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
+			isBlocked = isBlockedIn;
+			type = typeIn;
 		}
 	}
 
@@ -70,12 +69,12 @@ public class NpcEvent extends CustomNPCsEvent {
 		public IDamageSource damageSource;
 		public IEntity<?> source;
 
-		public DamagedEvent(ICustomNpc<?> npc, Entity source, float damage, DamageSource damagesource) {
+		public DamagedEvent(ICustomNpc<?> npc, Entity sourceIn, float damageIn, DamageSource damageSourceIn) {
 			super(npc);
-			this.clearTarget = false;
-			this.source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(source);
-			this.damage = damage;
-			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
+			clearTarget = false;
+			source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(sourceIn);
+			damage = damageIn;
+			damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damageSourceIn);
 		}
 	}
 
@@ -95,9 +94,9 @@ public class NpcEvent extends CustomNPCsEvent {
 
 		public DiedEvent(ICustomNpc<?> npc, DamageSource damagesource, Entity entity, CombatHandler combatHandler) {
 			super(npc);
-			this.type = damagesource.damageType;
-			this.source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
-			this.damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
+			type = damagesource.damageType;
+			source = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+			damageSource = Objects.requireNonNull(NpcAPI.Instance()).getIDamageSource(damagesource);
 			for (EntityLivingBase e : combatHandler.aggressors.keySet()) {
 				double damage = combatHandler.aggressors.get(e);
 				damageMap.put(Objects.requireNonNull(NpcAPI.Instance()).getIEntity(e), damage);
@@ -107,7 +106,8 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 		
 		public IEntity<?>[] getEntitys() { return damageMap.keySet().toArray(new IEntity<?>[0]); }
-		
+
+		@SuppressWarnings("all")
 		public double getDamageFromEntity(IEntity<?> entity) {
 			if (damageMap.containsKey(entity)) { return damageMap.get(entity); }
 			else if (entity != null) {
@@ -132,18 +132,18 @@ public class NpcEvent extends CustomNPCsEvent {
 	public static class InteractEvent extends NpcEvent {
 		public IPlayer<?> player;
 
-		public InteractEvent(ICustomNpc<?> npc, EntityPlayer player) {
+		public InteractEvent(ICustomNpc<?> npc, EntityPlayer playerIn) {
 			super(npc);
-			this.player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(player);
+			player = (IPlayer<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(playerIn);
 		}
 	}
 
 	public static class KilledEntityEvent extends NpcEvent {
 		public IEntityLivingBase<?> entity;
 
-		public KilledEntityEvent(ICustomNpc<?> npc, EntityLivingBase entity) {
+		public KilledEntityEvent(ICustomNpc<?> npc, EntityLivingBase entityIn) {
 			super(npc);
-			this.entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+			entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
 		}
 	}
 
@@ -152,24 +152,23 @@ public class NpcEvent extends CustomNPCsEvent {
 		public float damage;
 		public IEntityLivingBase<?> target;
 
-		public MeleeAttackEvent(ICustomNpc<?> npc, EntityLivingBase target, float damage) {
+		public MeleeAttackEvent(ICustomNpc<?> npc, EntityLivingBase targetIn, float damageIn) {
 			super(npc);
-			this.target = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(target);
-			this.damage = damage;
+			target = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(targetIn);
+			damage = damageIn;
 		}
 	}
 
 	public static class RangedLaunchedEvent extends NpcEvent {
 
 		public float damage;
-		public List<IProjectile<?>> projectiles;
+		public List<IProjectile<?>> projectiles = new ArrayList<>();
 		public IEntityLivingBase<?> target;
 
-		public RangedLaunchedEvent(ICustomNpc<?> npc, EntityLivingBase target, float damage) {
+		public RangedLaunchedEvent(ICustomNpc<?> npc, EntityLivingBase targetIn, float damageIn) {
 			super(npc);
-			this.projectiles = new ArrayList<>();
-			this.target = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(target);
-			this.damage = damage;
+			target = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(targetIn);
+			damage = damageIn;
 		}
 	}
 
@@ -178,10 +177,10 @@ public class NpcEvent extends CustomNPCsEvent {
 		public IAnimation animation;
 		public int type;
 
-		public StopAnimation(ICustomNpc<?> npc, int type, int id) {
+		public StopAnimation(ICustomNpc<?> npc, int typeIn, int id) {
 			super(npc);
-			this.type = type;
-			this.animation = AnimationController.getInstance().getAnimation(id);
+			type = typeIn;
+			animation = AnimationController.getInstance().getAnimation(id);
 		}
 
 	}
@@ -190,9 +189,9 @@ public class NpcEvent extends CustomNPCsEvent {
 	public static class TargetEvent extends NpcEvent {
 		public IEntityLivingBase<?> entity;
 
-		public TargetEvent(ICustomNpc<?> npc, EntityLivingBase entity) {
+		public TargetEvent(ICustomNpc<?> npc, EntityLivingBase entityIn) {
 			super(npc);
-			this.entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+			entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
 		}
 	}
 
@@ -200,31 +199,26 @@ public class NpcEvent extends CustomNPCsEvent {
 	public static class TargetLostEvent extends NpcEvent {
 		public IEntityLivingBase<?> entity;
 
-		public TargetLostEvent(ICustomNpc<?> npc, EntityLivingBase entity) {
+		public TargetLostEvent(ICustomNpc<?> npc, EntityLivingBase entityIn) {
 			super(npc);
-			this.entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entity);
+			entity = (IEntityLivingBase<?>) Objects.requireNonNull(NpcAPI.Instance()).getIEntity(entityIn);
 		}
 	}
 
 	public static class TimerEvent extends NpcEvent {
 		public int id;
 
-		public TimerEvent(ICustomNpc<?> npc, int id) {
+		public TimerEvent(ICustomNpc<?> npc, int idIn) {
 			super(npc);
-			this.id = id;
+			id = idIn;
 		}
 	}
 
 	public static class UpdateEvent extends NpcEvent {
-		public UpdateEvent(ICustomNpc<?> npc) {
-			super(npc);
-		}
+		public UpdateEvent(ICustomNpc<?> npc) { super(npc); }
 	}
 
 	public ICustomNpc<?> npc;
-
-	public NpcEvent(ICustomNpc<?> npc) {
-		this.npc = npc;
-	}
+	public NpcEvent(ICustomNpc<?> npcIn) { npc = npcIn; }
 
 }

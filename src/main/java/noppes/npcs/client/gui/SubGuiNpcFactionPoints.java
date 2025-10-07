@@ -31,7 +31,7 @@ public class SubGuiNpcFactionPoints extends SubGuiInterface implements ITextfiel
 		super.initGui();
 		// default Points
 		addLabel(new GuiNpcLabel(2, "faction.default", guiLeft + 4, guiTop + 33));
-		addTextField(new GuiNpcTextField(2, this, guiLeft + 8 + fontRenderer.getStringWidth(getLabel(2).getLabels().get(0)), guiTop + 28, 70, 20, faction.defaultPoints + "")
+		addTextField(new GuiNpcTextField(2, this, guiLeft + 8 + fontRenderer.getStringWidth(getLabel(2).getMessage()), guiTop + 28, 70, 20, faction.defaultPoints + "")
 				.setMinMaxDefault(-999999, 999999, 0)
 				.setHoverText("faction.hover.point.def"));
 		// unfriendly -> neutral

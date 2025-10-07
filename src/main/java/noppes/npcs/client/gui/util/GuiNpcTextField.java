@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.LogWriter;
 import noppes.npcs.api.mixin.client.gui.IGuiTextFieldMixin;
 import noppes.npcs.util.ValueUtil;
@@ -47,10 +46,10 @@ public class GuiNpcTextField extends GuiTextField implements IComponentGui {
 	public double maxD = Double.MAX_VALUE;
 	public double defD = 0.0d;
 
-	public GuiNpcTextField(int id, GuiScreen parent, int x, int y, int width, int height, String text) {
+	public GuiNpcTextField(int id, GuiScreen parent, int x, int y, int width, int height, Object text) {
 		super(id, Minecraft.getMinecraft().fontRenderer, x, y, width, height);
 		setMaxStringLength(500);
-		setText((text == null) ? "" : text);
+		setText((text == null) ? "" : text.toString());
 		if (parent instanceof ITextfieldListener) { listener = (ITextfieldListener) parent; }
 	}
 
@@ -74,11 +73,6 @@ public class GuiNpcTextField extends GuiTextField implements IComponentGui {
 		}
         return allowUppercase || Character.isLowerCase(c);
     }
-
-	public void drawTextBox() {
-		if (!getVisible()) { return; }
-		super.drawTextBox();
-	}
 
 	@Override
 	public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
@@ -334,17 +328,10 @@ public class GuiNpcTextField extends GuiTextField implements IComponentGui {
 	@Override
 	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
 
-	@Override
-	public GuiNpcTextField setHoverText(String text, Object ... args) {
+	public GuiNpcTextField setHoverText(Object... components) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return this; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
+		if (components == null) { return this; }
+		noppes.npcs.util.Util.instance.putHovers(hoverText, components);
 		return this;
 	}
 

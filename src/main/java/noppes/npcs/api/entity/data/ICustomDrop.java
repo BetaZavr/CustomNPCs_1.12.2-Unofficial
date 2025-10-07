@@ -1,6 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.controllers.data.Availability;
 
 @SuppressWarnings("all")
 public interface ICustomDrop {
@@ -33,7 +34,7 @@ public interface ICustomDrop {
 
 	int getMinAmount();
 
-	int getQuestID();
+    Availability getAvailability();
 
 	boolean getTiedToLevel();
 
@@ -56,8 +57,6 @@ public interface ICustomDrop {
 	void setItem(IItemStack item);
 
 	void setLootMode(int lootMode);
-
-	void setQuestID(int id);
 
 	void setTiedToLevel(boolean tiedToLevel);
 

@@ -36,7 +36,7 @@ public class SubGuiDropAttribute extends SubGuiInterface implements ITextfieldLi
 		int anyIDs = 80;
 		// name
 		addTextField(new GuiNpcTextField(72, this, guiLeft + 4, guiTop + 5, 163, 20, attribute.getAttribute())
-				.setHoverText("drop.hover.attribute.name", new TextComponentTranslation("attribute.name." + attribute.getAttribute()).getFormattedText()));
+				.setHoverText(new TextComponentTranslation("drop.hover.attribute.name", new TextComponentTranslation("attribute.name." + attribute.getAttribute()).getFormattedText())));
 		// values
 		values = new double[] { attribute.getMinValue(), attribute.getMaxValue() };
 		addLabel(new GuiNpcLabel(anyIDs++, "type.value", guiLeft + 56, guiTop + 36));

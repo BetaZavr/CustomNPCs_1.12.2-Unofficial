@@ -44,8 +44,8 @@ public class SubGuiNpcAvailabilityQuest extends SubGuiInterface implements ICust
 				EnumAvailabilityQuest ead = EnumAvailabilityQuest.values()[button.getValue()];
 				int id = dataIDs.get(select);
 				availability.quests.put(id, ead);
-				Quest quest = QuestController.instance.quests.get(dataIDs.get(select));
 				select = "ID:" + id + " - ";
+				Quest quest = QuestController.instance.get(id);
 				if (quest == null) { select += ((char) 167) + "4" + (new TextComponentTranslation("quest.found").getFormattedText()); }
 				else { select += ((char) 167) + "7" + quest.getCategory().getName() + "/" + ((char) 167) + "r" + quest.getName() + ((char) 167) + "7 (" + ((char) 167) + "9" + new TextComponentTranslation(("availability." + ead).toLowerCase()).getFormattedText() + ((char) 167) + "7)"; }
 				initGui();

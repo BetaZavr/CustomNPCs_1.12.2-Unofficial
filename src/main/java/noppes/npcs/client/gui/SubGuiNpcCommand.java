@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.util.*;
 
 import javax.annotation.Nonnull;
@@ -29,7 +30,7 @@ public class SubGuiNpcCommand extends SubGuiInterface implements ITextfieldListe
 		super.initGui();
 		// text
 		addTextField(new GuiNpcTextField(4, this, guiLeft + 4, guiTop + 84, 248, 20, command)
-				.setHoverText("command.hover.text", ((char) 167) + "6" + Short.MAX_VALUE));
+				.setHoverText(new TextComponentTranslation("command.hover.text", ((char) 167) + "6" + Short.MAX_VALUE)));
 		getTextField(4).setMaxStringLength(Short.MAX_VALUE);
 		// extra info
 		addLabel(new GuiNpcLabel(4, "advMode.command", guiLeft + 4, guiTop + 110));

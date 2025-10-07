@@ -198,8 +198,10 @@ public class GuiNpcButton extends GuiButton implements IComponentGui {
 
 				GlStateManager.translate(x, y, 0.0f);
 				mc.getTextureManager().bindTexture(texture);
-
-				drawTexturedModalRect(0, 0, txrX, txrY + state * height, width, height);
+				int w0 = width / 2;
+				int w1 = width - w0;
+				drawTexturedModalRect(0, 0, txrX, txrY + state * height, w0, height);
+				drawTexturedModalRect(w0, 0, txrX + txrW - w0, txrY + state * height, w1, height);
 				GlStateManager.popMatrix();
 			}
 			else {
@@ -388,28 +390,12 @@ public class GuiNpcButton extends GuiButton implements IComponentGui {
 	public int getID() { return id; }
 
 	@Override
-	public int[] getCenter() {
-		return new int[] { x + width / 2, y + height / 2};
-	}
+	public int[] getCenter() { return new int[] { x + width / 2, y + height / 2}; }
 
-	@Override
-	public GuiNpcButton setHoverText(String text, Object ... args) {
+	public GuiNpcButton setHoverText(Object... components) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return this; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
-		return this;
-	}
-
-	public GuiNpcButton setHoverText(List<String> hovers) {
-		hoverText.clear();
-		if (hovers == null || hovers.isEmpty()) { return this; }
-		hoverText.addAll(hovers);
+		if (components == null) { return this; }
+		noppes.npcs.util.Util.instance.putHovers(hoverText, components);
 		return this;
 	}
 

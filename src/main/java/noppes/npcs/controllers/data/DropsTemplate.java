@@ -2,10 +2,10 @@ package noppes.npcs.controllers.data;
 
 import java.util.*;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.LogWriter;
-import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.entity.data.DropSet;
 
 public class DropsTemplate {
@@ -23,7 +23,7 @@ public class DropsTemplate {
 		this.load(nbtTemplate);
 	}
 
-	public DropSet addDropItem(int id, IItemStack item, double chance) {
+	public DropSet addDropItem(int id, ItemStack item, double chance) {
 		if (!groups.containsKey(id)) {
 			id = groups.size();
 			groups.put(id, new TreeMap<>());

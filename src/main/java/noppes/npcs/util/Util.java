@@ -28,8 +28,11 @@ import com.google.gson.internal.LinkedTreeMap;
 import net.minecraft.nbt.*;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.*;
 
 import net.minecraft.block.state.IBlockState;
@@ -1909,6 +1912,41 @@ public class Util implements IMethods {
 			if (entityClass.isInstance(e) && e.getDistance(x, y, z) - e.width <= range) { list.add(entityClass.cast(e)); }
 		}
 		return list;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void putHovers(List<String> hoverText, Object... components) {
+		if (hoverText == null || components == null) { return; }
+		for (Object component : components) {
+			if (component == null) { continue; }
+			if (component instanceof List<?>) {
+				putHovers(hoverText, ((List<?>) component).toArray());
+				continue;
+			}
+			String text = null;
+			if (component instanceof String) {
+				String lines = (String) component;
+				if (!lines.contains("%")) {
+					String temp = new TextComponentTranslation(lines).getFormattedText();
+					if (temp.contains("<br>") || temp.contains("~~~")) { text = temp; }
+					if (text == null) { hoverText.add(lines); }
+				}
+				else { hoverText.add(lines); }
+			}
+			else if (component instanceof ITextComponent) {
+				String temp = ((ITextComponent) component).getFormattedText();
+				if (temp.contains("<br>") || temp.contains("~~~")) { text = temp; }
+				else { hoverText.add(temp); }
+			}
+			if (text != null) {
+				if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
+				while (text.contains("<br>")) {
+					hoverText.add(text.substring(0, text.indexOf("<br>")));
+					text = text.substring(text.indexOf("<br>") + 4);
+				}
+				if (!text.isEmpty()) { hoverText.add(text); }
+			}
+		}
 	}
 
 }

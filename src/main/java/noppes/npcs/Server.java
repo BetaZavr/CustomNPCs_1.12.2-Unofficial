@@ -182,8 +182,14 @@ public class Server {
 					try {
 						@SuppressWarnings("unchecked")
 						List<String> list = (List<String>) ob;
-						buffer.writeInt(list.size());
-						for (String s : list) { writeString(buffer, s); }
+						boolean start = true;
+						for (String s : list) {
+							if (start) {
+								start = false;
+								buffer.writeInt(list.size());
+							}
+							writeString(buffer, s);
+						}
 						bo = true;
 					} catch (Exception ignore) { }
 					if (!bo) {
@@ -202,7 +208,9 @@ public class Server {
 							@SuppressWarnings("unchecked")
 							List<ItemStack> list = (List<ItemStack>) ob;
 							buffer.writeInt(list.size());
-                            for (ItemStack itemStack : list) { writeNBT(buffer, itemStack.writeToNBT(new NBTTagCompound())); }
+							for (ItemStack itemStack : list) {
+								writeNBT(buffer, itemStack.writeToNBT(new NBTTagCompound()));
+							}
 						} catch (Exception ignored) { }
 					}
 				}

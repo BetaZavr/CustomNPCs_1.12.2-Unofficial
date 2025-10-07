@@ -603,7 +603,6 @@ public class PacketHandlerPlayer {
 			EntityNPCInterface npc = null;
 			Entity entity = player.world.getEntityByID(npcID);
 			if (entity instanceof EntityNPCInterface) { npc = (EntityNPCInterface) entity; }
-
 			if (!player.isCreative()) {
 				if (notGiveItem) {
 					if (npc != null) { EventHooks.onNPCRole(npc, new RoleEvent.TradeFailedEvent(player, npc.wrappedNPC, dm.main, dm.buyItems)); }
@@ -675,7 +674,8 @@ public class PacketHandlerPlayer {
 			}
 			int dealID = buffer.readInt();
 			Deal deal = marcet.getDeal(dealID);
-			if (deal == null || deal.getType() == 1) {
+			if (deal == null || deal.getType() == 0 ||
+					((deal.isCase() && deal.getCaseItems().length == 0) || (!deal.isCase() && deal.getProduct().isEmpty()))) {
 				Server.sendData(player, EnumPacketClient.MARCET_DATA, 2);
 				Server.sendData(player, EnumPacketClient.GUI_UPDATE);
 				return;
@@ -1059,7 +1059,7 @@ public class PacketHandlerPlayer {
 		ie.motionY = 0.0d;
 		ie.motionZ = 0.0d;
 		ie.lifespan = 100;
-		player.world.onEntityAdded(ie);
+		player.world.spawnEntity(ie);
 	}
 
 }

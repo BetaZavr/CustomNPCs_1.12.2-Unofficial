@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.text.TextComponentTranslation;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -500,17 +499,10 @@ public class GuiTextArea extends Gui implements IComponentGui {
 	@Override
 	public int[] getCenter() { return new int[] { x + width / 2, y + height  / 2}; }
 
-	@Override
-	public GuiTextArea setHoverText(String text, Object ... args) {
+	public GuiTextArea setHoverText(Object... components) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return this; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
+		if (components == null) { return this; }
+		noppes.npcs.util.Util.instance.putHovers(hoverText, components);
 		return this;
 	}
 

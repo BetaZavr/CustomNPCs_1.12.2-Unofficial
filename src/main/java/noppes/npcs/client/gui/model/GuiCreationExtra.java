@@ -241,7 +241,7 @@ public class GuiCreationExtra extends GuiCreationScreenInterface implements ICus
 			if (selected != null) { selected.scrollClicked(mouseX, mouseY, mouseButton, scroll); }
 			if (getButton(11) != null) {
 				if (scroll.hasSelected()) { getButton(11).setHoverText("display.hover.part." + scroll.getSelected().toLowerCase()); }
-				else { getButton(11).setHoverText(null); }
+				else { getButton(11).setHoverText((Object) null); }
 			}
 		}
 	}

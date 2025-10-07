@@ -188,17 +188,10 @@ public class GuiNpcMiniWindow extends GuiNPCInterface implements IComponentGui, 
 	@Override
 	public int[] getCenter() { return new int[] { guiLeft + width / 2, guiTop + height / 2}; }
 
-	@Override
-	public GuiNpcMiniWindow setHoverText(String text, Object ... args) {
+	public GuiNpcMiniWindow setHoverText(Object... components) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return this; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
+		if (components == null) { return this; }
+		noppes.npcs.util.Util.instance.putHovers(hoverText, components);
 		return this;
 	}
 

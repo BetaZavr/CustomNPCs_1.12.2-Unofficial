@@ -3,8 +3,7 @@ package noppes.npcs.constants;
 public enum EnumGuiType
 {
 	MainMenuDisplay, 
-	MainMenuInv, 
-	MainMenuInvDrop,
+	MainMenuInv,
 	MainMenuStats, 
 	ManageFactions, 
 	MainMenuAdvanced, 
@@ -71,6 +70,7 @@ public enum EnumGuiType
 	DeadInventory,
 	QuestLog,
 	CreationParts,
+    SetupDrop,
 	PermissionsEdit
 
 }

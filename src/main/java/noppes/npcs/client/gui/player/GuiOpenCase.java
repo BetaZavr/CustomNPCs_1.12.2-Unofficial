@@ -5,7 +5,6 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -56,16 +55,19 @@ public class GuiOpenCase extends GuiNPCInterface {
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         if (map.isEmpty()) {
-            onGuiClosed();
+            onClosed();
             return;
         }
-        //mc.options.hideGui = true;
         GlStateManager.pushMatrix();
         float rotTop = 0.0f;
         float x = width * 0.5f - 10.0f;
         float y = height * 0.5f - 19.0f;
         float caseScale = 36.0f;
         boolean isRotX = true;
+        boolean drawStacks = false;
+        float dsScale = 1.0f;
+        float dsPosX = 0.0f;
+        float dsPosY = 0.0f;
         if (mc.world != null) {
             if (startTicks > 0) {
                 float tick = ValueUtil.correctFloat(partialTicks + (float) (startTicks - mc.world.getTotalWorldTime()), 0.0f , Float.MAX_VALUE);
@@ -114,7 +116,7 @@ public class GuiOpenCase extends GuiNPCInterface {
                         caseScale = 72.0f;
                         float a = 135.0f / (float) maxTick;
                         float b = - a * (float) maxTick;
-                        rotTop = a * tick + b;
+                        rotTop = -a * tick - b;
                         GlStateManager.translate(x, y, 0.0f);
                         if (tick <= 0.0f) {
                             maxTick = 6;
@@ -124,12 +126,13 @@ public class GuiOpenCase extends GuiNPCInterface {
                         break;
                     } // open
                     case 4: {
-                        rotTop = -135.0f;
+                        rotTop = 135.0f;
                         float cos = ValueUtil.correctFloat((float) Math.cos(90.0d * tick / (double) maxTick * Math.PI / 180.0d), 0.0f, 1.0f);
                         float a = - 0.5f / (float) maxTick;
                         float b = - a * (float) maxTick;
-                        drawStacks(ValueUtil.correctFloat(a * tick + b, 0.0f, 1.0f),
-                                0.0f, height * -0.4f * cos, mouseX, mouseY);
+                        drawStacks = true;
+                        dsScale = ValueUtil.correctFloat(a * tick + b, 0.0f, 1.0f);
+                        dsPosY = height * -0.4f * cos;
 
                         a = 18.0f / (float) maxTick;
                         b = 72.0f - a * (float) maxTick;
@@ -143,12 +146,13 @@ public class GuiOpenCase extends GuiNPCInterface {
                         break;
                     } // items up
                     case 5: {
-                        rotTop = -135.0f;
+                        rotTop = 135.0f;
                         float sin = ValueUtil.correctFloat((float) Math.sin(90.0d * tick / (double) maxTick * Math.PI / 180.0d), 0.0f, 1.0f);
                         float a = -0.5f / (float) maxTick;
                         float b = 0.5f - a * (float) maxTick;
-                        drawStacks(ValueUtil.correctFloat(a * tick + b, 0.0f, 1.0f),
-                                0.0f, height * -0.4f * sin, mouseX, mouseY);
+                        drawStacks = true;
+                        dsScale = ValueUtil.correctFloat(a * tick + b, 0.0f, 1.0f);
+                        dsPosY = height * -0.4f * sin;
 
                         a = 18.0f / (float) maxTick;
                         b = 54.0f - a * (float) maxTick;
@@ -162,7 +166,8 @@ public class GuiOpenCase extends GuiNPCInterface {
                         break;
                     } // items to center
                     case 6: {
-                        rotTop = -135.0f;
+                        rotTop = 135.0f;
+                        drawStacks = true;
                         drawStacks(1.0f, 0.0f, 0.0f, mouseX, mouseY);
                         GlStateManager.translate(x, y, 0.0f);
                         if (tick <= 0.0f) { startTicks = 0; }
@@ -170,15 +175,17 @@ public class GuiOpenCase extends GuiNPCInterface {
                     } // end
                     case 7: {
                         //tick = maxTick;
-                        rotTop = -135.0f;
+                        rotTop = 135.0f;
                         float a = 1.0f / (float) maxTick;
                         float b = 1.0f - a * (float) maxTick;
                         float c = - width * 0.5f / (float) maxTick;
                         float d = - c * (float) maxTick;
                         float e = - height * 0.5f / (float) maxTick;
                         float f = - e * (float) maxTick;
-                        drawStacks(ValueUtil.correctFloat(a * tick + b, 0.0f, 1.0f),
-                                c * tick + d, e * tick + f, mouseX, mouseY);
+                        drawStacks = true;
+                        dsScale = ValueUtil.correctFloat(a * tick + b, 0.0f, 1.0f);
+                        dsPosX = c * tick + d;
+                        dsPosY = e * tick + f;
 
                         a = x / (float) maxTick;
                         b = x - a * (float) maxTick;
@@ -189,28 +196,39 @@ public class GuiOpenCase extends GuiNPCInterface {
                         a = 24.0f / (float) maxTick;
                         b = 36.0f - a * (float) maxTick;
                         caseScale = a * tick + b;
-                        if (tick <= 0.0f) { onGuiClosed(); }
+                        if (tick <= 0.0f) { onClosed(); }
                         break;
                     } // close
                 }
             }
             else {
-                rotTop = -135.0f;
-                drawStacks(1.0f, 0.0f, 0.0f, mouseX, mouseY);
+                drawStacks = true;
+                rotTop = 135.0f;
                 GlStateManager.translate(x, y, 0.0f);
             }
         }
-        if (isRotX) {
-            GlStateManager.rotate(-30.0f, 1.0f, 0.0f, 0.0f); }
+        if (isRotX) { GlStateManager.rotate(-30.0f, 1.0f, 0.0f, 0.0f); }
         GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
-        GlStateManager.scale(caseScale, caseScale, caseScale);
+        GlStateManager.scale(caseScale, -caseScale, caseScale);
         if (rotTop != 0.0f) {
             GlStateManager.callList(ModelBuffer.getDisplayList(objModel, Collections.singletonList("body"), materialTextures));
-            GlStateManager.rotate(rotTop, 0.0f, 0.0f, 1.0f);
+            GlStateManager.rotate(rotTop , 0.0f, 0.0f, 1.0f);
             GlStateManager.callList(ModelBuffer.getDisplayList(objModel, Collections.singletonList("top"), materialTextures));
         }
-        else { GlStateManager.callList(ModelBuffer.getDisplayList(objModel, null, materialTextures)); }
+        else {
+            GlStateManager.callList(ModelBuffer.getDisplayList(objModel, null, materialTextures));
+        }
         GlStateManager.popMatrix();
+
+        if (drawStacks) {
+            GlStateManager.pushMatrix();
+            drawStacks(dsScale, dsPosX, dsPosY, mouseX, mouseY);
+            GlStateManager.popMatrix();
+        }
+        if (!hoverText.isEmpty()) {
+            GlStateManager.translate(0.0f, 0.0f, 600.0f);
+            GlStateManager.scale(1.0f, 1.0f, -1.0f);
+        }
         if (startTicks == 0 && step == 6) { super.drawScreen(mouseX, mouseY, partialTicks); }
     }
 
@@ -227,9 +245,8 @@ public class GuiOpenCase extends GuiNPCInterface {
     }
 
     @Override
-    public void onGuiClosed() {
+    public void onClosed() {
         if (startTicks == 0 && step == 6) { return; }
-        //mc.options.hideGui = false;
         mc.displayGuiScreen(parent);
     }
 
@@ -239,8 +256,8 @@ public class GuiOpenCase extends GuiNPCInterface {
         float s = 4.0f * scale;
         int h = (int) (height * 0.5f) - 32;
         int w0 = (int) (width * 0.5f) - 32;
-        GlStateManager.translate(width * 0.5f - 8.0f * s + posX, height * 0.5f - 8.0f * s + posY, 150.0f);
-        GlStateManager.scale(s, s, s);
+        GlStateManager.translate(width * 0.5f - s + posX, height * 0.5f - s + posY, 150.0f);
+        GlStateManager.scale(16.0f * s, -16.0f * s, 16.0f * s);
         ItemStack stack;
         List<String> hovers;
         ArrayList<Map.Entry<ItemStack, Integer>> list = new ArrayList<>(map.entrySet());
@@ -250,7 +267,7 @@ public class GuiOpenCase extends GuiNPCInterface {
             // hovers
             if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0, h, 64, 64)) {
                 hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get(0).getValue()); }
+                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get(0).getValue()); }
                 hoverText.addAll(hovers);
             }
         }
@@ -261,7 +278,7 @@ public class GuiOpenCase extends GuiNPCInterface {
             // hover 0
             if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0 - 36, h, 64, 64)) {
                 hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get(0).getValue()); }
+                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get(0).getValue()); }
                 hoverText.addAll(hovers);
             }
             stack = list.get(1).getKey();
@@ -270,7 +287,7 @@ public class GuiOpenCase extends GuiNPCInterface {
             // hover 1
             if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0 + 36, h, 64, 64)) {
                 hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get(1).getValue()); }
+                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get(1).getValue()); }
                 hoverText.addAll(hovers);
             }
         }
@@ -282,7 +299,7 @@ public class GuiOpenCase extends GuiNPCInterface {
             w0 -= 72;
             if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0, h, 64, 64)) {
                 hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get(0).getValue()); }
+                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get(0).getValue()); }
                 hoverText.addAll(hovers);
             }
             for (int i = 1; i < 3; i++) {
@@ -292,7 +309,7 @@ public class GuiOpenCase extends GuiNPCInterface {
                 // hover i
                 if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0 + i * 72, h, 64, 64)) {
                     hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                    if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get((i + scrollX) % list.size()).getValue()); }
+                    if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get((i + scrollX) % list.size()).getValue()); }
                     hoverText.addAll(hovers);
                 }
             }
@@ -305,7 +322,7 @@ public class GuiOpenCase extends GuiNPCInterface {
             w0 -= 108;
             if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0, h, 64, 64)) {
                 hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get(0).getValue()); }
+                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get(0).getValue()); }
                 hoverText.addAll(hovers);
             }
             for (int i = 1; i < 4; i++) {
@@ -315,7 +332,7 @@ public class GuiOpenCase extends GuiNPCInterface {
                 // hover i
                 if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0 + i * 72, h, 64, 64)) {
                     hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                    if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get((i + scrollX) % list.size()).getValue()); }
+                    if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get((i + scrollX) % list.size()).getValue()); }
                     hoverText.addAll(hovers);
                 }
             }
@@ -328,7 +345,7 @@ public class GuiOpenCase extends GuiNPCInterface {
             w0 -= 144;
             if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0, h, 64, 64)) {
                 hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get(0).getValue()); }
+                if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get(0).getValue()); }
                 hoverText.addAll(hovers);
             }
             for (int i = 1; i < 5; i++) {
@@ -338,7 +355,7 @@ public class GuiOpenCase extends GuiNPCInterface {
                 // hover i
                 if (scale == 1.0f && isMouseHover(mouseX, mouseY, w0 + i * 72, h, 64, 64)) {
                     hovers = stack.getTooltip(player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-                    if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + " " + TextFormatting.RESET + " x" + list.get((i + scrollX) % list.size()).getValue()); }
+                    if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + list.get((i + scrollX) % list.size()).getValue()); }
                     hoverText.addAll(hovers);
                 }
             }

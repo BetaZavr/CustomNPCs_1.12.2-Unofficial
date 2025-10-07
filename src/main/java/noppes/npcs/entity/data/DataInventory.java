@@ -2,6 +2,7 @@ package noppes.npcs.entity.data;
 
 import java.util.*;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -31,13 +32,8 @@ import noppes.npcs.api.entity.data.INPCInventory;
 import noppes.npcs.api.event.NpcEvent;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.wrapper.ItemStackWrapper;
-import noppes.npcs.constants.EnumQuestTask;
 import noppes.npcs.controllers.DropController;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.data.PlayerData;
-import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.quests.QuestObjective;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
@@ -52,29 +48,35 @@ public class DataInventory implements IInventory, INPCInventory {
 	 * 3: feet
 	 */
 	public Map<Integer, IItemStack> armor = new TreeMap<>();
-	public final Map<Integer, DropSet> drops = new TreeMap<>();
 	public boolean lootMode = true;
 	private int maxExp = 0;
 	private int minExp = 0;
-	public int dropType = 0; // 0-npc drops, 1-template drops, 2-both
 	EntityNPCInterface npc;
 	public Map<Integer, IItemStack> weapons = new TreeMap<>();
 	public Map<Integer, IItemStack> awItems = new TreeMap<>();
-	public String saveDropsName = "";
-	public int limitation = 0;
+
+	// New from Unofficial (BetaZavr)
+	public final Map<Integer, DropSet> drops = new TreeMap<>();
 	public InventoryBasic deadLoot; // <- PlayerInteractEvent.RightClickBlock
 	public Map<EntityLivingBase, InventoryBasic> deadLoots;
+	public String saveDropsName = "";
+	public int dropType = 0; // 0-npc drops, 1-template drops, 2-both
+	public int limitation = 0;
 
 	public DataInventory(EntityNPCInterface npcIn) { npc = npcIn; }
 
 	@Override
 	public ICustomDrop addDropItem(IItemStack item, double chance) {
+		return addDropItem(item == null ? ItemStack.EMPTY : item.getMCItemStack(), chance);
+	}
+
+	public ICustomDrop addDropItem(ItemStack item, double chance) {
 		if (drops.size() >= CustomNpcs.MaxItemInDropsNPC) {
 			throw new CustomNPCsException("Bad maximum size: " + drops.size() + " (" + CustomNpcs.MaxItemInDropsNPC + " slots maximum)");
 		}
 		chance = ValueUtil.correctDouble(chance, 0.0001d, 100.0d);
 		DropSet ds = new DropSet(this, null);
-		ds.item = item;
+		ds.item = item == null ? ItemStack.EMPTY : item;
 		ds.chance = chance;
 		ds.pos = drops.size();
 		drops.put(ds.pos, ds);
@@ -91,103 +93,6 @@ public class DataInventory implements IInventory, INPCInventory {
 	}
 
 	public void closeInventory(@Nonnull EntityPlayer player) {}
-
-	/**
-	 * @param lootType 0: drop on ground
-	 * 1: drop under player feet
-	 * 2: into inventory
-	 * @param baseChance 0 <> 1.0
-	 * @return inventories map
-	 */
-	@Override
-	public Map<IEntity<?>, List<IItemStack>> createDrops(int lootType, double baseChance) {
-		List<DropSet> allDrops = new ArrayList<>();
-		if (dropType != 0 && !saveDropsName.isEmpty()) { allDrops = DropController.getInstance().getDrops(saveDropsName); } // template drops
-		if (dropType != 1) { allDrops.addAll(drops.values()); } // both
-		List<IItemStack> anyItems = new ArrayList<>();
-		Map<IEntity<?>, List<IItemStack>> map = new HashMap<>();
-		for (DropSet ds : allDrops) {
-			double c = ds.chance * baseChance / 100.0d;
-			double r = Math.random();
-			if (ds.item == null || ds.item.isEmpty() || lootType != ds.lootMode || (ds.amount[0] == 0 && ds.amount[1] == 0) || (c < 1.0d && c < r)) { continue; }
-			IItemStack iStack = ds.createLoot(baseChance);
-			if (iStack.isEmpty()) { continue; }
-			int qID = ds.getQuestID();
-			if (qID > 0) {
-				for (EntityLivingBase attacking : npc.combatHandler.aggressors.keySet()) {
-					if (!(attacking instanceof EntityPlayer)) { continue; }
-					PlayerData data = PlayerData.get((EntityPlayer) attacking);
-					if (data == null || !data.questData.activeQuests.containsKey(qID)) { continue; }
-					Quest quest = QuestController.instance.quests.get(qID);
-					if (quest == null) { continue; }
-					boolean needAdd = true;
-					for (QuestObjective objQ : quest.getObjectives((EntityPlayer) attacking)) {
-						if (objQ.getEnumType() != EnumQuestTask.ITEM) { continue; }
-						if (objQ.getItemStack().isItemEqual(iStack.getMCItemStack()) && objQ.isCompleted()) {
-							needAdd = false;
-							break;
-						}
-					}
-					if (needAdd) {
-						IEntity<?> iEntity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(attacking);
-						if (iEntity != null) {
-							if (!map.containsKey(iEntity)) { map.put(iEntity, new ArrayList<>()); }
-							map.get(iEntity).add(iStack);
-						}
-					}
-				}
-			}
-			else { anyItems.add(iStack); }
-		}
-		// put simple items
-		if (!anyItems.isEmpty()) {
-			// shuffle
-			Collections.shuffle(anyItems, new Random());
-			// sort aggressors
-			LinkedHashMap<EntityLivingBase, Double> aggressors = Util.instance.sortByValue(npc.combatHandler.aggressors);
-			// create aggressors list
-			IEntity<?> damageLieder = null;
-			Map<IEntity<?>, Double> entitys = new LinkedHashMap<>();
-			double totalDamageValue = 0.0d;
-			for (EntityLivingBase attacking : aggressors.keySet()) {
-				if (attacking instanceof EntityPlayer || !npc.combatHandler.onlyPlayers && lootType != 2) {
-					IEntity<?> iEntity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(attacking);
-					if (iEntity != null) {
-						if (damageLieder == null) { damageLieder = iEntity; }
-						entitys.put(iEntity, aggressors.get(attacking));
-						totalDamageValue += aggressors.get(attacking);
-					}
-				}
-			}
-			// amount rewards
-			Map<IEntity<?>, Integer> itemsToEntity = new HashMap<>();
-			int s = anyItems.size();
-			for (IEntity<?> attacking : entitys.keySet()) {
-				int amount = (int) Math.round(totalDamageValue / entitys.get(attacking) * anyItems.size());
-				if (amount > s) { amount = 2; }
-				itemsToEntity.put(attacking, amount);
-				s -= amount;
-				if (s == 0) { break; }
-			}
-			if (damageLieder == null) {
-				map.put(npc.wrappedNPC, anyItems);
-			} else {
-				if (s != 0) { itemsToEntity.put(damageLieder, itemsToEntity.get(damageLieder) + s); }
-				// put items to entities
-				for (IEntity<?> attacking : itemsToEntity.keySet()) {
-					if (anyItems.isEmpty()) { break; }
-					for (int i = 0; i < itemsToEntity.get(attacking); i++) {
-						if (anyItems.isEmpty()) { break; }
-						IItemStack iStack = anyItems.get(0);
-						if (!map.containsKey(attacking)) { map.put(attacking, new ArrayList<>()); }
-						map.get(attacking).add(iStack);
-						anyItems.remove(iStack);
-					}
-				}
-			}
-		}
-        return map;
-	}
 
 	public @Nonnull ItemStack decrStackSize(int slot0, int slot1) {
 		int i;
@@ -228,104 +133,6 @@ public class DataInventory implements IInventory, INPCInventory {
 			return ItemStack.EMPTY;
 		}
 		return var4;
-	}
-
-	public void dropStuff(NpcEvent.DiedEvent event, DamageSource damagesource) {
-		deadLoot = null;
-		deadLoots = null;
-		// Vanilla
-		ArrayList<EntityItem> list = new ArrayList<>();
-		if (event.droppedItems != null) {
-			for (IItemStack iStack : event.droppedItems) {
-				if (iStack == null || iStack.isEmpty()) { continue; }
-				EntityItem e = getEntityItem(iStack.getMCItemStack().copy(), event.droppedItems.length > 7);
-				if (e != null) { list.add(e); }
-			}
-		}
-		boolean notDropOnGround = ForgeHooks.onLivingDrops(npc, damagesource, list, 0, true);
-		if (!notDropOnGround) {
-            for (EntityItem e : list) {
-                if (e == null) { continue; }
-                npc.world.spawnEntity(e);
-            }
-		}
-
-		list.clear();
-		if (event.lootedItems != null) {
-			for (IEntity<?> iEntity : event.lootedItems.keySet()) {
-				for (IItemStack iStack : event.lootedItems.get(iEntity)) {
-					if (iStack == null || iStack.isEmpty()) { continue; }
-					EntityItem e = getEntityItem(iStack.getMCItemStack().copy(), event.lootedItems.get(iEntity).size() > 7);
-					if (e == null) { continue; }
-					if (iEntity instanceof IPlayer) {
-						EntityPlayer player = (EntityPlayer) iEntity.getMCEntity();
-						e.setPickupDelay(2);
-						e.setOwner(player.getName());
-						npc.world.spawnEntity(e);
-						ItemStack stack = e.getItem();
-						int i = stack.getCount();
-						if (!player.inventory.addItemStackToInventory(stack)) { continue; }
-						player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
-						player.onItemPickup(e, i);
-						if (stack.getCount() <= 0) { e.setDead(); }
-					} else {
-						e.setPosition(iEntity.getPos().getX(), iEntity.getPos().getY() + iEntity.getMCEntity().getEyeHeight() / 2.0d, iEntity.getPos().getZ());
-						npc.world.spawnEntity(e);
-					}
-				}
-			}
-		}
-		if (event.inventoryItems != null) {
-			if (event.totalDamageOnlyPlayers == 0.0d) {
-				List<ItemStack> stacks = new ArrayList<>();
-				for (IEntity<?> iEntity : event.inventoryItems.keySet()) {
-					for (IItemStack iStack : event.inventoryItems.get(iEntity)) {
-						stacks.add(iStack.getMCItemStack());
-						if (stacks.size() == 54) { break; }
-					}
-					if (stacks.size() == 54) { break; }
-				}
-				int size = (int) (Math.ceil((double) stacks.size() / 9.0d) * 9.0d);
-				deadLoot = new InventoryBasic("NPC Loot", true, Math.max(9, size));
-				int i = 0;
-				for (ItemStack stack : stacks) {
-					deadLoot.setInventorySlotContents(i, stack);
-					i++;
-				}
-			}
-			for (IEntity<?> iEntity : event.inventoryItems.keySet()) {
-				int size = (int) (Math.ceil((double) event.inventoryItems.get(iEntity).size() / 9.0d) * 9.0d);
-				InventoryBasic inv = new InventoryBasic("NPC Loot", true, Math.max(9, size));
-				int i = 0;
-				for (IItemStack iStack : event.inventoryItems.get(iEntity)) {
-					inv.setInventorySlotContents(i, iStack.getMCItemStack());
-					i++;
-				}
-				if (deadLoots == null) { deadLoots = new HashMap<>(); }
-				deadLoots.put((EntityLivingBase) iEntity.getMCEntity(), inv);
-			}
-		}
-		if (event.expDropped > 0) {
-			if (!lootMode) {
-				int exp = event.expDropped;
-				while (exp > 0) {
-					int currentValue = EntityXPOrb.getXPSplit(exp);
-					exp -= currentValue;
-					npc.world.spawnEntity(new EntityXPOrb(npc.world, npc.posX, npc.posY, npc.posZ, currentValue));
-				}
-			} else {
-				for (IEntity<?> iEntity : event.damageMap.keySet()) {
-					if (!(iEntity instanceof IPlayer)) { continue; }
-					int exp = (int) ((double) event.expDropped * event.damageMap.get(iEntity) / event.totalDamageOnlyPlayers);
-					Entity player = iEntity.getMCEntity();
-					while (exp > 0) {
-						int currentValue = EntityXPOrb.getXPSplit(exp);
-						exp -= currentValue;
-						npc.world.spawnEntity(new EntityXPOrb(player.world, player.posX, player.posY, player.posZ, currentValue));
-					}
-				}
-			}
-		}
 	}
 
 	public IItemStack getArmor(int slot) {
@@ -476,8 +283,10 @@ public class DataInventory implements IInventory, INPCInventory {
 		maxExp = compound.getInteger("MaxExp");
 		armor = NBTTags.getIItemStackMap(compound.getTagList("Armor", 10));
 		weapons = NBTTags.getIItemStackMap(compound.getTagList("Weapons", 10));
-		awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
+		lootMode = compound.getBoolean("LootMode");
 
+		// New from Unofficial (BetaZavr)
+		awItems = NBTTags.getIItemStackMap(compound.getTagList("AWModItems", 10));
 		drops.clear();
 		if (compound.hasKey("DropChance", 9)) { // if old items
 			Map<Integer, IItemStack> d_old = NBTTags.getIItemStackMap(compound.getTagList("NpcInv", 10));
@@ -488,9 +297,9 @@ public class DataInventory implements IInventory, INPCInventory {
 					continue;
 				}
 				DropSet ds = new DropSet(this, null);
-				ds.item = d_old.get(slot);
+				ds.item = d_old.get(slot).getMCItemStack();
 				ds.chance = (double) dc_old.get(slot);
-				ds.amount = new int[] { ds.item.getStackSize(), ds.item.getStackSize() };
+				ds.amount = new int[] { ds.item.getCount(), ds.item.getCount() };
 				ds.pos = i;
 				drops.put(i, ds);
 				i++;
@@ -503,11 +312,9 @@ public class DataInventory implements IInventory, INPCInventory {
 				drops.put(ds.pos, ds);
 			}
 		}
-
-		lootMode = compound.getBoolean("LootMode");
 		saveDropsName = compound.getString("SaveDropsName");
-		dropType = compound.getInteger("DropType");
 		limitation = compound.getInteger("Limitation");
+		dropType = compound.getInteger("DropType");
 		if (dropType < 0) { dropType *= -1; }
 		if (dropType > 2) { dropType %= 3; }
 	}
@@ -651,6 +458,9 @@ public class DataInventory implements IInventory, INPCInventory {
 		compound.setInteger("MaxExp", maxExp);
 		compound.setTag("Armor", NBTTags.nbtIItemStackMap(armor));
 		compound.setTag("Weapons", NBTTags.nbtIItemStackMap(weapons));
+		compound.setBoolean("LootMode", lootMode);
+
+		// New from Unofficial (BetaZavr)
 		compound.setTag("AWModItems", NBTTags.nbtIItemStackMap(awItems));
 		NBTTagList dropList = new NBTTagList();
 		int s = 0;
@@ -665,11 +475,206 @@ public class DataInventory implements IInventory, INPCInventory {
 			s++;
 		}
 		compound.setTag("NpcInv", dropList);
-		compound.setBoolean("LootMode", lootMode);
 		compound.setString("SaveDropsName", saveDropsName);
 		compound.setInteger("DropType", dropType);
 		compound.setInteger("Limitation", limitation);
 		return compound;
+	}
+
+
+	/**
+	 * @param lootType 0: drop on ground
+	 * 1: drop under player feet
+	 * 2: into inventory
+	 * @param baseChance 0 <> 1.0
+	 * @return inventories map
+	 */
+	@Override
+	public Map<IEntity<?>, List<IItemStack>> createDrops(int lootType, double baseChance) {
+		List<DropSet> allDrops = new ArrayList<>();
+		if (dropType != 0 && !saveDropsName.isEmpty()) { allDrops = DropController.getInstance().getDrops(saveDropsName); } // template drops
+		if (dropType != 1) { allDrops.addAll(drops.values()); } // both
+		List<IItemStack> anyItems = new ArrayList<>();
+		Map<IEntity<?>, List<IItemStack>> map = new HashMap<>();
+		for (DropSet ds : allDrops) {
+			double c = ds.chance * baseChance / 100.0d;
+			double r = Math.random();
+			if (ds.item == null || ds.item.isEmpty() || lootType != ds.lootMode || (ds.amount[0] == 0 && ds.amount[1] == 0) || (c < 1.0d && c < r)) { continue; }
+			IItemStack iStack = ds.createLoot(baseChance);
+			if (iStack.isEmpty()) { continue; }
+			if (ds.availability.hasOptions()) {
+				for (EntityLivingBase attacking : npc.combatHandler.aggressors.keySet()) {
+					if (attacking instanceof EntityPlayer && ds.availability.isAvailable((EntityPlayer) attacking)) {
+						IEntity<?> iEntity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(attacking);
+						if (iEntity != null) {
+							if (!map.containsKey(iEntity)) { map.put(iEntity, new ArrayList<>()); }
+							map.get(iEntity).add(iStack);
+							iStack.setOwner(iEntity);
+							break;
+						}
+					}
+				}
+			}
+			else { anyItems.add(iStack); }
+		}
+		// put simple items
+		if (!anyItems.isEmpty()) {
+			// shuffle
+			Collections.shuffle(anyItems, new Random());
+			// sort aggressors
+			LinkedHashMap<EntityLivingBase, Double> aggressors = Util.instance.sortByValue(npc.combatHandler.aggressors);
+			// create aggressors list
+			IEntity<?> damageLieder = null;
+			Map<IEntity<?>, Double> entitys = new LinkedHashMap<>();
+			double totalDamageValue = 0.0d;
+			for (EntityLivingBase attacking : aggressors.keySet()) {
+				if (attacking instanceof EntityPlayer || !npc.combatHandler.onlyPlayers && lootType != 2) {
+					IEntity<?> iEntity = Objects.requireNonNull(NpcAPI.Instance()).getIEntity(attacking);
+					if (iEntity != null) {
+						if (damageLieder == null) { damageLieder = iEntity; }
+						entitys.put(iEntity, aggressors.get(attacking));
+						totalDamageValue += aggressors.get(attacking);
+					}
+				}
+			}
+			// amount rewards
+			Map<IEntity<?>, Integer> itemsToEntity = new HashMap<>();
+			int s = anyItems.size();
+			for (IEntity<?> attacking : entitys.keySet()) {
+				int amount = (int) Math.round(totalDamageValue / entitys.get(attacking) * anyItems.size());
+				if (amount > s) { amount = 2; }
+				itemsToEntity.put(attacking, amount);
+				s -= amount;
+				if (s == 0) { break; }
+			}
+			if (damageLieder == null) {
+				map.put(npc.wrappedNPC, anyItems);
+			}
+			else {
+				if (s != 0) { itemsToEntity.put(damageLieder, itemsToEntity.get(damageLieder) + s); }
+				// put items to entities
+				for (IEntity<?> attacking : itemsToEntity.keySet()) {
+					if (anyItems.isEmpty()) { break; }
+					for (int i = 0; i < itemsToEntity.get(attacking); i++) {
+						if (anyItems.isEmpty()) { break; }
+						IItemStack iStack = anyItems.get(0);
+						if (!map.containsKey(attacking)) { map.put(attacking, new ArrayList<>()); }
+						map.get(attacking).add(iStack);
+						anyItems.remove(iStack);
+					}
+				}
+			}
+		}
+		return map;
+	}
+
+	public void dropStuff(NpcEvent.DiedEvent event, DamageSource damagesource) {
+		deadLoot = null;
+		deadLoots = null;
+		// Vanilla
+		ArrayList<EntityItem> list = new ArrayList<>();
+		if (event.droppedItems != null) {
+			for (IItemStack iStack : event.droppedItems) {
+				if (iStack == null || iStack.isEmpty()) { continue; }
+				EntityItem e = getEntityItem(iStack.getMCItemStack().copy(), event.droppedItems.length > 7);
+				if (e != null) {
+					if (iStack.getOwner() != null) {
+						IEntity<?> iEntity = iStack.getOwner();
+						e.setPickupDelay(2);
+						e.setOwner(iEntity.getName());
+						e.setPosition(iEntity.getPos().getX(), iEntity.getPos().getY() + iEntity.getMCEntity().getEyeHeight() / 2.0d, iEntity.getPos().getZ());
+					}
+					list.add(e);
+				}
+			}
+		}
+		int enchant = 0;
+		if (damagesource.getTrueSource() instanceof EntityPlayer) { enchant = EnchantmentHelper.getLootingModifier((EntityPlayer) damagesource.getTrueSource()); }
+		if (!ForgeHooks.onLivingDrops(npc, damagesource, list, enchant, true)) {
+			for (EntityItem e : list) {
+				if (e == null) { continue; }
+				npc.world.spawnEntity(e);
+			}
+		}
+		list.clear();
+		if (event.lootedItems != null) {
+			for (IEntity<?> iEntity : event.lootedItems.keySet()) {
+				for (IItemStack iStack : event.lootedItems.get(iEntity)) {
+					if (iStack == null || iStack.isEmpty()) { continue; }
+					EntityItem e = getEntityItem(iStack.getMCItemStack().copy(), event.lootedItems.get(iEntity).size() > 7);
+					if (e == null) { continue; }
+					if (iEntity instanceof IPlayer) {
+						EntityPlayer player = (EntityPlayer) iEntity.getMCEntity();
+						e.setPickupDelay(2);
+						e.setOwner(player.getName());
+						npc.world.spawnEntity(e);
+						ItemStack stack = e.getItem();
+						int i = stack.getCount();
+						if (!player.inventory.addItemStackToInventory(stack)) { continue; }
+						player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2f, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7f + 1.0f) * 2.0f);
+						player.onItemPickup(e, i);
+						if (stack.getCount() <= 0) { e.setDead(); }
+					} else {
+						e.setPosition(iEntity.getPos().getX(), iEntity.getPos().getY() + iEntity.getMCEntity().getEyeHeight() / 2.0d, iEntity.getPos().getZ());
+						npc.world.spawnEntity(e);
+					}
+				}
+			}
+		}
+		if (event.inventoryItems != null) {
+			if (event.totalDamageOnlyPlayers == 0.0d) {
+				List<IItemStack> stacks = new ArrayList<>();
+				for (IEntity<?> iEntity : event.inventoryItems.keySet()) {
+					for (IItemStack iStack : event.inventoryItems.get(iEntity)) {
+						if (!stacks.contains(iStack)) { stacks.add(iStack); }
+						if (stacks.size() == 54) { break; }
+					}
+					if (stacks.size() == 54) { break; }
+				}
+				deadLoot = new InventoryBasic("NPC Loot", true, Math.max(9, (int) (Math.ceil((double) stacks.size() / 9.0d) * 9.0d)));
+				int i = 0;
+				for (IItemStack stack : stacks) {
+					deadLoot.setInventorySlotContents(i, stack.getMCItemStack());
+					i++;
+				}
+			}
+			for (IEntity<?> iEntity : event.inventoryItems.keySet()) {
+				List<IItemStack> stacks = new ArrayList<>();
+				for (IItemStack iStack : event.inventoryItems.get(iEntity)) {
+					if (!stacks.contains(iStack)) { stacks.add(iStack); }
+					if (stacks.size() == 54) { break; }
+				}
+				InventoryBasic inv = new InventoryBasic("NPC Loot", true, Math.max(9, (int) (Math.ceil((double) stacks.size() / 9.0d) * 9.0d)));
+				int i = 0;
+				for (IItemStack stack : stacks) {
+					inv.setInventorySlotContents(i, stack.getMCItemStack());
+					i++;
+				}
+				if (deadLoots == null) { deadLoots = new HashMap<>(); }
+				deadLoots.put((EntityLivingBase) iEntity.getMCEntity(), inv);
+			}
+		}
+		if (event.expDropped > 0) {
+			if (!lootMode) {
+				int exp = event.expDropped;
+				while (exp > 0) {
+					int currentValue = EntityXPOrb.getXPSplit(exp);
+					exp -= currentValue;
+					npc.world.spawnEntity(new EntityXPOrb(npc.world, npc.posX, npc.posY, npc.posZ, currentValue));
+				}
+			} else {
+				for (IEntity<?> iEntity : event.damageMap.keySet()) {
+					if (!(iEntity instanceof IPlayer)) { continue; }
+					int exp = (int) ((double) event.expDropped * event.damageMap.get(iEntity) / event.totalDamageOnlyPlayers);
+					Entity player = iEntity.getMCEntity();
+					while (exp > 0) {
+						int currentValue = EntityXPOrb.getXPSplit(exp);
+						exp -= currentValue;
+						npc.world.spawnEntity(new EntityXPOrb(player.world, player.posX, player.posY, player.posZ, currentValue));
+					}
+				}
+			}
+		}
 	}
 
 }

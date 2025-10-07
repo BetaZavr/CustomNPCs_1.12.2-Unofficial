@@ -4,9 +4,10 @@ import java.awt.Point;
 import java.util.*;
 
 import net.minecraft.client.gui.*;
-import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraftforge.client.event.RenderSpecificHandEvent;
 import noppes.npcs.api.util.IRayTraceRotate;
 import noppes.npcs.api.util.IRayTraceVec;
+import noppes.npcs.client.gui.player.GuiOpenCase;
 import noppes.npcs.reflection.pathfinding.PathReflection;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -1759,9 +1760,13 @@ public class ClientGuiEventHandler extends Gui {
 	/** HUD Bar Interface Canceled */
 	@SubscribeEvent
 	public void npcScreenRenderPre(RenderGameOverlayEvent.Pre event) {
-		CustomNpcs.debugData.start(null);
-		if (!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal())) { event.setCanceled(true); }
-		CustomNpcs.debugData.end(null);
+		event.setCanceled(mc.currentScreen instanceof GuiOpenCase ||
+				!ClientProxy.playerData.hud.isShowElementType(event.getType().ordinal()));
+	}
+
+	@SubscribeEvent
+	public void npcRenderHand(RenderSpecificHandEvent event) {
+		event.setCanceled(mc.currentScreen instanceof GuiOpenCase);
 	}
 
 	/** Regions Edit -> Draw */

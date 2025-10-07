@@ -180,7 +180,7 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 		// Old Sound
 		MusicController.Instance.stopSound(null, SoundCategory.VOICE);
 		if (d.sound != null && !d.sound.isEmpty()) {
-			BlockPos pos = dialogNpc.getPosition();
+			BlockPos pos = npc.getPosition();
 			if (oldDialog != null && !oldDialog.equals(d) && oldDialog.sound != null && !oldDialog.sound.isEmpty() && MusicController.Instance.isPlaying(oldDialog.sound)) {
 				MusicController.Instance.stopSound(oldDialog.sound, SoundCategory.VOICE);
 			}
@@ -365,6 +365,8 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 			GlStateManager.popMatrix();
 		}
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(0.0f, 0.0f, 1.0f);
 		switch (guiSettings.getType()) {
 			case 0: {
 				// dialogs
@@ -471,29 +473,18 @@ public class GuiDialogInteract extends GuiNPCInterface implements IGuiClose {
 				break;
 			} // left
 		}
+		GlStateManager.popMatrix();
 		// NPC
 		if (guiSettings.showNPC && !dialog.hideNPC && dialogNpc != null) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(0.0f, 0.0f, 200.0f);
 			drawNpc(dialogNpc, guiSettings.npcPosX, guiSettings.npcPosY, guiSettings.getNpcScale(),
 					guiSettings.getType() == 2 || (guiSettings.getType() == 1 && !guiSettings.npcInLeft) ? 40 : -40,
 					15, dialog.showWheel ? 0 : 2);
+			GlStateManager.popMatrix();
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		super.drawScreen(mouseX, mouseY, partialTicks);
-		if (guiSettings.backTexture != null) {
-			mc.getTextureManager().bindTexture(guiSettings.backTexture);
-			GlStateManager.pushMatrix();
-			GlStateManager.scale(1.66796875f, 0.9375f, 1.0f);
-			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			GlStateManager.popMatrix();
-		}
-		if (guiSettings.windowTexture != null) {
-			mc.getTextureManager().bindTexture(guiSettings.windowTexture);
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(guiSettings.guiLeft, 0.0f, 0.0f);
-			GlStateManager.scale(guiSettings.dialogWidth / 427.0f * 1.66796875f, 0.9375f, 1.0f);
-			drawTexturedModalRect(0, 0, 0, 0, 256, 256);
-			GlStateManager.popMatrix();
-		}
 		// Dialog text lines
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);

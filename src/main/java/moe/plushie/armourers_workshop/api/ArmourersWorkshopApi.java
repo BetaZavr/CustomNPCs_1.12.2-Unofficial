@@ -14,6 +14,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.fml.common.Loader;
 
+@SuppressWarnings("all")
 public final class ArmourersWorkshopApi {
 
 	@CapabilityInject(IEntitySkinCapability.class)
@@ -30,13 +31,9 @@ public final class ArmourersWorkshopApi {
 	public static ISkinnableEntityRegisty skinnableEntityRegisty;
 	public static IPaintTypeRegistry paintTypeRegistry;
 
-	public static IEntitySkinCapability getEntitySkinCapability(Entity entity) {
-		return entity.getCapability(ENTITY_SKIN_CAP, null);
-	}
+	public static IEntitySkinCapability getEntitySkinCapability(Entity entity) { return entity.getCapability(ENTITY_SKIN_CAP, null); }
 
-	public static IWardrobeCap getEntityWardrobeCapability(Entity entity) {
-		return entity.getCapability(ENTITY_WARDROBE_CAP, null);
-	}
+	public static IWardrobeCap getEntityWardrobeCapability(Entity entity) { return entity.getCapability(ENTITY_WARDROBE_CAP, null); }
 
 	public static ISkinnableEntityRegisty getISkinnableEntityRegisty() {
 		return skinnableEntityRegisty;
@@ -46,9 +43,7 @@ public final class ArmourersWorkshopApi {
 		return paintTypeRegistry;
 	}
 
-	public static IPlayerWardrobeCap getPlayerWardrobeCapability(EntityPlayer player) {
-		return player.getCapability(PLAYER_WARDROBE_CAP, null);
-	}
+	public static IPlayerWardrobeCap getPlayerWardrobeCapability(EntityPlayer player) { return player.getCapability(PLAYER_WARDROBE_CAP, null); }
 
 	public static ISkinNBTUtils getSkinNBTUtils() {
 		return skinNBTUtils;
@@ -58,11 +53,8 @@ public final class ArmourersWorkshopApi {
 		return skinTypeRegistry;
 	}
 
-	public static boolean isAvailable() {
-		return Loader.isModLoaded(LibApi.MOD_ID);
-	}
+	public static boolean isAvailable() { return Loader.isModLoaded(LibApi.MOD_ID); }
 
-	private ArmourersWorkshopApi() {
-		throw new IllegalAccessError();
-	}
+	private ArmourersWorkshopApi() { throw new IllegalAccessError(); }
+
 }

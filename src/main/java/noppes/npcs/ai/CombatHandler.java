@@ -60,13 +60,7 @@ public class CombatHandler {
 			return;
 		}
 		EntityLivingBase attackingEntity = (EntityLivingBase) e;
-		if (attackingEntity instanceof EntityPlayer) {
-			if (((EntityPlayer) attackingEntity).capabilities.isCreativeMode) {
-				CustomNpcs.debugData.end(npc);
-				return;
-			}
-			onlyPlayers = true;
-		}
+		if (attackingEntity instanceof EntityPlayer) { onlyPlayers = true; }
 		// Minimum
 		if (damageAmount <= 0.25d) { damageAmount = 0.25d; }
 		// Distance

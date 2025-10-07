@@ -23,7 +23,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.recipebook.RecipeList;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.particle.IParticleFactory;
@@ -96,8 +95,8 @@ import noppes.npcs.client.gui.*;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailabilityItemStacks;
 import noppes.npcs.client.gui.custom.GuiCustom;
 import noppes.npcs.client.gui.dimentions.GuiCreateDimension;
+import noppes.npcs.client.gui.drop.SubGuiDropEdit;
 import noppes.npcs.client.gui.global.*;
-import noppes.npcs.client.gui.mainmenu.GuiDropEdit;
 import noppes.npcs.client.gui.mainmenu.GuiNPCGlobalMainMenu;
 import noppes.npcs.client.gui.mainmenu.GuiNPCInv;
 import noppes.npcs.client.gui.mainmenu.GuiNpcAI;
@@ -1343,8 +1342,8 @@ public class ClientProxy extends CommonProxy {
 				returnGui = new GuiNPCInv(npc, (ContainerNPCInv) container);
 				break;
 			}
-			case MainMenuInvDrop: {
-				returnGui = new GuiDropEdit(npc, (ContainerNPCDropSetup) container, (GuiContainer) Minecraft.getMinecraft().currentScreen, x, y, z);
+			case SetupDrop: {
+				returnGui = new SubGuiDropEdit(npc, (ContainerNPCDropSetup) container);
 				break;
 			}
 			case MainMenuAdvanced: {
@@ -1689,13 +1688,17 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void openGui(int i, int j, int k, EnumGuiType gui, EntityPlayer player) {
 		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.player != player) {
-			return;
-		}
+		if (mc.player != player) { return; }
 		GuiScreen guiscreen = getGui(null, gui, null, i, j, k);
-		if (guiscreen != null) {
-			mc.displayGuiScreen(guiscreen);
-		}
+		if (guiscreen != null) { mc.displayGuiScreen(guiscreen); }
+	}
+
+	@Override
+	public void openGui(EntityNPCInterface npc, EnumGuiType gui, NBTTagCompound compound) {
+		Minecraft mc = Minecraft.getMinecraft();
+		if (mc.player == null) { return; }
+		GuiScreen guiscreen = getGui(null, gui, getContainer(gui, mc.player, npc, compound), 0, 0, 0);
+		if (guiscreen != null) { mc.displayGuiScreen(guiscreen); }
 	}
 
 	@Override

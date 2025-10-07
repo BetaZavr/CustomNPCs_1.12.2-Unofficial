@@ -184,17 +184,10 @@ public class GuiCustomScroll extends GuiScreen implements IComponentGui {
 	@Override
 	public boolean mouseCnpcsReleased(int mouseX, int mouseY, int state) { return false; }
 
-	@Override
-	public GuiCustomScroll setHoverText(String text, Object ... args) {
+	public GuiCustomScroll setHoverText(Object... components) {
 		hoverText.clear();
-		if (text == null || text.isEmpty()) { return this; }
-		if (!text.contains("%")) { text = new TextComponentTranslation(text, args).getFormattedText(); }
-		if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }
-		while (text.contains("<br>")) {
-			hoverText.add(text.substring(0, text.indexOf("<br>")));
-			text = text.substring(text.indexOf("<br>") + 4);
-		}
-		hoverText.add(text);
+		if (components == null) { return this; }
+		noppes.npcs.util.Util.instance.putHovers(hoverText, components);
 		return this;
 	}
 
@@ -401,7 +394,7 @@ public class GuiCustomScroll extends GuiScreen implements IComponentGui {
 				if (rd.rotateX != 0.0f) { GlStateManager.rotate(rd.rotateX, 1.0f, 0.0f, 0.0f); }
 				if (rd.rotateY != 0.0f) { GlStateManager.rotate(rd.rotateY, 0.0f, 1.0f, 0.0f); }
 				if (rd.rotateZ != 0.0f) { GlStateManager.rotate(rd.rotateZ, 0.0f, 0.0f, 1.0f); }
-				GlStateManager.scale(rd.scaleX, rd.scaleY, rd.scaleZ);
+				GlStateManager.scale(rd.scaleX, -rd.scaleY, rd.scaleZ);
 				GlStateManager.callList(ModelBuffer.getDisplayList(rd.resource, null, rd.materialTextures));
 			}
 			else {

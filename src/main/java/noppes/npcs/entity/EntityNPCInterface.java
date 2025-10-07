@@ -215,8 +215,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	public float scaleX;
 	public float scaleY;
 	public float scaleZ;
-	private double startYPos = -1.0;
-	private int taskCount = 1;
+    private int taskCount = 1;
 	public ResourceLocation textureCloakLocation = null;
 	public ResourceLocation textureGlowLocation = null;
 	public ResourceLocation textureLocation = null;
@@ -663,12 +662,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 
 	private double calculateStartYPos(BlockPos pos) {
 		BlockPos startPos = ais.startPos();
-		LogWriter.info("TEST: "+startPos);
 		while (pos.getY() > 0) {
 			IBlockState state = this.world.getBlockState(pos);
 			AxisAlignedBB bb = state.getBoundingBox(world, pos).offset(pos);
             if (this.ais.movementType != 2 || startPos.getY() > pos.getY() || state.getMaterial() != Material.WATER) {
-				LogWriter.info("TEST: "+bb.maxY);
 				return bb.maxY;
 			}
             pos = pos.down();
@@ -1025,10 +1022,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 	}
 
 	public double getStartYPos() {
-		if (startYPos < 0.0) {
-			return calculateStartYPos(ais.startPos());
-		}
-		return startYPos;
+		return calculateStartYPos(ais.startPos());
 	}
 
 	public float getStartZPos() {
@@ -1241,9 +1235,10 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 		if (this.advanced.jobInterface != null) {
 			this.advanced.jobInterface.aiDeathExecute(attackingEntity);
 		}
-		if (this.isServerWorld()) {
-			advanced.playSound(3, this.getSoundVolume(), this.getSoundPitch());
-			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(this.wrappedNPC, damagesource, attackingEntity, this.combatHandler);
+		if (isServerWorld()) {
+			advanced.playSound(3, getSoundVolume(), getSoundPitch());
+			NpcEvent.DiedEvent event = new NpcEvent.DiedEvent(wrappedNPC, damagesource, attackingEntity, combatHandler);
+			// chance
 			double baseChance = 1.0d;
 			if (!combatHandler.aggressors.isEmpty()) {
 				double luck = 0.0d;
@@ -1277,7 +1272,7 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 					enchLv /= j;
 					baseChance += enchLv * enchLv * 0.000555d + enchLv * 0.019444d; // 1lv = +2%$ 10lv = +25%
 				}
-			} // chance
+			}
 			// drop on ground
 			Map<IEntity<?>, List<IItemStack>> mapD = inventory.createDrops(0, baseChance);
 			if (mapD.isEmpty()) { event.droppedItems = new IItemStack[0]; }
@@ -1285,7 +1280,9 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 				List<IItemStack> list = new ArrayList<>();
 				event.droppedItems = new IItemStack[mapD.size()];
 				for(IEntity<?> attacking : mapD.keySet()) {
-					list.addAll(mapD.get(attacking));
+					for (IItemStack iStack : mapD.get(attacking)) {
+						if (!list.contains(iStack)) { list.add(iStack); }
+					}
 				}
 				event.droppedItems = list.toArray(new IItemStack[0]);
 			}
@@ -1294,18 +1291,18 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			// to inventory from player
 			event.inventoryItems = inventory.createDrops(2, baseChance);
 			event.expDropped = inventory.getExpRNG();
-			event.line = this.advanced.getKilledLine();
+			event.line = advanced.getKilledLine();
 			if (advanced.roleInterface instanceof RoleFollower && !((RoleFollower) advanced.roleInterface).inventory.isEmpty()) {
-				for (ItemStack stack : ((RoleFollower) this.advanced.roleInterface).inventory.items) {
+				for (ItemStack stack : ((RoleFollower) advanced.roleInterface).inventory.items) {
 					if (NoppesUtilServer.IsItemStackNull(stack) || stack.isEmpty()) { continue; }
-					this.entityDropItem(stack, 0.0f);
+					entityDropItem(stack, 0.0f);
 				}
-				((RoleFollower) this.advanced.roleInterface).inventory.clear();
+				((RoleFollower) advanced.roleInterface).inventory.clear();
 			}
-			//
+			// to scripts
 			EventHooks.onNPCDied(this, event);
-			this.bossInfo.setVisible(false);
-			this.inventory.dropStuff(event, damagesource);
+			bossInfo.setVisible(false);
+			inventory.dropStuff(event, damagesource);
 			if (event.line != null) {
 				saySurrounding(Line.formatTarget((Line) event.line, (attackingEntity instanceof EntityLivingBase) ? (EntityLivingBase) attackingEntity : null));
 			}
@@ -1820,7 +1817,6 @@ implements IEntityAdditionalSpawnData, ICommandSender, IRangedAttackMob, IAnimal
 			double z = getStartZPos();
 			if (world != null) {
 				BlockPos pos = new BlockPos(x, y, z);
-				LogWriter.info("TEST: "+pos);
 				IBlockState state = world.getBlockState(pos);
 				if (state.getBlock().isPassable(world, pos)) { // possibly high
 					for (int i = (int) y; i >= 0; i--) {

@@ -200,6 +200,7 @@ public class GuiContainerNPCInterface extends GuiContainer implements IEditNPC {
 			}
 			line.clear();
 		}
+		RenderHelper.enableGUIStandardItemLighting();
 		for (IComponentGui component : new ArrayList<>(components)) {
 			component.render(this, mouseX, mouseY, partialTicks);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
@@ -276,7 +277,7 @@ public class GuiContainerNPCInterface extends GuiContainer implements IEditNPC {
 		GlStateManager.disableTexture2D();
 		GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 		GlStateManager.popMatrix();
-		RenderHelper.disableStandardItemLighting();
+		RenderHelper.enableGUIStandardItemLighting();
 	}
 
 	@Override

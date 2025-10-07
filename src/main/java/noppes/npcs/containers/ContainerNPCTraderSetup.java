@@ -5,6 +5,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.controllers.data.Marcet;
 
@@ -43,6 +45,12 @@ public class ContainerNPCTraderSetup extends Container {
 
 	public @Nonnull ItemStack transferStackInSlot(@Nonnull EntityPlayer player, int i) {
 		return ItemStack.EMPTY;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void setSlotPos(int slotID, int[] newPos) {
+		if (newPos == null || newPos.length < 2 || slotID < 0 || slotID > 9) { return; }
+		inventorySlots.set(slotID, new Slot(deal.getMCInventoryProduct(), 0, newPos[0], newPos[1]));
 	}
 
 }

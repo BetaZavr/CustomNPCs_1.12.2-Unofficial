@@ -32,7 +32,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.handler.data.INpcRecipe;
-import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.api.item.ISpecBuilder;
 import noppes.npcs.api.wrapper.ItemScriptedWrapper;
 import noppes.npcs.blocks.tiles.TileBuilder;
@@ -246,6 +245,8 @@ public class PacketHandlerServer {
                 BlockPos pos = BlockPos.fromLong(buffer.readLong());
                 player.connection.setPlayerLocation(pos.getX(), pos.getY(), pos.getZ(), 0.0f, 0.0f);
             }
+        } else if (type == EnumPacketServer.GuiContainer) {
+            NoppesUtilServer.sendOpenGuiContainer(player, EnumGuiType.values()[buffer.readInt()], npc, Server.readNBT(buffer));
         } else if (type == EnumPacketServer.Gui) {
             EnumGuiType gui = EnumGuiType.values()[buffer.readInt()];
             int x = buffer.readInt();
@@ -581,7 +582,7 @@ public class PacketHandlerServer {
             int groupId = buffer.readInt();
             int slot = buffer.readInt();
             NBTTagCompound compound = Server.readNBT(buffer);
-            IItemStack stack = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(compound.getCompoundTag("Item")));
+            ItemStack stack = new ItemStack(compound.getCompoundTag("Item"));
             DropsTemplate template = DropController.getInstance().templates.get(npc.inventory.saveDropsName);
             if (stack.isEmpty()) {
                 if (dropType == 1) {
@@ -1520,9 +1521,7 @@ public class PacketHandlerServer {
             }
             else if (t == 2) {
                 String name = Server.readString(buffer);
-                assert name != null;
-                if (name.isEmpty() || !dData.templates.containsKey(name)) { return; }
-                dData.templates.remove(name);
+                if (name != null && !name.isEmpty()) { dData.templates.remove(name); }
             }
             dData.save();
         } else if (type == EnumPacketServer.SetItem) {

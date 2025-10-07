@@ -10,8 +10,6 @@ public class GuiNpcButtonYesNo extends GuiNpcButton {
 		super(id, x, y, width, height, new String[] { "gui.no", "gui.yes" }, bo ? 1 : 0);
 	}
 
-	public boolean getBoolean() {
-		return getValue() == 1;
-	}
+	public boolean getBoolean() { return getValue() == 1; }
 
 }

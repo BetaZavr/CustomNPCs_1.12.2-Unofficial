@@ -56,7 +56,7 @@ public class SubGuiScriptEncrypt extends SubGuiInterface {
 		int y = guiTop + 14;
 		addLabel(new GuiNpcLabel(0, new TextComponentTranslation("gui.path", ":").getFormattedText(), x + 2, y - 10));
 		addTextField(new GuiNpcTextField(0, this, x, y, 166, 20, "default")
-				.setHoverText("encrypt.hover.path", path + "default" + ext));
+				.setHoverText(new TextComponentTranslation("encrypt.hover.path", path + "default" + ext)));
 		getTextField(0).prohibitedSpecialChars = GuiNpcTextField.filePath;
 		addButton(new GuiNpcCheckBox(0, x + 1, y += 22, 164, 16, "encrypt.only.tab", "encrypt.all.scripts", onlyTab)
 				.setHoverText("encrypt.hover.type." + onlyTab));

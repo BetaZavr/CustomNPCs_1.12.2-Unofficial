@@ -2,8 +2,14 @@ package noppes.npcs.entity.data;
 
 import java.util.*;
 
+import com.google.common.collect.HashMultimap;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.EnumCreatureAttribute;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -12,20 +18,18 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.data.IAttributeSet;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.entity.data.IDropNbtSet;
 import noppes.npcs.api.entity.data.IEnchantSet;
-import noppes.npcs.api.handler.data.IQuest;
-import noppes.npcs.api.handler.data.IQuestCategory;
 import noppes.npcs.api.item.IItemStack;
-import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.api.wrapper.NBTWrapper;
-import noppes.npcs.controllers.QuestController;
+import noppes.npcs.constants.EnumAvailabilityQuest;
+import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Deal;
-import noppes.npcs.controllers.data.Quest;
 import noppes.npcs.util.Util;
 import noppes.npcs.util.ValueUtil;
 
@@ -37,12 +41,12 @@ public class DropSet implements IInventory, ICustomDrop {
 	protected final DataInventory npcInv;
 	protected final Deal parentDeal;
 
+	public Availability availability = new Availability();
 	public List<AttributeSet> attributes = new ArrayList<>();
 	public List<EnchantSet> enchants = new ArrayList<>();
 	public List<DropNbtSet> tags = new ArrayList<>();
-	public IItemStack item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
-	public int questId = 0;
-	public int pos = 0;
+	public ItemStack item = ItemStack.EMPTY;
+	public int pos = -1;
 	public int npcLevel;
 	public int[] amount = new int[] { 1, 1 };
 	public float damage = 1.0f;
@@ -123,9 +127,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public void clear() {
-		item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(ItemStack.EMPTY);
-	}
+	public void clear() { item = ItemStack.EMPTY; }
 
 	@Override
 	public void closeInventory(@Nonnull EntityPlayer player) {
@@ -137,7 +139,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	public @Nonnull ItemStack createMCLoot(double addChance) {
-		ItemStack dItem = item.getMCItemStack().copy();
+		ItemStack dItem = item.copy();
 		// Amount
 		int a = amount[0];
 		if (amount[0] != amount[1]) {
@@ -229,14 +231,14 @@ public class DropSet implements IInventory, ICustomDrop {
 	public @Nonnull ItemStack decrStackSize(int index, int count) {
 		if (index == 0) {
 			ItemStack it;
-			if (item.getMCItemStack().getCount() <= count) {
-				it = item.getMCItemStack().copy();
-				item = ItemStackWrapper.AIR;
+			if (item.getCount() <= count) {
+				it = item.copy();
+				item = ItemStack.EMPTY;
 			}
 			else {
-				item.getMCItemStack().splitStack(count);
-				it = item.getMCItemStack().copy();
-				if (item.getMCItemStack().getCount() == 0) { item = ItemStackWrapper.AIR; }
+				item.splitStack(count);
+				it = item.copy();
+				if (item.getCount() == 0) { item = ItemStack.EMPTY; }
 			}
 			return it;
 		}
@@ -297,7 +299,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	public int getInventoryStackLimit() { return 64; }
 
 	@Override
-	public IItemStack getItem() { return item; }
+	public IItemStack getItem() { return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(item); }
 
 	@Override
 	public int getLootMode() { return lootMode; }
@@ -308,6 +310,9 @@ public class DropSet implements IInventory, ICustomDrop {
 	@Override
 	public int getMinAmount() { return amount[0]; }
 
+	@Override
+	public Availability getAvailability() { return availability; }
+
 	// inventory
 	@Override
 	public @Nonnull String getName() {
@@ -316,12 +321,12 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	public NBTTagCompound save() {
 		NBTTagCompound nbtDS = new NBTTagCompound();
-		nbtDS.setTag("Item", item.getMCItemStack().writeToNBT(new NBTTagCompound()));
+		nbtDS.setTag("Item", item.writeToNBT(new NBTTagCompound()));
 		nbtDS.setDouble("Chance", chance);
 		nbtDS.setDouble("DamageToItem", damage);
 		nbtDS.setInteger("LootMode", lootMode);
 		nbtDS.setBoolean("TiedToLevel", tiedToLevel);
-		nbtDS.setInteger("QuestId", questId);
+		nbtDS.setTag("Availability", availability.save(new NBTTagCompound()));
 		nbtDS.setIntArray("Amount", amount);
 		NBTTagList ench = new NBTTagList();
 		for (EnchantSet es : enchants) { ench.appendTag(es.getNBT()); }
@@ -337,14 +342,11 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	@Override
-	public int getQuestID() { return questId; }
-
-	@Override
 	public int getSizeInventory() { return 1; }
 
 	@Override
 	public @Nonnull ItemStack getStackInSlot(int index) {
-		if (index == 0) { return ItemStackWrapper.MCItem(item); }
+		if (index == 0) { return item; }
 		return ItemStack.EMPTY;
 	}
 
@@ -360,7 +362,7 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public boolean isEmpty() {
-        return NoppesUtilServer.IsItemStackNull(item.getMCItemStack()) || item.isEmpty();
+        return NoppesUtilServer.IsItemStackNull(item) || item.isEmpty();
     }
 
 	@Override
@@ -374,13 +376,18 @@ public class DropSet implements IInventory, ICustomDrop {
 	}
 
 	public void load(NBTTagCompound nbtDS) {
-		item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(nbtDS.getCompoundTag("Item")));
+		item = new ItemStack(nbtDS.getCompoundTag("Item"));
 		chance = nbtDS.getDouble("Chance");
 		damage = nbtDS.getFloat("DamageToItem");
 		if (nbtDS.hasKey("LootMode", 1)) { lootMode = nbtDS.getBoolean("LootMode") ? 1 : 0;}
 		else if (nbtDS.hasKey("LootMode", 3)) { lootMode = nbtDS.getInteger("LootMode");}
 		tiedToLevel = nbtDS.getBoolean("TiedToLevel");
-		questId = nbtDS.getInteger("QuestId");
+		if (nbtDS.hasKey("Availability", 10)) { availability.load(nbtDS.getCompoundTag("Availability")); }
+		else if (nbtDS.hasKey("Availability", 10)) { // OLD
+			availability.clear();
+			int questId = nbtDS.getInteger("QuestId");
+			if (questId > 0) { availability.setQuest(questId, EnumAvailabilityQuest.Active.ordinal()); }
+		}
 		int[] cnts = nbtDS.getIntArray("Amount");
 		if (nbtDS.hasKey("Amount", 9)) {
 			cnts = new int[2];
@@ -442,13 +449,18 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public @Nonnull ItemStack removeStackFromSlot(int index) {
-		ItemStack stack = item.getMCItemStack();
-		item = ItemStackWrapper.AIR;
+		ItemStack stack = item;
+		item = ItemStack.EMPTY;
 		return stack;
 	}
 
 	@Override
 	public void resetTo(IItemStack itemIn) {
+		if (itemIn == null) { return; }
+		resetTo(itemIn.getMCItemStack());
+	}
+
+	public void resetTo(ItemStack itemIn) {
 		if (itemIn == null || itemIn.isEmpty()) { return; }
 		double ch = 85.0d;
 		damage = 1.0f;
@@ -458,16 +470,30 @@ public class DropSet implements IInventory, ICustomDrop {
 		attributes = new ArrayList<>();
 		tags = new ArrayList<>();
 		// Item Damage
-		if (itemIn.getAttackDamage() > 1.0d) {
-			if (itemIn.getItemDamage() == itemIn.getMaxItemDamage()) { damage = 1.0f; }
-			else { damage = (float) Math.round((double) itemIn.getItemDamage() / (double) itemIn.getMaxItemDamage() * 100.0d) / 100.0f; }
+		HashMultimap<String, AttributeModifier> map = (HashMultimap<String, AttributeModifier>) this.item.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
+		Iterator<Map.Entry<String, AttributeModifier>> iterator = map.entries().iterator();
+		double d = 0.0;
+		while (iterator.hasNext()) {
+			Map.Entry<String, AttributeModifier> entry = iterator.next();
+			if (entry.getKey().equals(SharedMonsterAttributes.ATTACK_DAMAGE.getName())) {
+				try {
+					AttributeModifier mod = entry.getValue();
+					d = mod.getAmount();
+				}
+				catch (Exception e) { LogWriter.error(e); }
+			}
+		}
+		d += EnchantmentHelper.getModifierForCreature(this.item, EnumCreatureAttribute.UNDEFINED);
+		if (d > 1.0d) {
+			if (itemIn.getItemDamage() == itemIn.getMaxDamage()) { damage = 1.0f; }
+			else { damage = (float) Math.round((double) itemIn.getItemDamage() / (double) itemIn.getMaxDamage() * 100.0d) / 100.0f; }
 		}
 		amount = new int[] { 1, 1 };
 		// Amount
-		if (itemIn.getStackSize() > 1) { amount[1] = itemIn.getStackSize(); }
-		NBTTagCompound itemNbt = itemIn.getNbt().getMCNBT();
+		if (itemIn.getCount() > 1) { amount[1] = itemIn.getCount(); }
+		NBTTagCompound itemNbt = itemIn.getTagCompound();
 		// Enchants
-		if (itemNbt.hasKey("ench")) {
+		if (itemNbt != null && itemNbt.hasKey("ench")) {
 			lootMode = 2;
 			ch /= itemNbt.getTagList("ench", 10).tagCount();
 			for (NBTBase nbtEnch : itemNbt.getTagList("ench", 10)) {
@@ -480,7 +506,7 @@ public class DropSet implements IInventory, ICustomDrop {
 			itemNbt.removeTag("ench");
 		}
 		// Attributes
-		if (itemNbt.hasKey("AttributeModifiers")) {
+		if (itemNbt != null && itemNbt.hasKey("AttributeModifiers")) {
 			lootMode = 2;
 			ch /= itemNbt.getTagList("AttributeModifiers", 10).tagCount();
 			for (NBTBase nbtAttr : itemNbt.getTagList("AttributeModifiers", 10)) {
@@ -502,11 +528,11 @@ public class DropSet implements IInventory, ICustomDrop {
 		setChance(ch);
 		// Simple Item Set
 		NBTTagCompound itemFromNbt = new NBTTagCompound();
-		itemIn.getMCItemStack().writeToNBT(itemFromNbt);
-		itemFromNbt.setTag("tag", itemNbt);
-		IItemStack newItem = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(new ItemStack(itemFromNbt));
-		newItem.setStackSize(1);
-		if (newItem.getAttackDamage() > 1) { newItem.setItemDamage(0); }
+		itemIn.writeToNBT(itemFromNbt);
+		if (itemNbt != null) { itemFromNbt.setTag("tag", itemNbt); }
+		ItemStack newItem = new ItemStack(itemFromNbt);
+		newItem.setCount(1);
+		if (d > 1) { newItem.setItemDamage(0); }
 		item = newItem;
 	}
 
@@ -545,27 +571,17 @@ public class DropSet implements IInventory, ICustomDrop {
 
 	@Override
 	public void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
-		if (index == 0) { item = Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stack); }
+		if (index == 0) { item = stack; }
 	}
 
 	@Override
-	public void setItem(IItemStack itemIn) { item = itemIn; }
+	public void setItem(IItemStack itemIn) { item = itemIn.getMCItemStack(); }
 
 	@Override
 	public void setLootMode(int mode) { lootMode = mode % 3; }
 
 	@Override
-	public void setQuestID(int id) {
-		List<Integer> ids = new ArrayList<>();
-		for (IQuestCategory cat : Objects.requireNonNull(NpcAPI.Instance()).getQuests().categories()) {
-			for (IQuest q : cat.quests()) { ids.add(q.getId()); }
-		}
-		if (ids.contains(id)) { questId = id; }
-	}
-
-	@Override
 	public void setTiedToLevel(boolean tied) { tiedToLevel = tied; }
-
 
 	public String getKey() {
 		String keyName;
@@ -607,7 +623,7 @@ public class DropSet implements IInventory, ICustomDrop {
 		String itemString = Util.instance.translateGoogle(player, "Item");
 		if (item == null) { list.add(c + "7- " + itemString + ": " + c + "4null"); }
 		else if (item.isEmpty()) { list.add(c + "7- " + itemString + ": " + c + "cEmpty"); }
-		else { list.add(c + "7- " + itemString + ": " + c + "r" + item.getMCItemStack().getItem().getRegistryName()); }
+		else { list.add(c + "7- " + itemString + ": " + c + "r" + item.getItem().getRegistryName()); }
 		// amount
 		String amountString = Util.instance.translateGoogle(player, "Amount");
 		if (amount[0] == amount[1]) { list.add(c + "7- " + amountString + ": " + c + "6" + amount[0]); }
@@ -624,18 +640,13 @@ public class DropSet implements IInventory, ICustomDrop {
    		// damage
 		String damageString = Util.instance.translateGoogle(player, "Broken");
 		if (damage == 1.0f) { list.add(c + "7- " + damageString + ": (max. meta): " + c + "r" + Util.instance.translateGoogle(player, "Doesn't change")); }
-		else { list.add(c + "7- " + damageString + " (max. meta): " + c + "6" + ("" + Math.round(damage * 10000.0f) / 100.0f).replace(".", ",") + c + "7% from " + c + "6" + (item == null ? "0" : item.getMaxItemDamage())); }
+		else { list.add(c + "7- " + damageString + " (max. meta): " + c + "6" + ("" + Math.round(damage * 10000.0f) / 100.0f).replace(".", ",") + c + "7% from " + c + "6" + (item == null ? "0" : item.getMaxDamage())); }
 		// tiedToLevel
 		if (tiedToLevel) { list.add(c + "7- " + Util.instance.translateGoogle(player, "NPC level is taken into account. Average: ") + c + "6" + npcLevel); }
 		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "NPC level does not affect parameters")); }
-		// quest
-		if (questId > 0) {
-			String quest = c + "7- " + Util.instance.translateGoogle(player, "Quest") + " ID: " + c + "2" + questId;
-			Quest q = QuestController.instance.quests.get(questId);
-			if (q != null) { quest += c + "7; Name: " + c + "r" + q.getTitle(); }
-			list.add(quest);
-		}
-		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Quest ID not specified")); }
+		// availability
+		if (availability.hasOptions()) { list.add(c + "7- " + Util.instance.translateGoogle(player, "There are accessibility settings")); }
+		else { list.add(c + "7- " + Util.instance.translateGoogle(player, "Availability not specified")); }
 		// enchants
 		if (!enchants.isEmpty()) {
 			StringBuilder ench = new StringBuilder();

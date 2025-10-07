@@ -1301,7 +1301,8 @@ public class PacketHandlerClient extends PacketHandlerServer {
 				int size = buffer.readInt();
 				Map<ItemStack, Integer> map = new LinkedHashMap<>();
 				for (int i = 0; i < size; i++) {
-					ItemStack stack = new ItemStack(Server.readNBT(buffer));
+					NBTTagCompound compound = Server.readNBT(buffer);
+					ItemStack stack = new ItemStack(compound);
 					if (!NoppesUtilServer.IsItemStackNull(stack) && !stack.isEmpty()) {
 						boolean found = false;
 						for (ItemStack st : map.keySet()) {
@@ -1319,6 +1320,12 @@ public class PacketHandlerClient extends PacketHandlerServer {
 					mc.displayGuiScreen(new GuiOpenCase((GuiContainer) mc.currentScreen, dealID, map));
 				}
 			}
+		}
+		else if (type == EnumPacketClient.GUI_OPEN_CONTAINER) {
+			int guiId = buffer.readInt();
+			EnumGuiType gui = EnumGuiType.values()[guiId % EnumGuiType.values().length];
+			NBTTagCompound compound = Server.readNBT(buffer);
+			CustomNpcs.proxy.openGui(NoppesUtil.getLastNpc(), gui, compound);
 		}
 	}
 

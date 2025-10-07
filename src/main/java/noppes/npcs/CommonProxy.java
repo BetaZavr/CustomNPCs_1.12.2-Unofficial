@@ -361,9 +361,6 @@ public class CommonProxy implements IGuiHandler {
 			case MainMenuInv: {
 				return new ContainerNPCInv(npc, player);
 			}
-			case MainMenuInvDrop: {
-				return new ContainerNPCDropSetup(npc, player, x, y, z);
-			}
 			case ManageTransport: {
 				TransportLocation loc = TransportController.getInstance().getTransport(x);
 				if (loc == null) {
@@ -398,11 +395,11 @@ public class CommonProxy implements IGuiHandler {
 			}
 			case SetupTraderDeal: { // Change
 				MarcetController mData = MarcetController.getInstance();
-				Marcet marcet = (Marcet) mData.getMarcet(x);
+				Marcet marcet = mData.getMarcet(x);
 				if (marcet == null) {
 					marcet = new Marcet(x);
 				}
-				Deal deal = (Deal) mData.getDeal(y);
+				Deal deal = mData.getDeal(y);
 				if (deal == null) {
 					deal = new Deal(y);
 				}
@@ -483,11 +480,20 @@ public class CommonProxy implements IGuiHandler {
 			case CreationParts: {
 				if (npc instanceof EntityCustomNpc) { return new ContainerLayer(player); }
 			}
-            default: {
-				return null;
+		}
+		return null;
+	}
+
+	@SuppressWarnings("all")
+	public Container getContainer(EnumGuiType gui, EntityPlayer player, EntityNPCInterface npc, NBTTagCompound data) {
+		switch (gui) {
+			case SetupDrop: {
+				return new ContainerNPCDropSetup(player, data);
 			}
 		}
+		return null;
 	}
+
 
 	public EntityPlayer getPlayer() {
 		return null;
@@ -511,17 +517,15 @@ public class CommonProxy implements IGuiHandler {
 
 	}
 
-	public void openGui(EntityNPCInterface npc, EnumGuiType gui) {
-	}
+	public void openGui(EntityNPCInterface npc, EnumGuiType gui) { }
 
-	public void openGui(EntityNPCInterface npc, EnumGuiType gui, int x, int y, int z) {
-	}
+	public void openGui(EntityNPCInterface npc, EnumGuiType gui, int x, int y, int z) { }
 
-	public void openGui(EntityPlayer player, Object guiscreen) {
-	}
+	public void openGui(EntityPlayer player, Object guiscreen) { }
 
-	public void openGui(int i, int j, int k, EnumGuiType gui, EntityPlayer player) {
-	}
+	public void openGui(int i, int j, int k, EnumGuiType gui, EntityPlayer player) { }
+
+	public void openGui(EntityNPCInterface lastNpc, EnumGuiType gui, NBTTagCompound compound) { }
 
 	public void postload() {
 	}
@@ -570,4 +574,5 @@ public class CommonProxy implements IGuiHandler {
 
     public void updatePlayerPos() {
     }
+
 }

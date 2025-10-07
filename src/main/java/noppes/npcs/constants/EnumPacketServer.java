@@ -124,7 +124,7 @@ public enum EnumPacketServer
 	ScriptForgeGet(false), 
 	ScriptNpcsGet(false), 
 	ScriptClientGet(false),
-	DropTemplateSave(false), 
+	DropTemplateSave(CustomNpcsPermissions.NPC_INVENTORY),
 	SpawnerNpcMove(CustomNpcsPermissions.NPC_ADVANCED, true),
 	DialogNpcGet,
 	QuestOpenGui,
@@ -145,7 +145,8 @@ public enum EnumPacketServer
 	DimensionTeleport, 
 	GetTileEntity, 
 	GetClone,
-	Gui, 
+	Gui,
+	GuiContainer,
 	SchematicsTile, 
 	SchematicsSet, 
 	SchematicsBuild, 
@@ -171,7 +172,7 @@ public enum EnumPacketServer
 	PermissionsGet(CustomNpcsPermissions.EDIT_PERMISSION, false),
 	PermissionsAdd(CustomNpcsPermissions.EDIT_PERMISSION, false),
 	PermissionsDel(CustomNpcsPermissions.EDIT_PERMISSION, false),
-	;
+	MarcetDropSave(CustomNpcsPermissions.GLOBAL_MARKETS);
 	
 	public CustomNpcsPermissions.Permission permission;
 	public boolean needsNpc;

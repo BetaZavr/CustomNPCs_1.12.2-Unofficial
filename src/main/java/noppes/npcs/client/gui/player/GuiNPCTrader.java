@@ -7,9 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -153,7 +151,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			return;
 		} // select deal
 		switch (button.id) {
-			case 0: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, marcet.getId(), selectDealData.deal.getId(), npc == null ? -1 : npc.getEntityId(), count); break; // buy
+			case -1: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketBuy, marcet.getId(), selectDealData.deal.getId(), npc == null ? -1 : npc.getEntityId(), count); break; // buy
 			case 1: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketSell, marcet.getId(), selectDealData.deal.getId(), npc == null ? -1 : npc.getEntityId(), count); break; // Sell
 			case 2: NoppesUtilPlayer.sendData(EnumPlayerPacket.TraderMarketReset, marcet.getId()); break; // Reset
 			case 3: {
@@ -181,6 +179,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 	@Override
 	public void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+
 		GlStateManager.enableBlend();
 		GlStateManager.translate(0.0f, 0.0f, -1.0f);
 		int w;
@@ -305,7 +304,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 		if (marcet.getName().isEmpty()) { text = new TextComponentTranslation("role.trader").getFormattedText(); }
 		else { text = new TextComponentTranslation(marcet.getName()).getFormattedText(); }
 		w = ClientProxy.Font.width(text) / 2;
-		ClientProxy.Font.drawString(text, scrollWidth - w + 13, 2, CustomNpcs.MainColor.getRGB());
+		ClientProxy.Font.drawString(text, scrollWidth - w + 10, 2, CustomNpcs.MainColor.getRGB());
 		// update
 		if (marcet.updateTime > 0) {
 			TextFormatting color = TextFormatting.RESET;
@@ -367,7 +366,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(5.0f, ySize - 25.0f, 0.0f);
 		GlStateManager.scale(0.833333f, 0.833333f, 0.833333f);
-		mc.getTextureManager().bindTexture(GuiNPCInterface.ICONS);
+		mc.getTextureManager().bindTexture(ICONS);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		drawTexturedModalRect(0, 0, 0, 216, 24, 24);
 		GlStateManager.popMatrix();
@@ -389,7 +388,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			GL11.glScissor(x * c, (ySize - 72 - hoverHeightMax) * c, 127 * c, (hoverHeightMax - 4) * c);
 			for (String hover : hovers) {
 				y = 77 + hoverY + i * (fontRenderer.FONT_HEIGHT + 1);
-				if (y >= 77 - fontRenderer.FONT_HEIGHT && y < 71 + hoverHeightMax) { drawString(fontRenderer, hover, x, y, CustomNpcs.MainColor.getRGB()); }
+				if (y >= 77 - fontRenderer.FONT_HEIGHT && y < 71 + hoverHeightMax) {
+					drawString(fontRenderer, hover, x, y, CustomNpcs.MainColor.getRGB());
+				}
 				if (y >= 71 + hoverHeightMax) { break; }
 				i++;
 			}
@@ -643,7 +644,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 		int y = ySize - 45;
 		boolean enableBuy = selectDealData != null && selectDealData.deal != null && selectDealData.deal.getType() != 1;
 		GuiNpcButton buyButton;
-		addButton(buyButton = new GuiNpcButton(0, x, y, scrollWidth - 5, 20,
+		addButton(buyButton = new GuiNpcButton(-1, x, y, scrollWidth - 5, 20,
 				"   " + new TextComponentTranslation("gui.buy").getFormattedText())
 				.setTexture(BUTTONS)
 				.setUV(0, 144, 128, 20)
@@ -905,7 +906,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			int posX = x;
 			if (posY + height < 15 || posY > listener.ySize - 48) { return; }
 			posY = y;
-			RenderHelper.enableGUIStandardItemLighting();
 
 			GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			int c = listener.xSize < mc.displayWidth ? (int) Math.round((double) mc.displayWidth / (double) listener.xSize) : 1;
@@ -927,7 +927,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			drawTexturedModalRect(0, 0, txrX, txrY + getState(inTrade) * txrH, txrW, txrH);
 			GlStateManager.popMatrix();
 
-			RenderHelper.enableGUIStandardItemLighting();
 			// rarity color
 			if (deal.getRarityColor() != 0) { drawGradientRect(posX + 2, posY + 2, posX + width - 2, posY + height - 2, 0x0, deal.getRarityColor() | 0x80000000); }
 			// case obj model
@@ -1029,7 +1028,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 				// draw prise info
 				if (mt != 0) {
 					posX -= mw;
-					drawString(mc.fontRenderer, (mt == 1 ? money : donat).getFormattedText(), posX, posY, CustomNpcs.MainColor.getRGB() | 0xFF000000);
+					mc.fontRenderer.drawString((mt == 1 ? money : donat).getFormattedText(), posX, posY, CustomNpcs.MainColor.getRGB() | 0xFF000000, false);
 					GlStateManager.pushMatrix();
 					GlStateManager.enableAlpha();
 					GlStateManager.enableBlend();
@@ -1097,12 +1096,11 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			GlStateManager.popMatrix();
 
 			GlStateManager.pushMatrix();
-			posX = x + 36;
-			posY = y + 2 + listener.scrollY;
-			GuiNpcButton.renderString(mc.fontRenderer, getDisplayString(), posX, posY, posX + width - 39 - mw, posY + 10, CustomNpcs.MainColor.getRGB() | 0xFF000000, true, false);
+			GlStateManager.translate(x + 36.0f, y + 2.0f + listener.scrollY, 1.0f);
+			GuiNpcButton.renderString(mc.fontRenderer, getDisplayString(), 0, 0, width - 39 - mw, 10, CustomNpcs.MainColor.getRGB() | 0xFF000000, false, false);
 			GlStateManager.popMatrix();
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}
 
@@ -1252,7 +1250,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 		@Override
 		public void render(IEditNPC gui, int mouseX, int mouseY, float partialTicks) {
 			if (!enabled || !getVisible()) { return; }
-			setTextColor(isFocused() ? 14737632 : 7368816);
+			setTextColor(isFocused() ? 0xFFE0E0E0 : 0xFF707070);
 			int posX = x - 3;
 			int posY = y - 6;
 			int w = width + 6;
@@ -1261,19 +1259,20 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			int w0 = w / 2;
 			int w1 = w - w0;
 			int state = isFocused() || !hovered ? 56 : 0;
+			Minecraft mc = Minecraft.getMinecraft();
+			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 			GlStateManager.pushMatrix();
 			GlStateManager.enableAlpha();
 			GlStateManager.enableBlend();
-			Minecraft.getMinecraft().getTextureManager().bindTexture(GuiNPCTrader.BUTTONS);
-			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			mc.getTextureManager().bindTexture(GuiNPCTrader.BUTTONS);
 			GlStateManager.translate(0.0f, 0.0f, 1.0f);
-			drawTexturedModalRect(posX, posY, 0, state, w0, 10); // left
+			drawTexturedModalRect(posX, posY, 0, state, w0, 10); // left1
 			drawTexturedModalRect(posX, posY + 10, 0, state + 18, w0, 10); // left down
 			drawTexturedModalRect(posX + w0, posY, 256 - w1, state, w1, 10); // right up
 			drawTexturedModalRect(posX + w0, posY + 10, 256 - w1, state + 18, w1, 10); // right down
 			super.drawTextBox();
-			if (hovered && !hoverText.isEmpty() && listener instanceof GuiNPCTrader) { ((GuiNPCTrader) listener).putHoverText(hoverText); }
 			GlStateManager.popMatrix();
+			if (hovered && !hoverText.isEmpty() && listener instanceof GuiNPCTrader) { ((GuiNPCTrader) listener).putHoverText(hoverText); }
 		}
 
 	}

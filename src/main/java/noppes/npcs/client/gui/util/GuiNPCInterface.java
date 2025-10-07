@@ -357,6 +357,7 @@ public class GuiNPCInterface extends GuiScreen implements IEditNPC {
 		}
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
 		drawCenteredString(fontRenderer, title, width / 2, height + 10, CustomNpcs.MainColor.getRGB());
+		RenderHelper.enableGUIStandardItemLighting();
 		for (IComponentGui component : new ArrayList<>(components)) {
 			component.render(this, x, y, partialTicks);
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);

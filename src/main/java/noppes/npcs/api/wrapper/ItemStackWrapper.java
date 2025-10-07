@@ -43,6 +43,7 @@ import noppes.npcs.api.CustomNPCsException;
 import noppes.npcs.api.INbt;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.ItemType;
+import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.handler.capability.IItemStackWrapperHandler;
@@ -57,12 +58,17 @@ import javax.annotation.Nonnull;
 public class ItemStackWrapper
 implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilitySerializable {
 
+	protected static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
+	protected static final ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "itemscripteddata");
+
 	@CapabilityInject(IItemStackWrapperHandler.class)
 	public static Capability<IItemStackWrapperHandler> ITEM_SCRIPTED_DATA_CAPABILITY = null;
-	private static final ResourceLocation key = new ResourceLocation(CustomNpcs.MODID, "itemscripteddata");
-
 	public static ItemStackWrapper AIR = new ItemStackWrapper(ItemStack.EMPTY);
-	private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] { EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET };
+
+	protected final Data tempdata;
+	protected final Data storeddata;
+	protected IEntity<?> owner = null;
+	public ItemStack item;
 
 	public ItemStackWrapper() { this(ItemStack.EMPTY); }
 
@@ -98,11 +104,6 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 		ItemStackWrapper wrapper = createNew(event.getObject());
 		event.addCapability(ItemStackWrapper.key, wrapper);
 	}
-
-	public ItemStack item;
-
-	private final Data tempdata;
-	private final Data storeddata;
 
 	protected ItemStackWrapper(ItemStack stack) {
 		if (stack.isEmpty()) {
@@ -555,5 +556,12 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 		}
 		this.item.setCount(size);
 	}
+
+	// New from Unofficial (BetaZavr)
+	@Override
+	public IEntity<?> getOwner() { return owner; }
+
+	@Override
+	public void setOwner(IEntity<?> iEntity) { owner = iEntity; }
 
 }

@@ -17,6 +17,7 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagDouble;
@@ -346,8 +347,7 @@ public class NoppesUtilServer {
 		entity.world.playSound(null, entity.posX, entity.posY, entity.posZ, sound, SoundCategory.NEUTRAL, volume, pitch);
 	}
 
-	public static void playSound(World world, BlockPos pos, SoundEvent sound, SoundCategory cat, float volume,
-			float pitch) {
+	public static void playSound(World world, BlockPos pos, SoundEvent sound, SoundCategory cat, float volume, float pitch) {
 		world.playSound(null, pos, sound, cat, volume, pitch);
 	}
 
@@ -562,6 +562,37 @@ public class NoppesUtilServer {
 			Server.sendData((EntityPlayerMP) player, EnumPacketClient.GUI_DATA, compound);
 			slot++;
 		}
+	}
+
+	public static void sendOpenGuiContainer(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc, NBTTagCompound data) {
+		if (!(player instanceof EntityPlayerMP)) { return; }
+		setEditingNpc(player, npc);
+		sendExtraData(player, npc, gui);
+		CustomNPCsScheduler.runTack(() -> {
+			if (player.getServer() != null && data.getBoolean("IsContainer")) {
+				Container container = CustomNpcs.proxy.getContainer(gui, player, npc, data);
+				if (container != null) {
+					EntityPlayerMP entityPlayerMP = (EntityPlayerMP) player;
+
+					// player.openGui(CustomNpcs.instance, gui.ordinal(), player.world, x, y, z);
+					entityPlayerMP.getNextWindowId();
+					entityPlayerMP.closeContainer();
+					int windowId = entityPlayerMP.currentWindowId;
+
+					entityPlayerMP.openContainer = container;
+					entityPlayerMP.openContainer.windowId = windowId;
+					entityPlayerMP.openContainer.addListener(entityPlayerMP);
+					net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.entity.player.PlayerContainerEvent.Open(player, player.openContainer));
+
+					Server.sendData(entityPlayerMP, EnumPacketClient.GUI_OPEN_CONTAINER, gui.ordinal(), data);
+					player.openContainer.detectAndSendChanges();
+				} else {
+					Server.sendDataChecked((EntityPlayerMP) player, EnumPacketClient.GUI, gui.ordinal(), 0, 0, 0);
+					Map<String, Integer> map = getScrollData(player, gui, npc);
+					sendScrollData((EntityPlayerMP) player, map);
+				}
+			}
+		}, 100);
 	}
 
 	public static void sendOpenGui(EntityPlayer player, EnumGuiType gui, EntityNPCInterface npc) {

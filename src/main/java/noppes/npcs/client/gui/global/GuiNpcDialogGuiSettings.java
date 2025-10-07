@@ -291,13 +291,16 @@ public class GuiNpcDialogGuiSettings extends GuiNPCInterface2
         drawString(mc.fontRenderer, getTempLine("    * 2 Option"), x, y += 12, 0xE0E0E0);
         drawString(mc.fontRenderer, getTempLine("    * 2 Option"), x, y + 12, 0xE0E0E0);
         GlStateManager.popMatrix();
-        GlStateManager.popMatrix();
+        GlStateManager.popMatrix(); // <- line 120
         // NPC
         if (!hasSubGui() && guiSettings.showNPC && dialogNpc != null) {
+            GlStateManager.pushMatrix();
+            GlStateManager.translate(0.0f, 0.0f, 200.0f);
             drawNpc(dialogNpc,
                     199 + ((guiSettings.guiLeft + guiSettings.npcPosX) / 2), 7 + ((guiSettings.npcPosY) / 2),
                     guiSettings.getNpcScale() / 2.0f, guiSettings.getType() == 2 || (guiSettings.getType() == 1 && !guiSettings.npcInLeft) ? 40 : -40,
                     -15, 2);
+            GlStateManager.popMatrix();
         }
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
         super.drawScreen(mouseX, mouseY, partialTicks);

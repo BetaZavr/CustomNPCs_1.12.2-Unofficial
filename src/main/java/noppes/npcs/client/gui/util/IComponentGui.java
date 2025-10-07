@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.util;
 
 import java.util.List;
 
+@SuppressWarnings("all")
 public interface IComponentGui {
 
 	List<String> getHoversText();
@@ -20,7 +21,7 @@ public interface IComponentGui {
 
 	boolean mouseCnpcsReleased(int mouseX, int mouseY, int state);
 
-	IComponentGui setHoverText(String srt, Object ... args);
+	IComponentGui setHoverText(Object[] components);
 
 	IComponentGui setIsEnable(boolean isEnable);
 

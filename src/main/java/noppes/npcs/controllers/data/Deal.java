@@ -162,15 +162,9 @@ public class Deal implements IDeal {
 		else {
 			ItemStack stack = inventoryProduct.getStackInSlot(0);
 			if (count[1] != 0 && amount == 0) {
-				temp = new TextComponentString(" x" + stack.getCount());
-				temp.getStyle().setColor(TextFormatting.DARK_RED);
-				name.appendText(stack.getDisplayName()).appendSibling(temp);
+				name.appendText(stack.getDisplayName()).appendText(TextFormatting.DARK_RED + " x" + stack.getCount());
 			} else {
-				temp = new TextComponentString(" x" + stack.getCount());
-				temp.getStyle().setColor(TextFormatting.RESET);
-				name.appendText(stack.getDisplayName())
-						.appendSibling(temp)
-						.appendText(TextFormatting.GOLD + "" + stack.getCount());
+				name.appendText(stack.getDisplayName()).appendText(TextFormatting.RESET + " x" + stack.getCount());
 			}
 		}
 		return name.getFormattedText();

@@ -1,36 +1,62 @@
 package noppes.npcs.client.gui.global;
 
 import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
+import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.NoppesUtil;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
+import noppes.npcs.client.gui.drop.SubGuiDropEdit;
+import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
+import noppes.npcs.controllers.MarcetController;
 import noppes.npcs.controllers.data.Deal;
 import noppes.npcs.entity.EntityNPCInterface;
-import noppes.npcs.util.Util;
+import noppes.npcs.entity.data.DropSet;
 
 import javax.annotation.Nonnull;
 
-public class SubGuiNPCManageDeal extends GuiContainerNPCInterface implements ITextfieldListener {
+public class SubGuiNPCManageDeal extends GuiContainerNPCInterface
+		implements ICustomScrollListener, ITextfieldListener {
 
-	protected final Deal deal;
 	public static GuiScreen parent;
+	protected static final Random rnd = new Random();
+	protected final ContainerNPCTraderSetup menu;
+	protected final ResourceLocation resource = new ResourceLocation(CustomNpcs.MODID, "textures/gui/menubg.png");
+	protected final Deal deal;
+	protected final int[][] slotPoses = new int[10][2];
+	protected GuiCustomScroll scroll;
+	protected ResourceLocation objCase;
+	//case
+	protected Map<String, ResourceLocation> materialTextures = new HashMap<>();
+	protected boolean type;
+	protected boolean start;
 
 	public SubGuiNPCManageDeal(EntityNPCInterface npc, ContainerNPCTraderSetup cont) {
 		super(npc, cont);
 		setBackground("tradersetup.png");
 		closeOnEsc = true;
-		ySize = 200;
-
-		deal = cont.deal;
+		xSize = 380;
+		ySize = 217;
+		menu = cont;
+		for (int slotId = 0; slotId < 10; ++slotId) {
+			slotPoses[slotId][0] = menu.getSlot(slotId).xPos;
+			slotPoses[slotId][1] = menu.getSlot(slotId).yPos;
+		}
+		deal = menu.deal;
 		Client.sendData(EnumPacketServer.TraderMarketGet);
 	}
 
@@ -42,13 +68,62 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface implements ITe
 			case 1: deal.setIgnoreNBT(button.getValue() == 1); break;
 			case 2: setSubGui(new SubGuiNpcAvailability(deal.availability,  parent)); initGui(); break;
 			case 3: deal.setType(button.getValue()); break;
+			case 4: deal.setIsCase(button.getValue() == 1); initGui(); break;
+			case 5: {
+				if (!deal.isCase()) { return; }
+				SubGuiDropEdit.parent = null;
+				SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
+				SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setInteger("InventoryType", 1);
+				compound.setInteger("Marcet", menu.marcet.getId());
+				compound.setInteger("Deal", deal.getId());
+				compound.setInteger("DropSet", -1);
+				NoppesUtil.requestOpenContainerGUI(EnumGuiType.SetupDrop, compound);
+				break;
+			} // add
+			case 6: {
+				if (!deal.isCase() || !scroll.hasSelected()) { return; }
+				deal.removeCaseItem(scroll.getSelect());
+				initGui();
+				break;
+			} // del
+			case 7: {
+				if (!deal.isCase() || !scroll.hasSelected()) { return; }
+				SubGuiDropEdit.parent = null;
+				SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
+				SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
+				NBTTagCompound compound = new NBTTagCompound();
+				compound.setInteger("InventoryType", 1);
+				compound.setInteger("Marcet", menu.marcet.getId());
+				compound.setInteger("Deal", deal.getId());
+				compound.setInteger("DropSet", scroll.getSelect());
+				NoppesUtil.requestOpenContainerGUI(EnumGuiType.SetupDrop, compound);
+				break;
+			} // edit
+			case 8: {
+				setSubGui(new SubGuiColorSelector(deal.getRarityColor(), new SubGuiColorSelector.ColorCallback() {
+					@Override
+					public void color(int colorIn) {
+						deal.setRarityColor(colorIn);
+						initGui();
+					}
+					@Override
+					public void preColor(int colorIn) {
+						((GuiColorButton) button).setColor(colorIn);
+						deal.setRarityColor(colorIn);
+					}
+				}));
+				break;
+			} // color
+			case 9: if (deal.isCase()) { setSubGui(new SubGuiNpcDealCaseSetting(deal)); } break;
 			case 66: onClosed(); break;
 		}
 	}
 
 	@Override
-	public void onGuiClosed() {
-		super.onGuiClosed();
+	public void onClosed() {
+		super.onClosed();
 		if (parent != null) { displayGuiScreen(parent); }
 	}
 
@@ -84,54 +159,124 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface implements ITe
 	@Override
 	public void initGui() {
 		super.initGui();
-		String text = Util.instance.deleteColor(new TextComponentTranslation("market.product").getFormattedText());
-		int x = guiLeft + inventorySlots.getSlot(0).xPos + (18 - fontRenderer.getStringWidth(text)) / 2;
-		int y = guiTop + inventorySlots.getSlot(0).yPos - 10;
-		addLabel(new GuiNpcLabel(0, "market.product", x, y)
+		int lId = 0;
+		int x = guiLeft + menu.getSlot(1).xPos;
+		int y = guiTop + menu.getSlot(1).yPos - 48;
+		addLabel(new GuiNpcLabel(lId++, "market.product", x, y)
 				.setHoverText("market.hover.product"));
-		x = guiLeft + inventorySlots.getSlot(1).xPos;
-		y = guiTop + inventorySlots.getSlot(1).yPos - 10;
-		addLabel(new GuiNpcLabel(1, "market.barter", x, y)
+		y = guiTop + menu.getSlot(1).yPos - 11;
+		addLabel(new GuiNpcLabel(lId++, "market.barter", x, y)
 				.setHoverText("market.hover.item"));
-		x = guiLeft + 214;
+		// Type
+		x = guiLeft + 67;
+		y = guiTop + 6;
+		addLabel(new GuiNpcLabel(lId++, new TextComponentTranslation("gui.type").appendText(":"), x, y + 1, 20, 12));
+		addButton(new GuiNpcButton(4, x + 22, y, 80, 14, deal.isCase() ? 1 : 0, "enum.entity.item", "gui.case")
+				.setHoverText("market.hover.deal.type"));
+		addButton(new GuiNpcButton(66, guiLeft + xSize - 17, y - 2, 12, 12, "X")
+				.setHoverText("hover.back"));
+		ICustomDrop[] caseItems = deal.getCaseItems();
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(102, 116); }
+		scroll.canSearch(false);
+		scroll.visible = deal.isCase();
+		scroll.guiLeft = x;
+		scroll.guiTop = y + 16;
+		addScroll(scroll);
+		if (deal.isCase()) {
+			y += 111;
+			java.util.List<String> list = new ArrayList<>();
+			java.util.List<ItemStack> stacks = new ArrayList<>();
+			LinkedHashMap<Integer, List<String>> hts = new LinkedHashMap<>();
+			int i = 0;
+			for (ICustomDrop dropSet : caseItems) {
+				list.add(((DropSet) dropSet).getKey());
+				stacks.add(((DropSet) dropSet).getStackInSlot(0));
+				hts.put(i++, ((DropSet) dropSet).getHover(player));
+			}
+			scroll.setUnsortedList(list).setStacks(stacks).setHoverTexts(hts);
+			addButton(new GuiNpcButton(5, x, y, 32, 14, "gui.add")
+					.setHoverText("market.hover.case.add"));
+			addButton(new GuiNpcButton(6, x + 34, y, 32, 14, "gui.remove")
+					.setIsEnable(scroll.hasSelected())
+					.setHoverText("market.hover.case.del"));
+			addButton(new GuiNpcButton(7, x + 68, y, 34, 14, "selectServer.edit")
+					.setIsEnable(scroll.hasSelected())
+					.setHoverText("market.hover.case.edit"));
+		}
+		// Dial settings
+		x = guiLeft + 174;
 		y = guiTop + 4;
-		addLabel(new GuiNpcLabel(4, "marcet.deal.settings", x, y)
+		addLabel(new GuiNpcLabel(lId++, "marcet.deal.settings", x, y, 200, 12)
 				.setHoverText("market.hover.deal.section"));
-		addLabel(new GuiNpcLabel(5, "market.currency", x, (y += 14) + 5));
-		addLabel(new GuiNpcLabel(6, CustomNpcs.displayCurrencies, x + 155, y + 5));
-		addTextField(new GuiNpcTextField(0, this, x + 100, y, 50, 18, "" + deal.getMoney())
+		addLabel(new GuiNpcLabel(lId++, "market.currency", x, (y += 14) + 1, 98, 12));
+		addLabel(new GuiNpcLabel(lId++, CustomNpcs.displayCurrencies, x + 141, y + 1, 15, 12));
+		addLabel(new GuiNpcLabel(lId++, CustomNpcs.displayDonation, x + 195, y + 1, 15, 12));
+		addTextField(new GuiNpcTextField(0, this, x + 100, y, 39, 12, "" + deal.getMoney())
 				.setMinMaxDefault(0, Integer.MAX_VALUE, deal.getMoney())
 				.setHoverText("market.hover.set.currency"));
-		addLabel(new GuiNpcLabel(7, "drop.chance", x, (y += 22) + 5));
-		addLabel(new GuiNpcLabel(8, "%", x + 155, y + 5));
-		addTextField(new GuiNpcTextField(1, this, x + 100, y, 50, 18, "" + deal.getChance())
+		addTextField(new GuiNpcTextField(4, this, x + 154, y, 39, 12, "" + deal.getDonat())
+				.setMinMaxDefault(0, Integer.MAX_VALUE, deal.getDonat())
+				.setHoverText("market.hover.set.donat"));
+		addLabel(new GuiNpcLabel(lId++, "drop.chance", x, (y += 16) + 1, 98, 12));
+		addLabel(new GuiNpcLabel(lId++, "%", x + 155, y + 1, 10, 12));
+		addTextField(new GuiNpcTextField(1, this, x + 100, y, 50, 12, "" + deal.getChance())
 				.setMinMaxDefault(0, 100, deal.getChance())
 				.setHoverText("market.hover.set.chance"));
-		addLabel(new GuiNpcLabel(9, "quest.itemamount", x, (y += 22) + 5));
-		addTextField(new GuiNpcTextField(2, this, x + 100, y, 40, 18, "" + deal.getMinCount())
+		addLabel(new GuiNpcLabel(lId++, "quest.itemamount", x, (y += 16) + 1, 98, 12));
+		addTextField(new GuiNpcTextField(2, this, x + 100, y, 40, 12, "" + deal.getMinCount())
 				.setMinMaxDefault(0, Integer.MAX_VALUE, deal.getMinCount())
 				.setHoverText("market.hover.set.amount"));
-		addLabel(new GuiNpcLabel(10, "<->", x + 145, y + 5));
-		addTextField(new GuiNpcTextField(3, this, x + 160, y, 40, 18, "" + deal.getMaxCount())
+		addLabel(new GuiNpcLabel(lId++, "<->", x + 143, y + 1, 15, 12));
+		addTextField(new GuiNpcTextField(3, this, x + 160, y, 40, 12, "" + deal.getMaxCount())
 				.setMinMaxDefault(0, Integer.MAX_VALUE, deal.getMaxCount())
 				.setHoverText("market.hover.set.amount"));
-		addLabel(new GuiNpcLabel(11, "gui.ignoreDamage", x, (y += 21) + 5));
-		addButton(new GuiNpcButton(0, x + 100, y, 80, 20, new String[] { "gui.ignoreDamage.0", "gui.ignoreDamage.1" }, deal.getIgnoreDamage() ? 1 : 0)
+		addLabel(new GuiNpcLabel(lId++, "gui.ignoreDamage", x, (y += 15) + 1, 98, 12));
+		addButton(new GuiNpcButton(0, x + 100, y, 80, 14, deal.getIgnoreDamage() ? 1 : 0,
+				"gui.ignoreDamage.0", "gui.ignoreDamage.1")
 				.setHoverText("recipe.hover.damage"));
-		addLabel(new GuiNpcLabel(12, "gui.ignoreNBT", x, (y += 22) + 5));
-		addButton(new GuiNpcButton(1, x + 100, y, 80, 20, new String[] { "gui.ignoreNBT.0", "gui.ignoreNBT.1" }, deal.getIgnoreNBT() ? 1 : 0)
+		addLabel(new GuiNpcLabel(lId++, "gui.ignoreNBT", x, (y += 16) + 1, 98, 12));
+		addButton(new GuiNpcButton(1, x + 100, y, 80, 14, deal.getIgnoreNBT() ? 1 : 0,
+				"gui.ignoreNBT.0", "gui.ignoreNBT.1")
 				.setHoverText("recipe.hover.nbt"));
-		addLabel(new GuiNpcLabel(13, "availability.options", x, (y += 22) + 5));
-		addButton(new GuiNpcButton(2, x + 100, y, 80, 20, "selectServer.edit")
+		addLabel(new GuiNpcLabel(lId++, "availability.options", x, (y += 16) + 1, 98, 12));
+		addButton(new GuiNpcButton(2, x + 100, y, 80, 14, "selectServer.edit")
 				.setHoverText("availability.hover"));
-		addButton(new GuiNpcButton(3, x, (y += 22), 200, 20, new String[] { "market.deal.type.0", "market.deal.type.1", "market.deal.type.2" }, deal.getType())
-				.setHoverText("market.hover.set.type"));
-		addButton(new GuiNpcButton(66, x, y + 22, 80, 20, "gui.back")
-				.setHoverText("hover.back"));
+		addLabel(new GuiNpcLabel(lId++, "market.case.color", x, (y += 16) + 1, 98, 12));
+		addButton(new GuiColorButton(8, x + 100, y, 80, 14, deal.getRarityColor())
+				.setHoverText("market.hover.deal.color"));
+		materialTextures.clear();
+		addButton(new GuiNpcCheckBox(10, x, y += 16, 200, 12, "market.deal.barter.true", "market.deal.barter.false", deal.showInCase())
+				.setIsEnable(false));
+		if (deal.isCase()) {
+			addLabel(new GuiNpcLabel(lId, new TextComponentTranslation("gui.case").appendText(":"), x, (y += 17) + 1, 98, 12));
+			addButton(new GuiNpcButton(9, x + 100, y, 80, 14, "selectServer.edit")
+					.setHoverText("market.hover.deal.case"));
+			objCase = deal.getCaseObjModel();
+			if (objCase != null) {
+				try {
+					mc.getResourceManager().getResource(objCase);
+                    objCase = Deal.defaultCaseOBJ;
+                }
+				catch (Exception e) { objCase = null; }
+			}
+			menu.setSlotPos(0, new int[] { -5000, -5000 });
+			materialTextures.put("#material", deal.getCaseTexture());
+		}
+		else {
+			objCase = null;
+			addButton(new GuiNpcButton(3, x, y + 16, 200, 14, deal.getType(),
+					"market.deal.type.0", "market.deal.type.1", "market.deal.type.2")
+					.setHoverText("market.hover.set.type"));
+			menu.setSlotPos(0, slotPoses[0]);
+		}
 	}
 
 	@Override
-	public void save() { Client.sendData(EnumPacketServer.TraderMarketSave, deal.write()); }
+	public void save() {
+		if (MarcetController.getInstance().deals.containsKey(deal.getId()) ||
+				(deal.isCase() && deal.getCaseItems().length > 0) ||
+				!deal.getProduct().isEmpty()) { Client.sendData(EnumPacketServer.TraderMarketSave, deal.write()); }
+	}
 
 	@Override
 	public void unFocused(GuiNpcTextField textField) {
@@ -140,8 +285,26 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface implements ITe
 			case 1: deal.setChance(textField.getInteger()); break;
 			case 2: deal.setCount(textField.getInteger(), deal.getMaxCount()); break;
 			case 3: deal.setCount(deal.getMinCount(), textField.getInteger()); break;
+			case 4: deal.setDonat(textField.getInteger()); break;
 		}
 		initGui();
+	}
+
+	@Override
+	public void scrollClicked(int mouseX, int mouseY, int mouseButton, GuiCustomScroll scroll) { initGui(); }
+
+	@Override
+	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) {
+		if (!deal.isCase() || !scroll.hasSelected()) { return; }
+		SubGuiDropEdit.parent = null;
+		SubGuiDropEdit.parentContainer = EnumGuiType.SetupTraderDeal;
+		SubGuiDropEdit.parentData = new BlockPos(menu.marcet.getId(), deal.getId(), 0);
+		NBTTagCompound compound = new NBTTagCompound();
+		compound.setInteger("InventoryType", 1);
+		compound.setInteger("Marcet", menu.marcet.getId());
+		compound.setInteger("Deal", deal.getId());
+		compound.setInteger("DropSet", scroll.getSelect());
+		NoppesUtil.requestOpenContainerGUI(EnumGuiType.SetupDrop, compound);
 	}
 
 }

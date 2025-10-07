@@ -24,4 +24,9 @@ public class GuiColorButton extends GuiNpcButton {
 		drawRect(x + 1, y + 1, x + width - 1, y + height - 1, color);
 	}
 
+	public GuiColorButton setColor(int colorIn) {
+		color = 0xFF000000 | colorIn & 0x00FFFFFF;
+		return this;
+	}
+
 }

@@ -83,9 +83,9 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 		}
 		(textarea = new GuiTextArea(94, guiLeft + 4, guiTop + 53, 163, 65, text.toString())).setListener(this);
 		textarea.active = true;
-		if (t == 7 || t == 11) { textarea.setHoverText("drop.hover.tag.value.array", name); }
-		else if (t == 9) { textarea.setHoverText("drop.hover.tag.value.list", name); }
-		else { textarea.setHoverText("drop.hover.tag.value.normal", name); }
+		if (t == 7 || t == 11) { textarea.setHoverText(new TextComponentTranslation("drop.hover.tag.value.array", name)); }
+		else if (t == 9) { textarea.setHoverText(new TextComponentTranslation("drop.hover.tag.value.list", name)); }
+		else { textarea.setHoverText(new TextComponentTranslation("drop.hover.tag.value.normal", name)); }
 		add(textarea);
 		// chance
 		addLabel(new GuiNpcLabel(lId, "drop.chance", guiLeft + 56, guiTop + 125));
@@ -99,14 +99,14 @@ public class SubGuiDropValueNbt extends SubGuiInterface implements ITextfieldLis
 		}
 		name = ((char) 167) + "2" + name;
 		addButton(new GuiButtonBiDirectional(90, guiLeft + 87, guiTop + 120, 80, 20, tagIds, posId)
-				.setHoverText("drop.hover.tag.type", name, getValuesData(t)));
+				.setHoverText(new TextComponentTranslation("drop.hover.tag.type", name, getValuesData(t))));
 		// list type
 		int posListId = 0;
 		for (int i = 0; i < tagListIds.length; i++) {
 			if (tagListIds[i].equals("tag.type." + tag.getTypeList())) { posListId = i; }
 		}
 		addButton(new GuiButtonBiDirectional(92, guiLeft + 87, guiTop + 142, 80, 20, tagListIds, posListId)
-				.setHoverText("drop.hover.tag.listtype", name, getValuesData(tl))
+				.setHoverText(new TextComponentTranslation("drop.hover.tag.listtype", name, getValuesData(tl)))
 				.setIsVisible(t == 9));
 		// done
 		addButton(new GuiNpcButton(66, guiLeft + 4, guiTop + 142, 80, 20, "gui.done", check())

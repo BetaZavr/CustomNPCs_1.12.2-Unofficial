@@ -1000,7 +1000,8 @@ public class PlayerEventHandler {
 		noppes.npcs.util.CustomNPCsScheduler.runTack(() -> {
 			if (player instanceof EntityPlayerMP) {
 				try {
-					/**/
+
+					/*
 					// Found texts
 					java.io.File dir;
 					dir = new java.io.File("D:/1.12.2/cnpcs_mixin/src/main/java");
