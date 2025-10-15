@@ -1,12 +1,13 @@
 package noppes.npcs.api.handler.data;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 
 @SuppressWarnings("all")
 public interface IFaction {
 
-	void addHostile(int id);
+	void addHostile(@ParamName("factionId") int factionId);
 
 	boolean getAttackedByMobs();
 
@@ -26,26 +27,26 @@ public interface IFaction {
 
 	String getName();
 
-	boolean hasHostile(int id);
+	boolean hasHostile(@ParamName("factionId") int id);
 
-	boolean hostileToFaction(int factionId);
+	boolean hostileToFaction(@ParamName("factionId") int factionId);
 
-	boolean hostileToNpc(ICustomNpc<?> npc);
+	boolean hostileToNpc(@ParamName("npc") ICustomNpc<?> npc);
 
-	int playerStatus(IPlayer<?> player);
+	int playerStatus(@ParamName("player") IPlayer<?> player);
 
-	void removeHostile(int id);
+	void removeHostile(@ParamName("factionId") int factionId);
 
 	void save();
 
-	void setAttackedByMobs(boolean bo);
+	void setAttackedByMobs(@ParamName("bo") boolean bo);
 
-	void setDefaultPoints(int points);
+	void setDefaultPoints(@ParamName("points") int points);
 
-	void setDescription(String description);
+	void setDescription(@ParamName("description") String description);
 
-	void setFlag(String flagPath);
+	void setFlag(@ParamName("flagPath") String flagPath);
 
-	void setIsHidden(boolean bo);
+	void setIsHidden(@ParamName("bo") boolean bo);
 
 }

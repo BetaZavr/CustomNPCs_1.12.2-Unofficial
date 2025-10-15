@@ -724,8 +724,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public void offset(IPos position) {
-		offset(position.getMCBlockPos());
+	public void offset(IPos pos) {
+		offset(pos.getMCBlockPos());
 	}
 
 	/**
@@ -859,8 +859,8 @@ public class Zone3D implements IBorder, Predicate<Entity> {
 	}
 
 	@Override
-	public void setDimensionId(int dimID) {
-		dimensionID = dimID;
+	public void setDimensionId(int dimensionId) {
+		dimensionID = dimensionId;
 		update = true;
 	}
 

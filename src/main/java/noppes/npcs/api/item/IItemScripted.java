@@ -1,5 +1,8 @@
 package noppes.npcs.api.item;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IItemScripted extends IItemStack {
 
 	int getColor();
@@ -10,20 +13,20 @@ public interface IItemScripted extends IItemStack {
 
 	double getDurabilityValue();
 
-	String getTexture(int damage);
+	String getTexture(@ParamName("damage") int damage);
 
-	boolean hasTexture(int damage);
+	boolean hasTexture(@ParamName("damage") int damage);
 
-	void setColor(int color);
+	void setColor(@ParamName("color") int color);
 
-	void setDurabilityColor(int color);
+	void setDurabilityColor(@ParamName("color") int color);
 
-	void setDurabilityShow(boolean bo);
+	void setDurabilityShow(@ParamName("bo") boolean bo);
 
-	void setDurabilityValue(float value);
+	void setDurabilityValue(@ParamName("value") float value);
 
-	void setMaxStackSize(int size);
+	void setMaxStackSize(@ParamName("size") int size);
 
-	void setTexture(int damage, String texture);
+	void setTexture(@ParamName("damage") int damage, @ParamName("texture") String texture);
 
 }

@@ -1,7 +1,9 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IEntity;
 
+@SuppressWarnings("all")
 public interface IGuiEntity extends ICustomGuiComponent {
 
 	IEntity<?> getEntity();
@@ -12,22 +14,22 @@ public interface IGuiEntity extends ICustomGuiComponent {
 
 	boolean isShowArmorAndItems();
 
-	void setBorder(boolean hasBorder);
+	void setBorder(@ParamName("hasBorder") boolean hasBorder);
 
-	void setEntity(IEntity<?> entity);
+	void setEntity(@ParamName("entity") IEntity<?> entity);
 
-	void setScale(float scale);
+	void setScale(@ParamName("scale") float scale);
 
-	void setShowArmorAndItems(boolean show);
+	void setShowArmorAndItems(@ParamName("show") boolean show);
 
 	int getRotationType();
 	
-	void setRotationType(int type);
+	void setRotationType(@ParamName("type") int type);
 	
 	int getYaw();
 	
 	int getPitch();
 	
-	void setRotation(int yaw, int pitch);
+	void setRotation(@ParamName("yaw") int yaw, @ParamName("pitch") int pitch);
 	
 }

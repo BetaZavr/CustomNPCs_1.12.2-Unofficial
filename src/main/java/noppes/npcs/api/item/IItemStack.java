@@ -2,6 +2,7 @@ package noppes.npcs.api.item;
 
 import net.minecraft.item.ItemStack;
 import noppes.npcs.api.INbt;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLiving;
 import noppes.npcs.api.entity.data.IData;
@@ -9,19 +10,19 @@ import noppes.npcs.api.entity.data.IData;
 @SuppressWarnings("all")
 public interface IItemStack {
 
-	void addEnchantment(int id, int level);
+	void addEnchantment(@ParamName("id") int id, @ParamName("level") int level);
 
-	void addEnchantment(String name, int level);
+	void addEnchantment(@ParamName("name") String name, @ParamName("level") int level);
 
-	boolean compare(IItemStack item, boolean ignoreNBT);
+	boolean compare(@ParamName("name") IItemStack item, @ParamName("name") boolean ignoreNBT);
 
 	IItemStack copy();
 
-	void damageItem(int damage, IEntityLiving<?> living);
+	void damageItem(@ParamName("name") int damage, @ParamName("name") IEntityLiving<?> living);
 
 	double getAttackDamage();
 
-	double getAttribute(String name);
+	double getAttribute(@ParamName("name") String name);
 
 	String getDisplayName();
 
@@ -53,13 +54,13 @@ public interface IItemStack {
 
 	int getType();
 
-	boolean hasAttribute(String name);
+	boolean hasAttribute(@ParamName("name") String name);
 
 	boolean hasCustomName();
 
-	boolean hasEnchant(int id);
+	boolean hasEnchant(@ParamName("name") int id);
 
-	boolean hasEnchant(String name);
+	boolean hasEnchant(@ParamName("name") String name);
 
 	boolean hasNbt();
 
@@ -75,28 +76,28 @@ public interface IItemStack {
 
 	boolean isWearable();
 
-	boolean removeEnchant(int id);
+	boolean removeEnchant(@ParamName("id") int id);
 
-	boolean removeEnchant(String name);
+	boolean removeEnchant(@ParamName("name") String name);
 
 	void removeNbt();
 
 	@Deprecated
-	void setAttribute(String name, double value);
+	void setAttribute(@ParamName("name") String name, @ParamName("value") double value);
 
-	void setAttribute(String name, double value, int slot);
+	void setAttribute(@ParamName("name") String name, @ParamName("value") double value, @ParamName("slot") int slot);
 
-	void setCustomName(String name);
+	void setCustomName(@ParamName("name") String name);
 
-	void setItemDamage(int value);
+	void setItemDamage(@ParamName("value") int value);
 
-	void setLore(String[] lore);
+	void setLore(@ParamName("lore") String[] lore);
 
-	void setStackSize(int size);
+	void setStackSize(@ParamName("size") int size);
 
 	// New from Unofficial (BetaZavr)
 	IEntity<?> getOwner();
 
-	void setOwner(IEntity<?> iEntity);
+	void setOwner(@ParamName("entity") IEntity<?> entity);
 
 }

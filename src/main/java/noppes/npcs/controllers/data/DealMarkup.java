@@ -139,11 +139,8 @@ public class DealMarkup {
 		buyMoney = baseMoney;
 		sellMoney = baseMoney;
 		buyDonat = baseDonat;
-		if (md.buy != 0.0f) { reset(true, (100.0f + md.buy * 100.0f) / 100.0f, countIn); }
-		else { buyItems.putAll(baseItems); }
-
-		if (md.sell != 0.0f) { reset(false, (100.0f + md.sell * 100.0f) / 100.0f, countIn); }
-		else if (!deal.isCase()) { sellItems.putAll(baseItems); }
+		reset(true, (100.0f + md.buy * 100.0f) / 100.0f, countIn);
+		reset(false, (100.0f + md.sell * 100.0f) / 100.0f, countIn);
 	}
 
 }

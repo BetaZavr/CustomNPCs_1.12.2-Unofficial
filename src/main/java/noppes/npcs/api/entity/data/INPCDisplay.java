@@ -1,5 +1,6 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IPlayer;
 
 @SuppressWarnings("all")
@@ -17,7 +18,7 @@ public interface INPCDisplay {
 
 	String getModel();
 
-	float[] getModelScale(int part);
+	float[] getModelScale(@ParamName("part") int part);
 
 	String getName();
 
@@ -41,46 +42,46 @@ public interface INPCDisplay {
 
 	int getVisible();
 
-	boolean isVisibleTo(IPlayer<?> player);
+	boolean isVisibleTo(@ParamName("player") IPlayer<?> player);
 
-	void setBossbar(int type);
+	void setBossbar(@ParamName("type") int type);
 
-	void setBossColor(int color);
+	void setBossColor(@ParamName("color") int color);
 
-	void setCapeTexture(String texture);
+	void setCapeTexture(@ParamName("texture") String texture);
 
-	void setHitboxState(int state);
+	void setHitboxState(@ParamName("state") int state);
 
-	void setHasLivingAnimation(boolean enabled);
+	void setHasLivingAnimation(@ParamName("enabled") boolean enabled);
 
-	void setModel(String model);
+	void setModel(@ParamName("model") String model);
 
-	void setModelScale(int part, float x, float y, float z);
+	void setModelScale(@ParamName("part") int part, @ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setOverlayTexture(String texture);
+	void setOverlayTexture(@ParamName("texture") String texture);
 
-	void setShadowType(int type);
+	void setShadowType(@ParamName("type") int type);
 
-	void setShowName(int type);
+	void setShowName(@ParamName("type") int type);
 
-	void setSize(int size);
+	void setSize(@ParamName("size") int size);
 
-	void setSkinPlayer(String name);
+	void setSkinPlayer(@ParamName("name") String name);
 
-	void setSkinTexture(String texture);
+	void setSkinTexture(@ParamName("texture") String texture);
 
-	void setSkinUrl(String url);
+	void setSkinUrl(@ParamName("url") String url);
 
-	void setTint(int color);
+	void setTint(@ParamName("color") int color);
 
-	void setTitle(String title);
+	void setTitle(@ParamName("title") String title);
 
-	void setVisible(int type);
+	void setVisible(@ParamName("type") int type);
 
 	boolean isNormalModel();
 
-	void setNormalModel(boolean bo);
+	void setNormalModel(@ParamName("bo") boolean bo);
 
 }

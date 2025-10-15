@@ -1,11 +1,13 @@
 package noppes.npcs.api.entity.data.role;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.INPCRole;
 
+@SuppressWarnings("all")
 public interface IRoleFollower extends INPCRole {
 
-	void addDays(int days);
+	void addDays(@ParamName("days") int days);
 
 	int getDays();
 
@@ -21,12 +23,12 @@ public interface IRoleFollower extends INPCRole {
 
 	void reset();
 
-	void setFollowing(IPlayer<?> player);
+	void setFollowing(@ParamName("player") IPlayer<?> player);
 
-	void setGuiDisabled(boolean disabled);
+	void setGuiDisabled(@ParamName("disabled") boolean disabled);
 
-	void setInfinite(boolean infinite);
+	void setInfinite(@ParamName("infinite") boolean infinite);
 
-	void setRefuseSoulstone(boolean refuse);
+	void setRefuseSoulstone(@ParamName("refuse") boolean refuse);
 
 }

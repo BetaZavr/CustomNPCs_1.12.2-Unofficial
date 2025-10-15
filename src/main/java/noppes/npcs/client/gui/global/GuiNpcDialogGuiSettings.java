@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityList;
@@ -539,7 +540,7 @@ public class GuiNpcDialogGuiSettings extends GuiNPCInterface2
     public void mouseReleased(GuiNpcSlider slider) { }
 
     @Override
-    public void subGuiClosed(SubGuiInterface subgui) {
+    public void subGuiClosed(GuiScreen subgui) {
         if (subgui instanceof SubGuiTextureSelection) {
             SubGuiTextureSelection tGui = (SubGuiTextureSelection) subgui;
             if (tGui.id == 0) {

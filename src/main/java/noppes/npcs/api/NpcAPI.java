@@ -4,7 +4,6 @@ import java.io.File;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -53,15 +52,15 @@ public abstract class NpcAPI {
 		return Loader.isModLoaded(CustomNpcs.MODID);
 	}
 
-	public abstract ICustomGui createCustomGui(int id, int width, int height, boolean pauseGame);
+	public abstract ICustomGui createCustomGui(@ParamName("id") int id, @ParamName("width") int width, @ParamName("height") int height, @ParamName("pauseGame") boolean pauseGame);
 
-	public abstract IPlayerMail createMail(String sender, String subject);
+	public abstract IPlayerMail createMail(@ParamName("sender") String sender, @ParamName("title") String title);
 
-	public abstract ICustomNpc<?> createNPC(World world);
+	public abstract ICustomNpc<?> createNPC(@ParamName("worldMC") World worldMC);
 
 	public abstract EventBus events();
 
-	public abstract String executeCommand(IWorld world, String command);
+	public abstract String executeCommand(@ParamName("world") IWorld world, @ParamName("command") String command);
 
 	public abstract IPlayer<?>[] getAllPlayers();
 
@@ -79,37 +78,37 @@ public abstract class NpcAPI {
 
 	public abstract File getGlobalDir();
 
-	public abstract INpcAttribute getIAttribute(IAttributeInstance mcattribute);
+	public abstract INpcAttribute getIAttribute(@ParamName("attributeMC") IAttributeInstance attributeMC);
 
-	public abstract IBlock getIBlock(World world, BlockPos pos);
+	public abstract IBlock getIBlock(@ParamName("worldMC") World worldMC, @ParamName("posMC") BlockPos posMC);
 
-	public abstract IContainer getIContainer(Container container);
+	public abstract IContainer getIContainer(@ParamName("containerMC") Container containerMC);
 
-	public abstract IContainer getIContainer(IInventory inventory);
+	public abstract IContainer getIContainer(@ParamName("inventoryMC") IInventory inventoryMC);
 
-	public abstract IDamageSource getIDamageSource(DamageSource source);
+	public abstract IDamageSource getIDamageSource(@ParamName("damageMC") DamageSource damageMC);
 
-	public abstract IEntityDamageSource getIDamageSource(String name, IEntity<?> entity);
+	public abstract IEntityDamageSource getIDamageSource(@ParamName("name") String name, @ParamName("entity") IEntity<?> entity);
 
-	public abstract IEntity<?> getIEntity(Entity entity);
+	public abstract IEntity<?> getIEntity(@ParamName("entityMC") Entity entityMC);
 
-	public abstract IItemStack getIItemStack(ItemStack stack);
+	public abstract IItemStack getIItemStack(@ParamName("stackMC") ItemStack stackMC);
 
 	public abstract IKeyBinding getIKeyBinding();
 
-	public abstract INbt getINbt(NBTTagCompound nbt);
+	public abstract INbt getINbt(@ParamName("nbtMC") NBTTagCompound nbtMC);
 
-	public abstract IPlayer<?> getIPlayer(String nameOrUUID);
+	public abstract IPlayer<?> getIPlayer(@ParamName("nameOrUUID") String nameOrUUID);
 
-	public abstract IPos getIPos(BlockPos pos);
+	public abstract IPos getIPos(@ParamName("posMC") BlockPos posMC);
 
-	public abstract IPos getIPos(double x, double y, double z);
+	public abstract IPos getIPos(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
-	public abstract IWorld getIWorld(String dimension);
+	public abstract IWorld getIWorld(@ParamName("dimensionName") String dimensionName);
 
-	public abstract IWorld getIWorld(int dimensionId);
+	public abstract IWorld getIWorld(@ParamName("dimensionId") int dimensionId);
 
-	public abstract IWorld getIWorld(World world);
+	public abstract IWorld getIWorld(@ParamName("worldMC") World worldMC);
 
 	public abstract IWorld[] getIWorlds();
 
@@ -119,27 +118,27 @@ public abstract class NpcAPI {
 
 	public abstract IQuestHandler getQuests();
 
-	public abstract String getRandomName(int dictionary, int gender);
+	public abstract String getRandomName(@ParamName("dictionary") int dictionary, @ParamName("gender") int gender);
 
-	public abstract INbt getRawPlayerData(String uuid, String name);
+	public abstract INbt getRawPlayerData(@ParamName("uuid") String uuid, @ParamName("name") String name);
 
 	public abstract IRecipeHandler getRecipes();
 
 	public abstract File getWorldDir();
 
-	public abstract boolean hasPermissionNode(String permission);
+	public abstract boolean hasPermissionNode(@ParamName("permission") String permission);
 
-	public abstract void registerCommand(CommandNoppesBase command);
+	public abstract void registerCommand(@ParamName("command") CommandNoppesBase command);
 
-	public abstract void registerPermissionNode(String permission, int defaultType);
+	public abstract void registerPermissionNode(@ParamName("permission") String permission, @ParamName("defaultType") int defaultType);
 
-	public abstract ICustomNpc<?> spawnNPC(World world, int x, int y, int z);
+	public abstract ICustomNpc<?> spawnNPC(@ParamName("worldMC") World worldMC, @ParamName("x") int x, @ParamName("y") int y, @ParamName("z") int z);
 
-	public abstract INbt stringToNbt(String str);
+	public abstract INbt stringToNbt(@ParamName("str") String str);
 
-	public abstract ICustomPlayerData getPlayerData(EntityPlayer player);
+	public abstract ICustomPlayerData getPlayerData(@ParamName("player") IPlayer<?> player);
 
-	public abstract ResourceData getResourceData(ResourceLocation texture, int u, int v, int width, int height);
+	public abstract ResourceData getResourceData(@ParamName("texture") ResourceLocation texture, @ParamName("u") int u, @ParamName("v") int v, @ParamName("width") int width, @ParamName("height") int height);
 
 	public abstract IData getTempdata();
 

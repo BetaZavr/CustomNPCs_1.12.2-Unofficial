@@ -1,7 +1,9 @@
 package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.INbt;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface IKeySetting {
 
 	String getCategory();
@@ -16,14 +18,14 @@ public interface IKeySetting {
 
 	INbt getNbt();
 
-	void setCategory(String name);
+	void setCategory(@ParamName("name") String name);
 
-	void setKeyId(int keyId);
+	void setKeyId(@ParamName("keyId") int keyId);
 
-	void setModiferType(int type);
+	void setModiferType(@ParamName("type") int type);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setNbt(INbt nbt);
+	void setNbt(@ParamName("nbt") INbt nbt);
 
 }

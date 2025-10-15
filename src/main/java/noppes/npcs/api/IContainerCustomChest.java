@@ -4,6 +4,6 @@ public interface IContainerCustomChest extends IContainer {
 
 	String getName();
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
 }

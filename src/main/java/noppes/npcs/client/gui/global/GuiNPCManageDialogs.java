@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.global;
 import java.util.*;
 import java.util.Map.Entry;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
@@ -289,9 +290,9 @@ public class GuiNPCManageDialogs extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
-			if (subgui.getId() == 1) {
+			if (((SubGuiEditText) subgui).getId() == 1) {
 				DialogCategory category = new DialogCategory();
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
 				boolean has = true;
@@ -308,7 +309,7 @@ public class GuiNPCManageDialogs extends GuiNPCInterface2
 				category.title = t.toString();
 				Client.sendData(EnumPacketServer.DialogCategorySave, category.save(new NBTTagCompound()));
 			}
-			if (subgui.getId() == 3) {
+			if (((SubGuiEditText) subgui).getId() == 3) {
 				if (((SubGuiEditText) subgui).text[0].isEmpty() || !categoryData.containsKey(selectedCategory)) { return; }
 				DialogCategory category = categoryData.get(selectedCategory).copy();
 				if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
@@ -330,7 +331,7 @@ public class GuiNPCManageDialogs extends GuiNPCInterface2
 				Client.sendData(EnumPacketServer.DialogCategorySave, category.save(new NBTTagCompound()));
 				initGui();
 			}
-			if (subgui.getId() == 11) {
+			if (((SubGuiEditText) subgui).getId() == 11) {
 				if (((SubGuiEditText) subgui).text[0].isEmpty()) { return; }
 				Dialog dialog = new Dialog(categoryData.get(selectedCategory));
 

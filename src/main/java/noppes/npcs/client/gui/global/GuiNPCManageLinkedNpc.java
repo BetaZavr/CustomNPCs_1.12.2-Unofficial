@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.*;
@@ -62,7 +63,7 @@ public class GuiNPCManageLinkedNpc extends GuiNPCInterface2 implements IScrollDa
 	public void setSelected(String selected) { }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (!((SubGuiEditText) subgui).cancelled) {
 			Client.sendData(EnumPacketServer.LinkedAdd, ((SubGuiEditText) subgui).text[0]);
 		}

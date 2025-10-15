@@ -232,11 +232,11 @@ public class BlockScriptedWrapper
 	}
 
 	@Override
-	public void setModel(IBlock iblock) {
-		if (iblock == null || iblock.getMCBlock() == null || iblock.getWorld() == null) {
+	public void setModel(IBlock block) {
+		if (block == null || block.getMCBlock() == null || block.getWorld() == null) {
 			this.tile.setItemModel(null, null);
 		} else {
-			this.setModel(Objects.requireNonNull(iblock.getMCBlock().getRegistryName()).toString(), iblock.getMetadata());
+			this.setModel(Objects.requireNonNull(block.getMCBlock().getRegistryName()).toString(), block.getMetadata());
 		}
 	}
 

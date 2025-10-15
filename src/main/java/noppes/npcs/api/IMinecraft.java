@@ -9,6 +9,7 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.settings.GameSettings;
 import noppes.npcs.api.entity.IPlayer;
 
+@SuppressWarnings("all")
 public interface IMinecraft {
 	
 	Minecraft getMc();
@@ -37,13 +38,15 @@ public interface IMinecraft {
 	
 	IGlStateManager getGlStateManager();
 	
-	void playSound(String category, String sound, float x, float y, float z, float volume, float pitch);
+	void playSound(@ParamName("category") String category, @ParamName("sound") String sound,
+				   @ParamName("z") float x, @ParamName("y") float y, @ParamName("z") float z,
+				   @ParamName("category") float volume, @ParamName("pitch") float pitch);
 	
-	void stopSound(String category, String sound);
+	void stopSound(@ParamName("category") String category, @ParamName("sound") String sound);
 	
-	float getSoundVolume(String category);
+	float getSoundVolume(@ParamName("category") String category);
 	
-	void setSoundVolume(String category, float value);
+	void setSoundVolume(@ParamName("category") String category, @ParamName("value") float value);
 
     IPlayer<?> getPlayer();
 }

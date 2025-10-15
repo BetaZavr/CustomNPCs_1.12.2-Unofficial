@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.List;
 
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
@@ -119,7 +120,7 @@ public class GuiCreationParts extends GuiCreationScreenInterface
 
 		public GuiPart setTypes(String[] typesIn) { types = typesIn; return this; }
 
-		public void subGuiClosed(SubGuiInterface subgui) { }
+		public void subGuiClosed(GuiScreen subgui) { }
 
 	}
 
@@ -315,15 +316,15 @@ public class GuiCreationParts extends GuiCreationScreenInterface
 		}
 		
 		@Override
-		public void subGuiClosed(SubGuiInterface subgui) {
+		public void subGuiClosed(GuiScreen subgui) {
 			if (subgui instanceof SubGuiTextureSelection) {
 				SubGuiTextureSelection tGui = (SubGuiTextureSelection) subgui;
-				if (subgui.getId() == 0) { eyes.eyeRight = tGui.resource; }
-				else if (subgui.getId() == 1) { eyes.eyeLeft = tGui.resource; }
-				else if (subgui.getId() == 2) { eyes.pupilRight = tGui.resource; }
-				else if (subgui.getId() == 3) { eyes.pupilLeft = tGui.resource; }
-				else if (subgui.getId() == 4) { eyes.browRight = tGui.resource; }
-				else if (subgui.getId() == 5) { eyes.browLeft = tGui.resource; }
+				if (tGui.getId() == 0) { eyes.eyeRight = tGui.resource; }
+				else if (tGui.getId() == 1) { eyes.eyeLeft = tGui.resource; }
+				else if (tGui.getId() == 2) { eyes.pupilRight = tGui.resource; }
+				else if (tGui.getId() == 3) { eyes.pupilLeft = tGui.resource; }
+				else if (tGui.getId() == 4) { eyes.browRight = tGui.resource; }
+				else if (tGui.getId() == 5) { eyes.browLeft = tGui.resource; }
 			}
 		}
 		
@@ -827,7 +828,7 @@ public class GuiCreationParts extends GuiCreationScreenInterface
 	public void scrollDoubleClicked(String selection, GuiCustomScroll scroll) { }
 	
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (getPart() != null) { getPart().subGuiClosed(subgui); }
 		initGui();
 	}

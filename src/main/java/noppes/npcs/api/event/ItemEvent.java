@@ -1,13 +1,16 @@
 package noppes.npcs.api.event;
 
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import noppes.npcs.api.EventName;
 import noppes.npcs.api.entity.IEntityItem;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemScripted;
+import noppes.npcs.constants.EnumScriptType;
 
 public class ItemEvent extends CustomNPCsEvent {
 
 	@Cancelable
+	@EventName(EnumScriptType.ATTACK)
 	public static class AttackEvent extends ItemEvent {
 		public IPlayer<?> player;
 		public Object target;
@@ -21,6 +24,7 @@ public class ItemEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.INIT)
 	public static class InitEvent extends ItemEvent {
 		public InitEvent(IItemScripted item) {
 			super(item);
@@ -28,6 +32,7 @@ public class ItemEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.INTERACT)
 	public static class InteractEvent extends ItemEvent {
 		public IPlayer<?> player;
 		public Object target;
@@ -41,6 +46,7 @@ public class ItemEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.PICKEDUP)
 	public static class PickedUpEvent extends ItemEvent {
 		public IEntityItem<?> entity;
 		public IPlayer<?> player;
@@ -53,6 +59,7 @@ public class ItemEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.SPAWN)
 	public static class SpawnEvent extends ItemEvent {
 		public IEntityItem<?> entity;
 
@@ -63,6 +70,7 @@ public class ItemEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.TOSSED)
 	public static class TossedEvent extends ItemEvent {
 		public IEntityItem<?> entity;
 		public IPlayer<?> player;
@@ -74,6 +82,7 @@ public class ItemEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.TICK)
 	public static class UpdateEvent extends ItemEvent {
 		public IPlayer<?> player;
 
@@ -85,8 +94,6 @@ public class ItemEvent extends CustomNPCsEvent {
 
 	public IItemScripted item;
 
-	public ItemEvent(IItemScripted item) {
-		this.item = item;
-	}
+	public ItemEvent(IItemScripted itemIn) { item = itemIn; }
 
 }

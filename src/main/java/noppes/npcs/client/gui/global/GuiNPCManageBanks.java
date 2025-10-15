@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -109,7 +110,7 @@ public class GuiNPCManageBanks extends GuiContainerNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		if (gui instanceof SubGuiEditBankAccess) {
 			SubGuiEditBankAccess subGui = (SubGuiEditBankAccess) gui;
 			if (bank.isChanging != subGui.isChanging) { bank.isChanging = subGui.isChanging; }

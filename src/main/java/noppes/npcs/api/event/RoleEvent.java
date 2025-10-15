@@ -7,15 +7,18 @@ import java.util.Objects;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
+import noppes.npcs.api.EventName;
 import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.entity.data.IPlayerMail;
 import noppes.npcs.api.entity.data.role.ITransportLocation;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.constants.EnumScriptType;
 
 public class RoleEvent extends CustomNPCsEvent {
 
+	@EventName(EnumScriptType.ROLE)
 	public static class BankUnlockedEvent extends RoleEvent {
 		public int slot;
 
@@ -25,6 +28,7 @@ public class RoleEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.ROLE)
 	public static class BankUpgradedEvent extends RoleEvent {
 		public int slot;
 
@@ -34,6 +38,7 @@ public class RoleEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.ROLE)
 	public static class FollowerFinishedEvent extends RoleEvent {
 		public FollowerFinishedEvent(EntityPlayer player, ICustomNpc<?> npc) {
 			super(player, npc);
@@ -41,6 +46,7 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ROLE)
 	public static class FollowerHireEvent extends RoleEvent {
 		public int days;
 
@@ -51,6 +57,7 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ROLE)
 	public static class MailmanEvent extends RoleEvent {
 		public IPlayerMail mail;
 
@@ -60,6 +67,7 @@ public class RoleEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.ROLE)
 	public static class TradeFailedEvent extends RoleEvent {
 
 		public Map<IItemStack, Integer> currency;
@@ -77,6 +85,7 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ROLE)
 	public static class TraderEvent extends RoleEvent {
 
 		public Map<IItemStack, Integer> currency;
@@ -94,6 +103,7 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ROLE)
 	public static class TransporterUnlockedEvent extends RoleEvent {
 		public TransporterUnlockedEvent(EntityPlayer player, ICustomNpc<?> npc) {
 			super(player, npc);
@@ -101,6 +111,7 @@ public class RoleEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ROLE)
 	public static class TransporterUseEvent extends RoleEvent {
 		public ITransportLocation location;
 

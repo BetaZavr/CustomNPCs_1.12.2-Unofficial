@@ -4,9 +4,10 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IContainer {
 
-	int count(IItemStack item, boolean ignoreDamage, boolean ignoreNBT);
+	int count(@ParamName("item") IItemStack item, @ParamName("ignoreDamage") boolean ignoreDamage, @ParamName("ignoreNBT") boolean ignoreNBT);
 
 	IItemStack[] getItems();
 
@@ -16,10 +17,10 @@ public interface IContainer {
 
 	int getSize();
 
-	IItemStack getSlot(int slotId);
+	IItemStack getSlot(@ParamName("slotId") int slotId);
 
 	boolean isEmpty();
 
-	void setSlot(int slotId, IItemStack item);
+	void setSlot(@ParamName("slotId") int slotId, @ParamName("item") IItemStack item);
 
 }

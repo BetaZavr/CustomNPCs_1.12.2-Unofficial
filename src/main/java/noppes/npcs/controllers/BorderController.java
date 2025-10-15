@@ -43,8 +43,8 @@ public class BorderController implements IBorderHandler {
 	}
 
 	@Override
-	public Zone3D createNew(int dimensionID, IPos pos) {
-		return createNew(dimensionID, pos.getMCBlockPos());
+	public Zone3D createNew(int dimensionId, IPos pos) {
+		return createNew(dimensionId, pos.getMCBlockPos());
 	}
 
 	@Override
@@ -80,10 +80,10 @@ public class BorderController implements IBorderHandler {
 	}
 
 	@Override
-	public Zone3D[] getRegions(int dimensionID) {
+	public Zone3D[] getRegions(int dimensionId) {
 		List<Zone3D> regs = new ArrayList<>();
 		for (Zone3D reg : regions.values()) {
-			if (reg.dimensionID == dimensionID) {
+			if (reg.dimensionID == dimensionId) {
 				regs.add(reg);
 			}
 		}
@@ -101,11 +101,11 @@ public class BorderController implements IBorderHandler {
 	}
 
 	@Override
-	public List<Zone3D> getNearestRegions(int dimensionID, double xPos, double yPos, double zPos, double distance) {
-		AxisAlignedBB searchBox = new AxisAlignedBB(xPos - distance, 0.0d, zPos - distance, xPos + distance + 1.0d, 255.0d, zPos + distance + 1.0d);
+	public List<Zone3D> getNearestRegions(int dimensionId, double x, double y, double z, double distance) {
+		AxisAlignedBB searchBox = new AxisAlignedBB(x - distance, 0.0d, z - distance, x + distance + 1.0d, 255.0d, z + distance + 1.0d);
 		List<Zone3D> regionsIn = new ArrayList<>();
 		for (Zone3D reg : regions.values()) {
-			if (reg.dimensionID != dimensionID) { continue; }
+			if (reg.dimensionID != dimensionId) { continue; }
 			if (searchBox.intersects(reg.getAxisAlignedBB())) { regionsIn.add(reg); }
 		}
 		return regionsIn;

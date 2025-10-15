@@ -1,5 +1,7 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
 public interface ILine {
 
 	boolean getShowText();
@@ -8,10 +10,10 @@ public interface ILine {
 
 	String getText();
 
-	void setShowText(boolean show);
+	void setShowText(@ParamName("show") boolean show);
 
-	void setSound(String sound);
+	void setSound(@ParamName("sound") String sound);
 
-	void setText(String text);
+	void setText(@ParamName("text") String text);
 
 }

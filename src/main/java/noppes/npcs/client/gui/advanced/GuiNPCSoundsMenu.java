@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.advanced;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.select.SubGuiSoundSelection;
@@ -57,7 +58,7 @@ public class GuiNPCSoundsMenu extends GuiNPCInterface2 implements ITextfieldList
 	public void save() { Client.sendData(EnumPacketServer.MainmenuAdvancedSave, npc.advanced.save(new NBTTagCompound())); }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		SubGuiSoundSelection gss = (SubGuiSoundSelection) subgui;
 		if (gss.selectedResource != null) {
 			selectedField.setText(gss.selectedResource.toString());

@@ -8,6 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import noppes.npcs.ai.CombatHandler;
+import noppes.npcs.api.EventName;
 import noppes.npcs.api.IDamageSource;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.NpcAPI;
@@ -19,10 +20,12 @@ import noppes.npcs.api.entity.IProjectile;
 import noppes.npcs.api.entity.data.IAnimation;
 import noppes.npcs.api.entity.data.ILine;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.AnimationController;
 
 public class NpcEvent extends CustomNPCsEvent {
 
+	@EventName(EnumScriptType.COLLIDE)
 	public static class CollideEvent extends NpcEvent {
 		public IEntity<?> entity;
 
@@ -33,6 +36,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.CUSTOM_TELEPORT)
 	public static class CustomNpcTeleport extends NpcEvent {
 
 		public IPos pos, portal;
@@ -48,6 +52,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.NEED_BLOCK_DAMAGED)
 	public static class NeedBlockDamage extends NpcEvent {
 
 		public IDamageSource damageSource;
@@ -63,6 +68,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.DAMAGED)
 	public static class DamagedEvent extends NpcEvent {
 		public boolean clearTarget;
 		public float damage;
@@ -78,6 +84,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.DIED)
 	public static class DiedEvent extends NpcEvent {
 
 		public int expDropped = 0;
@@ -122,6 +129,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		
 	}
 
+	@EventName(EnumScriptType.INIT)
 	public static class InitEvent extends NpcEvent {
 		public InitEvent(ICustomNpc<?> npc) {
 			super(npc);
@@ -129,6 +137,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.INTERACT)
 	public static class InteractEvent extends NpcEvent {
 		public IPlayer<?> player;
 
@@ -138,6 +147,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.KILL)
 	public static class KilledEntityEvent extends NpcEvent {
 		public IEntityLivingBase<?> entity;
 
@@ -148,6 +158,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ATTACK_MELEE)
 	public static class MeleeAttackEvent extends NpcEvent {
 		public float damage;
 		public IEntityLivingBase<?> target;
@@ -159,6 +170,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.RANGED_LAUNCHED)
 	public static class RangedLaunchedEvent extends NpcEvent {
 
 		public float damage;
@@ -172,6 +184,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.STOP_ANIMATION)
 	public static class StopAnimation extends NpcEvent {
 
 		public IAnimation animation;
@@ -186,6 +199,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.TARGET)
 	public static class TargetEvent extends NpcEvent {
 		public IEntityLivingBase<?> entity;
 
@@ -196,6 +210,7 @@ public class NpcEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.TARGET_LOST)
 	public static class TargetLostEvent extends NpcEvent {
 		public IEntityLivingBase<?> entity;
 
@@ -205,6 +220,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.TIMER)
 	public static class TimerEvent extends NpcEvent {
 		public int id;
 
@@ -214,6 +230,7 @@ public class NpcEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.TICK)
 	public static class UpdateEvent extends NpcEvent {
 		public UpdateEvent(ICustomNpc<?> npc) { super(npc); }
 	}

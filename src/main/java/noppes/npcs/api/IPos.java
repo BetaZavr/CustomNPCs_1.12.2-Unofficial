@@ -4,21 +4,21 @@ import net.minecraft.util.math.BlockPos;
 
 public interface IPos {
 
-	IPos add(double x, double y, double z);
+	IPos add(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
-	IPos add(IPos pos);
+	IPos add(@ParamName("pos") IPos pos);
 
-	double distanceTo(double x, double y, double z);
+	double distanceTo(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
-	double distanceTo(IPos pos);
+	double distanceTo(@ParamName("pos") IPos pos);
 
 	IPos down();
 
-	IPos down(double n);
+	IPos down(@ParamName("n") double n);
 
 	IPos east();
 
-	IPos east(double n);
+	IPos east(@ParamName("n") double n);
 
 	BlockPos getMCBlockPos();
 
@@ -32,26 +32,26 @@ public interface IPos {
 
 	IPos north();
 
-	IPos north(double n);
+	IPos north(@ParamName("n") double n);
 
-	IPos offset(int direction);
+	IPos offset(@ParamName("direction") int direction);
 
-	IPos offset(int direction, double n);
+	IPos offset(@ParamName("direction") int direction, @ParamName("n") double n);
 
 	IPos south();
 
-	IPos south(double n);
+	IPos south(@ParamName("n") double n);
 
-	IPos subtract(double x, double y, double z);
+	IPos subtract(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
-	IPos subtract(IPos pos);
+	IPos subtract(@ParamName("pos") IPos pos);
 
 	IPos up();
 
-	IPos up(double n);
+	IPos up(@ParamName("n") double n);
 
 	IPos west();
 
-	IPos west(double n);
+	IPos west(@ParamName("n") double n);
 
 }

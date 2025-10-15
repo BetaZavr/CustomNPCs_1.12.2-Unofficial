@@ -2,73 +2,74 @@ package noppes.npcs.api;
 
 import net.minecraft.nbt.NBTTagCompound;
 
+@SuppressWarnings("all")
 public interface INbt {
 
 	void clear();
 
-	boolean getBoolean(String key);
+	boolean getBoolean(@ParamName("key") String key);
 
-	byte getByte(String key);
+	byte getByte(@ParamName("key") String key);
 
-	byte[] getByteArray(String key);
+	byte[] getByteArray(@ParamName("key") String key);
 
-	INbt getCompound(String key);
+	INbt getCompound(@ParamName("key") String key);
 
-	double getDouble(String key);
+	double getDouble(@ParamName("key") String key);
 
-	float getFloat(String key);
+	float getFloat(@ParamName("key") String key);
 
-	int getInteger(String key);
+	int getInteger(@ParamName("key") String key);
 
-	int[] getIntegerArray(String key);
+	int[] getIntegerArray(@ParamName("key") String key);
 
 	String[] getKeys();
 
-	Object[] getList(String key, int type);
+	Object[] getList(@ParamName("key") String key, @ParamName("type") int type);
 
-	int getListType(String key);
+	int getListType(@ParamName("key") String key);
 
-	long getLong(String key);
+	long getLong(@ParamName("key") String key);
 
 	NBTTagCompound getMCNBT();
 
-	short getShort(String key);
+	short getShort(@ParamName("key") String key);
 
-	String getString(String key);
+	String getString(@ParamName("key") String key);
 
-	int getType(String key);
+	int getType(@ParamName("key") String key);
 
-	boolean has(String key);
+	boolean has(@ParamName("key") String key);
 
-	boolean isEqual(INbt nbt);
+	boolean isEqual(@ParamName("nbt") INbt nbt);
 
-	void merge(INbt nbt);
+	void merge(@ParamName("nbt") INbt nbt);
 
-	void remove(String key);
+	void remove(@ParamName("key") String key);
 
-	void setBoolean(String key, boolean value);
+	void setBoolean(@ParamName("key") String key, @ParamName("value") boolean value);
 
-	void setByte(String key, byte value);
+	void setByte(@ParamName("key") String key, @ParamName("value") byte value);
 
-	void setByteArray(String key, byte[] value);
+	void setByteArray(@ParamName("key") String key, @ParamName("value") byte[] value);
 
-	void setCompound(String key, INbt value);
+	void setCompound(@ParamName("key") String key, @ParamName("value") INbt value);
 
-	void setDouble(String key, double value);
+	void setDouble(@ParamName("key") String key, @ParamName("value") double value);
 
-	void setFloat(String key, float value);
+	void setFloat(@ParamName("key") String key, @ParamName("value") float value);
 
-	void setInteger(String key, int value);
+	void setInteger(@ParamName("key") String key, @ParamName("value") int value);
 
-	void setIntegerArray(String key, int[] value);
+	void setIntegerArray(@ParamName("key") String key, @ParamName("value") int[] value);
 
-	void setList(String key, Object[] value);
+	void setList(@ParamName("key") String key, @ParamName("value") Object[] value);
 
-	void setLong(String key, long value);
+	void setLong(@ParamName("key") String key, @ParamName("value") long value);
 
-	void setShort(String key, short value);
+	void setShort(@ParamName("key") String key, @ParamName("value") short value);
 
-	void setString(String key, String value);
+	void setString(@ParamName("key") String key, @ParamName("value") String value);
 
 	String toJsonString();
 

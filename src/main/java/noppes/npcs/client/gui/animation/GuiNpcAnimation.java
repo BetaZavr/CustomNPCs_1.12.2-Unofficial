@@ -394,8 +394,8 @@ public class GuiNpcAnimation extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui.getId() == 4) { // create
+	public void subGuiClosed(GuiScreen subgui) {
+		if (((SubGuiInterface) subgui).getId() == 4) { // create
 			displayGuiScreen(this);
 			if (!(subgui instanceof SubGuiEditAnimation) || ((SubGuiEditAnimation) subgui).anim == null) {
 				return;

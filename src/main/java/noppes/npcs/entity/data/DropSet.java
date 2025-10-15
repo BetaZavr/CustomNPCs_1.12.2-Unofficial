@@ -564,7 +564,7 @@ public class DropSet implements IInventory, ICustomDrop {
 	public void setChance(double chanceIn) { chance = Math.round(ValueUtil.correctDouble(chanceIn, 0.0001d, 100.0d) * 10000.0d) / 10000.0d; }
 
 	@Override
-	public void setDamage(float dam) { damage = ValueUtil.correctFloat(dam, 0.0f, 1.0f); }
+	public void setDamage(float damage) { this.damage = ValueUtil.correctFloat(damage, 0.0f, 1.0f); }
 
 	@Override
 	public void setField(int id, int value) { }

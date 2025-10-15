@@ -1,39 +1,40 @@
 package noppes.npcs.api;
 
+@SuppressWarnings("all")
 public interface IScoreboard {
 
-	IScoreboardObjective addObjective(String objective, String criteria);
+	IScoreboardObjective addObjective(@ParamName("player") String objective, @ParamName("criteria") String criteria);
 
-	IScoreboardTeam addTeam(String name);
+	IScoreboardTeam addTeam(@ParamName("player") String name);
 
-	void deletePlayerScore(String player, String objective, String datatag);
+	void deletePlayerScore(@ParamName("player") String player, @ParamName("objective") String objective, @ParamName("datatag") String datatag);
 
-	IScoreboardObjective getObjective(String name);
+	IScoreboardObjective getObjective(@ParamName("name") String name);
 
 	IScoreboardObjective[] getObjectives();
 
 	String[] getPlayerList();
 
-	int getPlayerScore(String player, String objective, String datatag);
+	int getPlayerScore(@ParamName("player") String player, @ParamName("objective") String objective, @ParamName("datatag") String datatag);
 
-	IScoreboardTeam getPlayerTeam(String player);
+	IScoreboardTeam getPlayerTeam(@ParamName("player") String player);
 
-	IScoreboardTeam getTeam(String name);
+	IScoreboardTeam getTeam(@ParamName("name") String name);
 
 	IScoreboardTeam[] getTeams();
 
-	boolean hasObjective(String objective);
+	boolean hasObjective(@ParamName("objective") String objective);
 
-	boolean hasPlayerObjective(String player, String objective, String datatag);
+	boolean hasPlayerObjective(@ParamName("player") String player, @ParamName("objective") String objective, @ParamName("datatag") String datatag);
 
-	boolean hasTeam(String name);
+	boolean hasTeam(@ParamName("name") String name);
 
-	void removeObjective(String objective);
+	void removeObjective(@ParamName("objective") String objective);
 
-	void removePlayerTeam(String player);
+	void removePlayerTeam(@ParamName("player") String player);
 
-	void removeTeam(String name);
+	void removeTeam(@ParamName("name") String name);
 
-	void setPlayerScore(String player, String objective, int score, String datatag);
+	void setPlayerScore(@ParamName("player") String player, @ParamName("objective") String objective, @ParamName("score") int score, @ParamName("datatag") String datatag);
 
 }

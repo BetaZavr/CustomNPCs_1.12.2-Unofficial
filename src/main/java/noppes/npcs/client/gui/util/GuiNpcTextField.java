@@ -10,6 +10,7 @@ import noppes.npcs.util.ValueUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -356,6 +357,30 @@ public class GuiNpcTextField extends GuiTextField implements IComponentGui {
 	@Override
 	public void updateCnpcsScreen() {
 		if (enabled) { updateCursorCounter(); }
+	}
+
+	// New from Unofficial (BetaZavr)
+	@Override
+	public void writeText(@Nullable String text) {
+		if (text == null) { return; }
+		String oldText = getText();
+		super.writeText(text);
+		if (listener instanceof ITextChangeListener && !oldText.equals(getText())) { ((ITextChangeListener) listener).textUpdate(getText()); }
+	}
+
+	@Override
+	public void deleteFromCursor(int pos) {
+		String oldText = getText();
+		super.deleteFromCursor(pos);
+		if (listener instanceof ITextChangeListener && !oldText.equals(getText())) { ((ITextChangeListener) listener).textUpdate(getText()); }
+	}
+
+	@Override
+	public void setText(@Nullable String text) {
+		if (text == null) { return; }
+		String oldText = getText();
+		super.setText(text);
+		if (listener instanceof ITextChangeListener && !oldText.equals(getText())) { ((ITextChangeListener) listener).textUpdate(getText()); }
 	}
 
 }

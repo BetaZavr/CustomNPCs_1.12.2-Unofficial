@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.roles;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.text.ITextComponent;
@@ -206,7 +207,7 @@ public class GuiNpcHealer extends GuiNPCInterface2 implements ITextfieldListener
 
 	// New from Unofficial (BetaZavr)
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (!(subgui instanceof SubGuiNpcJobHealerSettings) || !configured.hasSelected()) { return; }
 		int id = potions.get(displays_1.get(configured.getSelected()));
 		job.effects.put(id, ((SubGuiNpcJobHealerSettings) subgui).healerSettings);

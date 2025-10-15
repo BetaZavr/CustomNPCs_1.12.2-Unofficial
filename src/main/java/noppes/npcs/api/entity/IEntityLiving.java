@@ -2,7 +2,9 @@ package noppes.npcs.api.entity;
 
 import net.minecraft.entity.EntityLiving;
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface IEntityLiving<T extends EntityLiving> extends IEntityLivingBase<T> {
 
 	void clearNavigation();
@@ -15,8 +17,8 @@ public interface IEntityLiving<T extends EntityLiving> extends IEntityLivingBase
 
 	void jump();
 
-	void navigateTo(double x, double y, double z, double speed);
+	void navigateTo(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z, @ParamName("speed") double speed);
 
-	void navigateTo(Integer[][] posses, double speed);
+	void navigateTo(@ParamName("attribute") Integer[][] posses, @ParamName("attribute") double speed);
 
 }

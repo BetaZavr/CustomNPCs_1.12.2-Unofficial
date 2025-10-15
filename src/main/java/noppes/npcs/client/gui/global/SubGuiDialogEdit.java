@@ -176,7 +176,7 @@ public class SubGuiDialogEdit extends SubGuiInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) { dialog.text = ((SubGuiNpcTextArea) subgui).text; }
 		else if (subgui instanceof SubGuiNpcDialogOption) { setSubGui(new SubGuiNpcDialogOptions(npc, dialog, this)); }
 		else if (subgui instanceof SubGuiNpcCommand) { dialog.command = ((SubGuiNpcCommand) subgui).command; }

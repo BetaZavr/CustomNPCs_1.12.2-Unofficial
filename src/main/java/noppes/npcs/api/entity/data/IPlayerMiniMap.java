@@ -1,27 +1,30 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IPlayerMiniMap {
 
-	IMiniMapData addPoint(int dimensionId);
+	IMiniMapData addPoint(@ParamName("dimensionId") int dimensionId);
 
 	IMiniMapData[] getAllPoints();
 
 	String getModName();
 
-	IMiniMapData getPoint(int id);
+	IMiniMapData getPoint(@ParamName("id") int id);
 
-	IMiniMapData getPoint(String name);
+	IMiniMapData getPoint(@ParamName("name") String name);
 
-	IMiniMapData[] getPoints(int dimensionId);
+	IMiniMapData[] getPoints(@ParamName("dimensionId") int dimensionId);
 
 	String[] getSpecificKeys();
 
-	Object getSpecificValue(String key);
+	Object getSpecificValue(@ParamName("key") String key);
 
-	boolean removePoint(int id);
+	boolean removePoint(@ParamName("id") int id);
 
-	boolean removePoint(String name);
+	boolean removePoint(@ParamName("name") String name);
 	
-	boolean removePoints(int dimensionId);
+	boolean removePoints(@ParamName("dimensionId") int dimensionId);
 
 }

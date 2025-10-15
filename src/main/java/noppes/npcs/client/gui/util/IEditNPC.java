@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.util;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.Entity;
 
 import javax.annotation.Nonnull;
@@ -50,7 +51,7 @@ public interface IEditNPC {
 
 	void save();
 
-	void subGuiClosed(SubGuiInterface subGui);
+	void subGuiClosed(GuiScreen subGui);
 
 	void elementClicked();
 

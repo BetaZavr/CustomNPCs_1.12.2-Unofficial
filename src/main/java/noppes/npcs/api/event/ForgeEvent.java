@@ -3,8 +3,10 @@ package noppes.npcs.api.event;
 import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
+import noppes.npcs.api.EventName;
 import noppes.npcs.api.IPos;
 import noppes.npcs.api.entity.IPlayer;
+import noppes.npcs.constants.EnumScriptType;
 import noppes.npcs.controllers.data.Zone3D;
 
 @Cancelable
@@ -36,6 +38,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 
 	}
 
+	@EventName(EnumScriptType.INIT)
 	public static class InitEvent extends ForgeEvent {
 
 		public InitEvent() {
@@ -45,6 +48,7 @@ public class ForgeEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.SOUND_TICK_EVENT)
 	public static class SoundTickEvent extends ForgeEvent {
 
 		public float milliSeconds, totalSecond;

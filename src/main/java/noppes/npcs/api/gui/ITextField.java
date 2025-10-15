@@ -1,5 +1,7 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
+
 public interface ITextField extends ICustomGuiComponent {
 
 	int getHeight();
@@ -8,8 +10,8 @@ public interface ITextField extends ICustomGuiComponent {
 
 	int getWidth();
 
-	ITextField setSize(int width, int height);
+	ITextField setSize(@ParamName("width") int width, @ParamName("height") int height);
 
-	ITextField setText(String text);
+	ITextField setText(@ParamName("text") String text);
 
 }

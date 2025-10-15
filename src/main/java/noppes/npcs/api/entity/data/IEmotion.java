@@ -1,5 +1,8 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IEmotion {
 
 	String getName();
@@ -8,14 +11,14 @@ public interface IEmotion {
 
 	boolean canBlink();
 
-	void setCanBlink(boolean bo);
+	void setCanBlink(@ParamName("bo") boolean bo);
 
 	IEmotionPart addFrame();
 
-	IEmotionPart addFrame(IEmotionPart frame);
+	IEmotionPart addFrame(@ParamName("frame") IEmotionPart frame);
 
-	boolean removeFrame(IEmotionPart frame);
+	boolean removeFrame(@ParamName("frame") IEmotionPart frame);
 
-	boolean removeFrame(int frameId);
+	boolean removeFrame(@ParamName("frameId") int frameId);
 
 }

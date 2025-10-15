@@ -857,9 +857,9 @@ implements ICompatibilty, IAvailability {
 
 
 	@Override
-	public IItemStack getIItemStack(int slotID) {
-		if (slotID < 0 || slotID > 9) { return null; }
-		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stacks.getStackInSlot(slotID));
+	public IItemStack getIItemStack(int slotId) {
+		if (slotId < 0 || slotId > 9) { return null; }
+		return Objects.requireNonNull(NpcAPI.Instance()).getIItemStack(stacks.getStackInSlot(slotId));
 	}
 
 	@Override
@@ -872,15 +872,15 @@ implements ICompatibilty, IAvailability {
 	}
 
 	@Override
-	public void setIItemStack(int slotID, IItemStack item) {
-		if (slotID < 0 || slotID > 9) { return; }
-		stacks.setInventorySlotContents(slotID, item.getMCItemStack());
+	public void setIItemStack(int slotId, IItemStack item) {
+		if (slotId < 0 || slotId > 9) { return; }
+		stacks.setInventorySlotContents(slotId, item.getMCItemStack());
 	}
 
 	@Override
-	public void removeIItemStack(int slotID) {
-		if (slotID < 0 || slotID > 9) { return; }
-		stacks.setInventorySlotContents(slotID, ItemStack.EMPTY);
+	public void removeIItemStack(int slotId) {
+		if (slotId < 0 || slotId > 9) { return; }
+		stacks.setInventorySlotContents(slotId, ItemStack.EMPTY);
 	}
 
 

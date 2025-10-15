@@ -1,8 +1,10 @@
 package noppes.npcs.roles.data;
 
 import net.minecraft.nbt.NBTTagCompound;
+import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.entity.data.role.IHealerEffect;
 
-public class HealerSettings {
+public class HealerSettings implements IHealerEffect {
 
 	public boolean onHimself = false;
 	public boolean possibleOnMobs = true;
@@ -47,5 +49,81 @@ public class HealerSettings {
 		nbtSet.setInteger("Amplifier", amplifier);
 		return nbtSet;
 	}
+
+	@Override
+	public int getEffect() { return id; }
+
+	@Override
+	public int getRange() { return range; }
+
+	@Override
+	public void setRange(int rangeIn) {
+		if (rangeIn < 0 || rangeIn > 64) {
+			throw new CustomNPCsException("Range must be between 0 and 64");
+		}
+		range = rangeIn;
+	}
+
+	@Override
+	public int getSpeed() { return speed; }
+
+	@Override
+	public void setSpeed(int speedIn) {
+		if (speedIn < 0 || speedIn > 72000) {
+			throw new CustomNPCsException("Speed must be between 0 and 72000");
+		}
+		speed = speedIn;
+	}
+
+	@Override
+	public int getTime() { return time; }
+
+	@Override
+	public void setTime(int timeIn) {
+		if (timeIn < 0 || timeIn > 72000) {
+			throw new CustomNPCsException("Time must be between 0 and 72000");
+		}
+		speed = timeIn;
+	}
+
+	@Override
+	public int getAmplifier() { return amplifier; }
+
+	@Override
+	public void setAmplifier(int amplifierIn) {
+		if (amplifierIn < 0) {
+			throw new CustomNPCsException("Amplifier must be between 0");
+		}
+		amplifier = amplifierIn;
+	}
+
+	@Override
+	public int getType() { return type; }
+
+	@Override
+	public void setType(int typeIn) {
+		if (typeIn < 0 || typeIn > 2) {
+			throw new CustomNPCsException("Type must be between 0 and 2");
+		}
+		type = (byte) typeIn;
+	}
+
+	@Override
+	public boolean isOnHimSelf() { return onHimself; }
+
+	@Override
+	public void setOnHimSelf(boolean bo) { onHimself = bo; }
+
+	@Override
+	public boolean isPossibleOnMobs() { return possibleOnMobs; }
+
+	@Override
+	public void setPossibleOnMobs(boolean bo) { possibleOnMobs = bo; }
+
+	@Override
+	public boolean isMassive() { return possibleOnMobs; }
+
+	@Override
+	public void setIsMassive(boolean bo) { isMassive = bo; }
 
 }

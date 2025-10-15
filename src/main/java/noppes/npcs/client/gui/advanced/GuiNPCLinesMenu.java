@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.advanced;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNPCLinesEdit;
@@ -57,10 +58,8 @@ public class GuiNPCLinesMenu extends GuiNPCInterface2 implements IGuiData {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (!(subgui instanceof SubGuiNPCLinesEdit)) {
-			return;
-		}
+	public void subGuiClosed(GuiScreen subgui) {
+		if (!(subgui instanceof SubGuiNPCLinesEdit)) { return; }
 		SubGuiNPCLinesEdit sub = (SubGuiNPCLinesEdit) subgui;
 		sub.lines.correctLines();
 		switch (sub.id) {

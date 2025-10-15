@@ -3,6 +3,7 @@ package noppes.npcs.client.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.controllers.data.Bank;
@@ -72,7 +73,7 @@ public class SubGuiEditBankAccess  extends SubGuiInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		if (gui instanceof SubGuiEditText) {
 			String name = ((SubGuiEditText) gui).text[0];
 			if (name.length() < 4 || name.indexOf(' ') != -1

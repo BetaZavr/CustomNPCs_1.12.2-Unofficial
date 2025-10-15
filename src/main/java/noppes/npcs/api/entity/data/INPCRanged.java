@@ -1,5 +1,7 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
 public interface INPCRanged {
 
 	boolean getAccelerate();
@@ -46,7 +48,7 @@ public interface INPCRanged {
 
 	int getSize();
 
-	String getSound(int type);
+	String getSound(@ParamName("type") int type);
 
 	int getSpeed();
 
@@ -56,50 +58,50 @@ public interface INPCRanged {
 
 	int getStrength();
 
-	void setAccelerate(boolean accelerate);
+	void setAccelerate(@ParamName("accelerate") boolean accelerate);
 
-	void setAccuracy(int accuracy);
+	void setAccuracy(@ParamName("accuracy") int accuracy);
 
-	void setBurst(int count);
+	void setBurst(@ParamName("count") int count);
 
-	void setBurstDelay(int delay);
+	void setBurstDelay(@ParamName("delay") int delay);
 
-	void setDelay(int min, int max);
+	void setDelay(@ParamName("min") int min, @ParamName("max") int max);
 
-	void setEffect(int type, int strength, int time);
+	void setEffect(@ParamName("type") int type, @ParamName("strength") int strength, @ParamName("time") int time);
 
-	void setExplodeSize(int size);
+	void setExplodeSize(@ParamName("size") int size);
 
-	void setFireType(int type);
+	void setFireType(@ParamName("type") int type);
 
-	void setGlows(boolean glows);
+	void setGlows(@ParamName("glows") boolean glows);
 
-	void setHasAimAnimation(boolean aim);
+	void setHasAimAnimation(@ParamName("aim") boolean aim);
 
-	void setHasGravity(boolean hasGravity);
+	void setHasGravity(@ParamName("hasGravity") boolean hasGravity);
 
-	void setKnockback(int punch);
+	void setKnockback(@ParamName("punch") int punch);
 
-	void setMeleeRange(int range);
+	void setMeleeRange(@ParamName("range") int range);
 
-	void setParticle(int type);
+	void setParticle(@ParamName("type") int type);
 
-	void setRange(double range);
+	void setRange(@ParamName("range") double range);
 
-	void setRender3D(boolean render3d);
+	void setRender3D(@ParamName("render3d") boolean render3d);
 
-	void setShotCount(int count);
+	void setShotCount(@ParamName("count") int count);
 
-	void setSize(int size);
+	void setSize(@ParamName("size") int size);
 
-	void setSound(int type, String sound);
+	void setSound(@ParamName("type") int type, @ParamName("sound") String sound);
 
-	void setSpeed(int speed);
+	void setSpeed(@ParamName("speed") int speed);
 
-	void setSpins(boolean spins);
+	void setSpins(@ParamName("spins") boolean spins);
 
-	void setSticks(boolean sticks);
+	void setSticks(@ParamName("sticks") boolean sticks);
 
-	void setStrength(int strength);
+	void setStrength(@ParamName("strength") int strength);
 
 }

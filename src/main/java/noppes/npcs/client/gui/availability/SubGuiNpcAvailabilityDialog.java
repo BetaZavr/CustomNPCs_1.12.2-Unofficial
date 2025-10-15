@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.select.SubGuiDialogSelection;
 import noppes.npcs.client.gui.util.*;
@@ -146,7 +147,7 @@ public class SubGuiNpcAvailabilityDialog extends SubGuiInterface implements ICus
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { setSubGui(new SubGuiDialogSelection(dataIDs.get(select), 0)); }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		SubGuiDialogSelection selector = (SubGuiDialogSelection) subgui;
 		if (selector.selectedDialog == null) { return; }
 		if (!select.isEmpty()) { availability.dialogues.remove(dataIDs.get(select)); }

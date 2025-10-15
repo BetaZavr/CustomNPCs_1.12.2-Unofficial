@@ -6,6 +6,6 @@ public interface IScoreboardScore {
 
 	int getValue();
 
-	void setValue(int value);
+	void setValue(@ParamName("value") int value);
 
 }

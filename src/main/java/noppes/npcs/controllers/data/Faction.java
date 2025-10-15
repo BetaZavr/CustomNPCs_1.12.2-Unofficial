@@ -43,11 +43,11 @@ public class Faction implements IFaction {
 	}
 
 	@Override
-	public void addHostile(int id) {
-		if (attackFactions.contains(id)) {
-			throw new CustomNPCsException("Faction " + id + " is already hostile to " + id);
+	public void addHostile(int factionId) {
+		if (attackFactions.contains(factionId)) {
+			throw new CustomNPCsException("Faction " + factionId + " is already hostile to " + factionId);
 		}
-		attackFactions.add(id);
+		attackFactions.add(factionId);
 	}
 
 	@Override
@@ -101,8 +101,8 @@ public class Faction implements IFaction {
 	}
 
 	@Override
-	public boolean hasHostile(int id) {
-		return attackFactions.contains(id);
+	public boolean hasHostile(int factionId) {
+		return attackFactions.contains(factionId);
 	}
 
 	@Override
@@ -172,8 +172,8 @@ public class Faction implements IFaction {
 	}
 
 	@Override
-	public void removeHostile(int id) {
-		attackFactions.remove(id);
+	public void removeHostile(int factionId) {
+		attackFactions.remove(factionId);
 	}
 
 	@Override

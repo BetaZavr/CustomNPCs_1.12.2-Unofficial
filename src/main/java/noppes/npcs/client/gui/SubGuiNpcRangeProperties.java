@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.client.gui.select.SubGuiSoundSelection;
@@ -155,7 +156,7 @@ public class SubGuiNpcRangeProperties extends SubGuiInterface implements ITextfi
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		SubGuiSoundSelection gss = (SubGuiSoundSelection) subgui;
 		if (gss.selectedResource != null) {
 			soundSelected.setText(gss.selectedResource.toString());

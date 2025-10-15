@@ -1,15 +1,17 @@
 package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.INbt;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.ICustomNpc;
 
+@SuppressWarnings("all")
 public interface IAnimation {
 
 	IAnimationFrame addFrame();
 
-	IAnimationFrame addFrame(int frameId, IAnimationFrame frame);
+	IAnimationFrame addFrame(@ParamName("frameId") int frameId, @ParamName("frame") IAnimationFrame frame);
 
-	IAnimationFrame getFrame(int frameId);
+	IAnimationFrame getFrame(@ParamName("frameId") int frameId);
 
 	IAnimationFrame[] getFrames();
 
@@ -21,22 +23,22 @@ public interface IAnimation {
 
 	int getRepeatLast();
 
-	boolean hasFrame(int frame);
+	boolean hasFrame(@ParamName("frameId") int frameId);
 
-	void removeFrame(IAnimationFrame frameId);
+	void removeFrame(@ParamName("frame") IAnimationFrame frame);
 
-	void removeFrame(int frameId);
+	void removeFrame(@ParamName("frameId") int frameId);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setNbt(INbt nbt);
+	void setNbt(@ParamName("nbt") INbt nbt);
 
-	void setRepeatLast(int frames);
+	void setRepeatLast(@ParamName("frames") int frames);
 
-	void startToNpc(ICustomNpc<?> npc);
+	void startToNpc(@ParamName("npc") ICustomNpc<?> npc);
 
 	float getChance();
 
-	void setChance(float chance);
+	void setChance(@ParamName("chance") float chance);
 
 }

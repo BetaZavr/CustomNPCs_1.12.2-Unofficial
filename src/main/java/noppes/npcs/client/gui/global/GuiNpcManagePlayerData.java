@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
@@ -643,17 +644,17 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 	public void setSelected(String selected) { }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiEditText) {
-			if (subgui.getId() == 0) {
+			if (((SubGuiEditText) subgui).getId() == 0) {
 				try { Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 0, Integer.parseInt(((SubGuiEditText) subgui).text[0])); } catch (Exception e) { LogWriter.error(e); }
 			} // add
-			else if (subgui.getId() == 1) {
+			else if (((SubGuiEditText) subgui).getId() == 1) {
 				try {
 					Client.sendData(EnumPacketServer.PlayerDataSet, selection.ordinal(), selectedPlayer, 2, data.get(scrollData.get(scroll.getSelected())), Integer.parseInt(((SubGuiEditText) subgui).text[0]));
 				} catch (Exception e) { LogWriter.error(e); }
 			} // set
-			else if (subgui.getId() == 2) {
+			else if (((SubGuiEditText) subgui).getId() == 2) {
 				if (gameData == null || !data.containsKey(scroll.getSelected())) {
 					return;
 				}
@@ -663,7 +664,7 @@ public class GuiNpcManagePlayerData extends GuiNPCInterface2
 					if (id != nbt.getInteger("MarketID")) {
 						continue;
 					}
-					nbt.setInteger("Slot", subgui.getTextField(0).getInteger());
+					nbt.setInteger("Slot", ((SubGuiEditText) subgui).getTextField(0).getInteger());
 					break;
 				}
 				setGuiData(gameData);

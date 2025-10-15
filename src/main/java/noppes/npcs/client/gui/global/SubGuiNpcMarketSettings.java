@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -205,10 +206,10 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			if (((SubGuiEditText) subgui).cancelled) { return; }
-			if (subgui.getId() == 1) {
+			if (((SubGuiEditText) subgui).getId() == 1) {
 				String name = ((SubGuiEditText) subgui).text[0];
 				boolean has = true;
 				while (has) {
@@ -224,7 +225,7 @@ public class SubGuiNpcMarketSettings extends SubGuiInterface
 				MarcetSection ms = new MarcetSection(marcet.sections.size());
 				ms.name = name;
 				marcet.sections.put(ms.getId(), ms);
-			} else if (subgui.getId() == 2) {
+			} else if (((SubGuiEditText) subgui).getId() == 2) {
 				if (!data.containsKey(scroll.getSelected())) { return; }
 				String name = ((SubGuiEditText) subgui).text[0];
 				int idSel = data.get(scroll.getSelected());

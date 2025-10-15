@@ -1,5 +1,7 @@
 package noppes.npcs.api.item;
 
+import noppes.npcs.api.ParamName;
+
 public interface IItemBook extends IItemStack {
 
 	String getAuthor();
@@ -8,10 +10,10 @@ public interface IItemBook extends IItemStack {
 
 	String getTitle();
 
-	void setAuthor(String author);
+	void setAuthor(@ParamName("author") String author);
 
-	void setText(String[] pages);
+	void setText(@ParamName("pages") String ... pages);
 
-	void setTitle(String title);
+	void setTitle(@ParamName("title") String title);
 
 }

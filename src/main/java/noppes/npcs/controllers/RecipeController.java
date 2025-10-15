@@ -89,7 +89,7 @@ public class RecipeController implements IRecipeHandler {
 	}
 
 	@Override
-	public INpcRecipe addRecipe(String group, String name, boolean global, boolean isShaped, boolean isKnown, ItemStack result, Object[] objects) {
+	public INpcRecipe addRecipe(String group, String name, boolean global, boolean isShaped, boolean isKnown, ItemStack result, Object... objects) {
 		INpcRecipe recipe;
 		if (isShaped) { recipe = NpcShapedRecipes.createRecipe(group, name, global, result, objects); }
 		else { recipe = NpcShapelessRecipes.createRecipe(group, name, global, result, objects); }

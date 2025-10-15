@@ -1,5 +1,8 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface ITexturedButton extends IButton {
 
 	String getTexture();
@@ -8,8 +11,8 @@ public interface ITexturedButton extends IButton {
 
 	int getTextureY();
 
-	ITexturedButton setTexture(String texture);
+	ITexturedButton setTexture(@ParamName("texture") String texture);
 
-	ITexturedButton setTextureOffset(int textureX, int textureY);
+	ITexturedButton setTextureOffset(@ParamName("textureX") int textureX, @ParamName("textureY") int textureY);
 
 }

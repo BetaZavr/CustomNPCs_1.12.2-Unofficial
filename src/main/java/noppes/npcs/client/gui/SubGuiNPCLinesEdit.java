@@ -2,6 +2,7 @@ package noppes.npcs.client.gui;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -137,7 +138,7 @@ public class SubGuiNPCLinesEdit extends SubGuiInterface
 	public void scrollDoubleClicked(String select, GuiCustomScroll scroll) { }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiEditText) {
 			SubGuiEditText sub = (SubGuiEditText) subgui;
 			if (sub.cancelled || sub.text[0].isEmpty()) { return; }

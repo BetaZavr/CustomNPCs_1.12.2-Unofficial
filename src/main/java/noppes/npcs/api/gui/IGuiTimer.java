@@ -1,5 +1,7 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
+
 public interface IGuiTimer extends ICustomGuiComponent {
 
 	int getColor();
@@ -12,12 +14,12 @@ public interface IGuiTimer extends ICustomGuiComponent {
 
 	int getWidth();
 
-	IGuiTimer setColor(int color);
+	IGuiTimer setColor(@ParamName("color") int color);
 
-	IGuiTimer setScale(float scale);
+	IGuiTimer setScale(@ParamName("scale") float scale);
 
-	IGuiTimer setSize(int width, int height);
+	IGuiTimer setSize(@ParamName("width") int width, @ParamName("height") int height);
 
-	void setTime(long start, long end);
+	void setTime(@ParamName("start") long start, @ParamName("end") long end);
 
 }

@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.roles;
 
 import java.util.HashMap;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcTextArea;
@@ -67,7 +68,7 @@ public class GuiRoleDialog extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea text = (SubGuiNpcTextArea) subgui;
 			if (slot == 0) { role.dialog = text.text; }

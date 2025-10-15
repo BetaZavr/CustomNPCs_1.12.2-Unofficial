@@ -1927,16 +1927,12 @@ public class Util implements IMethods {
 			if (component instanceof String) {
 				String lines = (String) component;
 				if (!lines.contains("%")) {
-					String temp = new TextComponentTranslation(lines).getFormattedText();
-					if (temp.contains("<br>") || temp.contains("~~~")) { text = temp; }
-					if (text == null) { hoverText.add(lines); }
+					text = new TextComponentTranslation(lines).getFormattedText();
 				}
 				else { hoverText.add(lines); }
 			}
 			else if (component instanceof ITextComponent) {
-				String temp = ((ITextComponent) component).getFormattedText();
-				if (temp.contains("<br>") || temp.contains("~~~")) { text = temp; }
-				else { hoverText.add(temp); }
+				text = ((ITextComponent) component).getFormattedText();
 			}
 			if (text != null) {
 				if (text.contains("~~~")) { text = text.replaceAll("~~~", "%"); }

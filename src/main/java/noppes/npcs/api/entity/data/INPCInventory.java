@@ -1,5 +1,6 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.item.IItemStack;
 
@@ -9,13 +10,13 @@ import java.util.Map;
 @SuppressWarnings("all")
 public interface INPCInventory {
 
-	ICustomDrop addDropItem(IItemStack item, double chance);
+	ICustomDrop addDropItem(@ParamName("item") IItemStack item, @ParamName("chance") double chance);
 
-	IItemStack getArmor(int slot);
+	IItemStack getArmor(@ParamName("slot") int slot);
 
-	ICustomDrop getDrop(int slot);
+	ICustomDrop getDrop(@ParamName("slot") int slot);
 
-	IItemStack getDropItem(int slot);
+	IItemStack getDropItem(@ParamName("slot") int slot);
 
 	ICustomDrop[] getDrops();
 
@@ -25,7 +26,7 @@ public interface INPCInventory {
 
 	int getExpRNG();
 
-	Map<IEntity<?>, List<IItemStack>> createDrops(int lootType, double baseChance);
+	Map<IEntity<?>, List<IItemStack>> createDrops(@ParamName("lootType") int lootType, @ParamName("baseChance") double baseChance);
 
 	IItemStack getLeftHand();
 
@@ -35,20 +36,20 @@ public interface INPCInventory {
 
 	boolean getXPLootMode();
 
-	boolean removeDrop(ICustomDrop drop);
+	boolean removeDrop(@ParamName("drop") ICustomDrop drop);
 
-	boolean removeDrop(int slot);
+	boolean removeDrop(@ParamName("slot") int slot);
 
-	void setArmor(int slot, IItemStack item);
+	void setArmor(@ParamName("slot") int slot, @ParamName("item") IItemStack item);
 
-	void setExp(int min, int max);
+	void setExp(@ParamName("min") int min, @ParamName("max") int max);
 
-	void setLeftHand(IItemStack item);
+	void setLeftHand(@ParamName("item") IItemStack item);
 
-	void setProjectile(IItemStack item);
+	void setProjectile(@ParamName("item") IItemStack item);
 
-	void setRightHand(IItemStack item);
+	void setRightHand(@ParamName("item") IItemStack item);
 
-	void setXPLootMode(boolean mode);
+	void setXPLootMode(@ParamName("mode") boolean mode);
 
 }

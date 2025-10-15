@@ -2,6 +2,7 @@ package noppes.npcs.api;
 
 import noppes.npcs.api.entity.IEntity;
 
+@SuppressWarnings("all")
 public interface IEntityDamageSource {
 
 	String getDeadMessage();
@@ -12,12 +13,12 @@ public interface IEntityDamageSource {
 
 	String getType();
 
-	void setDeadMessage(String message);
+	void setDeadMessage(@ParamName("message") String message);
 
-	void setImmediateSource(IEntity<?> entity);
+	void setImmediateSource(@ParamName("entity") IEntity<?> entity);
 
-	void setTrueSource(IEntity<?> entity);
+	void setTrueSource(@ParamName("entity") IEntity<?> entity);
 
-	void setType(String damageType);
+	void setType(@ParamName("damageType") String damageType);
 
 }

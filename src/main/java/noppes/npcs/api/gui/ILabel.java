@@ -1,5 +1,7 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
+
 public interface ILabel extends ICustomGuiComponent {
 
 	int getColor();
@@ -14,14 +16,14 @@ public interface ILabel extends ICustomGuiComponent {
 
 	boolean isShadow();
 
-	ILabel setColor(int color);
+	ILabel setColor(@ParamName("color") int color);
 
-	ILabel setScale(float scale);
+	ILabel setScale(@ParamName("scale") float scale);
 
-	void setShadow(boolean showShadow);
+	void setShadow(@ParamName("showShadow") boolean showShadow);
 
-	ILabel setSize(int width, int height);
+	ILabel setSize(@ParamName("width") int width, @ParamName("height") int height);
 
-	ILabel setText(String label);
+	ILabel setText(@ParamName("label") String label);
 
 }

@@ -201,7 +201,7 @@ public class SubGuiNpcDialogOptions extends SubGuiInterface implements ICustomSc
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (parent instanceof SubGuiDialogEdit && ((SubGuiDialogEdit) parent).parent != null) { NoppesUtil.openGUI(player, ((SubGuiDialogEdit) parent).parent); }
 		initGui();
 	}

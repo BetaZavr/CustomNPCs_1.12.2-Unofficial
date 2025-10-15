@@ -1,12 +1,12 @@
 package noppes.npcs.client.gui.script;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import noppes.npcs.LogWriter;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.blocks.tiles.TileScripted;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 
@@ -39,7 +39,7 @@ public class GuiScriptBlock extends GuiScriptInterface {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiScriptEncrypt && ((SubGuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			NBTTagCompound data = new NBTTagCompound();
@@ -49,7 +49,7 @@ public class GuiScriptBlock extends GuiScriptInterface {
 			data.setInteger("z", pos.getZ());
 			nbt.setTag("data", data);
 			script.getNBT(nbt);
-			nbt.setString("Name", subgui.getTextField(0).getText() + ((SubGuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", ((SubGuiScriptEncrypt) subgui).getTextField(0).getText() + ((SubGuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setByte("Type", (byte) 0);

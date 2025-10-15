@@ -121,11 +121,11 @@ public class PlayerCompassHUDData implements ICompassData {
 	}
 
 	@Override
-	public void setDimensionID(int dimID) {
-		if (DimensionManager.isDimensionRegistered(dimID)) {
-			dimID = 0;
+	public void setDimensionID(int dimensionId) {
+		if (DimensionManager.isDimensionRegistered(dimensionId)) {
+			dimensionId = 0;
 		}
-		this.dimensionId = dimID;
+		this.dimensionId = dimensionId;
 	}
 
 	@Override

@@ -371,13 +371,13 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	@Override
-	public void removeDeal(int dealID) {
-        if (deals.containsKey(dealID)) {
-			deals.remove(dealID);
+	public void removeDeal(int dealId) {
+        if (deals.containsKey(dealId)) {
+			deals.remove(dealId);
             for (Marcet m : markets.values()) {
 				for (MarcetSection ms : m.sections.values()) {
 					for (Deal deal : ms.deals) {
-						if (deal.getId() == dealID) {
+						if (deal.getId() == dealId) {
 							ms.deals.remove(deal);
 							break;
 						}
@@ -389,16 +389,16 @@ public class MarcetController implements IMarcetHandler {
 	}
 
 	@Override
-	public void removeMarcet(int marcetID) {
-		if (marcetID < 0 || (marcetID != 0 && markets.size() <= 1)) { return; }
-		if (!markets.containsKey(marcetID)) {
-			if (marcetID == 0) { loadDefaultMarcets(); }
+	public void removeMarcet(int marcetId) {
+		if (marcetId < 0 || (marcetId != 0 && markets.size() <= 1)) { return; }
+		if (!markets.containsKey(marcetId)) {
+			if (marcetId == 0) { loadDefaultMarcets(); }
 			return;
 		}
-		Marcet marcet = markets.get(marcetID);
+		Marcet marcet = markets.get(marcetId);
 		marcet.closeForAllPlayers();
-		markets.remove(marcetID);
-		if (marcetID == 0) { loadDefaultMarcets(); }
+		markets.remove(marcetId);
+		if (marcetId == 0) { loadDefaultMarcets(); }
 		save();
 	}
 

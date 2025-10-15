@@ -624,8 +624,8 @@ public class GuiNpcEmotion extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui.getId() == 1) { // add new
+	public void subGuiClosed(GuiScreen subgui) {
+		if (((SubGuiInterface) subgui).getId() == 1) { // add new
 			if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).cancelled) { return; }
 			EmotionConfig newEmtn = aData.createNewEmtn();
 			newEmtn.name = ((SubGuiEditText) subgui).text[0];

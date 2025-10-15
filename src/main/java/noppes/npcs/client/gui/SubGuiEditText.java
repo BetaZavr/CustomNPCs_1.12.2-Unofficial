@@ -2,7 +2,6 @@ package noppes.npcs.client.gui;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.text.ITextComponent;
-import noppes.npcs.LogWriter;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.util.Util;
 
@@ -47,7 +46,6 @@ public class SubGuiEditText extends SubGuiInterface {
 			cancelled = false;
 			for (int i = 0; i < text.length; i++) { text[i] = getTextField(i).getText(); }
 		}
-		LogWriter.info("TEST: ");
 		onClosed();
 	}
 

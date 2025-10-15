@@ -21,7 +21,7 @@ public class AttributeModifierWrapper implements IAttributeModifier {
 	}
 
 	@Override
-	public String getID() {
+	public String getId() {
 		return this.modifer.getID().toString();
 	}
 

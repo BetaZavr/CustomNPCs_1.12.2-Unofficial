@@ -1,8 +1,10 @@
 package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IQuestObjective { // QuestObjective
 
 	int getAreaRange();
@@ -45,42 +47,42 @@ public interface IQuestObjective { // QuestObjective
 
 	boolean isSetPointOnMiniMap();
 
-	void setAndTitle(boolean andTitle);
+	void setAndTitle(@ParamName("andTitle") boolean andTitle);
 
-	void setAreaRange(int range);
+	void setAreaRange(@ParamName("nbt") int range);
 
-	void setCompassDimension(int dimensionID);
+	void setCompassDimension(@ParamName("dimensionId") int dimensionId);
 
-	void setCompassPos(int x, int y, int z);
+	void setCompassPos(@ParamName("x") int x, @ParamName("y") int y, @ParamName("z") int z);
 
-	void setCompassPos(IPos pos);
+	void setCompassPos(@ParamName("pos") IPos pos);
 
-	void setCompassRange(int range);
+	void setCompassRange(@ParamName("range") int range);
 
-	void setItem(IItemStack item);
+	void setItem(@ParamName("item") IItemStack item);
 
-	void setItemIgnoreDamage(boolean bo);
+	void setItemIgnoreDamage(@ParamName("bo") boolean bo);
 
-	void setItemIgnoreNBT(boolean bo);
+	void setItemIgnoreNBT(@ParamName("bo") boolean bo);
 
-	void setItemLeave(boolean bo);
+	void setItemLeave(@ParamName("bo") boolean bo);
 
-	void setMaxProgress(int value);
+	void setMaxProgress(@ParamName("value") int value);
 
-	void setNotShowLogEntity(boolean notShowLogEntity);
+	void setNotShowLogEntity(@ParamName("notShowLogEntity") boolean notShowLogEntity);
 
-	void setOrientationEntityName(String name);
+	void setOrientationEntityName(@ParamName("name") String name);
 
-	void setPartName(boolean isPart);
+	void setPartName(@ParamName("isPart") boolean isPart);
 
-	void setPointOnMiniMap(boolean bo);
+	void setPointOnMiniMap(@ParamName("bo") boolean bo);
 
-	void setProgress(int value);
+	void setProgress(@ParamName("value") int value);
 
-	void setTargetID(int id);
+	void setTargetID(@ParamName("id") int id);
 
-	void setTargetName(String name);
+	void setTargetName(@ParamName("name") String name);
 
-	void setType(int type);
+	void setType(@ParamName("type") int type);
 
 }

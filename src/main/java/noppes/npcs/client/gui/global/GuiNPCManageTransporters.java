@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -288,7 +289,7 @@ public class GuiNPCManageTransporters extends GuiContainerNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (!(subgui instanceof SubGuiEditText) || ((SubGuiEditText) subgui).text[0].isEmpty()) { return; }
 		NBTTagCompound compound = new NBTTagCompound();
 		compound.setInteger("CategoryId", -1);

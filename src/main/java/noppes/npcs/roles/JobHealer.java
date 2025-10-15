@@ -17,6 +17,7 @@ import noppes.npcs.LogWriter;
 import noppes.npcs.NBTTags;
 import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.constants.JobType;
+import noppes.npcs.api.entity.data.role.IHealerEffect;
 import noppes.npcs.api.entity.data.role.IJobHealer;
 import noppes.npcs.entity.EntityNPCInterface;
 import noppes.npcs.roles.data.HealerSettings;
@@ -27,7 +28,7 @@ public class JobHealer extends JobInterface implements IJobHealer {
 	// New from Unofficial (BetaZavr)
 	private final Map<Integer, List<EntityLivingBase>> affected = new HashMap<>();
 	private final Random rnd = new Random();
-	public Map<Integer, HealerSettings> effects = new HashMap<>(); // [ID, settings]
+	public Map<Integer, HealerSettings> effects = new HashMap<>(); // [effect ID, settings]
 
 	public JobHealer(EntityNPCInterface npc) {
 		super(npc);
@@ -147,6 +148,19 @@ public class JobHealer extends JobInterface implements IJobHealer {
 		if (entity instanceof EntityPlayer) { return npc.faction.isAggressiveToPlayer((EntityPlayer) entity); }
 		else if (entity instanceof EntityNPCInterface) { return npc.faction.isAggressiveToNpc((EntityNPCInterface) entity); }
 		return (entity instanceof EntityMob);
+	}
+
+	@Override
+	public IHealerEffect[] getEffects() { return effects.values().toArray(new IHealerEffect[0]); }
+
+	@Override
+	public boolean removeEffect(int effectId) { return effects.remove(effectId) != null; }
+
+	@Override
+	public IHealerEffect addEffect(int effectId, int range, int speed, int amplifier, int type) {
+		if (Potion.getPotionById(effectId) == null) { return null; }
+		if (!effects.containsKey(effectId)) { effects.put(effectId, new HealerSettings(effectId, range, speed, amplifier, (byte) type)); }
+		return effects.get(effectId);
 	}
 
 }

@@ -810,10 +810,10 @@ public class PlayerWrapper<T extends EntityPlayer> extends EntityLivingBaseWrapp
 	public double getBlockReachDistance() { return this.data.game.blockReachDistance; }
 
 	@Override
-	public void showMarket(int marcetID) {
-		IMarcet market = MarcetController.getInstance().getMarcet(marcetID);
+	public void showMarket(int marcetId) {
+		IMarcet market = MarcetController.getInstance().getMarcet(marcetId);
 		if (market != null) {
-			NoppesUtilServer.sendOpenGui(entity, EnumGuiType.PlayerTrader, null, marcetID, 0, -1);
+			NoppesUtilServer.sendOpenGui(entity, EnumGuiType.PlayerTrader, null, marcetId, 0, -1);
 		}
 	}
 

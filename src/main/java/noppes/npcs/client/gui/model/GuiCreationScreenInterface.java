@@ -235,7 +235,7 @@ public abstract class GuiCreationScreenInterface extends GuiContainerNPCInterfac
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		initGui();
 	}
 

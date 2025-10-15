@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.global;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.init.Items;
@@ -519,8 +520,8 @@ public class GuiNPCManageMarkets extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui instanceof SubGuiNpcMarketSettings) { setGuiData(null); }
+	public void subGuiClosed(GuiScreen subgui) {
+		setGuiData(null);
 		NoppesUtil.openGUI(player, this);
 	}
 

@@ -60,7 +60,7 @@ public class ItemBookWrapper extends ItemStackWrapper implements IItemBook {
 	}
 
 	@Override
-	public void setText(String[] pages) {
+	public void setText(String ... pages) {
 		NBTTagList list = new NBTTagList();
 		if (pages != null) {
 			for (String page : pages) {

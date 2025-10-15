@@ -1,6 +1,7 @@
 package noppes.npcs.roles;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
@@ -76,4 +77,14 @@ public class JobGuard extends JobInterface implements IJobGuard {
 		compound.setTag("GuardTargets", NBTTags.nbtStringList(targets));
 		return compound;
 	}
+
+	@Override
+	public String[] getTargets() { return targets.toArray(new String[0]); }
+
+	@Override
+	public void setTargets(String... targetsIn) {
+		targets.clear();
+        targets.addAll(Arrays.asList(targetsIn));
+	}
+
 }

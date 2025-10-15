@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
+import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.client.gui.select.SubGuiSoundSelection;
 import noppes.npcs.client.gui.util.*;
 
@@ -43,7 +44,7 @@ public class SubGuiNpcConversationLine extends SubGuiInterface implements ITextf
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		SubGuiSoundSelection gss = (SubGuiSoundSelection) subgui;
 		if (gss.selectedResource != null) { sound = gss.selectedResource.toString(); }
 	}

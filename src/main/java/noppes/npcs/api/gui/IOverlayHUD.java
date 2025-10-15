@@ -1,50 +1,68 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IOverlayHUD {
 
-	IItemSlot addItemSlot(int orientationType, int x, int y);
+	IItemSlot addItemSlot(@ParamName("orientationType") int orientationType,
+						  @ParamName("x") int x, @ParamName("y") int y);
 
-	IItemSlot addItemSlot(int orientationType, int x, int y, IItemStack stack);
+	IItemSlot addItemSlot(@ParamName("orientationType") int orientationType,
+						  @ParamName("x") int x, @ParamName("y") int y,
+						  @ParamName("stack") IItemStack stack);
 
-	ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height);
+	ILabel addLabel(@ParamName("id") int id, @ParamName("orientationType") int orientationType, @ParamName("label") String label,
+					@ParamName("x") int x, @ParamName("y") int y,
+					@ParamName("width") int width, @ParamName("height") int height);
 
-	ILabel addLabel(int id, int orientationType, String label, int x, int y, int width, int height, int color);
+	ILabel addLabel(@ParamName("id") int id, @ParamName("orientationType") int orientationType, @ParamName("label") String label,
+					@ParamName("x") int x, @ParamName("y") int y,
+					@ParamName("width") int width, @ParamName("height") int height, @ParamName("color") int color);
 
-	ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height);
+	ITexturedRect addTexturedRect(@ParamName("id") int id, @ParamName("orientationType") int orientationType, @ParamName("texture") String texture,
+								  @ParamName("x") int x, @ParamName("y") int y,
+								  @ParamName("width") int width, @ParamName("height") int height);
 
-	ITexturedRect addTexturedRect(int id, int orientationType, String texture, int x, int y, int width, int height,
+	ITexturedRect addTexturedRect(@ParamName("id") int id, @ParamName("orientationType") int orientationType, @ParamName("texture") String texture,
+								  @ParamName("x") int x, @ParamName("y") int y,
+								  @ParamName("width") int width, @ParamName("height") int height,
 			int textureX, int textureY);
 
-	IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height);
+	IGuiTimer addTimer(@ParamName("id") int id, @ParamName("orientationType") int orientationType,
+					   @ParamName("start") long start, @ParamName("end") long end,
+					   @ParamName("x") int x, @ParamName("y") int y,
+					   @ParamName("width") int width, @ParamName("height") int height);
 
-	IGuiTimer addTimer(int id, int orientationType, long start, long end, int x, int y, int width, int height,
-			int color);
+	IGuiTimer addTimer(@ParamName("id") int id, @ParamName("orientationType") int orientationType,
+					   @ParamName("start") long start, @ParamName("end") long end,
+					   @ParamName("x") int x, @ParamName("y") int y,
+					   @ParamName("width") int width, @ParamName("height") int height, @ParamName("color") int color);
 
 	void clear();
 
 	ICompassData getCompassData();
 
-	ICustomGuiComponent getComponent(int orientationType, int componentID);
+	ICustomGuiComponent getComponent(@ParamName("orientationType") int orientationType, @ParamName("componentId") int componentId);
 
 	ICustomGuiComponent[] getComponents();
 
-	ICustomGuiComponent[] getComponents(int orientationType);
+	ICustomGuiComponent[] getComponents(@ParamName("orientationType") int orientationType);
 
 	IItemSlot[] getSlots();
 
-	IItemSlot[] getSlots(int orientationType);
+	IItemSlot[] getSlots(@ParamName("orientationType") int orientationType);
 
-	boolean isShowElementType(int type);
+	boolean isShowElementType(@ParamName("type") int type);
 
-	boolean removeComponent(int orientationType, int componentID);
+	boolean removeComponent(@ParamName("orientationType") int orientationType, @ParamName("componentId") int componentId);
 
-	boolean removeSlot(int orientationType, int slotID);
+	boolean removeSlot(@ParamName("orientationType") int orientationType, @ParamName("slotId") int slotId);
 
-	void setShowElementType(int type, boolean bo);
+	void setShowElementType(@ParamName("type") int type, @ParamName("bo") boolean bo);
 
-	void setShowElementType(String name, boolean bo);
+	void setShowElementType(@ParamName("name") String name, @ParamName("bo") boolean bo);
 
 	void update();
 

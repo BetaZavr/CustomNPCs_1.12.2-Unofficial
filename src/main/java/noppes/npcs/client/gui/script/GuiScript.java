@@ -1,9 +1,9 @@
 package noppes.npcs.client.gui.script;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.NoppesUtilPlayer;
 import noppes.npcs.client.Client;
-import noppes.npcs.client.gui.util.SubGuiInterface;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.constants.EnumPlayerPacket;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -34,11 +34,11 @@ public class GuiScript extends GuiScriptInterface {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiScriptEncrypt && ((SubGuiScriptEncrypt) subgui).send) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			script.writeToNBT(nbt);
-			nbt.setString("Name", subgui.getTextField(0).getText() + ((SubGuiScriptEncrypt) subgui).ext);
+			nbt.setString("Name", ((SubGuiScriptEncrypt) subgui).getTextField(0).getText() + ((SubGuiScriptEncrypt) subgui).ext);
 			nbt.setString("Path", path.replaceAll("\\\\", "/") + "/" + nbt.getString("Name"));
 			nbt.setInteger("Tab", activeTab - 1);
 			nbt.setInteger("EntityID", npc.getEntityId());

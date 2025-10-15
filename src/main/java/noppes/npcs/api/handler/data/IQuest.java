@@ -1,9 +1,11 @@
 package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.ICustomNpc;
 import noppes.npcs.api.entity.IPlayer;
 
+@SuppressWarnings("all")
 public interface IQuest {
 
 	IQuestObjective addTask();
@@ -34,7 +36,7 @@ public interface IQuest {
 
 	IQuest getNextQuest();
 
-	IQuestObjective[] getObjectives(IPlayer<?> player);
+	IQuestObjective[] getObjectives(@ParamName("player") IPlayer<?> player);
 
 	IContainer getRewards();
 
@@ -46,36 +48,36 @@ public interface IQuest {
 
 	boolean isSetUp();
 
-	boolean removeTask(IQuestObjective task);
+	boolean removeTask(@ParamName("task") IQuestObjective task);
 
 	void save();
 
 	void sendChangeToAll();
 
-	void setCancelable(boolean cancelable);
+	void setCancelable(@ParamName("cancelable") boolean cancelable);
 
-	void setCompleterNpc(ICustomNpc<?> npc);
+	void setCompleterNpc(@ParamName("npc") ICustomNpc<?> npc);
 
-	void setCompleteText(String text);
+	void setCompleteText(@ParamName("text") String text);
 
-	void setExtraButton(int type);
+	void setExtraButton(@ParamName("type") int type);
 
-	void setExtraButtonText(String hover);
+	void setExtraButtonText(@ParamName("hover") String hover);
 
-	void setForgetDialogues(int[] forget);
+	void setForgetDialogues(@ParamName("forget") int[] forget);
 
-	void setForgetQuests(int[] forget);
+	void setForgetQuests(@ParamName("forget") int[] forget);
 
-	void setLevel(int level);
+	void setLevel(@ParamName("level") int level);
 
-	void setLogText(String text);
+	void setLogText(@ParamName("text") String text);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setNextQuest(IQuest quest);
+	void setNextQuest(@ParamName("quest") IQuest quest);
 
-	void setRewardText(String text);
+	void setRewardText(@ParamName("text") String text);
 
-	void setRewardType(int type);
+	void setRewardType(@ParamName("type") int type);
 
 }

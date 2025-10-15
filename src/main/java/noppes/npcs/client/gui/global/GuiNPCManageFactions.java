@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.global;
 import java.util.*;
 import java.util.Map.Entry;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Items;
@@ -311,7 +312,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiTextureSelection) {
 			faction.flag = ((SubGuiTextureSelection) subgui).resource;
 			initGui();
@@ -322,7 +323,7 @@ public class GuiNPCManageFactions extends GuiNPCInterface2
 			initGui();
 		} else if (subgui instanceof SubGuiNpcFactionSelect) {
 			SubGuiNpcFactionSelect gui = (SubGuiNpcFactionSelect) subgui;
-			if (subgui.getId() == 6) {
+			if (gui.id == 6) {
 				faction.attackFactions.clear();
 				for (int id : gui.selectFactions) {
 					faction.frendFactions.remove(id);

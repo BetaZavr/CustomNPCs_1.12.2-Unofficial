@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -104,7 +105,7 @@ public class GuiNpcNaturalSpawns extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		if (gui instanceof SubGuiNpcMobSpawnerSelector) {
 			SubGuiNpcMobSpawnerSelector selector = (SubGuiNpcMobSpawnerSelector) gui;
 			NBTTagCompound compound = selector.getCompound();

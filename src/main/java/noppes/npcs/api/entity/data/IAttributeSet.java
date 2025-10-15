@@ -1,6 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 import net.minecraft.entity.ai.attributes.IAttribute;
+import noppes.npcs.api.ParamName;
 
 public interface IAttributeSet {
 
@@ -16,14 +17,14 @@ public interface IAttributeSet {
 
 	void remove();
 
-	void setAttribute(IAttribute attribute);
+	void setAttribute(@ParamName("attribute") IAttribute attribute);
 
-	void setAttribute(String name);
+	void setAttribute(@ParamName("name") String name);
 
-	void setChance(double chance);
+	void setChance(@ParamName("chance") double chance);
 
-	void setSlot(int slot);
+	void setSlot(@ParamName("slot") int slot);
 
-	void setValues(double min, double max);
+	void setValues(@ParamName("min") double min, @ParamName("max") double max);
 
 }

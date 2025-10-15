@@ -1,5 +1,8 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IScroll extends ICustomGuiComponent {
 
 	int getDefaultSelection();
@@ -12,12 +15,12 @@ public interface IScroll extends ICustomGuiComponent {
 
 	boolean isMultiSelect();
 
-	IScroll setDefaultSelection(int defaultSelection);
+	IScroll setDefaultSelection(@ParamName("defaultSelection") int defaultSelection);
 
-	IScroll setList(String[] list);
+	IScroll setList(@ParamName("list") String[] list);
 
-	IScroll setMultiSelect(boolean multiSelect);
+	IScroll setMultiSelect(@ParamName("multiSelect") boolean multiSelect);
 
-	IScroll setSize(int width, int height);
+	IScroll setSize(@ParamName("width") int width, @ParamName("height") int height);
 
 }

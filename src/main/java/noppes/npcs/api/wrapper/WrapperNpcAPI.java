@@ -50,14 +50,7 @@ import noppes.npcs.api.wrapper.data.AttributeWrapper;
 import noppes.npcs.api.wrapper.gui.CustomGuiWrapper;
 import noppes.npcs.client.util.ResourceData;
 import noppes.npcs.containers.ContainerNpcInterface;
-import noppes.npcs.controllers.AnimationController;
-import noppes.npcs.controllers.BorderController;
-import noppes.npcs.controllers.DialogController;
-import noppes.npcs.controllers.FactionController;
-import noppes.npcs.controllers.KeyController;
-import noppes.npcs.controllers.MarcetController;
-import noppes.npcs.controllers.QuestController;
-import noppes.npcs.controllers.ServerCloneController;
+import noppes.npcs.controllers.*;
 import noppes.npcs.controllers.data.PlayerData;
 import noppes.npcs.controllers.data.PlayerMail;
 import noppes.npcs.dimensions.DimensionHandler;
@@ -110,19 +103,19 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IPlayerMail createMail(String sender, String subject) {
+	public IPlayerMail createMail(String sender, String title) {
 		PlayerMail mail = new PlayerMail();
 		mail.sender = sender;
-		mail.title = subject;
+		mail.title = title;
 		return mail;
 	}
 
 	@Override
-	public ICustomNpc<?> createNPC(World world) {
-		if (world.isRemote) {
+	public ICustomNpc<?> createNPC(World worldMC) {
+		if (worldMC.isRemote) {
 			return null;
 		}
-		EntityCustomNpc npc = new EntityCustomNpc(world);
+		EntityCustomNpc npc = new EntityCustomNpc(worldMC);
 		return npc.wrappedNPC;
 	}
 
@@ -190,32 +183,32 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public INpcAttribute getIAttribute(IAttributeInstance mcAttribute) {
-		return new AttributeWrapper(mcAttribute);
+	public INpcAttribute getIAttribute(IAttributeInstance attributeMC) {
+		return new AttributeWrapper(attributeMC);
 	}
 
 	@Override
-	public IBlock getIBlock(World world, BlockPos pos) {
-		if (world == null) { return null; }
-		return BlockWrapper.createNew(world, pos, world.getBlockState(pos));
+	public IBlock getIBlock(World worldMC, BlockPos posMC) {
+		if (worldMC == null) { return null; }
+		return BlockWrapper.createNew(worldMC, posMC, worldMC.getBlockState(posMC));
 	}
 
 	@Override
-	public IContainer getIContainer(Container container) {
-		if (container instanceof ContainerNpcInterface) {
-			return ContainerNpcInterface.getOrCreateIContainer((ContainerNpcInterface) container);
+	public IContainer getIContainer(Container containerMC) {
+		if (containerMC instanceof ContainerNpcInterface) {
+			return ContainerNpcInterface.getOrCreateIContainer((ContainerNpcInterface) containerMC);
 		}
-		return new ContainerWrapper(container);
+		return new ContainerWrapper(containerMC);
 	}
 
 	@Override
-	public IContainer getIContainer(IInventory inventory) {
-		return new ContainerWrapper(inventory);
+	public IContainer getIContainer(IInventory inventoryMC) {
+		return new ContainerWrapper(inventoryMC);
 	}
 
 	@Override
-	public IDamageSource getIDamageSource(DamageSource damagesource) {
-		return new DamageSourceWrapper(damagesource);
+	public IDamageSource getIDamageSource(DamageSource damageMC) {
+		return new DamageSourceWrapper(damageMC);
 	}
 
 	@Override
@@ -224,22 +217,16 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IEntity<?> getIEntity(Entity entity) {
-		if (entity == null || entity.world == null) {
-			return null;
-		}
-		if (entity instanceof EntityNPCInterface) {
-			return ((EntityNPCInterface) entity).wrappedNPC;
-		}
-		return WrapperEntityData.get(entity);
+	public IEntity<?> getIEntity(Entity entityMC) {
+		if (entityMC == null || entityMC.world == null) { return null; }
+		if (entityMC instanceof EntityNPCInterface) { return ((EntityNPCInterface) entityMC).wrappedNPC; }
+		return WrapperEntityData.get(entityMC);
 	}
 
 	@Override
-	public IItemStack getIItemStack(ItemStack itemstack) {
-		if (itemstack == null || itemstack.isEmpty()) {
-			return ItemStackWrapper.AIR;
-		}
-		return (IItemStack) itemstack.getCapability(ItemStackWrapper.ITEM_SCRIPTED_DATA_CAPABILITY, null);
+	public IItemStack getIItemStack(ItemStack stackMC) {
+		if (stackMC == null || stackMC.isEmpty()) { return ItemStackWrapper.AIR; }
+		return (IItemStack) stackMC.getCapability(ItemStackWrapper.ITEM_SCRIPTED_DATA_CAPABILITY, null);
 	}
 
 	@Override
@@ -248,11 +235,11 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public INbt getINbt(NBTTagCompound compound) {
-		if (compound == null) {
+	public INbt getINbt(NBTTagCompound nbtMC) {
+		if (nbtMC == null) {
 			return new NBTWrapper(new NBTTagCompound());
 		}
-		return new NBTWrapper(compound);
+		return new NBTWrapper(nbtMC);
 	}
 
 	@Override
@@ -265,8 +252,8 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public IPos getIPos(BlockPos pos) {
-		return new BlockPosWrapper(pos);
+	public IPos getIPos(BlockPos posMC) {
+		return new BlockPosWrapper(posMC);
 	}
 
 	@Override
@@ -318,14 +305,14 @@ public class WrapperNpcAPI extends NpcAPI {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public IWorld getIWorld(World world) {
-		WorldWrapper w = WrapperNpcAPI.worldCache.get(world.provider.getDimension());
+	public IWorld getIWorld(World worldMC) {
+		WorldWrapper w = WrapperNpcAPI.worldCache.get(worldMC.provider.getDimension());
 		if (w != null) {
 			if (w.world == null) {
-				w.world = world;
+				w.world = worldMC;
 			}
 		} else {
-			WrapperNpcAPI.worldCache.put(world.provider.getDimension(), w = WorldWrapper.createNew(world));
+			WrapperNpcAPI.worldCache.put(worldMC.provider.getDimension(), w = WorldWrapper.createNew(worldMC));
 		}
 		return w;
 	}
@@ -411,15 +398,13 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public ICustomNpc<?> spawnNPC(World world, int x, int y, int z) {
-		if (world.isRemote) {
-			return null;
-		}
-		EntityCustomNpc npc = new EntityCustomNpc(world);
+	public ICustomNpc<?> spawnNPC(World worldMC, int x, int y, int z) {
+		if (worldMC.isRemote) { return null; }
+		EntityCustomNpc npc = new EntityCustomNpc(worldMC);
 		npc.setPositionAndRotation(x + 0.5, y, z + 0.5, 0.0f, 0.0f);
 		npc.ais.setStartPos(x, y, z);
 		npc.setHealth(npc.getMaxHealth());
-		world.spawnEntity(npc);
+		worldMC.spawnEntity(npc);
 		return npc.wrappedNPC;
 	}
 
@@ -436,8 +421,9 @@ public class WrapperNpcAPI extends NpcAPI {
 	}
 
 	@Override
-	public ICustomPlayerData getPlayerData(EntityPlayer player) {
-		return PlayerData.get(player);
+	public ICustomPlayerData getPlayerData(IPlayer<?> player) {
+		if (player == null) { return null; }
+		return PlayerDataController.instance.getDataFromUsername(CustomNpcs.Server, player.getName());
 	}
 
 	@Override

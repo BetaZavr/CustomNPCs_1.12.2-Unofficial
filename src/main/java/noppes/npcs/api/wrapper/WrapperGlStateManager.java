@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -49,12 +48,12 @@ implements IGlStateManager {
 	public void scale(float x, float y, float z) { GlStateManager.scale(x, y, z); }
 
 	@Override
-	public void rotate(float angle, float axisX, float axisY, float axisZ) { GlStateManager.rotate(angle, axisX, axisY, axisZ); }
+	public void rotate(float angle, float x, float y, float z) { GlStateManager.rotate(angle, x, y, z); }
 	
 	@Override
-	public void drawString(String text, float x, float y, int color, boolean dropShadow) {
+	public void drawString(String text, float u, float v, int color, boolean dropShadow) {
 		if (text == null || !text.isEmpty()) { return; }
-		this.minecraft.fontRenderer.drawString(text, x, y, color, dropShadow);
+		this.minecraft.fontRenderer.drawString(text, u, v, color, dropShadow);
 	}
 
 	@Override

@@ -391,11 +391,11 @@ public class QuestObjective implements IQuestObjective {
 	}
 
 	@Override
-	public void setCompassDimension(int dimensionID) {
-		if (DimensionManager.isDimensionRegistered(dimensionID)) {
-			throw new CustomNPCsException("Dimension ID:" + dimensionID + " not found");
+	public void setCompassDimension(int dimensionId) {
+		if (DimensionManager.isDimensionRegistered(dimensionId)) {
+			throw new CustomNPCsException("Dimension ID:" + dimensionId + " not found");
 		}
-		this.dimensionID = dimensionID;
+		this.dimensionID = dimensionId;
 	}
 
 	@Override

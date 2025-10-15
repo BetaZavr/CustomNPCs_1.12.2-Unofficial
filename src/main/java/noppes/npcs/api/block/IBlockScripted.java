@@ -2,13 +2,15 @@ package noppes.npcs.api.block;
 
 import noppes.npcs.api.ILayerModel;
 import noppes.npcs.api.ITimers;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IBlockScripted extends IBlock {
 
 	ILayerModel createLayerModel();
 
-	String executeCommand(String command);
+	String executeCommand(@ParamName("command") String command);
 
 	float getHardness();
 
@@ -52,35 +54,35 @@ public interface IBlockScripted extends IBlock {
 
 	ITimers getTimers();
 
-	boolean removeLayerModel(ILayerModel layer);
+	boolean removeLayerModel(@ParamName("layer") ILayerModel layer);
 
-	boolean removeLayerModel(int id);
+	boolean removeLayerModel(@ParamName("id") int id);
 
-	void setHardness(float hardness);
+	void setHardness(@ParamName("hardness") float hardness);
 
-	void setIsLadder(boolean enabled);
+	void setIsLadder(@ParamName("enabled") boolean enabled);
 
-	void setIsPassible(boolean passable);
+	void setIsPassible(@ParamName("passable") boolean passable);
 
-	void setLight(int value);
+	void setLight(@ParamName("value") int value);
 
-	void setModel(IBlock iblock);
+	void setModel(@ParamName("block") IBlock block);
 
-	void setModel(IItemStack item);
+	void setModel(@ParamName("item") IItemStack item);
 
-	void setModel(String name);
+	void setModel(@ParamName("name") String name);
 
-	void setModel(String blockName, int meta);
+	void setModel(@ParamName("blockName") String blockName, @ParamName("meta") int meta);
 
-	void setRedstonePower(int power);
+	void setRedstonePower(@ParamName("power") int power);
 
-	void setResistance(float resistance);
+	void setResistance(@ParamName("resistance") float resistance);
 
-	void setRotation(int x, int y, int z);
+	void setRotation(@ParamName("x") int x, @ParamName("y") int y, @ParamName("z") int z);
 
-	void setScale(float x, float y, float z);
+	void setScale(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void trigger(int id, Object... arguments);
+	void trigger(@ParamName("id") int id, @ParamName("arguments") Object... arguments);
 
 	void updateModel();
 

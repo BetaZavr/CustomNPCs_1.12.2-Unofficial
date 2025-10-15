@@ -362,10 +362,10 @@ public class CustomParticle extends Particle implements ICustomElement, ICustomP
 	}
 
 	@Override
-	public void setRotation(float angleX, float angleY, float angleZ) {
-		this.particleAngle = angleY % 360.0f;
-		this.particleAngleX = angleX % 360.0f;
-		this.particleAngleZ = angleZ % 360.0f;
+	public void setRotation(float x, float y, float z) {
+		this.particleAngle = y % 360.0f;
+		this.particleAngleX = x % 360.0f;
+		this.particleAngleZ = z % 360.0f;
 	}
 
 	@Override

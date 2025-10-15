@@ -10,56 +10,64 @@ import noppes.npcs.api.util.IRayTraceVec;
 import java.io.File;
 import java.util.List;
 
+@SuppressWarnings("all")
 public interface IMethods {
 
-	String ticksToElapsedTime(long ticks, boolean isMilliSeconds, boolean colored, boolean upped);
+	String ticksToElapsedTime(@ParamName("ticks") long ticks, @ParamName("isMilliSeconds") boolean isMilliSeconds,
+							  @ParamName("colored") boolean colored, @ParamName("upped") boolean upped);
 
-	String deleteColor(String str);
+	String deleteColor(@ParamName("y") String str);
 
-	double distanceTo(double x0, double y0, double z0, double x1, double y1, double z1);
+	double distanceTo(@ParamName("x0") double x0, @ParamName("y0") double y0, @ParamName("z0") double z0,
+					  @ParamName("x1") double x1, @ParamName("y1") double y1, @ParamName("z1") double z1);
 
-	double distanceTo(IEntity<?> entity, IEntity<?> target);
+	double distanceTo(@ParamName("y") IEntity<?> entity, @ParamName("y") IEntity<?> target);
 
-	IRayTraceRotate getAngles3D(double dx, double dy, double dz, double mx, double my, double mz);
+	IRayTraceRotate getAngles3D(@ParamName("dx") double dx, @ParamName("dy") double dy, @ParamName("dz") double dz,
+								@ParamName("mx") double mx, @ParamName("dy") double my, @ParamName("mz") double mz);
 
-	IRayTraceRotate getAngles3D(IEntity<?> entity, IEntity<?> target);
+	IRayTraceRotate getAngles3D(@ParamName("entity") IEntity<?> entity, @ParamName("target") IEntity<?> target);
 
-	String getJSONStringFromObject(Object obj);
+	String getJSONStringFromObject(@ParamName("obj") Object obj);
 
-	String getDataFile(String fileName);
+	String getDataFile(@ParamName("fileName") String fileName);
 
-	IRayTraceVec getPosition(double cx, double cy, double cz, double yaw, double pitch, double radius);
+	IRayTraceVec getPosition(@ParamName("cx") double cx, @ParamName("cy") double cy, @ParamName("cz") double cz,
+							 @ParamName("yaw") double yaw, @ParamName("pitch") double pitch, @ParamName("radius") double radius);
 
-	IRayTraceVec getPosition(IEntity<?> entity, double yaw, double pitch, double radius);
+	IRayTraceVec getPosition(@ParamName("entity") IEntity<?> entity,
+							 @ParamName("yaw") double yaw, @ParamName("pitch") double pitch, @ParamName("radius") double radius);
 
-	IRayTraceVec getVector3D(double dx, double dy, double dz, double mx, double my, double mz);
+	IRayTraceVec getVector3D(@ParamName("dx") double dx, @ParamName("dy") double dy, @ParamName("dz") double dz,
+							 @ParamName("mx") double mx, @ParamName("my") double my, @ParamName("mz") double mz);
 
-	IRayTraceVec getVector3D(IEntity<?> entity, IEntity<?> target);
+	IRayTraceVec getVector3D(@ParamName("entity") IEntity<?> entity, @ParamName("target") IEntity<?> target);
 
-	IRayTraceVec getVector3D(IEntity<?> entity, IPos pos);
+	IRayTraceVec getVector3D(@ParamName("entity") IEntity<?> entity, @ParamName("pos") IPos pos);
 
-	IRayTraceResults rayTraceBlocksAndEntitys(IEntity<?> entity, double yaw, double pitch, double distance);
+	IRayTraceResults rayTraceBlocksAndEntitys(@ParamName("entity") IEntity<?> entity, @ParamName("yaw") double yaw, @ParamName("pitch") double pitch,
+											  @ParamName("distance") double distance);
 
-	Object readObjectFromNbt(NBTBase tag);
+	Object readObjectFromNbt(@ParamName("tag") NBTBase tag);
 
-	IEntity<?> transferEntity(IEntity<?> entity, int dimension, IPos pos);
+	IEntity<?> transferEntity(@ParamName("entity") IEntity<?> entity, @ParamName("dimension") int dimension, @ParamName("pos") IPos pos);
 
-	NBTBase writeObjectToNbt(Object value);
+	NBTBase writeObjectToNbt(@ParamName("value") Object value);
 
-	List<File> getFiles(File dir, String index);
+	List<File> getFiles(@ParamName("dir") File dir, @ParamName("index") String index);
 
-    String getTextNumberToRoman(int value);
+    String getTextNumberToRoman(@ParamName("value") int value);
 
-    String getTextReducedNumber(double value, boolean isInteger, boolean color, boolean notPfx);
+    String getTextReducedNumber(@ParamName("value") double value, @ParamName("isInteger") boolean isInteger, @ParamName("color") boolean color, @ParamName("notPfx") boolean notPfx);
 
-    boolean removeFile(File directory);
+    boolean removeFile(@ParamName("directory") File directory);
 
-	String loadFile(File file);
+	String loadFile(@ParamName("file") File file);
 
-	boolean saveFile(File file, String text);
+	boolean saveFile(@ParamName("file") File file, @ParamName("text") String text);
 
-	boolean saveFile(File file, NBTTagCompound compound);
+	boolean saveFile(@ParamName("file") File file, @ParamName("compound") NBTTagCompound compound);
 
-    String translateGoogle(String textLanguageKey, String translationLanguageKey, String originalText);
+    String translateGoogle(@ParamName("textLanguageKey") String textLanguageKey, @ParamName("translationLanguageKey") String translationLanguageKey, @ParamName("originalText") String originalText);
 
 }

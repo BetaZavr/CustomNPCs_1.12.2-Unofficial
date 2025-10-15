@@ -55,7 +55,7 @@ public class AttributeWrapper implements INpcAttribute {
 			return null;
 		}
 		this.attribute.applyModifier(modifier.getMCModifier());
-		return this.getModifier(modifier.getID());
+		return this.getModifier(modifier.getId());
 	}
 
 	@Override

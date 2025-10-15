@@ -1,6 +1,7 @@
 package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.handler.data.IQuest;
 
 public interface IPlayerMail {
@@ -19,16 +20,16 @@ public interface IPlayerMail {
 
 	String[] getText();
 
-	void setMoney(int money);
+	void setMoney(@ParamName("money") int money);
 
-	void setQuest(int id);
+	void setQuest(@ParamName("id") int id);
 
-	void setRansom(int money);
+	void setRansom(@ParamName("money") int money);
 
-	void setSender(String sender);
+	void setSender(@ParamName("sender") String sender);
 
-	void setSubject(String subject);
+	void setSubject(@ParamName("subject") String subject);
 
-	void setText(String[] text);
+	void setText(@ParamName("text") String[] text);
 
 }

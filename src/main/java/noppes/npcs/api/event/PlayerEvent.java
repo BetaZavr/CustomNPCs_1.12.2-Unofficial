@@ -10,11 +10,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
-import noppes.npcs.api.IContainer;
-import noppes.npcs.api.IDamageSource;
-import noppes.npcs.api.INbt;
-import noppes.npcs.api.IPos;
-import noppes.npcs.api.NpcAPI;
+import noppes.npcs.api.*;
 import noppes.npcs.api.block.IBlock;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IEntityLivingBase;
@@ -22,12 +18,14 @@ import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.handler.data.IFaction;
 import noppes.npcs.api.handler.data.IKeySetting;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.constants.EnumScriptType;
 
 import java.util.Objects;
 
 public class PlayerEvent extends CustomNPCsEvent {
 
 	@Cancelable
+	@EventName(EnumScriptType.ATTACK)
 	public static class AttackEvent extends PlayerEvent {
 		public Object target;
 		public int type;
@@ -40,6 +38,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.BROKEN)
 	public static class BreakEvent extends PlayerEvent {
 		public IBlock block;
 		public int exp;
@@ -52,6 +51,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.CHAT)
 	public static class ChatEvent extends PlayerEvent {
 		public String message;
 
@@ -62,6 +62,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.SEND_COMMAND)
 	public static class CommandEvent extends PlayerEvent {
 		public ICommand command;
 		public String[] parameters;
@@ -73,6 +74,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.CONTAINER_CLOSED)
 	public static class ContainerClosed extends PlayerEvent {
 		public IContainer container;
 
@@ -82,6 +84,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.CONTAINER_OPEN)
 	public static class ContainerOpen extends PlayerEvent {
 		public IContainer container;
 
@@ -92,6 +95,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.CUSTOM_TELEPORT)
 	public static class CustomTeleport extends PlayerEvent {
 
 		public IPos pos, portal;
@@ -107,6 +111,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.DAMAGED_ENTITY)
 	public static class DamagedEntityEvent extends PlayerEvent {
 		public float damage;
 		public IDamageSource damageSource;
@@ -121,6 +126,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.DAMAGED)
 	public static class DamagedEvent extends PlayerEvent {
 
 		public boolean clearTarget;
@@ -138,6 +144,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.DIED)
 	public static class DiedEvent extends PlayerEvent {
 		public IDamageSource damageSource;
 		public IEntity<?> source;
@@ -151,6 +158,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.FACTION_UPDATE)
 	public static class FactionUpdateEvent extends PlayerEvent {
 		public IFaction faction;
 		public boolean init;
@@ -164,6 +172,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.INIT)
 	public static class InitEvent extends PlayerEvent {
 		public InitEvent(IPlayer<?> player) {
 			super(player);
@@ -171,6 +180,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.INTERACT)
 	public static class InteractEvent extends PlayerEvent {
 
 		public Object target;
@@ -184,6 +194,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 
 	}
 
+	@EventName(EnumScriptType.ITEM_CRAFTED)
 	public static class ItemCrafted extends PlayerEvent {
 
 		public final IItemStack crafting;
@@ -197,6 +208,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.ITEM_FISHED)
 	public static class ItemFished extends PlayerEvent {
 
 		public int rodDamage;
@@ -212,6 +224,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.KEY_ACTIVE)
 	public static class KeyActive extends PlayerEvent {
 
 		public IKeySetting key;
@@ -224,6 +237,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 
 	}
 
+	@EventName(EnumScriptType.KEY_DOWN)
 	public static class KeyPressedEvent extends PlayerEvent {
 		public boolean isAltPressed;
 		public boolean isCtrlPressed;
@@ -241,6 +255,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.MOUSE_MOVE)
 	public static class MouseMoveEvent extends PlayerEvent {
 		public boolean isAltPressed;
 		public boolean isCtrlPressed;
@@ -257,7 +272,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 			posX = x;
 			posY = y;
 			mouseX = dx;
-			mouseY = dx;
+			mouseY = dy;
 			dWheel = wheel;
 			this.isCtrlPressed = isCtrlPressed;
 			this.isAltPressed = isAltPressed;
@@ -266,6 +281,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.KILL)
 	public static class KilledEntityEvent extends PlayerEvent {
 		public IEntityLivingBase<?> entity;
 
@@ -275,6 +291,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.LEVEL_UP)
 	public static class LevelUpEvent extends PlayerEvent {
 		public int change;
 
@@ -284,18 +301,21 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.LOGIN)
 	public static class LoginEvent extends PlayerEvent {
 		public LoginEvent(IPlayer<?> player) {
 			super(player);
 		}
 	}
 
+	@EventName(EnumScriptType.LOGOUT)
 	public static class LogoutEvent extends PlayerEvent {
 		public LogoutEvent(IPlayer<?> player) {
 			super(player);
 		}
 	}
 
+	@EventName(EnumScriptType.GUI_OPEN)
 	public static class OpenGUI extends PlayerEvent {
 
 		public String newGUI, oldGUI;
@@ -309,6 +329,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.PICKUP)
 	public static class PickUpEvent extends PlayerEvent {
 		public IItemStack item;
 
@@ -319,6 +340,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.PLEASED)
 	public static class PlaceEvent extends PlayerEvent {
 
 		public IBlock block;
@@ -331,6 +353,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 
 	}
 
+	@EventName(EnumScriptType.PACKAGE_FROM)
 	public static class PlayerPackage extends PlayerEvent {
 
 		public INbt nbt;
@@ -342,6 +365,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 
 	}
 
+	@EventName(EnumScriptType.SOUND_STOP)
 	public static class PlayerSound extends PlayerEvent {
 
 		public String name;
@@ -363,12 +387,14 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.RANGED_LAUNCHED)
 	public static class RangedLaunchedEvent extends PlayerEvent {
 		public RangedLaunchedEvent(IPlayer<?> player) {
 			super(player);
 		}
 	}
 
+	@EventName(EnumScriptType.TIMER)
 	public static class TimerEvent extends PlayerEvent {
 		public int id;
 
@@ -379,6 +405,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 	}
 
 	@Cancelable
+	@EventName(EnumScriptType.TOSS)
 	public static class TossEvent extends PlayerEvent {
 		public IItemStack item;
 
@@ -388,6 +415,7 @@ public class PlayerEvent extends CustomNPCsEvent {
 		}
 	}
 
+	@EventName(EnumScriptType.TICK)
 	public static class UpdateEvent extends PlayerEvent {
 		public UpdateEvent(IPlayer<?> player) {
 			super(player);

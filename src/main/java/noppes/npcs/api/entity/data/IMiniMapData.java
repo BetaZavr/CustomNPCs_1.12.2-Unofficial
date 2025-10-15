@@ -1,7 +1,9 @@
 package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface IMiniMapData {
 
 	int getColor();
@@ -18,24 +20,24 @@ public interface IMiniMapData {
 
 	String[] getSpecificKeys();
 
-	String getSpecificValue(String key);
+	String getSpecificValue(@ParamName("key") String key);
 
 	String getType();
 
 	boolean isEnable();
 
-	void setColor(int color);
+	void setColor(@ParamName("color") int color);
 
-	void setDimensions(int[] dims);
+	void setDimensions(@ParamName("dims") int[] dims);
 
-	void setIcon(String icon);
+	void setIcon(@ParamName("icon") String icon);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setPos(int x, int y, int z);
+	void setPos(@ParamName("x") int x, @ParamName("y") int y, @ParamName("z") int z);
 
-	void setPos(IPos pos);
+	void setPos(@ParamName("pos") IPos pos);
 
-	void setType(String type);
+	void setType(@ParamName("type") String type);
 
 }

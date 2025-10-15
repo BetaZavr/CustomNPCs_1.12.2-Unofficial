@@ -1,8 +1,9 @@
 package noppes.npcs.api;
 
+@SuppressWarnings("all")
 public interface IScoreboardObjective {
 
-	IScoreboardScore createScore(String player);
+	IScoreboardScore createScore(@ParamName("player") String player);
 
 	String getCriteria();
 
@@ -10,15 +11,15 @@ public interface IScoreboardObjective {
 
 	String getName();
 
-	IScoreboardScore getScore(String player);
+	IScoreboardScore getScore(@ParamName("player") String player);
 
 	IScoreboardScore[] getScores();
 
-	boolean hasScore(String player);
+	boolean hasScore(@ParamName("player") String player);
 
 	boolean isReadyOnly();
 
-	void removeScore(String player);
+	void removeScore(@ParamName("player") String player);
 
-	void setDisplayName(String name);
+	void setDisplayName(@ParamName("name") String name);
 }

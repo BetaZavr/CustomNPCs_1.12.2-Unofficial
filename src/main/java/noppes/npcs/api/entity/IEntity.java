@@ -1,29 +1,26 @@
 package noppes.npcs.api.entity;
 
 import net.minecraft.entity.Entity;
-import noppes.npcs.api.IEntityDamageSource;
-import noppes.npcs.api.INbt;
-import noppes.npcs.api.IPos;
-import noppes.npcs.api.IRayTrace;
-import noppes.npcs.api.IWorld;
+import noppes.npcs.api.*;
 import noppes.npcs.api.entity.data.IData;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IEntity<T extends Entity> {
 
-	void addRider(IEntity<?> entity);
+	void addRider(@ParamName("entity") IEntity<?> entity);
 
-	void addTag(String tag);
+	void addTag(@ParamName("tag") String tag);
 
 	void clearRiders();
 
-	void damage(float amount);
+	void damage(@ParamName("amount") float amount);
 
-	void damage(float amount, IEntityDamageSource source);
+	void damage(@ParamName("amount") float amount, @ParamName("source") IEntityDamageSource source);
 
 	void despawn();
 
-	IEntityItem<?> dropItem(IItemStack item);
+	IEntityItem<?> dropItem(@ParamName("item") IItemStack item);
 
 	void extinguish();
 
@@ -93,7 +90,7 @@ public interface IEntity<T extends Entity> {
 
 	boolean hasCustomName();
 
-	boolean hasTag(String tag);
+	boolean hasTag(@ParamName("tag") String tag);
 
 	boolean inFire();
 
@@ -111,48 +108,50 @@ public interface IEntity<T extends Entity> {
 
 	void kill();
 
-	void knockback(int power, float direction);
+	void knockback(@ParamName("power") int power, @ParamName("direction") float direction);
 
-	void playAnimation(int type);
+	void playAnimation(@ParamName("type") int type);
 
-	IRayTrace rayTraceBlock(double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox);
+	IRayTrace rayTraceBlock(@ParamName("distance") double distance, @ParamName("stopOnLiquid") boolean stopOnLiquid,
+							@ParamName("ignoreBlockWithoutBoundingBox") boolean ignoreBlockWithoutBoundingBox);
 
-	IEntity<?>[] rayTraceEntities(double distance, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox);
+	IEntity<?>[] rayTraceEntities(@ParamName("distance") double distance, @ParamName("stopOnLiquid") boolean stopOnLiquid,
+								  @ParamName("ignoreBlockWithoutBoundingBox") boolean ignoreBlockWithoutBoundingBox);
 
-	void removeTag(String tag);
+	void removeTag(@ParamName("tag") String tag);
 
-	void setBurning(int seconds);
+	void setBurning(@ParamName("seconds") int seconds);
 
-	void setEntityNbt(INbt nbt);
+	void setEntityNbt(@ParamName("nbt") INbt nbt);
 
-	void setMotionX(double motion);
+	void setMotionX(@ParamName("motion") double motion);
 
-	void setMotionY(double motion);
+	void setMotionY(@ParamName("motion") double motion);
 
-	void setMotionZ(double motion);
+	void setMotionZ(@ParamName("motion") double motion);
 
-	void setMount(IEntity<?> entity);
+	void setMount(@ParamName("entity") IEntity<?> entity);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setPitch(float pitch);
+	void setPitch(@ParamName("pitch") float pitch);
 
-	void setPos(IPos pos);
+	void setPos(@ParamName("pos") IPos pos);
 
-	void setPosition(double x, double y, double z);
+	void setPosition(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
-	void setRotation(float rotation);
+	void setRotation(@ParamName("rotation") float rotation);
 
-	void setX(double x);
+	void setX(@ParamName("x") double x);
 
-	void setY(double y);
+	void setY(@ParamName("y") double y);
 
-	void setZ(double z);
+	void setZ(@ParamName("z") double z);
 
 	void spawn();
 
-	void storeAsClone(int tab, String name);
+	void storeAsClone(@ParamName("tab") int tab, @ParamName("name") String name);
 
-	boolean typeOf(int type);
+	boolean typeOf(@ParamName("type") int type);
 
 }

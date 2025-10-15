@@ -191,12 +191,12 @@ public class AnimationConfig implements IAnimation {
 	}
 
 	@Override
-	public void removeFrame(IAnimationFrame frameId) {
-		if (frameId == null || frames.size() <= 1) {
+	public void removeFrame(IAnimationFrame frame) {
+		if (frame == null || frames.size() <= 1) {
 			return;
 		}
 		for (int f : frames.keySet()) {
-			if (frames.get(f).equals(frameId)) {
+			if (frames.get(f).equals(frame)) {
 				removeFrame(f);
 				return;
 			}

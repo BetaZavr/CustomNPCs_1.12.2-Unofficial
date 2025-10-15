@@ -523,14 +523,17 @@ public class ScriptController {
 		nbtC.setString("UUID", "Java.type(\"java.util.UUID\")");
 		nbtC.setString("HashMap", "Java.type(\"java.util.HashMap\")");
 		nbtC.setString("HashSet", "Java.type(\"java.util.HashSet\")");
+
 		nbtC.setString("Files", "Java.type(\"java.nio.file.Files\")");
 		nbtC.setString("File", "Java.type(\"java.io.File\")");
 		nbtC.setString("FileOutputStream", "Java.type(\"java.io.FileOutputStream\")");
 		nbtC.setString("FileInputStream", "Java.type(\"java.io.FileInputStream\")");
+
 		nbtC.setString("String", "Java.type(\"java.lang.String\")");
 		nbtC.setString("StringArray", "Java.type(\"java.lang.String[]\")");
-		nbtC.setString("sData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getStoreddata()");
-		nbtC.setString("tData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getIWorld(0).getTempdata()");
+		nbtC.setString("sData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getStoreddata()");
+		nbtC.setString("tData", "Java.type(\"noppes.npcs.api.NpcAPI\").Instance().getTempdata()");
+
 		nbtC.setString("JsonToNBT", "Java.type(\"net.minecraft.nbt.JsonToNBT\")");
 		nbtC.setString("NBTTagByte", "Java.type(\"net.minecraft.nbt.NBTTagByte\")");
 		nbtC.setString("NBTTagInt", "Java.type(\"net.minecraft.nbt.NBTTagInt\")");
@@ -543,6 +546,7 @@ public class ScriptController {
 		nbtC.setString("NBTTagIntArray", "Java.type(\"net.minecraft.nbt.NBTTagIntArray\")");
 		nbtC.setString("CompressedStreamTools", "Java.type(\"net.minecraft.nbt.CompressedStreamTools\")");
 		nbtC.setString("EnumParticleTypes", "Java.type(\"net.minecraft.util.EnumParticleTypes\")");
+
 		nbtC.setString("Serializer", "Java.type(\"net.minecraft.util.text.ITextComponent.Serializer\")");
 		nbtC.setString("TextComponentTranslation", "Java.type(\"net.minecraft.util.text.TextComponentTranslation\")");
 		nbtC.setString("TextComponentString", "Java.type(\"net.minecraft.util.text.TextComponentString\")");
@@ -552,7 +556,9 @@ public class ScriptController {
 		nbtC.setString("HoverEvent", "Java.type(\"net.minecraft.util.text.event.HoverEvent\")");
 		nbtC.setString("ClickEventAction", "Java.type(\"net.minecraft.util.text.event.ClickEvent.Action\")");
 		nbtC.setString("HoverEventAction", "Java.type(\"net.minecraft.util.text.event.HoverEvent.Action\")");
+
 		nbtC.setString("BlockPos", "Java.type(\"net.minecraft.util.math.BlockPos\")");
+		nbtC.setString("Block", "Java.type(\"net.minecraft.block.Block\")");
 		nbtC.setString("Item", "Java.type(\"net.minecraft.item.Item\")");
 		nbtC.setString("ItemStack", "Java.type(\"net.minecraft.item.ItemStack\")");
 		nbtC.setString("ResourceLocation", "Java.type(\"net.minecraft.util.ResourceLocation\")");
@@ -564,7 +570,7 @@ public class ScriptController {
 		nbtC.setString("ForgeRegistries", "Java.type(\"net.minecraftforge.fml.common.registry.ForgeRegistries\")");
 		nbtC.setString("ScriptController", "Java.type(\"noppes.npcs.controllers.ScriptController\").Instance");
 		nbtC.setString("ScriptContainer", "Java.type(\"noppes.npcs.controllers.ScriptContainer\")");
-		nbtC.setString("TransportController", "Java.type(\"noppes.npcs.controllers.TransportController\")");
+		nbtC.setString("TransportController", "Java.type(\"noppes.npcs.controllers.TransportController\").instance");
 		return nbtC;
 	}
 

@@ -6,7 +6,6 @@ import java.util.TreeMap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import noppes.npcs.api.CustomNPCsException;
-import noppes.npcs.api.constants.AnimationKind;
 import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.api.entity.data.IEmotionPart;
 
@@ -55,10 +54,10 @@ implements IEmotion {
 		this.repeatLast = nbtEmotion.getInteger("EmotionRepeat");
 		this.canBlink = nbtEmotion.getBoolean("CanBlink");
 		if (nbtEmotion.hasKey("ScaleMoveX", 5)) {
-			scaleMoveX = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveX")));;
+			scaleMoveX = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveX")));
 		}
 		if (nbtEmotion.hasKey("ScaleMoveY", 5)) {
-			scaleMoveY = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveY")));;
+			scaleMoveY = Math.max(0.05f, Math.min(1.25f, nbtEmotion.getFloat("ScaleMoveY")));
 		}
 	}
 

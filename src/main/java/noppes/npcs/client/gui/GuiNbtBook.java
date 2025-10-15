@@ -10,6 +10,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.Entity;
@@ -97,7 +98,7 @@ public class GuiNbtBook extends GuiNPCInterface implements ICustomScrollListener
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			try {
 				setCompound(JsonToNBT.getTagFromJson(((SubGuiNpcTextArea) gui).text));

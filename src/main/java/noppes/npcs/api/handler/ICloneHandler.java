@@ -1,16 +1,18 @@
 package noppes.npcs.api.handler;
 
 import noppes.npcs.api.IWorld;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IEntity;
 
 public interface ICloneHandler {
 
-	IEntity<?> get(int tab, String name, IWorld world);
+	IEntity<?> get(@ParamName("tab") int tab, @ParamName("name") String name, @ParamName("world") IWorld world);
 
-	void remove(int tab, String name);
+	void remove(@ParamName("tab") int tab, @ParamName("name") String name);
 
-	void set(int tab, String name, IEntity<?> entity);
+	void set(@ParamName("tab") int tab, @ParamName("name") String name, @ParamName("entity") IEntity<?> entity);
 
-	IEntity<?> spawn(double x, double y, double z, int tab, String name, IWorld world);
+	IEntity<?> spawn(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z,
+					 @ParamName("tab") int tab, @ParamName("name") String name, @ParamName("world") IWorld world);
 
 }

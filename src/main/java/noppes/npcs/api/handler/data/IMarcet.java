@@ -1,10 +1,13 @@
 package noppes.npcs.api.handler.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IMarcet {
 
 	IDeal[] getAllDeals();
 
-	IDeal[] getDeals(int section);
+	IDeal[] getDeals(@ParamName("section") int section);
 
 	int getId();
 
@@ -12,9 +15,9 @@ public interface IMarcet {
 
 	boolean isLimited();
 
-	void setIsLimited(boolean limited);
+	void setIsLimited(@ParamName("limited") boolean limited);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
 	void updateNew();
 

@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.List;
 
 import moe.plushie.armourers_workshop.api.ArmourersWorkshopClientApi;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.client.renderer.GlStateManager;
@@ -428,11 +429,11 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
 			DropController dData = DropController.getInstance();
 			String name = ((SubGuiEditText) subgui).text[0];
-			if (subgui.getId() == 1) {
+			if (((SubGuiEditText) subgui).getId() == 1) {
 				while (dData.templates.containsKey(name)) { name += "_"; }
 				inventory.saveDropsName = name;
 				dData.templates.put(inventory.saveDropsName, new DropsTemplate());
@@ -441,7 +442,7 @@ public class GuiNPCInv extends GuiContainerNPCInterface2
 				nbtTemplate.setTag("Groups", dData.templates.get(inventory.saveDropsName).getNBT());
 				Client.sendDirectData(EnumPacketServer.DropTemplateSave, 1, nbtTemplate);
 			} // create template
-			else if (subgui.getId() == 2) {
+			else if (((SubGuiEditText) subgui).getId() == 2) {
 				if (name == null || name.equals(inventory.saveDropsName) || dData.templates.containsKey(name) || !dData.templates.containsKey(inventory.saveDropsName)) { return; }
 				dData.templates.put(name, dData.templates.get(inventory.saveDropsName));
 				dData.templates.remove(inventory.saveDropsName);

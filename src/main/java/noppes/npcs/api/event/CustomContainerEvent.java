@@ -1,16 +1,21 @@
 package noppes.npcs.api.event;
 
+import noppes.npcs.api.EventName;
 import noppes.npcs.api.IContainer;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.constants.EnumScriptType;
 
 public class CustomContainerEvent extends CustomNPCsEvent {
 
+	@EventName(EnumScriptType.CUSTOM_CHEST_CLOSED)
 	public static class CloseEvent extends CustomContainerEvent {
 		public CloseEvent(IPlayer<?> player, IContainer container) {
 			super(player, container);
 		}
 	}
+
+	@EventName(EnumScriptType.CUSTOM_CHEST_CLICKED)
 	public static class SlotClickedEvent extends CustomContainerEvent {
 		public IItemStack heldItem;
 		public int slot;
@@ -29,8 +34,8 @@ public class CustomContainerEvent extends CustomNPCsEvent {
 
 	public IPlayer<?> player;
 
-	public CustomContainerEvent(IPlayer<?> player, IContainer container) {
-		this.container = container;
-		this.player = player;
+	public CustomContainerEvent(IPlayer<?> playerIn, IContainer containerIn) {
+		container = containerIn;
+		player = playerIn;
 	}
 }

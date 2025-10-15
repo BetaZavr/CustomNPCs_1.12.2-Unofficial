@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -118,7 +119,7 @@ public class GuiNpcSpawner extends GuiNPCInterface2 implements IGuiData, ICustom
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		SubGuiNpcMobSpawnerSelector selector = (SubGuiNpcMobSpawnerSelector) gui;
 		if (slot < 0) { slot = (isDead ? deadScroll : aliveScroll).getList().size(); }
 		if (selector.showingClones == 2) {

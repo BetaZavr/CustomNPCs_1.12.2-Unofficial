@@ -1,12 +1,13 @@
 package noppes.npcs.api.entity.data;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import noppes.npcs.api.ParamName;
 
 public interface IAttributeModifier {
 
 	double getAmount();
 
-	String getID();
+	String getId();
 
 	AttributeModifier getMCModifier();
 
@@ -14,10 +15,10 @@ public interface IAttributeModifier {
 
 	int getOperation();
 
-	IAttributeModifier setAmount(double amount);
+	IAttributeModifier setAmount(@ParamName("amount") double amount);
 
-	IAttributeModifier setName(String name);
+	IAttributeModifier setName(@ParamName("name") String name);
 
-	void setOperation(int operation);
+	void setOperation(@ParamName("operation") int operation);
 
 }

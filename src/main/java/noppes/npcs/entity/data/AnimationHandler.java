@@ -80,7 +80,7 @@ public class AnimationHandler {
         checkData();
     }
 
-    public boolean hasAnim(AnimationKind type) {
+    public boolean hasAnimation(AnimationKind type) {
         if (!data.containsKey(type) || data.get(type) == null || data.get(type).isEmpty()) { return false; }
         AnimationController aData = AnimationController.getInstance();
         for (int id : data.get(type)) {
@@ -297,7 +297,7 @@ public class AnimationHandler {
                         NBTTagCompound nbt = nbtCategory.getTagList("Animations", 10).getCompoundTagAt(i);
                         int id = nbt.getInteger("ID");
                         String name = entity.getName() + "_" + nbt.getString("Name");
-                        AnimationConfig anim = (AnimationConfig) aData.getAnimation(id);
+                        AnimationConfig anim = aData.getAnimation(id);
                         if (entity.world.getEntityByID(entity.getEntityId()) != null && anim == null || !anim.getName().equals(name)) {
                             boolean found = false;
                             if (anim != null) {
@@ -309,7 +309,7 @@ public class AnimationHandler {
                                 }
                             }
                             if (!found) { // Converting
-                                anim = (AnimationConfig) aData.createNewAnim();
+                                anim = aData.createNewAnim();
                                 id = anim.id;
                                 if (!anim.immutable) { anim.load(nbt); }
                                 anim.name = name;
@@ -337,9 +337,9 @@ public class AnimationHandler {
             }
             AnimationKind base = getCurrentMovementAnimation();
             if (base != null) {
-                IAnimation anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
+                AnimationConfig anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
                 if (anim != null) {
-                    runAnimation((AnimationConfig) anim, base);
+                    runAnimation(anim, base);
                     stage = EnumAnimationStages.Run;
                 }
             }
@@ -645,13 +645,13 @@ public class AnimationHandler {
     public void setRotationAngles(float ignoredLimbSwing, float ignoredLimbSwingAmount, float ignoredAgeInTicks, float ignoredNetHeadYaw, float ignoredHeadPitch, float ignoredScaleFactor, float partialTicks) {
         AnimationKind base = getCurrentMovementAnimation();
         if (base != null && (activeAnimation == null || (activeAnimation.type.isMovement() && activeAnimation.id != movementAnimation.get(base)))) {
-            IAnimation anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
+            AnimationConfig anim = AnimationController.getInstance().getAnimation(movementAnimation.get(base));
             if (anim != null) {
                 if (!waitData.containsKey(anim.getId()) || waitData.get(anim.getId()) <= System.currentTimeMillis()) {
                     if (anim.getChance() <= rnd.nextFloat()) {
                         waitData.put(anim.getId(), System.currentTimeMillis() + 1000);
                     }
-                    else { tryRunAnimation((AnimationConfig) anim, base); }
+                    else { tryRunAnimation(anim, base); }
                 }
             }
         }
@@ -785,4 +785,25 @@ public class AnimationHandler {
 
     public int getAnimationSpeedTicks() { return speedTicks; }
 
+    public IAnimation[] getAnimations(AnimationKind animationType) {
+        List<IAnimation> list = new ArrayList<>();
+        if (!data.get(animationType).isEmpty()) {
+            AnimationController aData = AnimationController.getInstance();
+            for (int id : data.get(animationType)) {
+                AnimationConfig anim = aData.getAnimation(id);
+                if (anim != null) { list.add(aData.getAnimation(id)); }
+            }
+        }
+        return list.toArray(new IAnimation[0]);
+    }
+
+    public void removeAnimations(AnimationKind animationType) {
+        data.get(animationType).clear();
+    }
+
+    public void clear() {
+        stopAnimation();
+        for (AnimationKind animationType : data.keySet()) { data.get(animationType).clear(); }
+        movementAnimation.clear();
+    }
 }

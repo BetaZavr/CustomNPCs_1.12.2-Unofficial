@@ -143,8 +143,8 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 	}
 
 	@Override
-	public void deleteDimension(int dimensionID) {
-		this.deleteDimension(null, dimensionID);
+	public void deleteDimension(int dimensionId) {
+		this.deleteDimension(null, dimensionId);
 	}
 
 	private int findFreeDimensionID() {
@@ -190,8 +190,8 @@ public class DimensionHandler extends WorldSavedData implements IDimensionHandle
 	}
 
 	@Override
-	public IWorldInfo getMCWorldInfo(int id) {
-		return this.dimensionInfo.get(id);
+	public IWorldInfo getMCWorldInfo(int dimensionId) {
+		return this.dimensionInfo.get(dimensionId);
 	}
 
 	@Override

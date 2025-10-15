@@ -1,8 +1,10 @@
 package noppes.npcs.api.entity;
 
 import net.minecraft.entity.projectile.EntityThrowable;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IProjectile<T extends EntityThrowable> extends IThrowable<T> {
 
 	void enableEvents();
@@ -13,16 +15,16 @@ public interface IProjectile<T extends EntityThrowable> extends IThrowable<T> {
 
 	IItemStack getItem();
 
-	void setAccuracy(int accuracy);
+	void setAccuracy(@ParamName("accuracy") int accuracy);
 
-	void setHasGravity(boolean bo);
+	void setHasGravity(@ParamName("bo") boolean bo);
 
-	void setHeading(double x, double y, double z);
+	void setHeading(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
-	void setHeading(float yaw, float pitch);
+	void setHeading(@ParamName("yaw") float yaw, @ParamName("pitch") float pitch);
 
-	void setHeading(IEntity<?> entity);
+	void setHeading(@ParamName("entity") IEntity<?> entity);
 
-	void setItem(IItemStack item);
+	void setItem(@ParamName("item") IItemStack item);
 
 }

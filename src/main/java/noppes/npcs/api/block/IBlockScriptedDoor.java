@@ -1,7 +1,9 @@
 package noppes.npcs.api.block;
 
 import noppes.npcs.api.ITimers;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface IBlockScriptedDoor extends IBlock {
 
 	String getBlockModel();
@@ -12,18 +14,18 @@ public interface IBlockScriptedDoor extends IBlock {
 
 	float getResistance();
 
-	String getSound(boolean isOpen);
+	String getSound(@ParamName("isOpen") boolean isOpen);
 
 	ITimers getTimers();
 
-	void setBlockModel(String name);
+	void setBlockModel(@ParamName("name") String name);
 
-	void setHardness(float hardness);
+	void setHardness(@ParamName("hardness") float hardness);
 
-	void setOpen(boolean open);
+	void setOpen(@ParamName("open") boolean open);
 
-	void setResistance(float resistance);
+	void setResistance(@ParamName("resistance") float resistance);
 
-	void setSound(boolean isOpen, String song);
+	void setSound(@ParamName("isOpen") boolean isOpen, @ParamName("song") String song);
 
 }

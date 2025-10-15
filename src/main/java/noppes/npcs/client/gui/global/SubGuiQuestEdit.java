@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
 import net.minecraft.client.gui.GuiYesNoCallback;
 import net.minecraft.nbt.NBTTagCompound;
@@ -363,7 +364,7 @@ public class SubGuiQuestEdit extends SubGuiInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
 			SubGuiNpcTextArea gui = (SubGuiNpcTextArea) subgui;
 			if (gui.getId() == 0) {

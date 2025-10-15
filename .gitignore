@@ -22,8 +22,10 @@ libs
 lang
 
 # other
+CreaterAPITypeJS.java
 eclipse
 run
+libs.ink
 
 # Files from Forge MDK
 forge*changelog.txt

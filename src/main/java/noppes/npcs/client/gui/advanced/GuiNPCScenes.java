@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.advanced;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
@@ -55,7 +56,7 @@ public class GuiNPCScenes extends GuiNPCInterface2 {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		if (gui instanceof SubGuiNpcTextArea) {
 			scene.lines = ((SubGuiNpcTextArea) gui).text;
 			scene = null;

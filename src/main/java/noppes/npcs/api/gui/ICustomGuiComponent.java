@@ -1,5 +1,6 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
 public interface ICustomGuiComponent {
@@ -16,17 +17,17 @@ public interface ICustomGuiComponent {
 
 	boolean hasHoverText();
 
-	void offSet(int type);
+	void offSet(@ParamName("type") int type);
 
 	@SuppressWarnings("all")
-	ICustomGuiComponent setHoverStack(IItemStack item);
+	ICustomGuiComponent setHoverStack(@ParamName("item") IItemStack item);
 
-	ICustomGuiComponent setHoverText(String hover);
+	ICustomGuiComponent setHoverText(@ParamName("hover") String hover);
 
-	ICustomGuiComponent setHoverText(String[] hovers);
+	ICustomGuiComponent setHoverText(@ParamName("hovers") String[] hovers);
 
-	ICustomGuiComponent setId(int id);
+	ICustomGuiComponent setId(@ParamName("id") int id);
 
-	ICustomGuiComponent setPos(int x, int y);
+	ICustomGuiComponent setPos(@ParamName("x") int x, @ParamName("y") int y);
 
 }

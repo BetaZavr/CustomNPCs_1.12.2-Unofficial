@@ -656,7 +656,7 @@ public class GuiNPCInterface extends GuiScreen implements IEditNPC {
 	public boolean hasArea() { return hasArea; }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) { }
+	public void subGuiClosed(GuiScreen subgui) { }
 
 	@Override
 	public void elementClicked() {}

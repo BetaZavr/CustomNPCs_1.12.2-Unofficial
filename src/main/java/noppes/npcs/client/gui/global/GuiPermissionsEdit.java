@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.global;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -113,7 +114,7 @@ public class GuiPermissionsEdit extends GuiNPCInterface implements ICustomScroll
     }
 
     @Override
-    public void subGuiClosed(SubGuiInterface subgui) {
+    public void subGuiClosed(GuiScreen subgui) {
         if (subgui instanceof SubGuiEditText) {
             SubGuiEditText gui = (SubGuiEditText) subgui;
             if (gui.cancelled || gui.text[0].isEmpty() || !permissions.hasSelected() || !data.containsKey(permissions.getSelected())) { return; }

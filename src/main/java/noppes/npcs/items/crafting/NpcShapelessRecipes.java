@@ -416,9 +416,9 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	@Override
-	public void setRecipeOutput(ItemStack cms) {
-		if (cms == null || cms.isEmpty()) { return; }
-		recipeOutput = cms.copy();
+	public void setRecipeOutput(ItemStack item) {
+		if (item == null || item.isEmpty()) { return; }
+		recipeOutput = item.copy();
 	}
 
 	public boolean matches(@Nonnull InventoryCrafting inv, @Nullable World worldIn) {
@@ -465,14 +465,14 @@ public class NpcShapelessRecipes extends ShapelessRecipes implements INpcRecipe,
 	}
 
 	@Override
-	public void setIgnoreDamage(boolean bo) {
-		ignoreDamage = bo;
+	public void setIgnoreDamage(boolean ignoreDamage) {
+		this.ignoreDamage = ignoreDamage;
 		savesRecipe = true;
 	}
 
 	@Override
-	public void setIgnoreNBT(boolean bo) {
-		ignoreNBT = bo;
+	public void setIgnoreNBT(boolean ignoreNBT) {
+		this.ignoreNBT = ignoreNBT;
 		savesRecipe = true;
 	}
 

@@ -1,5 +1,8 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface INPCAi {
 
 	int getAnimation();
@@ -48,53 +51,53 @@ public interface INPCAi {
 
     int getMaxHurtResistantTime();
 
-    void setAnimation(int type);
+    void setAnimation(@ParamName("type") int type);
 
-	void setAttackInvisible(boolean attack);
+	void setAttackInvisible(@ParamName("attack") boolean attack);
 
-	void setAttackLOS(boolean enabled);
+	void setAttackLOS(@ParamName("enabled") boolean enabled);
 
-	void setAvoidsWater(boolean enabled);
+	void setAvoidsWater(@ParamName("enabled") boolean enabled);
 
-	void setCanSwim(boolean canSwim);
+	void setCanSwim(@ParamName("canSwim") boolean canSwim);
 
-	void setDoorInteract(int type);
+	void setDoorInteract(@ParamName("type") int type);
 
-	void setInteractWithNPCs(boolean interact);
+	void setInteractWithNPCs(@ParamName("interact") boolean interact);
 
-	void setLeapAtTarget(boolean leap);
+	void setLeapAtTarget(@ParamName("leap") boolean leap);
 
-	void setMovingPathType(int type, boolean pauses);
+	void setMovingPathType(@ParamName("type") int type, @ParamName("pauses") boolean pauses);
 
-	void setMovingType(int type);
+	void setMovingType(@ParamName("type") int type);
 
-	void setNavigationType(int type);
+	void setNavigationType(@ParamName("type") int type);
 
-	void setRetaliateType(int type);
+	void setRetaliateType(@ParamName("type") int type);
 
-	void setReturnsHome(boolean bo);
+	void setReturnsHome(@ParamName("bo") boolean bo);
 
-	void setSheltersFrom(int type);
+	void setSheltersFrom(@ParamName("type") int type);
 
-	void setStandingType(int type);
+	void setStandingType(@ParamName("type") int type);
 
-	void setStopOnInteract(boolean stopOnInteract);
+	void setStopOnInteract(@ParamName("stopOnInteract") boolean stopOnInteract);
 
-	void setTacticalRange(int range);
+	void setTacticalRange(@ParamName("range") int range);
 
-	void setTacticalType(int type);
+	void setTacticalType(@ParamName("type") int type);
 
-	void setWalkingSpeed(int speed);
+	void setWalkingSpeed(@ParamName("speed") int speed);
 
-	void setWanderingRange(int range);
+	void setWanderingRange(@ParamName("range") int range);
 
-	void setMaxHurtResistantTime(int ticks);
+	void setMaxHurtResistantTime(@ParamName("ticks") int ticks);
 
 	boolean isAIDisabled();
 	
-	void setIsAIDisabled(boolean aiDisabled);
+	void setIsAIDisabled(@ParamName("aiDisabled") boolean aiDisabled);
 
     boolean canBeCollide();
 
-	void setCanBeCollide(boolean bo);
+	void setCanBeCollide(@ParamName("bo") boolean bo);
 }

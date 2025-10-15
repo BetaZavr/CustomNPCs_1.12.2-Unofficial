@@ -1,7 +1,9 @@
 package noppes.npcs.api.gui;
 
 import noppes.npcs.api.IPos;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface ICompassData {
 
 	int getDimensionID();
@@ -20,22 +22,22 @@ public interface ICompassData {
 
 	boolean isShow();
 
-	void setDimensionID(int dimID);
+	void setDimensionID(@ParamName("dimensionId") int dimensionId);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setNPCName(String npcName);
+	void setNPCName(@ParamName("npcName") String npcName);
 
-	void setPos(int x, int y, int z);
+	void setPos(@ParamName("X") int x, @ParamName("y") int y, @ParamName("Z") int z);
 
-	void setPos(IPos pos);
+	void setPos(@ParamName("pos") IPos pos);
 
-	void setRange(int range);
+	void setRange(@ParamName("range") int range);
 
-	void setShow(boolean show);
+	void setShow(@ParamName("show") boolean show);
 
-	void setTitle(String title);
+	void setTitle(@ParamName("title") String title);
 
-	void setType(int type);
+	void setType(@ParamName("type") int type);
 
 }

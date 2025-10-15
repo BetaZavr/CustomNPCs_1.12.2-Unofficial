@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.select.SubGuiQuestSelection;
@@ -670,7 +671,7 @@ public class GuiBoundarySetting extends GuiNPCInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (region != null) {
 			if (subgui instanceof SubGuiColorSelector) { region.color = ((SubGuiColorSelector) subgui).color; }
 			if (subgui instanceof SubGuiEditText) { region.message = ((SubGuiEditText) subgui).text[0]; }

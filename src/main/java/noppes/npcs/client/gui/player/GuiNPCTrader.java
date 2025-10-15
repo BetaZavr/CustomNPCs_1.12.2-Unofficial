@@ -342,6 +342,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 		GlStateManager.translate(x + w, y - 2.0f, 1.0f);
 		GlStateManager.scale(0.0625f, 0.0625f, 0.0625f);
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+		mc.getTextureManager().bindTexture(GuiNPCInterface.MONEY);
 		drawTexturedModalRect(0, 0, 0, 0, 256, 256);
 		GlStateManager.popMatrix();
 		if (isMouseHover(mouseX, mouseY, x, y, w + 16, 16)) {
@@ -375,7 +376,6 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		if (marcet == null) { onClosed(); return; }
-		super.drawScreen(mouseX, mouseY, partialTicks);
 		GlStateManager.enableBlend();
 		if (!hovers.isEmpty()) {
 			int i = 0;
@@ -456,6 +456,7 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 				hoverY = ValueUtil.correctInt(hoverY + (int) (Mouse.getDWheel() / 120.0d * ((double) fontRenderer.FONT_HEIGHT + 1.0d)), -hoverMaxY, 0);
 			}
 		}
+		super.drawScreen(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
@@ -1068,11 +1069,12 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 					GlStateManager.translate(posX, posY, 0.0f);
 					GlStateManager.scale(s, s, s);
 					int i = 0;
+					List<String> hovers;
 					for (ItemStack stack : dm.buyItems.keySet()) {
 						mc.getRenderItem().renderItemAndEffectIntoGUI(stack, i * 18, 0);
 						GlStateManager.pushMatrix();
 						String sCount = Util.instance.getTextReducedNumber(dm.buyItems.get(stack), true, true, false);
-						GlStateManager.translate(i * 18 + 17, 16.0F, 200.0F);
+						GlStateManager.translate(i * 18.0f + 17.0f - ((dm.buyItems.size() == 1 ? 2 : dm.buyItems.size()) - 1.0f) * 18.0f, 16.0f, 200.0f);
 						GlStateManager.scale(0.75f, 0.75f, 0.75f);
 						GlStateManager.disableLighting();
 						GlStateManager.disableDepth();
@@ -1085,7 +1087,9 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 
 						if (hovered && isMouseHover(mouseX, mouseY, posX + (i * 18) * s, posY + listener.scrollY, 16.0f * s, 16.0f * s)) {
 							hoverText.clear();
-							hoverText.addAll(stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL));
+							hovers = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
+							if (hovers.get(0) instanceof String) { hovers.set(0, hovers.get(0) + TextFormatting.RESET + " x" + sCount); }
+							hoverText.addAll(hovers);
 						}
 						i++;
 					}
@@ -1229,7 +1233,10 @@ public class GuiNPCTrader extends GuiContainerNPCInterface
 			else if (!enabled) { c = CustomNpcs.NotEnableColor.getRGB(); }
 			else if (hovered) { c = CustomNpcs.HoverColor.getRGB(); }
 
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(0.0f, 0.0f, 1.0f);
 			renderString(mc.fontRenderer, text, x + 11, y, x + width - 11, y + height, c, showShadow, true);
+			GlStateManager.popMatrix();
 
 			if (hovered && !hoverText.isEmpty()) {
 				if (listener != null) { listener.putHoverText(hoverText); }

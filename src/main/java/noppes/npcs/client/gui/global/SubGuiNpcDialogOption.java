@@ -6,7 +6,6 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ResourceLocation;
-import noppes.npcs.LogWriter;
 import noppes.npcs.api.constants.OptionType;
 import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
@@ -183,7 +182,7 @@ public class SubGuiNpcDialogOption extends SubGuiInterface implements ICustomScr
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiColorSelector) {
 			int color = ((SubGuiColorSelector) subgui).color;
 			option.optionColor = color;
@@ -192,11 +191,11 @@ public class SubGuiNpcDialogOption extends SubGuiInterface implements ICustomScr
 		if (subgui instanceof SubGuiDialogSelection) {
 			Dialog dialog = ((SubGuiDialogSelection) subgui).selectedDialog;
 			if (dialog == null) { return; }
-			if (subgui.id == 0) {
+			if (((SubGuiDialogSelection) subgui).id == 0) {
 				option.addDialog(dialog.id);
 				select = dialog.getKey();
 			}
-			else if (subgui.id == 1 && !select.isEmpty() && data.containsKey(select)) {
+			else if (((SubGuiDialogSelection) subgui).id == 1 && !select.isEmpty() && data.containsKey(select)) {
 				option.replaceDialogIDs(data.get(select).dialogId, dialog.id); // edit
 			}
 		}

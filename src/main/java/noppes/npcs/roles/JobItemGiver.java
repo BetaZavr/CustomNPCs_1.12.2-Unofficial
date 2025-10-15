@@ -11,8 +11,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.NBTTags;
 import noppes.npcs.NoppesUtilServer;
 import noppes.npcs.NpcMiscInventory;
+import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.NpcAPI;
 import noppes.npcs.api.constants.JobType;
 import noppes.npcs.api.entity.data.role.IJobItemGiver;
+import noppes.npcs.api.item.IItemStack;
+import noppes.npcs.api.wrapper.ItemStackWrapper;
 import noppes.npcs.controllers.GlobalDataController;
 import noppes.npcs.controllers.data.Availability;
 import noppes.npcs.controllers.data.Line;
@@ -24,8 +28,8 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 
 	public Availability availability;
 	public int cooldown;
-	public int cooldownType;
-	public int givingMethod;
+	public int cooldownType; // 0:timer, 1:one, 2:rldaily
+	public int givingMethod; // 0:rnd, 1:all, 2:owned, 3:doesn't own, 4:chained
 	public NpcMiscInventory inventory;
 	public int itemGiverId;
 	public List<String> lines;
@@ -278,4 +282,67 @@ public class JobItemGiver extends JobInterface implements IJobItemGiver {
 		compound.setTag("igAvailability", this.availability.save(new NBTTagCompound()));
 		return compound;
 	}
+
+	@Override
+	public IItemStack[] getItemStacks() {
+		IItemStack[] items = new IItemStack[inventory.getSizeInventory()];
+		NpcAPI api = NpcAPI.Instance();
+		for (int i = 0; i < inventory.getSizeInventory(); i++) {
+			if (api != null) { items[i] = api.getIItemStack(inventory.getStackInSlot(i)); }
+			else { items[i] = ItemStackWrapper.AIR; }
+		}
+		return items;
+	}
+
+	@Override
+	public void setItemStacks(IItemStack[] stacks) {
+		inventory.clear();
+		if (stacks == null) { return; }
+		for (int i = 0; i < inventory.getSizeInventory() && i < stacks.length; i++) {
+			inventory.setInventorySlotContents(i, stacks[i].getMCItemStack());
+		}
+	}
+
+	@Override
+	public String[] getLines() {
+		String[] ls = new String[3];
+		for (int i = 0; i < 3; i++) {
+			if (lines.get(i) != null) { ls[i] = lines.get(i); }
+			else { ls[i] = ""; }
+		}
+		return ls;
+	}
+
+	@Override
+	public void setLines(String[] linesIn) {
+		lines.clear();
+		if (linesIn == null) { return; }
+		for (int i = 0; i < 3; i++) {
+			if (i < linesIn.length) { lines.add(linesIn[i]); }
+			else { lines.add(""); }
+		}
+	}
+
+	@Override
+	public int getCooldownType() { return cooldownType; }
+
+	@Override
+	public void setCooldownType(int type) {
+		if (type < 0 || type > 2) {
+			throw new CustomNPCsException("Cooldown type must be between 0 and 2");
+		}
+		cooldownType = type;
+	}
+
+	@Override
+	public int getGivingType() { return givingMethod; }
+
+	@Override
+	public void setGivingType(int type) {
+		if (type < 0 || type > 4) {
+			throw new CustomNPCsException("Giving type must be between 0 and 4");
+		}
+		givingMethod = type;
+	}
+
 }

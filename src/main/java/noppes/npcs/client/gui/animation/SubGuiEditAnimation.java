@@ -2643,8 +2643,8 @@ public class SubGuiEditAnimation extends SubGuiInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
-		if (subgui.getId() == 0 && subgui instanceof SubGuiColorSelector) {
+	public void subGuiClosed(GuiScreen subgui) {
+		if (subgui instanceof SubGuiColorSelector && ((SubGuiColorSelector) subgui).getId() == 0) {
 			CustomNpcs.colorAnimHoverPart = ((SubGuiColorSelector) subgui).color;
 			ModelNpcAlt.editAnimDataSelect.red = (float) (CustomNpcs.colorAnimHoverPart >> 16 & 255) / 255.0F;
 			ModelNpcAlt.editAnimDataSelect.green = (float) (CustomNpcs.colorAnimHoverPart >> 8 & 255) / 255.0F;

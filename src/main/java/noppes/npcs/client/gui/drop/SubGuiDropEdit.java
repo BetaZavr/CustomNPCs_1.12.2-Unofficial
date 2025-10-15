@@ -2,6 +2,7 @@ package noppes.npcs.client.gui.drop;
 
 import java.util.*;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -364,7 +365,7 @@ public class SubGuiDropEdit extends GuiContainerNPCInterface
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiDropEnchant) {
 			SubGuiDropEnchant gui = (SubGuiDropEnchant) subgui;
 			enchant.load(gui.enchant.getNBT());

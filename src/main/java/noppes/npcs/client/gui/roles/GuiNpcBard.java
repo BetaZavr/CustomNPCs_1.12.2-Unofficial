@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
@@ -131,7 +132,7 @@ public class GuiNpcBard extends GuiNPCInterface2 implements ITextfieldListener {
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		SubGuiSoundSelection gss = (SubGuiSoundSelection) subgui;
 		if (gss.selectedResource != null) { job.song = gss.selectedResource.toString(); }
 		initGui();

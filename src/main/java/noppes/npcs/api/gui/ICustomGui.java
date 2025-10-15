@@ -1,38 +1,67 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.IEntity;
 import noppes.npcs.api.entity.IPlayer;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface ICustomGui {
 
-	IButton addButton(int id, String label, int x, int y);
+	IButton addButton(@ParamName("id") int id, @ParamName("id") String label,
+					  @ParamName("x") int x, @ParamName("y") int y);
 
-	IButton addButton(int id, String label, int x, int y, int width, int height);
+	IButton addButton(@ParamName("id") int id, @ParamName("id") String label,
+					  @ParamName("x") int x, @ParamName("y") int y,
+					  @ParamName("width") int width, @ParamName("height") int height);
 
-	IGuiEntity addEntity(int id, int x, int y, IEntity<?> entity);
+	IGuiEntity addEntity(@ParamName("id") int id,
+						 @ParamName("x") int x, @ParamName("y") int y,
+						 @ParamName("id") IEntity<?> entity);
 
-	IItemSlot addItemSlot(int x, int y);
+	IItemSlot addItemSlot(@ParamName("x") int x, @ParamName("y") int y);
 
-	IItemSlot addItemSlot(int x, int y, IItemStack stack);
+	IItemSlot addItemSlot(@ParamName("x") int x, @ParamName("y") int y,
+						  @ParamName("id") IItemStack stack);
 
-	ILabel addLabel(int id, String label, int x, int y, int width, int height);
+	ILabel addLabel(@ParamName("id") int id, @ParamName("id") String label,
+					@ParamName("x") int x, @ParamName("y") int y,
+					@ParamName("width") int width, @ParamName("height") int height);
 
-	ILabel addLabel(int id, String label, int x, int y, int width, int height, int color);
+	ILabel addLabel(@ParamName("id") int id, @ParamName("id") String label,
+					@ParamName("x") int x, @ParamName("y") int y,
+					@ParamName("width") int width, @ParamName("height") int height,
+					@ParamName("color") int color);
 
-	IScroll addScroll(int id, int x, int y, int width, int height, String[] list);
+	IScroll addScroll(@ParamName("id") int id,
+					  @ParamName("x") int x, @ParamName("y") int y,
+					  @ParamName("width") int width, @ParamName("height") int height,
+					  @ParamName("id") String[] list);
 
-	ITextField addTextField(int id, int x, int y, int width, int height);
+	ITextField addTextField(@ParamName("id") int id,
+							@ParamName("x") int x, @ParamName("y") int y,
+							@ParamName("width") int width, @ParamName("height") int height);
 
-	IButton addTexturedButton(int id, String label, int x, int y, int width, int height, String texture);
+	IButton addTexturedButton(@ParamName("id") int id, @ParamName("label") String label,
+							  @ParamName("x") int x, @ParamName("y") int y,
+							  @ParamName("width") int width, @ParamName("height") int height,
+							  @ParamName("texture") String texture);
 
-	IButton addTexturedButton(int id, String label, int x, int y, int width, int height, String texture, int textureX, int textureY);
+	IButton addTexturedButton(@ParamName("id") int id, @ParamName("label") String label,
+							  @ParamName("x") int x, @ParamName("y") int y,
+							  @ParamName("width") int width, @ParamName("height") int height,
+							  @ParamName("texture") String texture, @ParamName("textureX") int textureX, @ParamName("textureY") int textureY);
 
-	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height);
+	ITexturedRect addTexturedRect(@ParamName("id") int id, @ParamName("texture") String texture,
+								  @ParamName("x") int x, @ParamName("y") int y,
+								  @ParamName("width") int width, @ParamName("height") int height);
 
-	ITexturedRect addTexturedRect(int id, String texture, int x, int y, int width, int height, int textureX, int textureY);
+	ITexturedRect addTexturedRect(@ParamName("id") int id, @ParamName("id") String texture,
+								  @ParamName("x") int x, @ParamName("y") int y,
+								  @ParamName("width") int width, @ParamName("height") int height,
+								  @ParamName("textureZ") int textureX, @ParamName("textureY") int textureY);
 
-	ICustomGuiComponent getComponent(int id);
+	ICustomGuiComponent getComponent(@ParamName("id") int id);
 
 	ICustomGuiComponent[] getComponents();
 
@@ -44,23 +73,24 @@ public interface ICustomGui {
 
 	int getWidth();
 
-	void removeComponent(int id);
+	void removeComponent(@ParamName("id") int id);
 
-	void setBackgroundTexture(int width, int height, int textureX, int textureY, int stretched,
-			String resourceLocation);
+	void setBackgroundTexture(@ParamName("width") int width, @ParamName("height") int height,
+							  @ParamName("textureX") int textureX, @ParamName("textureY") int textureY,
+							  @ParamName("stretched") int stretched, @ParamName("resourceLocation") String resourceLocation);
 
-	void setBackgroundTexture(String resourceLocation);
+	void setBackgroundTexture(@ParamName("id") String resourceLocation);
 
-	void setDoesPauseGame(boolean pauseGame);
+	void setDoesPauseGame(@ParamName("pauseGame") boolean pauseGame);
 
-	void setSize(int width, int height);
+	void setSize(@ParamName("width") int width, @ParamName("height") int height);
 
-	void showPlayerInventory(int x, int y);
+	void showPlayerInventory(@ParamName("x") int x, @ParamName("Y") int y);
 
-	void showPlayerInventory(int x, int y, boolean showSlots);
+	void showPlayerInventory(@ParamName("x") int x, @ParamName("Y") int y, @ParamName("showSlots") boolean showSlots);
 
-	void update(IPlayer<?> player);
+	void update(@ParamName("player") IPlayer<?> player);
 
-	void updateComponent(ICustomGuiComponent component);
+	void updateComponent(@ParamName("component") ICustomGuiComponent component);
 
 }

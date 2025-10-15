@@ -1,5 +1,8 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface INPCStats {
 
 	int getAggroRange();
@@ -12,7 +15,7 @@ public interface INPCStats {
 
 	boolean getHideDeadBody();
 
-	boolean getImmune(int type);
+	boolean getImmune(@ParamName("type") int type);
 
 	int getLevel();
 
@@ -26,7 +29,7 @@ public interface INPCStats {
 
 	String getRarityTitle();
 
-	float getResistance(String damageName);
+	float getResistance(@ParamName("damageName") String damageName);
 	
 	String[] getResistanceKeys();
 
@@ -36,35 +39,35 @@ public interface INPCStats {
 
 	boolean isCalmdown();
 
-	void setAggroRange(int range);
+	void setAggroRange(@ParamName("range") int range);
 
-	void setCalmdown(boolean bo);
+	void setCalmdown(@ParamName("bo") boolean bo);
 
-	void setCombatRegen(int regen);
+	void setCombatRegen(@ParamName("range") int regen);
 
-	void setCreatureType(int type);
+	void setCreatureType(@ParamName("type") int type);
 
-	void setHealthRegen(int regen);
+	void setHealthRegen(@ParamName("regen") int regen);
 
-	void setHideDeadBody(boolean hide);
+	void setHideDeadBody(@ParamName("hide") boolean hide);
 
-	void setImmune(int type, boolean bo);
+	void setImmune(@ParamName("type") int type, @ParamName("bo") boolean bo);
 
-	void setLevel(int level);
+	void setLevel(@ParamName("level") int level);
 
-	void setMaxHealth(double maxHealth);
+	void setMaxHealth(@ParamName("maxHealth") double maxHealth);
 
-	void setRarity(int rarity);
+	void setRarity(@ParamName("rarity") int rarity);
 
-	void setRarityTitle(String rarity);
+	void setRarityTitle(@ParamName("rarity") String rarity);
 
-	void setResistance(String damageName, float value);
+	void setResistance(@ParamName("damageName") String damageName, @ParamName("value") float value);
 
-	void setRespawnTime(int seconds);
+	void setRespawnTime(@ParamName("seconds") int seconds);
 
-	void setRespawnType(int type);
+	void setRespawnType(@ParamName("type") int type);
 
     float getChanceBlockDamage();
 
-	void setChanceBlockDamage(float chance);
+	void setChanceBlockDamage(@ParamName("chance") float chance);
 }

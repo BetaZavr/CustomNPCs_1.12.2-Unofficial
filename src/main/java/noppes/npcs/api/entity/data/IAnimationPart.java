@@ -1,5 +1,8 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IAnimationPart {
 
 	void clear();
@@ -16,17 +19,17 @@ public interface IAnimationPart {
 
 	boolean isShow();
 
-	void setDisable(boolean bo);
+	void setDisable(@ParamName("bo") boolean bo);
 
-	void setOffset(float x, float y, float z);
+	void setOffset(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setRotation(float x, float y, float z);
+	void setRotation(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setRotation(float x1, float y1);
+	void setRotation(@ParamName("x1") float x1, @ParamName("y1") float y1);
 
-	void setScale(float x, float y, float z);
+	void setScale(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setShow(boolean bo);
+	void setShow(@ParamName("bo") boolean bo);
 
 	int getType();
 

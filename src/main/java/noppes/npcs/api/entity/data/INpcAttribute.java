@@ -2,12 +2,14 @@ package noppes.npcs.api.entity.data;
 
 import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface INpcAttribute {
 
-	IAttributeModifier addModifier(IAttributeModifier modifier);
+	IAttributeModifier addModifier(@ParamName("modifier") IAttributeModifier modifier);
 
-	IAttributeModifier addModifier(String modifierName, double amount, int operation);
+	IAttributeModifier addModifier(@ParamName("modifierName") String modifierName, @ParamName("amount") double amount, @ParamName("operation") int operation);
 
 	double getBaseValue();
 
@@ -21,34 +23,34 @@ public interface INpcAttribute {
 
 	double getMinValue();
 
-	IAttributeModifier getModifier(String uuidOrName);
+	IAttributeModifier getModifier(@ParamName("uuidOrName") String uuidOrName);
 
 	IAttributeModifier[] getModifiers();
 
-	IAttributeModifier[] getModifiersByOperation(int operation);
+	IAttributeModifier[] getModifiersByOperation(@ParamName("operation") int operation);
 
 	String getName();
 
 	double getTotalValue();
 
-	boolean hasModifier(IAttributeModifier modifier);
+	boolean hasModifier(@ParamName("modifier") IAttributeModifier modifier);
 
-	boolean hasModifier(String uuidOrName);
+	boolean hasModifier(@ParamName("uuidOrName") String uuidOrName);
 
 	boolean isCustom();
 
 	void removeAllModifiers();
 
-	boolean removeModifier(IAttributeModifier modifier);
+	boolean removeModifier(@ParamName("modifier") IAttributeModifier modifier);
 
-	boolean removeModifier(String uuid);
+	boolean removeModifier(@ParamName("uuid") String uuid);
 
-	void setBaseValue(double baseValue);
+	void setBaseValue(@ParamName("baseValue") double baseValue);
 
-	void setDisplayName(String displayName);
+	void setDisplayName(@ParamName("displayName") String displayName);
 
-	void setMaxValue(double maxValue);
+	void setMaxValue(@ParamName("maxValue") double maxValue);
 
-	void setMinValue(double minValue);
+	void setMinValue(@ParamName("minValue") double minValue);
 
 }

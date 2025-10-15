@@ -3,6 +3,7 @@ package noppes.npcs.client.gui;
 import java.awt.*;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.client.gui.util.*;
 import org.lwjgl.opengl.GL11;
 
@@ -297,14 +298,14 @@ public class SubGuiNpcQuestExtra extends SubGuiInterface implements ITextfieldLi
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcTextArea) {
-			if (subgui.getId() == 0) { quest.rewardText = ((SubGuiNpcTextArea) subgui).text; }
-			else if (subgui.getId() == 1) { quest.extraButtonText = ((SubGuiNpcTextArea) subgui).text; }
+			if (((SubGuiNpcTextArea) subgui).getId() == 0) { quest.rewardText = ((SubGuiNpcTextArea) subgui).text; }
+			else if (((SubGuiNpcTextArea) subgui).getId() == 1) { quest.extraButtonText = ((SubGuiNpcTextArea) subgui).text; }
 			initGui();
 		}
 		else if (subgui instanceof SubGuiTextureSelection) {
-			if (subgui.getId() == 0) {
+			if (((SubGuiTextureSelection) subgui).getId() == 0) {
 				quest.icon = ((SubGuiTextureSelection) subgui).resource;
 				if (quest.icon == null) { quest.icon = new ResourceLocation(CustomNpcs.MODID, "textures/quest icon/q_0.png"); }
 			}

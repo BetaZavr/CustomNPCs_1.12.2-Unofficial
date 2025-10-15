@@ -1,7 +1,9 @@
 package noppes.npcs.api.handler.data;
 
 import noppes.npcs.api.IWorld;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface ICustomParticle {
 
 	boolean canCollide();
@@ -34,7 +36,7 @@ public interface ICustomParticle {
 
 	boolean isAlive();
 
-	void move(double x, double y, double z);
+	void move(@ParamName("x") double x, @ParamName("y") double y, @ParamName("z") double z);
 
 	boolean onGround();
 
@@ -44,24 +46,24 @@ public interface ICustomParticle {
 
 	double posZ();
 
-	void setAge(int ticks);
+	void setAge(@ParamName("ticks") int ticks);
 
-	void setCanCollide(boolean collide);
+	void setCanCollide(@ParamName("collide") boolean collide);
 
-	void setColorMask(int color);
+	void setColorMask(@ParamName("color") int color);
 
-	void setCustomSize(float width, float height);
+	void setCustomSize(@ParamName("width") float width, @ParamName("height") float height);
 
-	void setObj(String objPath);
+	void setObj(@ParamName("objPath") String objPath);
 
-	void setPos(double x, double y, double z);
+	void setPos(@ParamName("y") double x, @ParamName("y") double y, @ParamName("y") double z);
 
-	void setRotation(float angleX, float angleY, float angleZ);
+	void setRotation(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setScale(float scale);
+	void setScale(@ParamName("scale") float scale);
 
-	void setTexture(String texture);
+	void setTexture(@ParamName("texture") String texture);
 
-	void setTotalAge(int ticks);
+	void setTotalAge(@ParamName("ticks") int ticks);
 
 }

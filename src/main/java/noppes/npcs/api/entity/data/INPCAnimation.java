@@ -1,26 +1,28 @@
 package noppes.npcs.api.entity.data;
 
 import noppes.npcs.api.INbt;
+import noppes.npcs.api.ParamName;
 
+@SuppressWarnings("all")
 public interface INPCAnimation {
 
-	/*boolean hasAnimations(int animationType);
+	boolean hasAnimations(@ParamName("animationType") int animationType);
 
-	boolean hasAnimation(int animationType, int animationId);
+	boolean hasAnimation(@ParamName("animationType") int animationType, @ParamName("animationId") int animationId);
 
-	IAnimation[] getAnimations(int animationType);
+	IAnimation[] getAnimations(@ParamName("animationType") int animationType);
 
-	boolean removeAnimation(int type, int animationId);
+	boolean removeAnimation(@ParamName("animationType") int animationType, @ParamName("animationId") int animationId);
 
-	void removeAnimations(int type);
+	void removeAnimations(@ParamName("animationType") int animationType);
 
 	void stopAnimation();
 
-	void addAnimation(int animationType, int animationID);
+	void addAnimation(@ParamName("animationType") int animationType, @ParamName("animationId") int animationId);
 
 	IEmotion getEmotion();
 
-	void startEmotion(int emotionId);
+	void startEmotion(@ParamName("emotionId") int emotionId);
 
 	void stopEmotion();
 
@@ -28,8 +30,8 @@ public interface INPCAnimation {
 
 	INbt getNbt();
 
-	void setNbt(INbt nbt);
+	void setNbt(@ParamName("nbt") INbt nbt);
 
-	void update();*/
+	void update();
 
 }

@@ -1,30 +1,32 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IAnimationFrame {
 
 	int getEndDelay();
 
-	IAnimationPart getPart(int id);
+	IAnimationPart getPart(@ParamName("id") int id);
 
 	int getSpeed();
 
 	boolean isSmooth();
 
-	void setEndDelay(int ticks);
+	void setEndDelay(@ParamName("ticks") int ticks);
 
-	void setSmooth(boolean isSmooth);
+	void setSmooth(@ParamName("isSmooth") boolean isSmooth);
 
-	void setSpeed(int ticks);
+	void setSpeed(@ParamName("ticks") int ticks);
 
 	String getStartSound();
 
-	void setStartSound(String sound);
+	void setStartSound(@ParamName("sound") String sound);
 
 	int getStartEmotion();
 
-	void setStartEmotion(int id);
+	void setStartEmotion(@ParamName("id") int id);
 
 	boolean isNowDamage();
 
@@ -36,12 +38,12 @@ public interface IAnimationFrame {
 
 	IItemStack getHoldLeftStack();
 
-	void setHoldRightStackType(int type);
+	void setHoldRightStackType(@ParamName("type") int type);
 
-	void setHoldLeftStackType(int type);
+	void setHoldLeftStackType(@ParamName("type") int type);
 
-	void setHoldRightStack(IItemStack stack);
+	void setHoldRightStack(@ParamName("stack") IItemStack stack);
 
-	void setHoldLeftStack(IItemStack stack);
+	void setHoldLeftStack(@ParamName("stack") IItemStack stack);
 
 }

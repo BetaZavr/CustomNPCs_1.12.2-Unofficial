@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.client.gui.GuiScreen;
 import noppes.npcs.client.gui.SubGuiEditText;
 import noppes.npcs.client.gui.util.*;
 import noppes.npcs.constants.EnumAvailabilityPlayerName;
@@ -120,7 +121,7 @@ public class SubGuiNpcAvailabilityNames extends SubGuiInterface implements ICust
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		SubGuiEditText selector = (SubGuiEditText) subgui;
 		if (selector.cancelled) { return; }
 		EnumAvailabilityPlayerName eapn = EnumAvailabilityPlayerName.Only;

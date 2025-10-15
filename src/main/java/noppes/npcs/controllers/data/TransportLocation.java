@@ -120,8 +120,8 @@ public class TransportLocation implements ITransportLocation {
 	}
 
 	@Override
-	public void setPos(int dimensionID, int x, int y, int z) {
-		this.dimension = dimensionID;
+	public void setPos(int dimensionId, int x, int y, int z) {
+		this.dimension = dimensionId;
 		this.pos = new BlockPos(x, y, z);
 	}
 

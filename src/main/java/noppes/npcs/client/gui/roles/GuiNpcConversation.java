@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.roles;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
@@ -49,7 +50,7 @@ public class GuiNpcConversation extends GuiNPCInterface2
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface gui) {
+	public void subGuiClosed(GuiScreen gui) {
 		if (gui instanceof SubGuiNpcConversationLine) {
 			SubGuiNpcConversationLine sub = (SubGuiNpcConversationLine) gui;
 			JobConversation.ConversationLine line = job.getLine(slot);

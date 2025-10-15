@@ -1,20 +1,22 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.controllers.data.Availability;
 
 @SuppressWarnings("all")
 public interface ICustomDrop {
 
-	IAttributeSet addAttribute(String attributeName);
+	IAttributeSet addAttribute(@ParamName("attributeName") String attributeName);
 
-	IDropNbtSet addDropNbtSet(int type, double chance, String path, String[] values);
+	IDropNbtSet addDropNbtSet(@ParamName("type") int type, @ParamName("chance") double chance,
+							  @ParamName("path") String path, @ParamName("values") String[] values);
 
-	IEnchantSet addEnchant(int enchantId);
+	IEnchantSet addEnchant(@ParamName("enchantId") int enchantId);
 
-	IEnchantSet addEnchant(String enchantName);
+	IEnchantSet addEnchant(@ParamName("enchantName") String enchantName);
 
-	IItemStack createLoot(double addChance);
+	IItemStack createLoot(@ParamName("addChance") double addChance);
 
 	IAttributeSet[] getAttributeSets();
 
@@ -40,24 +42,24 @@ public interface ICustomDrop {
 
 	void remove();
 
-	void removeAttribute(IAttributeSet attribute);
+	void removeAttribute(@ParamName("attribute") IAttributeSet attribute);
 
-	void removeDropNbt(IDropNbtSet nbt);
+	void removeDropNbt(@ParamName("nbt") IDropNbtSet nbt);
 
-	void removeEnchant(IEnchantSet enchant);
+	void removeEnchant(@ParamName("enchant") IEnchantSet enchant);
 
-	void resetTo(IItemStack item);
+	void resetTo(@ParamName("item") IItemStack item);
 
-	void setAmount(int min, int max);
+	void setAmount(@ParamName("min") int min, @ParamName("max") int max);
 
-	void setChance(double chance);
+	void setChance(@ParamName("chance") double chance);
 
-	void setDamage(float dam);
+	void setDamage(@ParamName("damage") float damage);
 
-	void setItem(IItemStack item);
+	void setItem(@ParamName("item") IItemStack item);
 
-	void setLootMode(int lootMode);
+	void setLootMode(@ParamName("lootMode") int lootMode);
 
-	void setTiedToLevel(boolean tiedToLevel);
+	void setTiedToLevel(@ParamName("tiedToLevel") boolean tiedToLevel);
 
 }

@@ -1,5 +1,7 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
 public interface INPCMelee {
 
 	int getDelay();
@@ -16,14 +18,14 @@ public interface INPCMelee {
 
 	int getStrength();
 
-	void setDelay(int speed);
+	void setDelay(@ParamName("speed") int speed);
 
-	void setEffect(int type, int strength, int time);
+	void setEffect(@ParamName("type") int type, @ParamName("strength") int strength, @ParamName("time") int time);
 
-	void setKnockback(int knockback);
+	void setKnockback(@ParamName("knockback") int knockback);
 
-	void setRange(double range);
+	void setRange(@ParamName("range") double range);
 
-	void setStrength(int strength);
+	void setStrength(@ParamName("strength") int strength);
 
 }

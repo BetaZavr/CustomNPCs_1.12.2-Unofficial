@@ -296,9 +296,9 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ICustomScroll
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiEditText && !((SubGuiEditText) subgui).cancelled) {
-			if (subgui.getId() == 1) { // create category
+			if (((SubGuiEditText) subgui).getId() == 1) { // create category
 				QuestCategory category = new QuestCategory();
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);
 				boolean has = true;
@@ -317,7 +317,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ICustomScroll
 				Client.sendData(EnumPacketServer.QuestCategorySave, category.save(new NBTTagCompound()));
 				initGui();
 			}
-			if (subgui.getId() == 3) { // rename category
+			if (((SubGuiEditText) subgui).getId() == 3) { // rename category
 				if (((SubGuiEditText) subgui).text[0].isEmpty() || !categoryData.containsKey(selectedCategory)) { return; }
 				QuestCategory category = categoryData.get(selectedCategory).copy();
 				if (category.title.equals(((SubGuiEditText) subgui).text[0])) { return; }
@@ -338,7 +338,7 @@ public class GuiNPCManageQuest extends GuiNPCInterface2 implements ICustomScroll
 				Client.sendData(EnumPacketServer.QuestCategorySave, category.save(new NBTTagCompound()));
 				initGui();
 			}
-			if (subgui.getId() == 11) { // create quest
+			if (((SubGuiEditText) subgui).getId() == 11) { // create quest
 				if (((SubGuiEditText) subgui).text[0].isEmpty()) { return; }
 				Quest quest = new Quest(categoryData.get(selectedCategory));
 				StringBuilder t = new StringBuilder(((SubGuiEditText) subgui).text[0]);

@@ -3,10 +3,12 @@ package noppes.npcs.api.handler.data;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.util.ResourceLocation;
 import noppes.npcs.api.IContainer;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.data.ICustomDrop;
 import noppes.npcs.api.item.IItemStack;
 import noppes.npcs.entity.data.DropSet;
 
+@SuppressWarnings("all")
 public interface IDeal {
 
 	int getAmount();
@@ -41,73 +43,73 @@ public interface IDeal {
 
 	int getType();
 
-	void set(IItemStack product, IItemStack[] currencys);
+	void set(@ParamName("product") IItemStack product, @ParamName("currencies") IItemStack[] currencies);
 
-	void setAmount(int amount);
+	void setAmount(@ParamName("amount") int amount);
 
-	void setChance(int chance);
+	void setChance(@ParamName("chance") int chance);
 
-	void setCount(int min, int max);
+	void setCount(@ParamName("min") int min, @ParamName("max") int max);
 
-	void setIgnoreDamage(boolean bo);
+	void setIgnoreDamage(@ParamName("bo") boolean bo);
 
-	void setIgnoreNBT(boolean bo);
+	void setIgnoreNBT(@ParamName("bo") boolean bo);
 
-	void setMoney(int money);
+	void setMoney(@ParamName("money") int money);
 
-	void setDonat(int moneyIn);
+	void setDonat(@ParamName("moneyIn") int moneyIn);
 
-	void setProduct(IItemStack product);
+	void setProduct(@ParamName("product") IItemStack product);
 
-	void setType(int type);
+	void setType(@ParamName("type") int type);
 
 	int getRarityColor();
 
-	void setRarityColor(int color);
+	void setRarityColor(@ParamName("color") int color);
 
 	boolean isCase();
 
-	void setIsCase(boolean isCaseIn);
+	void setIsCase(@ParamName("isCaseIn") boolean isCaseIn);
 
 	int getCaseCount();
 
-	void setCaseCount(int count);
+	void setCaseCount(@ParamName("count") int count);
 
 	String getCaseName();
 
-	void setCaseName(String newName);
+	void setCaseName(@ParamName("newName") String newName);
 
 	String getCaseCommand();
 
-	void setCaseCommand(String command);
+	void setCaseCommand(@ParamName("command") String command);
 
 	ResourceLocation getCaseObjModel();
 
-	void setCaseObjModel(ResourceLocation objModel);
+	void setCaseObjModel(@ParamName("objModel") ResourceLocation objModel);
 
 	ResourceLocation getCaseSound();
 
-	void setCaseSound(ResourceLocation sound);
+	void setCaseSound(@ParamName("sound") ResourceLocation sound);
 
 	ResourceLocation getCaseTexture();
 
-	void setCaseTexture(ResourceLocation texture);
+	void setCaseTexture(@ParamName("texture") ResourceLocation texture);
 
 	boolean showInCase();
 
-	void setShowInCase(boolean show);
+	void setShowInCase(@ParamName("show") boolean show);
 
-	DropSet addCaseItem(IItemStack item, double chance);
+	DropSet addCaseItem(@ParamName("item") IItemStack item, @ParamName("chance") double chance);
 
-	ICustomDrop getCase(int slot);
+	ICustomDrop getCase(@ParamName("slot") int slot);
 
-	IItemStack getCaseItem(int slot);
+	IItemStack getCaseItem(@ParamName("slot") int slot);
 
 	DropSet[] getCaseItems();
 
-	boolean removeCaseItem(ICustomDrop drop);
+	boolean removeCaseItem(@ParamName("drop") ICustomDrop drop);
 
-	boolean removeCaseItem(int slot);
+	boolean removeCaseItem(@ParamName("slot") int slot);
 
 	void updateNew();
 

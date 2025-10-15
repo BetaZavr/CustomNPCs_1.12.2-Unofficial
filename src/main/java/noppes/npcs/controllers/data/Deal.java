@@ -250,12 +250,12 @@ public class Deal implements IDeal {
 	}
 
 	@Override
-	public void set(IItemStack product, IItemStack[] currency) {
+	public void set(IItemStack product, IItemStack[] currencies) {
 		if (product == null) { product = ItemStackWrapper.AIR; }
-		ItemStack[] cs = new ItemStack[currency == null ? 0 : currency.length];
-		if (currency != null) {
+		ItemStack[] cs = new ItemStack[currencies == null ? 0 : currencies.length];
+		if (currencies != null) {
 			int i = 0;
-			for (IItemStack stack : currency) {
+			for (IItemStack stack : currencies) {
 				cs[i] = stack.getMCItemStack();
 				i++;
 			}

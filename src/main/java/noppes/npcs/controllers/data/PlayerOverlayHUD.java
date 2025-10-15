@@ -245,12 +245,12 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	}
 
 	@Override
-	public ICustomGuiComponent getComponent(int orientationType, int componentID) {
+	public ICustomGuiComponent getComponent(int orientationType, int componentId) {
 		if (!this.components.containsKey(orientationType)) {
 			return null;
 		}
 		for (ICustomGuiComponent component : this.components.get(orientationType)) {
-			if (component.getId() == componentID) {
+			if (component.getId() == componentId) {
 				return component;
 			}
 		}
@@ -268,7 +268,6 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 
 	@Override
 	public ICustomGuiComponent[] getComponents(int orientationType) {
-		List<ICustomGuiComponent> list = new ArrayList<>();
 		if (!this.components.containsKey(orientationType)) {
 			return new ICustomGuiComponent[0];
 		}
@@ -582,12 +581,12 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	}
 
 	@Override
-	public boolean removeComponent(int orientationType, int componentID) {
+	public boolean removeComponent(int orientationType, int componentId) {
 		if (!this.components.containsKey(orientationType)) {
 			return false;
 		}
 		for (ICustomGuiComponent comp : this.components.get(orientationType)) {
-			if (comp.getId() == componentID) {
+			if (comp.getId() == componentId) {
 				this.components.get(orientationType).remove(comp);
 				this.update = true;
 				return true;
@@ -597,12 +596,12 @@ public class PlayerOverlayHUD implements IOverlayHUD {
 	}
 
 	@Override
-	public boolean removeSlot(int orientationType, int componentID) {
+	public boolean removeSlot(int orientationType, int slotId) {
 		if (!this.slots.containsKey(orientationType)) {
 			return false;
 		}
 		for (IItemSlot comp : this.slots.get(orientationType)) {
-			if (comp.getId() == componentID) {
+			if (comp.getId() == slotId) {
 				this.slots.get(orientationType).remove(comp);
 				this.update = true;
 				return true;

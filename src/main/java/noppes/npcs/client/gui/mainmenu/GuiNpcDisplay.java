@@ -1,5 +1,6 @@
 package noppes.npcs.client.gui.mainmenu;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentTranslation;
 import noppes.npcs.CustomNpcs;
@@ -83,7 +84,7 @@ public class GuiNpcDisplay extends GuiNPCInterface2 implements ITextfieldListene
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		initGui();
 	}
 

@@ -3,6 +3,7 @@ package noppes.npcs.client.gui.advanced;
 import java.util.HashMap;
 import java.util.Vector;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.client.Client;
 import noppes.npcs.client.gui.SubGuiNpcFactionOptions;
@@ -121,7 +122,7 @@ public class GuiNPCFactionSetup extends GuiNPCInterface2 implements IScrollData,
 	public void setSelected(String selected) { scrollFactions.setSelected(selected); }
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (!(subgui instanceof SubGuiNpcFactionSelect)) { return; }
 		SubGuiNpcFactionSelect gui = (SubGuiNpcFactionSelect) subgui;
 		if (gui.id == 0) {

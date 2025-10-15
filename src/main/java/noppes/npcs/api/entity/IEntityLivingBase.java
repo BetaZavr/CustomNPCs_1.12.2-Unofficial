@@ -1,32 +1,35 @@
 package noppes.npcs.api.entity;
 
 import net.minecraft.entity.EntityLivingBase;
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.entity.data.IMark;
 import noppes.npcs.api.entity.data.INpcAttribute;
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface IEntityLivingBase<T extends EntityLivingBase> extends IEntity<T> {
 
-	INpcAttribute addAttribute(INpcAttribute attribute);
+	INpcAttribute addAttribute(@ParamName("attribute") INpcAttribute attribute);
 
-	INpcAttribute addAttribute(String attributeName, String displayName, double baseValue, double minValue,
-			double maxValue);
+	INpcAttribute addAttribute(@ParamName("attributeName") String attributeName, @ParamName("displayName") String displayName,
+							   @ParamName("baseValue") double baseValue, @ParamName("minValue") double minValue, @ParamName("maxValue") double maxValue);
 
-	IMark addMark(int type);
+	IMark addMark(@ParamName("type") int type);
 
-	void addPotionEffect(int effect, int duration, int strength, boolean hideParticles);
+	void addPotionEffect(@ParamName("entity") int effect, @ParamName("duration") int duration,
+						 @ParamName("strength") int strength, @ParamName("hideParticles") boolean hideParticles);
 
-	boolean canSeeEntity(IEntity<?> entity);
+	boolean canSeeEntity(@ParamName("entity") IEntity<?> entity);
 
 	void clearPotionEffects();
 
-	IItemStack getArmor(int slot);
+	IItemStack getArmor(@ParamName("slot") int slot);
 
 	IEntityLivingBase<?> getAttackTarget();
 
 	float getHealth();
 
-	INpcAttribute getIAttribute(String attributeName);
+	INpcAttribute getIAttribute(@ParamName("attributeName") String attributeName);
 
 	String[] getIAttributeNames();
 
@@ -52,39 +55,39 @@ public interface IEntityLivingBase<T extends EntityLivingBase> extends IEntity<T
 
 	IItemStack getOffhandItem();
 
-	int getPotionEffect(int effect);
+	int getPotionEffect(@ParamName("effect") int effect);
 
-	boolean hasAttribute(INpcAttribute attribute);
+	boolean hasAttribute(@ParamName("attribute") INpcAttribute attribute);
 
-	boolean hasAttribute(String attributeName);
+	boolean hasAttribute(@ParamName("attributeName") String attributeName);
 
 	boolean isAttacking();
 
 	boolean isChild();
 
-	boolean removeAttribute(INpcAttribute attribute);
+	boolean removeAttribute(@ParamName("attribute") INpcAttribute attribute);
 
-	boolean removeAttribute(String attributeName);
+	boolean removeAttribute(@ParamName("attributeName") String attributeName);
 
-	void removeMark(IMark mark);
+	void removeMark(@ParamName("mark") IMark mark);
 
-	void setArmor(int slot, IItemStack item);
+	void setArmor(@ParamName("slot") int slot, @ParamName("item") IItemStack item);
 
-	void setAttackTarget(IEntityLivingBase<?> living);
+	void setAttackTarget(@ParamName("living") IEntityLivingBase<?> living);
 
-	void setHealth(float health);
+	void setHealth(@ParamName("health") float health);
 
-	void setMainhandItem(IItemStack item);
+	void setMainhandItem(@ParamName("item") IItemStack item);
 
-	void setMaxHealth(float health);
+	void setMaxHealth(@ParamName("health") float health);
 
-	void setMoveForward(float move);
+	void setMoveForward(@ParamName("move") float move);
 
-	void setMoveStrafing(float move);
+	void setMoveStrafing(@ParamName("move") float move);
 
-	void setMoveVertical(float move);
+	void setMoveVertical(@ParamName("move") float move);
 
-	void setOffhandItem(IItemStack item);
+	void setOffhandItem(@ParamName("item") IItemStack item);
 
 	void swingMainhand();
 

@@ -1,5 +1,7 @@
 package noppes.npcs.api.handler.data;
 
+import noppes.npcs.api.ParamName;
+
 public interface IDialog {
 
 	IAvailability getAvailability();
@@ -12,7 +14,7 @@ public interface IDialog {
 
 	String getName();
 
-	IDialogOption getOption(int slot);
+	IDialogOption getOption(@ParamName("slot") int slot);
 
 	IDialogOption[] getOptions();
 
@@ -22,12 +24,12 @@ public interface IDialog {
 
 	void save();
 
-	void setCommand(String command);
+	void setCommand(@ParamName("command") String command);
 
-	void setName(String name);
+	void setName(@ParamName("name") String name);
 
-	void setQuest(IQuest quest);
+	void setQuest(@ParamName("quest") IQuest quest);
 
-	void setText(String text);
+	void setText(@ParamName("text") String text);
 
 }

@@ -3,15 +3,13 @@ package noppes.npcs.api.block;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
-import noppes.npcs.api.IContainer;
-import noppes.npcs.api.INbt;
-import noppes.npcs.api.IPos;
-import noppes.npcs.api.IWorld;
+import noppes.npcs.api.*;
 import noppes.npcs.api.entity.data.IData;
 
+@SuppressWarnings("all")
 public interface IBlock {
 
-	void blockEvent(int type, int data);
+	void blockEvent(@ParamName("type") int type, @ParamName("data") int data);
 
 	IContainer getContainer();
 
@@ -45,7 +43,7 @@ public interface IBlock {
 
 	boolean hasTileEntity();
 
-	void interact(int side);
+	void interact(@ParamName("side") int side);
 
 	boolean isAir();
 
@@ -55,12 +53,12 @@ public interface IBlock {
 
 	void remove();
 
-	IBlock setBlock(IBlock block);
+	IBlock setBlock(@ParamName("block") IBlock block);
 
-	IBlock setBlock(String name);
+	IBlock setBlock(@ParamName("name") String name);
 
-	void setMetadata(int i);
+	void setMetadata(@ParamName("meta") int meta);
 
-	void setTileEntityNBT(INbt nbt);
+	void setTileEntityNBT(@ParamName("nbt") INbt nbt);
 
 }

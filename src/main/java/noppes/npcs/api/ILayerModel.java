@@ -2,6 +2,7 @@ package noppes.npcs.api;
 
 import noppes.npcs.api.item.IItemStack;
 
+@SuppressWarnings("all")
 public interface ILayerModel {
 
 	IItemStack getModel();
@@ -10,32 +11,32 @@ public interface ILayerModel {
 
 	String getOBJModel();
 
-	float getOffset(int axis);
+	float getOffset(@ParamName("axis") int axis);
 
 	int getPos();
 
-	float getRotate(int axis);
+	float getRotate(@ParamName("axis") int axis);
 
 	int getRotateSpeed();
 
-	float getScale(int axis);
+	float getScale(@ParamName("axis") int axis);
 
-	boolean isRotate(int axis);
+	boolean isRotate(@ParamName("axis") int axis);
 
-	void setIsRotate(boolean x, boolean y, boolean z);
+	void setIsRotate(@ParamName("x") boolean x, @ParamName("y") boolean y, @ParamName("z") boolean z);
 
-	void setModel(IItemStack stack);
+	void setModel(@ParamName("stack") IItemStack stack);
 
-	void setNbt(INbt nbt);
+	void setNbt(@ParamName("nbt") INbt nbt);
 
-	void setOBJModel(String path);
+	void setOBJModel(@ParamName("path") String path);
 
-	void setOffset(float x, float y, float z);
+	void setOffset(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setRotate(float x, float y, float z);
+	void setRotate(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
-	void setRotateSpeed(int speed);
+	void setRotateSpeed(@ParamName("speed") int speed);
 
-	void setScale(float x, float y, float z);
+	void setScale(@ParamName("x") float x, @ParamName("y") float y, @ParamName("z") float z);
 
 }

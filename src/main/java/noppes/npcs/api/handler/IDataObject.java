@@ -1,7 +1,9 @@
 package noppes.npcs.api.handler;
 
+import noppes.npcs.api.ParamName;
 import noppes.npcs.api.handler.data.IDataElement;
 
+@SuppressWarnings("all")
 public interface IDataObject {
 
 	String get();
@@ -10,13 +12,13 @@ public interface IDataObject {
 
 	String getClassesInfo();
 
-	IDataElement getClazz(String name);
+	IDataElement getClazz(@ParamName("name") String name);
 
 	IDataElement[] getConstructors();
 
 	String getConstructorsInfo();
 
-	IDataElement getField(String name);
+	IDataElement getField(@ParamName("name") String name);
 
 	IDataElement[] getFields();
 
@@ -24,7 +26,7 @@ public interface IDataObject {
 
 	String getInfo();
 
-	IDataElement getMethod(String name);
+	IDataElement getMethod(@ParamName("name") String name);
 
 	IDataElement[] getMethods();
 

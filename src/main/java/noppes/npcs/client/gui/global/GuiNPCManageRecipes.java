@@ -4,6 +4,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -607,7 +608,7 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2 implements IC
 	}
 
 	@Override
-	public void subGuiClosed(SubGuiInterface subgui) {
+	public void subGuiClosed(GuiScreen subgui) {
 		if (subgui instanceof SubGuiNpcAvailability) { save(); }
 		else if (subgui instanceof SubGuiEditIngredients) {
 			ItemStack[] stacks = new ItemStack[0];
@@ -619,26 +620,26 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2 implements IC
 				}
 				if (!list.isEmpty()) { stacks = list.toArray(stacks); }
 			}
-			if (getButton(11 + subgui.getId()) != null) {
-				GuiNpcButton button = getButton(11 + subgui.getId());
+			if (getButton(11 + ((SubGuiEditIngredients) subgui).getId()) != null) {
+				GuiNpcButton button = getButton(11 + ((SubGuiEditIngredients) subgui).getId());
 				button.setStacks(stacks);
 				button.setCurrentStackPos(0);
 				if (stacks.length == 0) {
 					button.setLayerColor(recipe.isValid() ? new Color(0xFF70F070).getRGB() :  new Color(0xFFF07070).getRGB());
 				}
 			}
-			recipe.recipeItems.put(subgui.getId(), stacks);
+			recipe.recipeItems.put(((SubGuiEditIngredients) subgui).getId(), stacks);
 		}
 		else if (subgui instanceof SubGuiEditText) {
 			if (((SubGuiEditText) subgui).cancelled) { return; }
-			if (subgui.getId() == 0) {
+			if (((SubGuiEditText) subgui).getId() == 0) {
 				save();
 				recipe.clear();
 				recipe.group = Util.instance.getResourceName(((SubGuiEditText) subgui).text[0]);
 				recipe.name = "default";
 				Client.sendData(EnumPacketServer.RecipesAddGroup, recipe.global, recipe.group);
 			} // Add new Group
-			else if (subgui.getId() == 1) {
+			else if (((SubGuiEditText) subgui).getId() == 1) {
 				save();
 				String name = ((SubGuiEditText) subgui).text[0];
 				while (true) {
@@ -655,17 +656,17 @@ public class GuiNPCManageRecipes extends GuiContainerNPCInterface2 implements IC
 				recipe.name = name;
 				Client.sendData(EnumPacketServer.RecipeAdd, recipe.getNbt());
 			} // Add new Recipe
-			else if (subgui.getId() == 2) {
+			else if (((SubGuiEditText) subgui).getId() == 2) {
 				String old = recipe.group;
 				recipe.group = Util.instance.getResourceName(((SubGuiEditText) subgui).text[0]);
 				Client.sendData(EnumPacketServer.RecipesRenameGroup, recipe.global, old, recipe.group);
 			} // Rename Group
-			else if (subgui.getId() == 3) {
+			else if (((SubGuiEditText) subgui).getId() == 3) {
 				String old = recipe.name;
 				recipe.name = Util.instance.getResourceName(((SubGuiEditText) subgui).text[0]);
 				Client.sendData(EnumPacketServer.RecipesRename, recipe.global, old, recipe.group, recipe.name);
 			} // Rename Recipe
-			else if (subgui.getId() == 4) {
+			else if (((SubGuiEditText) subgui).getId() == 4) {
 				String group = ((SubGuiEditText) subgui).text[0];
 				if (data.get(recipe.global).containsKey(group) && data.get(recipe.global).get(group).size() >= 16) { return; }
 				recipe.group = Util.instance.getResourceName(group);

@@ -1,10 +1,12 @@
 package noppes.npcs.api.entity.data;
 
+import noppes.npcs.api.ParamName;
+
 public interface IEmotionPart {
 
 	boolean isDisabled();
 
-	void setDisable(boolean bo);
+	void setDisable(@ParamName("bo") boolean bo);
 	
 	int getEndDelay();
 
@@ -12,18 +14,18 @@ public interface IEmotionPart {
 
 	boolean isSmooth();
 
-	void setEndDelay(int ticks);
+	void setEndDelay(@ParamName("ticks") int ticks);
 
-	void setSmooth(boolean isSmooth);
+	void setSmooth(@ParamName("isSmooth") boolean isSmooth);
 
-	void setSpeed(int ticks);
+	void setSpeed(@ParamName("ticks") int ticks);
 
 	boolean isBlink();
 
-	void setBlink(boolean bo);
+	void setBlink(@ParamName("bo") boolean bo);
 
 	boolean isEndBlink();
 
-	void setEndBlink(boolean bo);
+	void setEndBlink(@ParamName("bo") boolean bo);
 	
 }

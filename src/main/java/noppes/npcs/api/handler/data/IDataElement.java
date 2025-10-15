@@ -1,5 +1,8 @@
 package noppes.npcs.api.handler.data;
 
+import noppes.npcs.api.ParamName;
+
+@SuppressWarnings("all")
 public interface IDataElement {
 
 	String getData();
@@ -14,10 +17,10 @@ public interface IDataElement {
 
 	Object getValue();
 
-	Object invoke(Object[] values);
+	Object invoke(@ParamName("values") Object[] values);
 
-	boolean isBelong(Class<?> clazz);
+	boolean isBelong(@ParamName("clazz") Class<?> clazz);
 
-	boolean setValue(Object value);
+	boolean setValue(@ParamName("value") Object value);
 
 }

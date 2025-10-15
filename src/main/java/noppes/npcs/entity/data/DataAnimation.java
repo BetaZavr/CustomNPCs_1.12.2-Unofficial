@@ -8,8 +8,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import noppes.npcs.CustomNpcs;
 import noppes.npcs.Server;
+import noppes.npcs.api.CustomNPCsException;
+import noppes.npcs.api.INbt;
 import noppes.npcs.api.constants.AnimationKind;
+import noppes.npcs.api.entity.data.IAnimation;
+import noppes.npcs.api.entity.data.IEmotion;
 import noppes.npcs.api.entity.data.INPCAnimation;
+import noppes.npcs.api.wrapper.NBTWrapper;
 import noppes.npcs.client.model.animation.*;
 import noppes.npcs.constants.*;
 import noppes.npcs.entity.EntityNPCInterface;
@@ -120,8 +125,14 @@ public class DataAnimation implements INPCAnimation {
 		emotionHandler.stopEmotion();
 	}
 
-	public boolean hasAnim(AnimationKind type) {
-		return animationHandler.hasAnim(type);
+	@Override
+	public void clear() {
+		emotionHandler.stopEmotion();
+		animationHandler.clear();
+	}
+
+	public boolean hasAnimation(AnimationKind type) {
+		return animationHandler.hasAnimation(type);
 	}
 
 	public void load(NBTTagCompound compound) {
@@ -275,5 +286,78 @@ public class DataAnimation implements INPCAnimation {
 	}
 
 	public EmotionFrame getEmotionCurrentFrame() { return emotionHandler.currentFrame; }
+
+	@Override
+	public boolean hasAnimations(int animationType) {
+		if (animationType >= 0 && animationType < AnimationKind.values().length) {
+			return hasAnimation(AnimationKind.values()[animationType]);
+		}
+		throw new CustomNPCsException("Animation type must be between 0 and " + (AnimationKind.values().length - 1));
+	}
+
+	@Override
+	public boolean hasAnimation(int animationType, int animationId) {
+		if (animationType >= 0 && animationType < AnimationKind.values().length) {
+			return hasAnimation(AnimationKind.values()[animationType], animationId);
+		}
+		throw new CustomNPCsException("Animation type must be between 0 and " + (AnimationKind.values().length - 1));
+	}
+
+	@Override
+	public INbt getNbt() { return new NBTWrapper(save(new NBTTagCompound())); }
+
+	@Override
+	public void setNbt(INbt nbt) {
+		if (nbt != null) { load(nbt.getMCNBT()); }
+	}
+
+	@Override
+	public void update() {
+		if (entity == null || !entity.isServerWorld()) { return; }
+		if (entity instanceof EntityPlayerMP) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_SET, false, entity.world.provider.getDimension(), entity.getUniqueID(), save(new NBTTagCompound())); }
+		else if (entity instanceof EntityNPCInterface) { Server.sendToAll(CustomNpcs.Server, EnumPacketClient.ANIMATION_DATA_SET, true, entity.world.provider.getDimension(), entity.getEntityId(), save(new NBTTagCompound())); }
+	}
+
+	@Override
+	public void addAnimation(int animationType, int animationId) {
+		if (animationType >= 0 && animationType < AnimationKind.values().length) {
+			addAnimation(AnimationKind.values()[animationType], animationId);
+			return;
+		}
+		throw new CustomNPCsException("Animation type must be between 0 and " + (AnimationKind.values().length - 1));
+	}
+
+	@Override
+	public IEmotion getEmotion() { return emotionHandler.activeEmotion; }
+
+	@Override
+	public void startEmotion(int emotionId) {
+		emotionHandler.tryRunEmotion(emotionId);
+	}
+
+	@Override
+	public IAnimation[] getAnimations(int animationType) {
+		if (animationType >= 0 && animationType < AnimationKind.values().length) {
+			return animationHandler.getAnimations(AnimationKind.values()[animationType]);
+		}
+		throw new CustomNPCsException("Animation type must be between 0 and " + (AnimationKind.values().length - 1));
+	}
+
+	@Override
+	public boolean removeAnimation(int animationType, int animationId) {
+		if (animationType >= 0 && animationType < AnimationKind.values().length) {
+			return removeAnimation(AnimationKind.values()[animationType], animationId);
+		}
+		throw new CustomNPCsException("Animation type must be between 0 and " + (AnimationKind.values().length - 1));
+	}
+
+	@Override
+	public void removeAnimations(int animationType) {
+		if (animationType >= 0 && animationType < AnimationKind.values().length) {
+			animationHandler.removeAnimations(AnimationKind.values()[animationType]);
+			return;
+		}
+		throw new CustomNPCsException("Animation type must be between 0 and " + (AnimationKind.values().length - 1));
+	}
 
 }

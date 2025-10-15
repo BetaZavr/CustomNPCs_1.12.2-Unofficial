@@ -1,5 +1,7 @@
 package noppes.npcs.api.gui;
 
+import noppes.npcs.api.ParamName;
+
 public interface IButton extends ICustomGuiComponent {
 
 	int getHeight();
@@ -16,12 +18,12 @@ public interface IButton extends ICustomGuiComponent {
 
 	boolean hasTexture();
 
-	IButton setLabel(String lable);
+	IButton setLabel(@ParamName("label") String label);
 
-	IButton setSize(int width, int height);
+	IButton setSize(@ParamName("width") int width, @ParamName("height") int height);
 
-	IButton setTexture(String texture);
+	IButton setTexture(@ParamName("texture") String texture);
 
-	IButton setTextureOffset(int textureX, int textureY);
+	IButton setTextureOffset(@ParamName("textureX") int textureX, @ParamName("textureY") int textureY);
 
 }

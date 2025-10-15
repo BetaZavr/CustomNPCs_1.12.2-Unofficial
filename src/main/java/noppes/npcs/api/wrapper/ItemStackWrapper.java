@@ -562,6 +562,6 @@ implements IItemStackWrapperHandler, IItemStack, ICapabilityProvider, ICapabilit
 	public IEntity<?> getOwner() { return owner; }
 
 	@Override
-	public void setOwner(IEntity<?> iEntity) { owner = iEntity; }
+	public void setOwner(IEntity<?> entity) { owner = entity; }
 
 }

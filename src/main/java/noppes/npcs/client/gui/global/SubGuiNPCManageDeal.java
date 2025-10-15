@@ -19,6 +19,7 @@ import noppes.npcs.client.gui.availability.SubGuiNpcAvailability;
 import noppes.npcs.client.gui.drop.SubGuiDropEdit;
 import noppes.npcs.client.gui.select.SubGuiColorSelector;
 import noppes.npcs.client.gui.util.*;
+import noppes.npcs.client.renderer.ModelBuffer;
 import noppes.npcs.constants.EnumGuiType;
 import noppes.npcs.constants.EnumPacketServer;
 import noppes.npcs.containers.ContainerNPCTraderSetup;
@@ -41,17 +42,19 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface
 	protected GuiCustomScroll scroll;
 	protected ResourceLocation objCase;
 	//case
-	protected Map<String, ResourceLocation> materialTextures = new HashMap<>();
+	protected Map<String, String> materialTextures = new HashMap<>();
 	protected boolean type;
 	protected boolean start;
 
 	public SubGuiNPCManageDeal(EntityNPCInterface npc, ContainerNPCTraderSetup cont) {
 		super(npc, cont);
-		setBackground("tradersetup.png");
+		setBackground("npcdrop.png");
+		drawDefaultBackground = false;
 		closeOnEsc = true;
 		xSize = 380;
 		ySize = 217;
 		menu = cont;
+		title = "";
 		for (int slotId = 0; slotId < 10; ++slotId) {
 			slotPoses[slotId][0] = menu.getSlot(slotId).xPos;
 			slotPoses[slotId][1] = menu.getSlot(slotId).yPos;
@@ -117,43 +120,119 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface
 				break;
 			} // color
 			case 9: if (deal.isCase()) { setSubGui(new SubGuiNpcDealCaseSetting(deal)); } break;
+			case 11: if (deal.isCase()) { deal.setShowInCase(((GuiNpcCheckBox) button).isSelected()); } break;
 			case 66: onClosed(); break;
 		}
 	}
 
 	@Override
 	public void onClosed() {
-		super.onClosed();
+		GuiNpcTextField.unfocus();
+		save();
+		IEditNPC screen = null;
+		if (parent instanceof IEditNPC) { screen = (IEditNPC) parent; }
+		else if (mc.currentScreen instanceof IEditNPC) { screen = (IEditNPC) mc.currentScreen; }
+		if (screen != null) {
+			screen.subGuiClosed(this);
+			screen.setSubGui(null);
+			while (screen instanceof SubGuiInterface && ((SubGuiInterface) screen).parent instanceof IEditNPC) { screen = (IEditNPC) ((SubGuiInterface) screen).parent; }
+			displayGuiScreen((GuiScreen) screen);
+			return;
+		}
 		if (parent != null) { displayGuiScreen(parent); }
+		else {
+			displayGuiScreen(null);
+			mc.setIngameFocus();
+		}
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
+		// Background
+		mc.getTextureManager().bindTexture(background);
+		drawTexturedModalRect(guiLeft, guiTop, 0, 0, 182, ySize);
+		mc.getTextureManager().bindTexture(resource);
+		drawTexturedModalRect(guiLeft + 182, guiTop, 256 - xSize + 182, 0, xSize - 182, ySize);
+		int x0 = guiLeft + 4;
+		int x1 = x0 + 59;
+		int y0 = guiTop + 3;
+		int y1 = y0 + 129;
+		int y2 = y0 + 36;
+		if (deal.getRarityColor() != 0) {
+			int color = 0xA0000000 | deal.getRarityColor();
+			drawGradientRect(x0 + 1, y0 + 2, x1, y2, 0x0, color);
+			drawGradientRect(x0 + 1, y2, x1, y1, 0x0, color);
+		}
+		// Slots
 		GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-		for (int slotId = 0; slotId < 10; ++slotId) {
-            inventorySlots.getSlot(slotId);
-            int x = guiLeft + inventorySlots.getSlot(slotId).xPos;
-			int y = guiTop + inventorySlots.getSlot(slotId).yPos;
-			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
+		for (int slotId = deal.isCase() ? 1 : 0; slotId < 10; ++slotId) {
+			int x = guiLeft + slotPoses[slotId][0];
+			int y = guiTop + slotPoses[slotId][1];
 			GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+			mc.getTextureManager().bindTexture(GuiNPCInterface.RESOURCE_SLOT);
 			drawTexturedModalRect(x - 1, y - 1, 0, 0, 18, 18);
 		}
 		int color = new Color(0x80000000).getRGB();
-		drawHorizontalLine(guiLeft + 212, guiLeft + xSize - 4, guiTop + 14, color);
-		drawHorizontalLine(guiLeft + 45, guiLeft + 210, guiTop + 133, color);
-		drawVerticalLine(guiLeft + 44, guiTop + 4, guiTop + ySize + 12, color);
-		drawVerticalLine(guiLeft + 211, guiTop + 4, guiTop + ySize + 12, color);
-		int x0 = guiLeft + 96;
-		int x1 = x0 + 63;
-		int y0 = guiTop + 14;
-		int y1 = y0 + 108;
-		int y2 = y0 + 36;
-		drawHorizontalLine(x0 + 1, x1 - 1, y0 + 1, color);
-		drawHorizontalLine(x0 + 1, x1, y1, color);
+		drawHorizontalLine(guiLeft + 170, guiLeft + xSize - 4, guiTop + 15, color);
+		drawHorizontalLine(guiLeft + 4, guiLeft + 170, guiTop + 132, color);
+		drawVerticalLine(guiLeft + 170, guiTop + 3, guiTop + ySize - 4, color);
+		drawHorizontalLine(x0 + 1, guiLeft + 170, y0 + 1, color);
 		drawHorizontalLine(x0 + 1, x1, y2, color);
-		drawVerticalLine(x0, y0, y1 + 1, color);
+		drawVerticalLine(x0, y0, guiTop + ySize - 4, color);
 		drawVerticalLine(x1, y0, y1, color);
+		// case
+		if (deal.isCase() && objCase != null) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(guiLeft + 30, guiTop + 21, 50.0f);
+			if ((System.currentTimeMillis()) % 10000 < 2000) {
+				float i = (float) ((System.currentTimeMillis()) % 2000);
+				if (!start) {
+					GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+					GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
+					GlStateManager.scale(16.0f, -16.0f, 16.0f);
+					GlStateManager.callList(ModelBuffer.getDisplayList(objCase, null, materialTextures));
+					if (i >= 1980) { start = true; }
+				}
+				else {
+					if (i <= 20) { type = rnd.nextFloat() < 0.5f; }
+					float rot;
+					if (type) {
+						if (i < 600) { rot = 0.033333f * i; }
+						else if (i < 1700) { rot = - 0.027273f * i + 36.363636f; }
+						else { rot = 0.033333f * i - 66.666666f; }
+						GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+						GlStateManager.rotate(-75.0f + rot, 0.0f, 1.0f, 0.0f);
+						GlStateManager.scale(16.0f, -16.0f, 16.0f);
+						GlStateManager.callList(ModelBuffer.getDisplayList(objCase, null, materialTextures));
+					}
+					else {
+						GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+						GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
+						GlStateManager.scale(16.0f, -16.0f, 16.0f);
+						GlStateManager.callList(ModelBuffer.getDisplayList(objCase, Collections.singletonList("body"), materialTextures));
+						if (i < 1500) { rot = 0.016667f * i; }
+						else if (i < 1900) { rot = 25.0f; }
+						else { rot = -0.25f * i + 500.0f; }
+						GlStateManager.pushMatrix();
+						GlStateManager.rotate(rot, 0.0f, 0.0f, 1.0f);
+						GlStateManager.callList(ModelBuffer.getDisplayList(objCase, Collections.singletonList("top"), materialTextures));
+						GlStateManager.popMatrix();
+					}
+				}
+			}
+			else {
+				GlStateManager.rotate(-15.0f, 1.0f, 0.0f, 0.0f);
+				GlStateManager.rotate(-75.0f, 0.0f, 1.0f, 0.0f);
+				GlStateManager.scale(16.0f, -16.0f, 16.0f);
+				GlStateManager.callList(ModelBuffer.getDisplayList(objCase, null, materialTextures));
+			}
+			GlStateManager.popMatrix();
+			drawHorizontalLine(guiLeft + 170, guiLeft + xSize - 4, guiTop + 143, color);
+		}
+		else {
+			drawHorizontalLine(guiLeft + 170, guiLeft + xSize - 4, guiTop + 160, color);
+		}
+		super.drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 	}
 
 	@Override
@@ -176,7 +255,7 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface
 		addButton(new GuiNpcButton(66, guiLeft + xSize - 17, y - 2, 12, 12, "X")
 				.setHoverText("hover.back"));
 		ICustomDrop[] caseItems = deal.getCaseItems();
-		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(102, 116); }
+		if (scroll == null) { scroll = new GuiCustomScroll(this, 0).setSize(102, 94); }
 		scroll.canSearch(false);
 		scroll.visible = deal.isCase();
 		scroll.guiLeft = x;
@@ -245,9 +324,11 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface
 		addButton(new GuiColorButton(8, x + 100, y, 80, 14, deal.getRarityColor())
 				.setHoverText("market.hover.deal.color"));
 		materialTextures.clear();
-		addButton(new GuiNpcCheckBox(10, x, y += 16, 200, 12, "market.deal.barter.true", "market.deal.barter.false", deal.showInCase())
+		addButton(new GuiNpcCheckBox(10, x, y += 16, 200, 12, "market.deal.barter.true", "market.deal.barter.false", false)
 				.setIsEnable(false));
 		if (deal.isCase()) {
+			addButton(new GuiNpcCheckBox(11, x, y += 16, 200, 12, "market.deal.show.case.info.true", "market.deal.show.case.info.false", deal.showInCase())
+					.setIsEnable(deal.isCase()));
 			addLabel(new GuiNpcLabel(lId, new TextComponentTranslation("gui.case").appendText(":"), x, (y += 17) + 1, 98, 12));
 			addButton(new GuiNpcButton(9, x + 100, y, 80, 14, "selectServer.edit")
 					.setHoverText("market.hover.deal.case"));
@@ -260,7 +341,7 @@ public class SubGuiNPCManageDeal extends GuiContainerNPCInterface
 				catch (Exception e) { objCase = null; }
 			}
 			menu.setSlotPos(0, new int[] { -5000, -5000 });
-			materialTextures.put("#material", deal.getCaseTexture());
+			materialTextures.put("minecraft:entity/chest/christmas", deal.getCaseTexture().toString());
 		}
 		else {
 			objCase = null;
